@@ -23,14 +23,17 @@ namespace Buckaroo\Magento2\Observer;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
@@ -79,17 +82,17 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private $createInvoiceService;
 
     /**
-     * @var RequestInterface
+     * @var OrderRepositoryInterface
      */
-    private $request;
+    private $orderRepository;
 
     /**
-     * @param InvoiceService          $invoiceService
-     * @param TransactionFactory      $transactionFactory
-     * @param ConfigProviderFactory   $configProviderFactory
-     * @param BuckarooLoggerInterface $logger
-     * @param CreateInvoice           $createInvoiceService
-     * @param RequestInterface        $request
+     * @param InvoiceService           $invoiceService
+     * @param TransactionFactory       $transactionFactory
+     * @param ConfigProviderFactory    $configProviderFactory
+     * @param BuckarooLoggerInterface  $logger
+     * @param CreateInvoice            $createInvoiceService
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -97,18 +100,18 @@ class SalesOrderShipmentAfter implements ObserverInterface
         ConfigProviderFactory $configProviderFactory,
         BuckarooLoggerInterface $logger,
         CreateInvoice $createInvoiceService,
-        RequestInterface $request
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
         $this->configProviderFactory = $configProviderFactory;
         $this->logger = $logger;
         $this->createInvoiceService = $createInvoiceService;
-        $this->request = $request;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
-     * Create invoice after shipment on sales_order_shipment_save_after event
+     * Create an invoice after shipment on sales_order_shipment_save_after event
      *
      * @param Observer $observer
      *
@@ -122,14 +125,13 @@ class SalesOrderShipmentAfter implements ObserverInterface
     {
         $this->shipment = $observer->getEvent()->getShipment();
 
-        $invoiceData = $this->request->getParam('shipment', []);
-        $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
-
-        $this->order = $this->shipment->getOrder();
+        $this->order = $this->orderRepository->get($this->shipment->getOrderId());
+        /** @var Order\Payment $payment */
         $payment = $this->order->getPayment();
         $paymentMethod = $payment->getMethodInstance();
         $paymentMethodCode = $paymentMethod->getCode();
 
+        /** @var Klarnakp $klarnakpConfig */
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment()
@@ -140,6 +142,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             return;
         }
 
+        /** @var Klarna $klarnaConfig */
         $klarnaConfig = $this->configProviderFactory->get('klarna');
         if (($paymentMethodCode == 'buckaroo_magento2_klarna')
             && $klarnaConfig->isInvoiceCreatedAfterShipment()
@@ -150,6 +153,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             return;
         }
 
+        /** @var Afterpay20 $afterpayConfig */
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
         if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
             && $afterpayConfig->isInvoiceCreatedAfterShipment()
@@ -170,7 +174,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
                 $this->createInvoice(true);
             } else {
-                $this->createInvoiceService->createInvoiceGeneralSetting($this->order, $invoiceItems);
+                $this->createInvoiceService->createInvoiceGeneralSetting($this->order, $this->getQtys());
             }
         }
     }
@@ -217,6 +221,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             }
 
             // Check if payment was already captured (e.g., during order reactivation)
+            /** @var Order\Payment $payment */
             $payment = $this->order->getPayment();
             $wasCaptured = $payment->getAdditionalInformation('buckaroo_already_captured');
 
@@ -234,7 +239,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             }
 
             $invoice->register();
-            $invoice->getOrder()->setCustomerNoteNotify(false);
+            $invoice->getOrder()->setCustomerNoteNotify(0);
             $invoice->getOrder()->setIsInProcess(true);
             $this->order->addCommentToStatusHistory($message);
 
@@ -270,21 +275,20 @@ class SalesOrderShipmentAfter implements ObserverInterface
     }
 
     /**
-     * Get shipped quantities
+     * Get the invoice qtys for the shipped items.
+     *
+     * Empty when the shipment completes the order, which makes the invoice
+     * cover every remaining invoiceable item.
      *
      * @return array
      */
     public function getQtys(): array
     {
-        $qtys = [];
-        foreach ($this->shipment->getItems() as $items) {
-            $qtys[$items->getOrderItemId()] = $items->getQty();
-        }
-        return $qtys;
+        return $this->createInvoiceService->getQtysFromShipment($this->shipment);
     }
 
     /**
-     * Is the invoice for the current order is created after shipment
+     * If the invoice for the current order is created after shipment
      *
      * @param OrderPaymentInterface $payment
      *
@@ -292,6 +296,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
+        /** @var Order\Payment $payment */
         return $payment->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
         ) == InvoiceHandlingOptions::SHIPMENT;
