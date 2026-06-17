@@ -1041,7 +1041,9 @@
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
                 <!-- Paid-order check -->
-                <paid_order_check>0</paid_order_check>
+                <paid_order_check>1</paid_order_check>
+                <!-- Gift card checkout message -->
+                <gift_card_invalid_message>One or more gift cards from your original order are no longer valid and could not be applied to your cart.</gift_card_invalid_message>
                 <!-- Streak de-duplication -->
                 <streak_enabled>0</streak_enabled>
                 <streak_minutes>30</streak_minutes>

@@ -18,19 +18,19 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 -->
-<!--@subject {{trans "Last chance to complete your order - %store_name" store_name=$store.getFrontendName()}} @-->
+<!--@subject {{trans "Laatste kans om je bestelling af te ronden - %store_name" store_name=$store.getFrontendName()}} @-->
 <!--@vars {
-"var formattedBillingAddress|raw":"Billing Address",
-"var formattedShippingAddress|raw":"Shipping Address",
-"var order.increment_id":"Order Id",
-"var expected_order_id":"Expected Order Id",
-"var order_data.email_customer_note|escape|nl2br":"Email Order Note",
-"layout handle=\"sales_email_order_items\" order_id=$order_id area=\"frontend\"":"Order Items Grid",
-"var payment_html|raw":"Payment Details",
-"var checkout_url":"Checkout URL",
-"var customer_name":"Customer Name",
-"var customer_email":"Customer Email",
-"var order.getShippingDescription":"Shipping Description"
+"var formattedBillingAddress|raw":"Factuuradres",
+"var formattedShippingAddress|raw":"Verzendadres",
+"var order.increment_id":"Ordernummer",
+"var expected_order_id":"Verwacht ordernummer",
+"var order_data.email_customer_note|escape|nl2br":"Opmerking bij order",
+"layout handle=\"sales_email_order_items\" order_id=$order_id area=\"frontend\"":"Orderoverzicht",
+"var payment_html|raw":"Betalingsgegevens",
+"var checkout_url":"Betaallink",
+"var customer_name":"Klantnaam",
+"var customer_email":"E-mailadres klant",
+"var order.getShippingDescription":"Verzendmethode"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -38,22 +38,22 @@
 <table>
     <tr class="email-intro">
         <td>
-            <p class="greeting">{{trans "Hello %customer_name," customer_name=$customer_name}}</p>
+            <p class="greeting">{{trans "Hallo %customer_name," customer_name=$customer_name}}</p>
             <p>
-                {{trans 'This is your <strong>final reminder</strong> about the items waiting in your cart.' |raw}}
+                {{trans 'Dit is je <strong>laatste herinnering</strong> over de artikelen die nog in je winkelwagen liggen.' |raw}}
             </p>
             <p>
-                {{trans 'Don\'t miss out! <a href="%checkout_url&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-2" style="color: #1979c3; text-decoration: none; font-weight: bold;">Complete your purchase now</a> before these items are gone.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
+                {{trans 'Mis het niet! <a href="%checkout_url&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-2" style="color: #1979c3; text-decoration: none; font-weight: bold;">Rond je aankoop nu af</a> voordat deze artikelen niet meer beschikbaar zijn.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
             </p>
             <p>
-                {{trans 'This is your last chance to secure these items at the current price.' |raw}}
+                {{trans 'Dit is je laatste kans om deze artikelen te bemachtigen tegen de huidige prijs.' |raw}}
             </p>
         </td>
     </tr>
     <tr class="email-summary">
         <td>
-            <h1 style="color: #d43f00;">{{trans 'Final Notice - Order <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
-            <p style="font-size: 18px; color: #d43f00; font-weight: bold;">{{trans 'Order Total: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+            <h1 style="color: #d43f00;">{{trans 'Laatste herinnering - Bestelling <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
+            <p style="font-size: 18px; color: #d43f00; font-weight: bold;">{{trans 'Totaalbedrag: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
         </td>
     </tr>
     <tr class="email-information">
@@ -61,48 +61,48 @@
             <table class="order-details">
                 <tr>
                     <td class="address-details">
-                        <h3>{{trans "Billing Information"}}</h3>
+                        <h3>{{trans "Factuurgegevens"}}</h3>
                         <p>{{var formattedBillingAddress|raw}}</p>
                     </td>
                     {{depend order_data.is_not_virtual}}
                     <td class="address-details">
-                        <h3>{{trans "Shipping Information"}}</h3>
+                        <h3>{{trans "Verzendgegevens"}}</h3>
                         <p>{{var formattedShippingAddress|raw}}</p>
                     </td>
                     {{/depend}}
                 </tr>
                 <tr>
                     <td class="method-info">
-                        <h3>{{trans "Payment Method"}}</h3>
+                        <h3>{{trans "Betaalmethode"}}</h3>
                         {{var payment_html|raw}}
                     </td>
                     {{depend order.shipping_description}}
                     <td class="method-info">
-                        <h3>{{trans "Shipping Method"}}</h3>
+                        <h3>{{trans "Verzendmethode"}}</h3>
                         <p>{{var order.shipping_description}}</p>
                     </td>
                     {{/depend}}
                 </tr>
             </table>
-            
+
             <div style="text-align: center; margin: 30px 0; background-color: #ffe6e6; padding: 20px; border: 2px solid #d43f00; border-radius: 10px;">
                 <p style="color: #d43f00; font-weight: bold; margin: 0 0 15px 0; font-size: 16px;">
-                    {{trans "Limited time - Don't wait any longer!"}}
+                    {{trans "Beperkte tijd - Wacht niet langer!"}}
                 </p>
                 <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-2" style="background-color: #d43f00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
-                    {{trans "Complete Order Now"}}
+                    {{trans "Bestelling nu afronden"}}
                 </a>
             </div>
-            
+
             {{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
-            
+
             <div style="margin-top: 30px; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #1979c3;">
                 <p style="margin: 0; font-style: italic;">
-                    {{trans 'Need help? Contact us at <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a> and we\'ll be happy to assist you.' store_email=$store.getStoreEmail() |raw}}
+                    {{trans 'Hulp nodig? Neem contact met ons op via <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a> en we helpen je graag verder.' store_email=$store.getStoreEmail() |raw}}
                 </p>
             </div>
         </td>
     </tr>
 </table>
 
-{{template config_path="design/email/footer_template"}} 
+{{template config_path="design/email/footer_template"}}

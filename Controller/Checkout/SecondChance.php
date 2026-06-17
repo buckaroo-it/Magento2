@@ -106,6 +106,14 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
+        // Guest order clicked while customer is logged in: log out to preserve the guest flow.
+        // Auto-login is a security risk (link reuse, shared inboxes) and would assign a guest
+        // order to the wrong account.
+        if (!$quote->getCustomerId() && $this->customerSession->isLoggedIn()) {
+            $this->customerSession->logout();
+            $this->customerSession->regenerateId();
+        }
+
         if ($quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
             $targetUrl = $this->_url->getUrl('checkout', ['_fragment' => 'payment']);
             $this->customerSession->setBeforeAuthUrl($targetUrl);
