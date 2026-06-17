@@ -33,6 +33,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Shipment;
@@ -81,28 +82,36 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private $createInvoiceService;
 
     /**
-     * @param InvoiceService          $invoiceService
-     * @param TransactionFactory      $transactionFactory
-     * @param ConfigProviderFactory   $configProviderFactory
-     * @param BuckarooLoggerInterface $logger
-     * @param CreateInvoice           $createInvoiceService
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @param InvoiceService           $invoiceService
+     * @param TransactionFactory       $transactionFactory
+     * @param ConfigProviderFactory    $configProviderFactory
+     * @param BuckarooLoggerInterface  $logger
+     * @param CreateInvoice            $createInvoiceService
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         InvoiceService $invoiceService,
         TransactionFactory $transactionFactory,
         ConfigProviderFactory $configProviderFactory,
         BuckarooLoggerInterface $logger,
-        CreateInvoice $createInvoiceService
+        CreateInvoice $createInvoiceService,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
         $this->configProviderFactory = $configProviderFactory;
         $this->logger = $logger;
         $this->createInvoiceService = $createInvoiceService;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
-     * Create invoice after shipment on sales_order_shipment_save_after event
+     * Create an invoice after shipment on sales_order_shipment_save_after event
      *
      * @param Observer $observer
      *
@@ -116,7 +125,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
     {
         $this->shipment = $observer->getEvent()->getShipment();
 
-        $this->order = $this->shipment->getOrder();
+        $this->order = $this->orderRepository->get($this->shipment->getOrderId());
         /** @var Order\Payment $payment */
         $payment = $this->order->getPayment();
         $paymentMethod = $payment->getMethodInstance();
