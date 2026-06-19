@@ -679,7 +679,7 @@ class Push
             ], true)
         ));
 
-        if ($this->totalAmountToRefund() == $this->order->getBaseGrandTotal()) {
+        if ($this->helper->areEqualAmounts($this->totalAmountToRefund(), $this->order->getBaseGrandTotal())) {
             $remainderToRefund = 0;
         }
 

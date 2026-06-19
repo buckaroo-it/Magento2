@@ -91,7 +91,6 @@ define([
             // Check if element exists in DOM before rendering
             var $container = $(container);
             if (!$container.length) {
-                console.warn('[Buckaroo PayPal] Button container element not found:', container);
                 return;
             }
 
@@ -112,7 +111,6 @@ define([
             }).render(container).then(function () {
                 self.hasRendered = true;
             }).catch(function (error) {
-                console.warn('[Buckaroo PayPal] Failed to render button:', error.message);
             });
         },
 

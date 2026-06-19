@@ -45,7 +45,6 @@ define(
 
             placeOrder: function () {
                 if (!this.googlepayPaymentData) {
-                    console.error('[GooglePay] No payment data available');
                     return;
                 }
 
@@ -60,7 +59,6 @@ define(
 
                 // Email should always be provided by Google Pay when emailRequired: true
                 if (!email || email === '') {
-                    console.error('[GooglePay] No email provided by Google Pay - emailRequired may not be configured correctly');
                 }
 
                 // Transform Google Pay address format
@@ -123,12 +121,10 @@ define(
                         if (addResponse && !addResponse.error) {
                             self.saveOrder(transformedPaymentData, productData);
                         } else {
-                            console.error('[GooglePay] Failed to add product:', addResponse);
                             alert('Failed to add product to cart: ' + (addResponse.error || 'Unknown error'));
                         }
                     },
                     error: function (xhr, status, error) {
-                        console.error('[GooglePay] Add product error:', error);
                         alert('Failed to add product to cart');
                     }
                 });
@@ -159,7 +155,6 @@ define(
                         self.afterPlaceOrder(response);
                     },
                     error: function (xhr, status, error) {
-                        console.error('[GooglePay] Order placement failed:', xhr.responseText);
                         alert('Order placement failed. Please try again.');
                     }
                 });
@@ -187,7 +182,6 @@ define(
                         window.location.href = redirectUrl;
                     }
                 } else if (response && response.error) {
-                    console.error('[GooglePay] Order error:', response.error);
                     alert(response.error);
                 }
             },
@@ -203,8 +197,6 @@ define(
             },
 
             getProductDataFromPage: function () {
-                console.log('[GooglePay order-handler] Getting product data from page');
-
                 // Try to get product data from the add to cart form
                 var form = $('#product_addtocart_form');
                 if (form.length) {

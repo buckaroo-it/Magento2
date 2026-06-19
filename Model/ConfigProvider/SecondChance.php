@@ -38,6 +38,7 @@ class SecondChance
     public const XPATH_STREAK_ENABLED = 'buckaroo_magento2/second_chance/streak_enabled';
     public const XPATH_STREAK_MINUTES = 'buckaroo_magento2/second_chance/streak_minutes';
     public const XPATH_PAID_ORDER_CHECK = 'buckaroo_magento2/second_chance/paid_order_check';
+    public const XPATH_GIFT_CARD_INVALID_MESSAGE = 'buckaroo_magento2/second_chance/gift_card_invalid_message';
 
     /**
      * @var ScopeConfigInterface
@@ -344,6 +345,22 @@ class SecondChance
     {
         return (bool) $this->scopeConfig->getValue(
             self::XPATH_PAID_ORDER_CHECK,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        );
+    }
+
+    /**
+     * Get a configurable message shown when a restored gift card is no longer valid
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return string
+     */
+    public function getGiftCardInvalidMessage($store = null): string
+    {
+        return (string) $this->scopeConfig->getValue(
+            self::XPATH_GIFT_CARD_INVALID_MESSAGE,
             ScopeInterface::SCOPE_STORE,
             $store
         );

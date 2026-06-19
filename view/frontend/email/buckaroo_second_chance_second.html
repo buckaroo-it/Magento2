@@ -43,7 +43,7 @@
                 {{trans 'This is your <strong>final reminder</strong> about the items waiting in your cart.' |raw}}
             </p>
             <p>
-                {{trans 'Don\'t miss out! <a href="%checkout_url" style="color: #1979c3; text-decoration: none; font-weight: bold;">Complete your purchase now</a> before these items are gone.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
+                {{trans 'Don\'t miss out! <a href="%checkout_url&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-2" style="color: #1979c3; text-decoration: none; font-weight: bold;">Complete your purchase now</a> before these items are gone.' store_name=$store.frontend_name checkout_url=$checkout_url |raw}}
             </p>
             <p>
                 {{trans 'This is your last chance to secure these items at the current price.' |raw}}
@@ -87,10 +87,10 @@
             
             <div style="text-align: center; margin: 30px 0; background-color: #ffe6e6; padding: 20px; border: 2px solid #d43f00; border-radius: 10px;">
                 <p style="color: #d43f00; font-weight: bold; margin: 0 0 15px 0; font-size: 16px;">
-                    {{trans "⏰ LIMITED TIME - Don't wait any longer!"}}
+                    {{trans "Limited time - Don't wait any longer!"}}
                 </p>
-                <a href="{{var checkout_url}}" style="background-color: #d43f00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
-                    {{trans "COMPLETE ORDER NOW"}}
+                <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-2" style="background-color: #d43f00; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px;">
+                    {{trans "Complete Order Now"}}
                 </a>
             </div>
             

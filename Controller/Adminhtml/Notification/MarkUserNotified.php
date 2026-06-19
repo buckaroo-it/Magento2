@@ -26,8 +26,8 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\FlagManager;
-use Psr\Log\LoggerInterface;
 
 class MarkUserNotified extends Action implements HttpPostActionInterface
 {
@@ -37,24 +37,34 @@ class MarkUserNotified extends Action implements HttpPostActionInterface
     private $flagManager;
 
     /**
-     * @var LoggerInterface $logger
+     * @var BuckarooLoggerInterface $logger
      */
     private $logger;
 
     /**
-     * @param Context         $context
-     * @param FlagManager     $flagManager
-     * @param LoggerInterface $logger
+     * @param Context                 $context
+     * @param FlagManager             $flagManager
+     * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Context $context,
         FlagManager $flagManager,
-        LoggerInterface $logger
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
 
         $this->flagManager = $flagManager;
         $this->logger = $logger;
+    }
+
+    /**
+     * Check if the current user is allowed to mark notifications as read.
+     *
+     * @return bool
+     */
+    protected function _isAllowed(): bool
+    {
+        return $this->_authorization->isAllowed('Buckaroo_Magento2::configuration');
     }
 
     /**
@@ -70,7 +80,7 @@ class MarkUserNotified extends Action implements HttpPostActionInterface
                 'error_message' => ''
             ];
         } catch (\Exception $e) {
-            $this->logger->error(sprintf(
+            $this->logger->addError(sprintf(
                 '[ReleaseNotification] | [Controller] | [%s] - Failed to set flag release notification | [ERROR]: %s',
                 __METHOD__,
                 $e->getMessage()

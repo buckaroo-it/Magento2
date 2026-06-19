@@ -24,9 +24,11 @@ namespace Buckaroo\Magento2\Gateway\Skip;
 use Buckaroo\Magento2\Gateway\Command\SkipCommandInterface;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 
 /**
- * Skip the CancelReservation command only when no DataRequest key exists.
+ * Skip the CancelReservation command when no reservation reference exists.
  */
 class KlarnaCancelVoidSkip implements SkipCommandInterface
 {
@@ -44,7 +46,7 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
     }
 
     /**
-     * Skip the CancelReservation command when there is no DataRequest key to cancel.
+     * Skip the CancelReservation command when there is no reservation to cancel.
      *
      * @param array $commandSubject
      * @return bool
@@ -54,15 +56,15 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
         $paymentDO = SubjectReader::readPayment($commandSubject);
         $payment   = $paymentDO->getPayment();
         $order     = $payment->getOrder();
+        $methodCode = (string)$payment->getMethod();
 
-        $dataRequestKey = $order->getBuckarooDatarequestKey()
-            ?? $payment->getAdditionalInformation('buckaroo_datarequest_key');
+        $reservationReference = $this->getReservationReference($order, $payment, $methodCode);
 
-        if (empty($dataRequestKey)) {
+        if (empty($reservationReference)) {
             $this->logger->addDebug(sprintf(
                 '[SKIP_CANCEL_RESERVATION - %s] | [KlarnaCancelVoidSkip] | [%s:%s] - '
-                . 'Skipping CancelReservation: no DataRequest key found. Order: %s.',
-                $payment->getMethod(),
+                . 'Skipping CancelReservation: no reservation reference found. Order: %s.',
+                $methodCode,
                 __METHOD__,
                 __LINE__,
                 $order ? $order->getIncrementId() : 'N/A'
@@ -73,14 +75,35 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
 
         $this->logger->addDebug(sprintf(
             '[CANCEL_RESERVATION - %s] | [KlarnaCancelVoidSkip] | [%s:%s] - '
-            . 'Proceeding with CancelReservation. DataRequest key: %s. Order: %s.',
-            $payment->getMethod(),
+            . 'Proceeding with CancelReservation. Reference: %s. Order: %s.',
+            $methodCode,
             __METHOD__,
             __LINE__,
-            $dataRequestKey,
+            $reservationReference,
             $order ? $order->getIncrementId() : 'N/A'
         ));
 
         return false;
+    }
+
+    /**
+     * @param \Magento\Sales\Model\Order|null $order
+     * @param \Magento\Sales\Model\Order\Payment $payment
+     * @param string $methodCode
+     * @return string|null
+     */
+    private function getReservationReference($order, $payment, string $methodCode): ?string
+    {
+        if ($methodCode === Klarna::CODE) {
+            return ($order !== null ? $order->getBuckarooDatarequestKey() : null)
+                ?? $payment->getAdditionalInformation('buckaroo_datarequest_key');
+        }
+
+        if ($methodCode === Klarnakp::CODE) {
+            return ($order !== null ? $order->getBuckarooReservationNumber() : null)
+                ?? $payment->getAdditionalInformation('buckaroo_reservation_number');
+        }
+
+        return null;
     }
 }

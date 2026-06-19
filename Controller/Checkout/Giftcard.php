@@ -88,6 +88,10 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      */
     public function execute(): Json
     {
+        if (!$this->checkoutSession->getQuote()->getId()) {
+            return $this->displayError(__('Invalid request.'));
+        }
+
         if ($this->getRequest()->getParam('cardNumber') === null) {
             return $this->displayError(__('A card number is required'));
         }
@@ -114,7 +118,7 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
                 __LINE__,
                 $th->getMessage()
             ));
-            return $this->displayError($th->getMessage());
+            return $this->displayError(__('Unable to apply giftcard. Please try again.'));
         } catch (\Throwable $th) {
             $this->logger->addError(sprintf(
                 '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',

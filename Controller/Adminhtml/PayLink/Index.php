@@ -31,6 +31,7 @@ use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\CommandManagerPoolInterface;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 
 class Index extends Action implements HttpGetActionInterface
@@ -51,21 +52,39 @@ class Index extends Action implements HttpGetActionInterface
     private $orderRepository;
 
     /**
+     * @var BuckarooLoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param Context                     $context
      * @param Http                        $request
      * @param OrderRepositoryInterface    $orderRepository
      * @param CommandManagerPoolInterface $commandManagerPool
+     * @param BuckarooLoggerInterface     $logger
      */
     public function __construct(
         Context $context,
         Http $request,
         OrderRepositoryInterface $orderRepository,
-        CommandManagerPoolInterface $commandManagerPool
+        CommandManagerPoolInterface $commandManagerPool,
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->request = $request;
         $this->orderRepository = $orderRepository;
         $this->commandManagerPool = $commandManagerPool;
+        $this->logger = $logger;
+    }
+
+    /**
+     * Check if the current user is allowed to generate PayLinks.
+     *
+     * @return bool
+     */
+    protected function _isAllowed(): bool
+    {
+        return $this->_authorization->isAllowed('Buckaroo_Magento2::paylink');
     }
 
     /**
@@ -78,14 +97,14 @@ class Index extends Action implements HttpGetActionInterface
     public function execute(): ResultInterface
     {
         $orderId = $this->request->getParam('order_id');
-        $order = $this->orderRepository->get($orderId);
 
         if (!$orderId) {
-            $this->messageManager->addErrorMessage('Order not found!');
+            $this->messageManager->addErrorMessage(__('Order not found.'));
             $redirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
             return $redirect->setUrl($this->_redirect->getRefererUrl());
         }
 
+        $order = $this->orderRepository->get($orderId);
         $payment = $order->getPayment();
         $currentPayment = $payment->getMethod();
         $payment->setMethod('buckaroo_magento2_payperemail');
@@ -103,15 +122,19 @@ class Index extends Action implements HttpGetActionInterface
                 ]
             );
         } catch (NotFoundException|CommandException $exception) {
-                $this->messageManager->addErrorMessage($exception->getMessage());
+            $this->logger->addError(
+                sprintf('[PayLink] Command error for order %s: %s', $orderId, $exception->getMessage())
+            );
+            $this->messageManager->addErrorMessage(__('Unable to generate PayLink. Please try again.'));
         } catch (Exception $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            $this->logger->addError(sprintf('[PayLink] Unexpected error for order %s: %s', $orderId, $e->getMessage()));
+            $this->messageManager->addErrorMessage(__('An unexpected error occurred. Please try again.'));
+        } finally {
+            $payment = $order->getPayment();
+            $payment->setMethod($currentPayment);
+            $payment->save();
+            $order->save();
         }
-
-        $payment = $order->getPayment();
-        $payment->setMethod($currentPayment);
-        $payment->save();
-        $order->save();
 
         $redirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $redirect->setUrl($this->_redirect->getRefererUrl());

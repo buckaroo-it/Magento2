@@ -57,49 +57,26 @@ class Template implements ArrayInterface
     {
         $options = [];
 
-        // Add default SecondChance templates
-        $options[] = [
-            'value' => 'buckaroo_second_chance_first',
-            'label' => __('SecondChance First Email (Default)')
-        ];
+        // Add all Buckaroo second chance default templates from email_templates.xml
+        foreach ($this->emailConfig->getAvailableTemplates() as $template) {
+            if (strpos($template['value'], 'buckaroo_second_chance') === 0) {
+                $options[] = [
+                    'value' => $template['value'],
+                    'label' => $template['label'] . ' (Default)'
+                ];
+            }
+        }
 
-        $options[] = [
-            'value' => 'buckaroo_second_chance_second',
-            'label' => __('SecondChance Second Email (Default)')
-        ];
-
-        // Get custom templates from the database
-        $templates = $this->templatesFactory->create()
+        // Get custom templates saved in the database
+        $customTemplates = $this->templatesFactory->create()
             ->addFieldToFilter('template_code', ['like' => '%second%chance%'])
             ->load();
 
-        foreach ($templates as $template) {
+        foreach ($customTemplates as $template) {
             $options[] = [
                 'value' => $template->getId(),
                 'label' => $template->getTemplateCode() . ' (Custom)'
             ];
-        }
-
-        // Get all available email templates that could be used
-        $availableTemplates = $this->templatesFactory->create()->load();
-
-        if ($availableTemplates->getSize() > 0) {
-            $options[] = [
-                'value' => '',
-                'label' => __('-- Other Email Templates --'),
-                'disabled' => true
-            ];
-
-            foreach ($availableTemplates as $template) {
-                // Skip if already added above
-                $templateCode = strtolower($template->getTemplateCode());
-                if (strpos($templateCode, 'second') === false || strpos($templateCode, 'chance') === false) {
-                    $options[] = [
-                        'value' => $template->getId(),
-                        'label' => $template->getTemplateCode()
-                    ];
-                }
-            }
         }
 
         return $options;

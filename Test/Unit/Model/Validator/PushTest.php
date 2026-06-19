@@ -34,7 +34,7 @@ class PushTest extends BaseTest
     public function testValidate()
     {
         $instance = $this->getInstance();
-        $result = $instance->validate(null);
-        $this->assertTrue($result);
+        $this->expectException(\LogicException::class);
+        $instance->validate(null);
     }
 }

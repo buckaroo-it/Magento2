@@ -161,6 +161,13 @@ interface PushRequestInterface
     public function setAmount($amount): void;
 
     /**
+     * Get datarequest value (used for a Klarna MOR transaction key)
+     *
+     * @return string|null
+     */
+    public function getDatarequest(): ?string;
+
+    /**
      * Get property from additional information
      *
      * @param string $propertyName

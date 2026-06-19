@@ -275,11 +275,13 @@ class OrderRequestService
 
         if ($this->order->getState() == $orderState || $force) {
             if ($dontSaveOrderUponSuccessPush) {
+                $this->order->setStatus($newStatus);
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setEntityName('invoice')
                     ->setStatus($newStatus)
                     ->save();
+                $this->order->save();
             } else {
                 $this->order->addCommentToStatusHistory($description, $newStatus);
                 $this->order->save(); // Save the order to persist state and status changes

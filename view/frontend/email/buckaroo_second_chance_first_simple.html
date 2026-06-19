@@ -1,0 +1,59 @@
+<!--
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ */
+-->
+<!--@subject {{trans "Your order at %store_name is still pending" store_name=$store.getFrontendName()}} @-->
+<!--@vars {
+"var order.increment_id":"Order Id",
+"var checkout_url":"Checkout URL",
+"var customer_name":"Customer Name"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table>
+    <tr class="email-intro">
+        <td>
+            <h2 class="title">{{trans "Dear %customer_name," customer_name=$customer_name}}</h2>
+            <p class="text">Thank you for your interest in shopping at {{config path="general/store_information/name"}}! Unfortunately, we have not yet received payment for your order with order number <strong>{{var order.increment_id}}</strong>.</p>
+            <p class="text"><strong>Please note:</strong> if you have since placed a new order or already completed the payment for order number <strong>{{var order.increment_id}}</strong>, you can disregard this email. Due to payment processing times, this email and your payment may have crossed.</p>
+            <p class="text">Complete your payment safely and quickly via the button below. If we do not receive your payment, your order will be automatically cancelled.</p>
+            <br />
+            <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table class="inner-wrapper" border="0" cellspacing="0" cellpadding="0" align="center">
+                            <tr>
+                                <td align="center">
+                                    <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" target="_blank" class="button primary">Click here to pay for your order</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <p class="text"><strong>Have you already completed your payment?</strong> Processing may take a little while. You will receive your order confirmation once we have received your payment. You can then disregard this payment reminder.</p>
+        </td>
+    </tr>
+</table>
+<br />
+<p class="text">Kind regards,<br /><br />Customer Service Team<br /><a href="{{config path="web/secure/base_url"}}?utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=payment-reminder-1">{{config path="general/store_information/name"}}</a></p>
+
+{{template config_path="design/email/footer_template"}}
