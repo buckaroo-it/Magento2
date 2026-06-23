@@ -34,11 +34,16 @@ trait AfterpayCareOfAddressTrait
         $address = $this->getAddress();
         $streetLines = $address->getStreet() ?? [];
 
-        $streetForFormatting = $this->isDachCountry($address->getCountryId())
-            ? (isset($streetLines[0]) ? [$streetLines[0]] : [])
-            : $streetLines;
-
-        $streetFormat = $this->formatStreet($streetForFormatting);
+        if ($this->isDachCountry($address->getCountryId())) {
+            $streetForFormatting = isset($streetLines[0]) ? [$streetLines[0]] : [];
+            $streetFormat = $this->formatStreet($streetForFormatting);
+        } else {
+            $streetFormat = [
+                'street' => implode(' ', $streetLines),
+                'house_number' => '',
+                'number_addition' => '',
+            ];
+        }
 
         $addressData = [
             'street' => $streetFormat['street'],
