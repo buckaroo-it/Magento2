@@ -2640,7 +2640,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\AfterpayBillingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneLandlineDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
@@ -2651,7 +2651,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\AfterpayShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneLandlineShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>

@@ -71,6 +71,11 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
             $data['identificationNumber'] = $this->getIdentificationNumber();
         }
 
+        $careOf = $this->resolveCareOf();
+        if ($careOf !== null) {
+            $data['careOf'] = $careOf;
+        }
+
         return $data;
     }
 
@@ -165,5 +170,35 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     protected function getIdentificationNumber()
     {
         return $this->getPayment()->getAdditionalInformation('customer_identificationNumber');
+    }
+
+    private const DACH_COUNTRY_IDS = ['DE', 'AT', 'CH'];
+    private const CARE_OF_MAX_LENGTH = 50;
+
+    /**
+     * @return string|null
+     */
+    private function resolveCareOf(): ?string
+    {
+        $address = $this->getAddress();
+
+        if (!in_array($address->getCountryId(), self::DACH_COUNTRY_IDS, true)) {
+            return null;
+        }
+
+        $street = $address->getStreet();
+        $careOf = $street[1] ?? null;
+
+        if ($careOf === null) {
+            return null;
+        }
+
+        $careOf = trim($careOf);
+
+        if ($careOf === '') {
+            return null;
+        }
+
+        return mb_substr($careOf, 0, self::CARE_OF_MAX_LENGTH);
     }
 }
