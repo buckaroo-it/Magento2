@@ -58,6 +58,8 @@
                 <value id="paypal" type="host">https://www.paypal.com</value>
                 <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
                 <value id="googlepay-connect" type="host">https://pay.google.com</value>
+                <value id="clicktopay-auth" type="host">https://auth.buckaroo.io</value>
+                <value id="clicktopay-api" type="host">https://clicktopay-externalapi.prod-pci.buckaroo.io</value>
             </values>
         </policy>
         <policy id="frame-src">
