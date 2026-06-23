@@ -62,16 +62,18 @@ define(
 
                 /**
                  * Initialize the BuckarooSdk ClickToPay CaptureContext and render the Drop-in UI.
-                 * Called via afterRender binding on the button container in the template.
-                 *
-                 * SDK signature: CaptureContext(buttonWrapper, paymentScreenWrapper, options)
-                 * where options must include orderInformation: { currency, totalAmount }
+                 * Only runs when this payment method is the selected one.
+                 * Overrides BuckarooSdk.TokenApi.getAccessToken to proxy through Magento (avoids CORS).
                  */
                 initializeCaptureContext: function () {
                     var self = this;
                     var config = this.buckaroo;
 
-                    if (!config || !config.clientId || !config.clientSecret) {
+                    if (this.getCode() !== this.isChecked()) {
+                        return;
+                    }
+
+                    if (!config || !config.merchantIdentifier) {
                         return;
                     }
 
@@ -87,6 +89,16 @@ define(
                     }
 
                     var grandTotal = totals.totals() ? totals.totals().grand_total : 0;
+
+                    BuckarooSdk.TokenApi.getAccessToken = function () {
+                        return $.ajax({
+                            url: window.BASE_URL + 'buckaroo/clicktopay/token',
+                            method: 'POST',
+                            data: { form_key: window.FORM_KEY }
+                        }).then(function (response) {
+                            return response.access_token;
+                        });
+                    };
 
                     try {
                         var captureContextOptions = new BuckarooSdk.ClickToPay.CaptureContextOptions(
@@ -160,6 +172,10 @@ define(
                 selectPaymentMethod: function () {
                     selectPaymentMethodAction(this.getData());
                     checkoutData.setSelectedPaymentMethod(this.item.method);
+                    var self = this;
+                    setTimeout(function () {
+                        self.initializeCaptureContext();
+                    }, 0);
                     return true;
                 },
 
