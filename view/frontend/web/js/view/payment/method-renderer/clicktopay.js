@@ -79,36 +79,36 @@ define(
                         return;
                     }
 
-                    var buttonWrapper = $('#buckaroo-clicktopay-button');
-                    var screenWrapper = $('#buckaroo-clicktopay-screen');
+                    var buttonWrapperId = '#buckaroo-clicktopay-button';
+                    var screenWrapperId = '#buckaroo-clicktopay-screen';
 
-                    if (!buttonWrapper.length || !screenWrapper.length) {
+                    if (!$(buttonWrapperId).length || !$(screenWrapperId).length) {
                         return;
                     }
 
                     var grandTotal = totals.totals() ? totals.totals().grand_total : 0;
 
                     try {
-                        var options = {
-                            merchantIdentifier: config.merchantIdentifier,
-                            targetOrigins: config.targetOrigins,
-                            country: config.country,
-                            locale: config.locale,
-                            orderInformation: {
+                        var captureContextOptions = new BuckarooSdk.ClickToPay.CaptureContextOptions(
+                            config.merchantIdentifier,
+                            config.targetOrigins,
+                            config.country,
+                            config.locale,
+                            {
                                 currency: config.currency,
                                 totalAmount: grandTotal
                             },
-                            processPaymentCallback: function (paymentData) {
+                            function (paymentData) {
                                 self.transientToken(paymentData.transientToken || '');
                                 self.identifier(paymentData.identifier || '');
                                 self.placeOrder(null, null);
                             }
-                        };
+                        );
 
                         var captureContext = new BuckarooSdk.ClickToPay.CaptureContext(
-                            buttonWrapper,
-                            screenWrapper,
-                            options
+                            buttonWrapperId,
+                            screenWrapperId,
+                            captureContextOptions
                         );
 
                         captureContext.generateAndLoadCaptureContext(
