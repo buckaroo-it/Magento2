@@ -85,8 +85,6 @@ class Clicktopay extends AbstractConfigProvider
         }
 
         return $this->fullConfig([
-            'clientId'           => $this->getClientId(),
-            'clientSecret'       => $this->getClientSecret(),
             'merchantIdentifier' => $this->getMerchantIdentifier(),
             'storeName'          => $this->getStoreName(),
             'currency'           => $this->getStoreCurrency(),

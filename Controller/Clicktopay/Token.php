@@ -28,6 +28,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\HTTP\Client\Curl;
 
 class Token implements HttpPostActionInterface
@@ -61,24 +62,32 @@ class Token implements HttpPostActionInterface
     private BuckarooLoggerInterface $logger;
 
     /**
+     * @var EncryptorInterface
+     */
+    private EncryptorInterface $encryptor;
+
+    /**
      * @param JsonFactory             $resultJsonFactory
      * @param RequestInterface        $request
      * @param ClicktopayConfig        $config
      * @param Curl                    $curl
      * @param BuckarooLoggerInterface $logger
+     * @param EncryptorInterface      $encryptor
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         RequestInterface $request,
         ClicktopayConfig $config,
         Curl $curl,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        EncryptorInterface $encryptor
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->request           = $request;
         $this->config            = $config;
         $this->curl              = $curl;
         $this->logger            = $logger;
+        $this->encryptor         = $encryptor;
     }
 
     /**
@@ -88,8 +97,10 @@ class Token implements HttpPostActionInterface
      */
     public function execute(): Json
     {
-        $clientId     = (string) $this->config->getClientId();
-        $clientSecret = (string) $this->config->getClientSecret();
+        // Both credentials are stored encrypted (obscure fields with the Encrypted backend
+        // model), so scopeConfig returns ciphertext. Decrypt them before authenticating.
+        $clientId     = (string) $this->decryptCredential((string) $this->config->getClientId());
+        $clientSecret = (string) $this->decryptCredential((string) $this->config->getClientSecret());
 
         if ($clientId === '' || $clientSecret === '') {
             $this->logger->addError('[ClicktoPay] Token proxy: clientId or clientSecret not configured');
@@ -125,6 +136,27 @@ class Token implements HttpPostActionInterface
         } catch (\Exception $e) {
             $this->logger->addError('[ClicktoPay] Token proxy exception: ' . $e->getMessage());
             return $this->errorResponse('An error occurred while fetching the access token.');
+        }
+    }
+
+    /**
+     * Decrypt an encrypted credential value stored via the Encrypted backend model.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    private function decryptCredential(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        try {
+            return (string) $this->encryptor->decrypt($value);
+        } catch (\Exception $e) {
+            $this->logger->addError('[ClicktoPay] Token proxy: failed to decrypt credential: ' . $e->getMessage());
+            return '';
         }
     }
 

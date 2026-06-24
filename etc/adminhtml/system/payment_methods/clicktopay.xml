@@ -45,11 +45,12 @@
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Method specific configuration</label>
 
-            <field id="client_id" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <field id="client_id" translate="label comment tooltip" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Client ID</label>
                 <comment><![CDATA[Enter your Click to Pay Client ID.]]></comment>
                 <tooltip>Register your application in Buckaroo Plaza under Settings &gt; Token Registration with the clicktopay scope to obtain your Client ID.</tooltip>
                 <config_path>payment/buckaroo_magento2_clicktopay/client_id</config_path>
+                <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             </field>
 
             <field id="client_secret" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

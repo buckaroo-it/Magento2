@@ -132,11 +132,10 @@ class ClicktopayTest extends BaseTest
         $clicktopay = $result['payment']['buckaroo'][Clicktopay::CODE];
         $this->assertIsArray($clicktopay);
 
-        $this->assertArrayHasKey('clientId', $clicktopay);
-        $this->assertSame('test-client-id', $clicktopay['clientId']);
-
-        $this->assertArrayHasKey('clientSecret', $clicktopay);
-        $this->assertSame('test-client-secret', $clicktopay['clientSecret']);
+        // Credentials must never be exposed to the frontend; they are decrypted and used
+        // server-side only by the Clicktopay\Token proxy controller.
+        $this->assertArrayNotHasKey('clientId', $clicktopay);
+        $this->assertArrayNotHasKey('clientSecret', $clicktopay);
 
         $this->assertArrayHasKey('merchantIdentifier', $clicktopay);
         $this->assertSame('MERCHANT-GUID-TEST', $clicktopay['merchantIdentifier']);

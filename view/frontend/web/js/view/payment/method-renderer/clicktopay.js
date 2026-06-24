@@ -123,10 +123,7 @@ define(
                             captureContextOptions
                         );
 
-                        captureContext.generateAndLoadCaptureContext(
-                            config.clientId,
-                            config.clientSecret
-                        );
+                        captureContext.generateAndLoadCaptureContext('', '');
                     } catch (e) {
                         console.error('[ClicktoPay] SDK initialization failed:', e);
                     }
