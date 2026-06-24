@@ -80,7 +80,7 @@ class BuckarooBuilderComposite implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        $this->dataBuilderService = new DataBuilderService();
+        $this->dataBuilderService->reset();
 
         $result = [];
         if ($this->usingId) {

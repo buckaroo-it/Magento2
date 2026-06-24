@@ -75,4 +75,15 @@ class DataBuilderService
         $this->data = array_diff($this->data, $data);
         return $this;
     }
+
+    /**
+     * Reset all accumulated data
+     *
+     * @return $this
+     */
+    public function reset(): DataBuilderService
+    {
+        $this->data = [];
+        return $this;
+    }
 }

@@ -4,7 +4,6 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Service\DataBuilderService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
@@ -22,19 +21,19 @@ class AmountDebitDataBuilder implements BuilderInterface
     private $amount;
 
     /**
-     * @var DataBuilderService
+     * @var CurrencyDataBuilder
      */
-    private $dataBuilderService;
+    private $currencyDataBuilder;
 
     /**
      * Constructor
      *
-     * @param DataBuilderService $dataBuilderService
+     * @param CurrencyDataBuilder $currencyDataBuilder
      */
     public function __construct(
-        DataBuilderService $dataBuilderService
+        CurrencyDataBuilder $currencyDataBuilder
     ) {
-        $this->dataBuilderService = $dataBuilderService;
+        $this->currencyDataBuilder = $currencyDataBuilder;
     }
 
     /**
@@ -44,6 +43,10 @@ class AmountDebitDataBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
+
+        $this->currencyDataBuilder->getAllowedCurrencies($paymentDO->getPayment()->getMethodInstance());
+
+        $this->amount = null;
 
         if ($this->getAmount($order)) {
             return [
@@ -79,7 +82,7 @@ class AmountDebitDataBuilder implements BuilderInterface
      */
     public function setAmount(Order $order): AmountDebitDataBuilder
     {
-        if ($this->dataBuilderService->getElement('currency') == $order->getOrderCurrencyCode()) {
+        if ($this->currencyDataBuilder->getCurrency($order) == $order->getOrderCurrencyCode()) {
             $this->amount = $order->getGrandTotal();
         } else {
             $this->amount = $order->getBaseGrandTotal();
