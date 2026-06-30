@@ -111,6 +111,7 @@ define(
                     dateValidate : '',
                     value: '',
                     phone: null,
+                    cocNumber: '',
                 },
                 redirectAfterPlaceOrder: false,
                 dp: datePicker,
@@ -141,7 +142,8 @@ define(
                         'billingName',
                         'dateValidate',
                         'value',
-                        'phone'
+                        'phone',
+                        'cocNumber'
                     ]);
 
                     this.showFinancialWarning = ko.computed(
@@ -172,6 +174,16 @@ define(
                         this
                     );
 
+                    this.showB2B = ko.computed(
+                        function () {
+                            let billing = quote.billingAddress();
+
+                            return billing !== null &&
+                                billing.company &&
+                                billing.company.trim().length > 0;
+                        },
+                        this
+                    );
 
                     return this;
                 },
@@ -185,13 +197,21 @@ define(
                     if (validPhone(this.phone())) {
                         telephone = this.phone();
                     }
+
+                    let additionalData = {
+                        "customer_billingName" : this.billingName(),
+                        "customer_telephone" : telephone
+                    };
+
+                    if (this.showB2B()) {
+                        additionalData.customer_chamberOfCommerce = this.cocNumber();
+                    } else {
+                        additionalData.customer_DoB = this.dateValidate();
+                    }
+
                     return {
                         "method" : this.item.method,
-                        "additional_data": {
-                            "customer_billingName" : this.billingName(),
-                            "customer_DoB" : this.dateValidate(),
-                            "customer_telephone" : telephone
-                        }
+                        "additional_data": additionalData
                     };
                 }
             }

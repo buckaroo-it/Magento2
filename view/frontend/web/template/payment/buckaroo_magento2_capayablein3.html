@@ -87,6 +87,7 @@
                     </div>
                     <!-- /ko -->
 
+                    <!-- ko if: !showB2B() -->
                     <div class="field required">
                         <label class="label" for="buckaroo_magento2_capayablein3_DoB"> <span data-bind="i18n: 'Date of Birth:'"> </span> </label>
                         <div class="control addon">
@@ -106,6 +107,24 @@
                                    name="payment[buckaroo_magento2_capayablein3][customer_DoB]">
                         </div>
                     </div>
+                    <!-- /ko -->
+
+                    <!-- ko if: showB2B -->
+                    <div class="field required">
+                        <label class="label" for="buckaroo_magento2_capayablein3_chamberOfCommerce"> <span data-bind="i18n: 'COC Number:'"> </span> </label>
+                        <div class="control">
+                            <input id="buckaroo_magento2_capayablein3_chamberOfCommerce"
+                                   class="input-text field"
+                                   type="text"
+                                   data-bind="
+                                   valueUpdate: 'blur',
+                                   value: cocNumber,
+                                   event: { blur: validateField }"
+                                   data-validate="{required: true}"
+                                   name="payment[buckaroo_magento2_capayablein3][customer_chamberOfCommerce]">
+                        </div>
+                    </div>
+                    <!-- /ko -->
 
                     <!-- ko if: showFinancialWarning  -->
                     <div class="field" data-bind="html: getMessageText()"></div>                    <!-- /ko -->
