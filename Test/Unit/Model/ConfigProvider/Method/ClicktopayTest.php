@@ -47,62 +47,8 @@ class ClicktopayTest extends BaseTest
      */
     public function testGetConfig(bool $active): void
     {
-        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
-        $scopeConfig->method('getValue')->willReturnMap([
-            [
-                $this->getPaymentMethodConfigPath(Clicktopay::CODE, AbstractConfigProvider::ACTIVE),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                $active,
-            ],
-            [
-                $this->getPaymentMethodConfigPath(Clicktopay::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                'EUR',
-            ],
-            [
-                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_CLIENT_ID),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                'test-client-id',
-            ],
-            [
-                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_CLIENT_SECRET),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                'test-client-secret',
-            ],
-            [
-                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_MERCHANT_IDENTIFIER),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                'MERCHANT-GUID-TEST',
-            ],
-        ]);
-
-        $storeManager = $this->createMock(StoreManagerInterface::class);
-
-        $store = $this->getMockBuilder(\Magento\Store\Model\Store::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getName', 'getCurrentCurrency', 'getBaseUrl', 'getConfig'])
-            ->getMock();
-
-        $currency = $this->getMockBuilder(\Magento\Directory\Model\Currency::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getCode'])
-            ->getMock();
-
-        if ($active) {
-            $currency->method('getCode')->willReturn('EUR');
-            $store->method('getName')->willReturn('Test Store');
-            $store->method('getCurrentCurrency')->willReturn($currency);
-            $store->method('getBaseUrl')->willReturn('https://example.com/');
-            $store->method('getConfig')->willReturn('NL');
-            $storeManager->method('getStore')->willReturn($store);
-        } else {
-            $storeManager->expects($this->never())->method('getStore');
-        }
+        $scopeConfig    = $this->createScopeConfigMock($active);
+        $storeManager   = $this->createStoreManagerMock($active);
 
         $localeResolver = $this->createMock(Resolver::class);
         if ($active) {
@@ -147,6 +93,83 @@ class ClicktopayTest extends BaseTest
         $this->assertArrayHasKey('currency', $clicktopay);
         $this->assertArrayHasKey('locale', $clicktopay);
         $this->assertArrayHasKey('targetOrigins', $clicktopay);
+    }
+
+    /**
+     * @param bool $active
+     * @return ScopeConfigInterface
+     */
+    private function createScopeConfigMock(bool $active): ScopeConfigInterface
+    {
+        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnMap([
+            [
+                $this->getPaymentMethodConfigPath(Clicktopay::CODE, AbstractConfigProvider::ACTIVE),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                $active,
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Clicktopay::CODE, AbstractConfigProvider::ALLOWED_CURRENCIES),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'EUR',
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_CLIENT_ID),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'test-client-id',
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_CLIENT_SECRET),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'test-client-secret',
+            ],
+            [
+                $this->getPaymentMethodConfigPath(Clicktopay::CODE, Clicktopay::XPATH_CLICKTOPAY_MERCHANT_IDENTIFIER),
+                ScopeInterface::SCOPE_STORE,
+                null,
+                'MERCHANT-GUID-TEST',
+            ],
+        ]);
+
+        return $scopeConfig;
+    }
+
+    /**
+     * @param bool $active
+     * @return StoreManagerInterface
+     */
+    private function createStoreManagerMock(bool $active): StoreManagerInterface
+    {
+        $storeManager = $this->createMock(StoreManagerInterface::class);
+
+        if (!$active) {
+            $storeManager->expects($this->never())->method('getStore');
+
+            return $storeManager;
+        }
+
+        $currency = $this->getMockBuilder(\Magento\Directory\Model\Currency::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getCode'])
+            ->getMock();
+        $currency->method('getCode')->willReturn('EUR');
+
+        $store = $this->getMockBuilder(\Magento\Store\Model\Store::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getName', 'getCurrentCurrency', 'getBaseUrl', 'getConfig'])
+            ->getMock();
+        $store->method('getName')->willReturn('Test Store');
+        $store->method('getCurrentCurrency')->willReturn($currency);
+        $store->method('getBaseUrl')->willReturn('https://example.com/');
+        $store->method('getConfig')->willReturn('NL');
+
+        $storeManager->method('getStore')->willReturn($store);
+
+        return $storeManager;
     }
 
     public function testGetBaseAllowedCurrencies(): void
