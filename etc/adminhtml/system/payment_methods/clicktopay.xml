@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<!--
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * It is available through the world-wide-web at this URL:
+ * https://tldrlegal.com/license/mit-license
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to support@buckaroo.nl so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this module to newer
+ * versions in the future. If you wish to customize this module for your
+ * needs please contact support@buckaroo.nl for more information.
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   https://tldrlegal.com/license/mit-license
+ -->
+<include xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_include.xsd">
+    <!-- Click to Pay Payment method group -->
+    <group id="buckaroo_magento2_clicktopay" translate="label" type="text" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
+        <label>Click to Pay</label>
+        <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\Fieldset</frontend_model>
+
+        <field id="active" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Enable Click to Pay</label>
+            <comment><![CDATA[Control the availability of this payment method.]]></comment>
+            <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
+            <config_path>payment/buckaroo_magento2_clicktopay/active</config_path>
+        </field>
+
+        <field id="title" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Title</label>
+            <comment><![CDATA[The payment method name shown during checkout. If empty, the default title is used.]]></comment>
+            <config_path>payment/buckaroo_magento2_clicktopay/title</config_path>
+        </field>
+
+        <field id="sort_order" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Sort Order</label>
+            <comment><![CDATA[Determines the sorting of payment methods.]]></comment>
+            <config_path>payment/buckaroo_magento2_clicktopay/sort_order</config_path>
+        </field>
+
+        <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Method specific configuration</label>
+
+            <field id="client_id" translate="label comment tooltip" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Client ID</label>
+                <comment><![CDATA[Enter your Click to Pay Client ID.]]></comment>
+                <tooltip>Register your application in Buckaroo Plaza under Settings &gt; Token Registration with the clicktopay scope to obtain your Client ID.</tooltip>
+                <config_path>payment/buckaroo_magento2_clicktopay/client_id</config_path>
+                <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            </field>
+
+            <field id="client_secret" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Client Secret</label>
+                <comment><![CDATA[Enter your Click to Pay Client Secret.]]></comment>
+                <tooltip>Register your application in Buckaroo Plaza under Settings &gt; Token Registration with the clicktopay scope to obtain your Client Secret.</tooltip>
+                <config_path>payment/buckaroo_magento2_clicktopay/client_secret</config_path>
+                <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+            </field>
+
+            <field id="merchant_identifier" translate="label comment tooltip" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Merchant Identifier (GUID)</label>
+                <comment><![CDATA[Enter your Buckaroo merchant GUID.]]></comment>
+                <tooltip>The Merchant GUID can be retrieved in Buckaroo Plaza under My Buckaroo &gt; General &gt; Guid.</tooltip>
+                <config_path>payment/buckaroo_magento2_clicktopay/merchant_identifier</config_path>
+            </field>
+
+            <field id="payment_fee" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment Fee</label>
+                <comment><![CDATA[Set an additional fee for this payment method. Leave empty for no additional fee.]]></comment>
+                <config_path>payment/buckaroo_magento2_clicktopay/payment_fee</config_path>
+                <validate>validate-number</validate>
+            </field>
+
+            <field id="payment_fee_label" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment Fee Label</label>
+                <comment><![CDATA[Label shown next to the payment fee during checkout.]]></comment>
+                <config_path>payment/buckaroo_magento2_clicktopay/payment_fee_label</config_path>
+            </field>
+
+            <field id="active_status" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Describe Transaction In Order Status History</label>
+                <comment><![CDATA[Show a status update in the order status history.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <config_path>payment/buckaroo_magento2_clicktopay/active_status</config_path>
+            </field>
+
+            <field id="order_status_success" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Status After Successful Payment</label>
+                <comment><![CDATA[The order status set after a successful payment.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
+                <config_path>payment/buckaroo_magento2_clicktopay/order_status_success</config_path>
+                <can_be_empty>1</can_be_empty>
+            </field>
+
+            <field id="order_status_failed" translate="label comment" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Status After Failed Payment</label>
+                <comment><![CDATA[The order status set after a failed payment.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
+                <config_path>payment/buckaroo_magento2_clicktopay/order_status_failed</config_path>
+                <can_be_empty>1</can_be_empty>
+            </field>
+
+            <field id="min_order_amount" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Minimum Order Amount</label>
+                <comment><![CDATA[Leave empty for no minimum.]]></comment>
+                <config_path>payment/buckaroo_magento2_clicktopay/min_order_amount</config_path>
+                <validate>validate-number</validate>
+            </field>
+
+            <field id="max_order_amount" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Maximum Order Amount</label>
+                <comment><![CDATA[Leave empty for no maximum.]]></comment>
+                <config_path>payment/buckaroo_magento2_clicktopay/max_order_amount</config_path>
+                <validate>validate-number</validate>
+            </field>
+
+            <field id="allowed_currencies" translate="label comment tooltip" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allowed Currencies</label>
+                <comment><![CDATA[Select payment method specific currencies.]]></comment>
+                <tooltip>Your contract with Buckaroo must allow for the selected currencies to be used with this payment method.</tooltip>
+                <config_path>payment/buckaroo_magento2_clicktopay/allowed_currencies</config_path>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllowedCurrencies::clicktopay</source_model>
+                <backend_model>Buckaroo\Magento2\Model\Config\Backend\AllowedCurrencies</backend_model>
+            </field>
+
+            <field id="allowspecific" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Allowed Countries</label>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\AllOrSpecificCountries</source_model>
+                <config_path>payment/buckaroo_magento2_clicktopay/allowspecific</config_path>
+            </field>
+
+            <field id="specificcountry" translate="label comment" type="multiselect" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Payment from Specific Country</label>
+                <comment><![CDATA[Only available when set to 'specific countries'.]]></comment>
+                <source_model>Magento\Config\Model\Config\Source\Locale\Country</source_model>
+                <config_path>payment/buckaroo_magento2_clicktopay/specificcountry</config_path>
+                <depends>
+                    <field id="allowspecific">1</field>
+                </depends>
+            </field>
+        </group>
+    </group>
+</include>
