@@ -59,6 +59,8 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CLIENT_SIDE_MODE              = 'client_side_mode';
     public const CUSTOMER_ACCOUNT_NAME         = 'customer_account_name';
     public const GOOGLEPAYPAYMENTDATA          = 'googlepayPaymentData';
+    public const CLICKTOPAY_TRANSIENT_TOKEN    = 'transient_token';
+    public const CLICKTOPAY_IDENTIFIER         = 'identifier';
 
     /**
      * @var array
@@ -94,7 +96,9 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::CUSTOMER_BIC,
         self::CLIENT_SIDE_MODE,
         self::CUSTOMER_ACCOUNT_NAME,
-        self::GOOGLEPAYPAYMENTDATA
+        self::GOOGLEPAYPAYMENTDATA,
+        self::CLICKTOPAY_TRANSIENT_TOKEN,
+        self::CLICKTOPAY_IDENTIFIER
     ];
 
     /**

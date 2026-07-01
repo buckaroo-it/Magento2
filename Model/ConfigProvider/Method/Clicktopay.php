@@ -184,7 +184,20 @@ class Clicktopay extends AbstractConfigProvider
      */
     public function getStoreBaseUrl(): string
     {
-        return rtrim((string) $this->storeManager->getStore()->getBaseUrl(), '/');
+        $baseUrl = (string) $this->storeManager->getStore()->getBaseUrl();
+        $parts   = parse_url($baseUrl);
+
+        if (empty($parts['scheme']) || empty($parts['host'])) {
+            return rtrim($baseUrl, '/');
+        }
+
+        $origin = $parts['scheme'] . '://' . $parts['host'];
+
+        if (!empty($parts['port'])) {
+            $origin .= ':' . $parts['port'];
+        }
+
+        return $origin;
     }
 
     /**

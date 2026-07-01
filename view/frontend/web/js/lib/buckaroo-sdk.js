@@ -934,7 +934,23 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
             var script = document.createElement("script");
             script.src = scriptUrl;
             script.type = "text/javascript";
+            // SecureAcceptance.js is a UMD module. When an AMD loader (e.g. Magento's
+            // RequireJS) exposes `define.amd`, the UMD wrapper registers with the loader
+            // instead of attaching the global `Accept`. Hide the AMD marker for exactly
+            // this script's load (leaving `define` itself intact so RequireJS keeps
+            // working) and restore it in the load/error handlers. No-op when there is
+            // no AMD loader.
+            var amdMarker = window.define && window.define.amd;
+            if (amdMarker) {
+                window.define.amd = undefined;
+            }
+            var restoreAmd = function () {
+                if (amdMarker && window.define) {
+                    window.define.amd = amdMarker;
+                }
+            };
             script.addEventListener("load", function () {
+                restoreAmd();
                 if (typeof Accept !== "function")
                     throw Error("ClickToPay: Accept is not available after loading the script.");
                 Accept(captureContextJwt)
@@ -949,6 +965,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
                     });
             });
             script.onerror = function () {
+                restoreAmd();
                 console.error("ClickToPay: Failed to load script: " + scriptUrl);
             };
             document.getElementsByTagName("head")[0].appendChild(script);

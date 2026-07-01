@@ -123,10 +123,40 @@ define(
                             captureContextOptions
                         );
 
+                        // The GenerateCaptureContext API returns PascalCase keys
+                        // (Successful, ScriptUrl, Jwt, Identifier, ErrorReason) but the
+                        // SDK reads camelCase. Normalize the response so the SDK's
+                        // success check and Drop-in UI initialization work.
+                        var originalGenerateCaptureContext = captureContext.generateCaptureContext;
+                        captureContext.generateCaptureContext = function (accessToken) {
+                            return originalGenerateCaptureContext.call(this, accessToken)
+                                .then(function (response) {
+                                    return self.normalizeCaptureContext(response);
+                                });
+                        };
+
                         captureContext.generateAndLoadCaptureContext('', '');
                     } catch (e) {
                         console.error('[ClicktoPay] SDK initialization failed:', e);
                     }
+                },
+
+                /**
+                 * Map a capture-context response to camelCase top-level keys.
+                 * The API returns PascalCase (Successful, ScriptUrl, Jwt, ...) while the
+                 * SDK reads camelCase; lowercasing the first letter is idempotent for
+                 * already-camelCase responses. Returns a new object (no mutation).
+                 */
+                normalizeCaptureContext: function (response) {
+                    if (!response || typeof response !== 'object') {
+                        return response;
+                    }
+
+                    return Object.keys(response).reduce(function (accumulator, key) {
+                        var camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+                        accumulator[camelKey] = response[key];
+                        return accumulator;
+                    }, {});
                 },
 
                 /**

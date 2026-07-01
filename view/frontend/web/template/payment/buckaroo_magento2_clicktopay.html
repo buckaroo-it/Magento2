@@ -79,22 +79,5 @@
         <div id="buckaroo-clicktopay-screen"
              style="margin: 10px 0;">
         </div>
-
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button id="button-action-checkout-clicktopay"
-                        class="action primary checkout"
-                        type="submit"
-                        data-bind="
-                        click: placeOrder,
-                        attr: {title: $t('Place Order')},
-                        enable: (getCode() == isChecked()),
-                        css: {disabled: !isPlaceOrderActionAllowed() }
-                        "
-                        disabled>
-                    <span data-bind="i18n: 'Place Order'"></span>
-                </button>
-            </div>
-        </div>
     </div>
 </div>
