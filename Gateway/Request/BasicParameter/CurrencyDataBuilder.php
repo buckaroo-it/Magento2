@@ -46,7 +46,7 @@ class CurrencyDataBuilder implements BuilderInterface
     /**
      * @var array
      */
-    private $allowedCurrencies;
+    private $allowedCurrencies = [];
 
     /**
      * Constructor
@@ -69,6 +69,8 @@ class CurrencyDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
         $this->setAllowedCurrencies($paymentDO->getPayment()->getMethodInstance());
+
+        $this->currency = null;
 
         return [
             self::KEY_CURRENCY => $this->getCurrency($order)
@@ -93,7 +95,7 @@ class CurrencyDataBuilder implements BuilderInterface
             );
         }
         $configProvider = $this->configProviderMethodFactory->get($method);
-        $this->allowedCurrencies = $configProvider->getAllowedCurrencies();
+        $this->allowedCurrencies = $configProvider->getAllowedCurrencies() ?? [];
 
         return $this;
     }
