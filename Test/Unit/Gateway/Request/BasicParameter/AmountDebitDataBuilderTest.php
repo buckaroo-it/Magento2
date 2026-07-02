@@ -22,16 +22,16 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder;
-use Buckaroo\Magento2\Service\DataBuilderService;
+use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
 {
     /**
-     * @var DataBuilderService|MockObject
+     * @var CurrencyDataBuilder|MockObject
      */
-    private $dataBuilderServiceMock;
+    private $currencyDataBuilderMock;
 
     /**
      * @var AmountDebitDataBuilder
@@ -45,9 +45,9 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->dataBuilderServiceMock = $this->createMock(DataBuilderService::class);
+        $this->currencyDataBuilderMock = $this->createMock(CurrencyDataBuilder::class);
 
-        $this->builder = new AmountDebitDataBuilder($this->dataBuilderServiceMock);
+        $this->builder = new AmountDebitDataBuilder($this->currencyDataBuilderMock);
     }
 
     /**
@@ -86,9 +86,11 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
             'payment' => $this->getPaymentDOMock()
         ];
 
-        $this->dataBuilderServiceMock->method('getElement')
-            ->with('currency')
-            ->willReturn($serviceCurrency);
+        // null serviceCurrency means the service resolved a currency different from the order currency
+        $this->currencyDataBuilderMock->method('getAllowedCurrencies')
+            ->willReturn([]);
+        $this->currencyDataBuilderMock->method('getCurrency')
+            ->willReturn($serviceCurrency ?? 'EUR');
 
         $result = $this->builder->build($buildSubject);
 
@@ -141,8 +143,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
         $this->orderMock->method('getOrderCurrencyCode')
             ->willReturn('USD');
 
-        $this->dataBuilderServiceMock->method('getElement')
-            ->with('currency')
+        $this->currencyDataBuilderMock->method('getCurrency')
             ->willReturn('USD');
 
         $this->orderMock->method('getGrandTotal')
@@ -156,8 +157,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
         $this->orderMock->method('getOrderCurrencyCode')
             ->willReturn('USD');
 
-        $this->dataBuilderServiceMock->method('getElement')
-            ->with('currency')
+        $this->currencyDataBuilderMock->method('getCurrency')
             ->willReturn('EUR');
 
         $this->orderMock->method('getBaseGrandTotal')
