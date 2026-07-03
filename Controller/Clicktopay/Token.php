@@ -24,17 +24,15 @@ namespace Buckaroo\Magento2\Controller\Clicktopay;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay as ClicktopayConfig;
+use Buckaroo\Magento2\Service\OauthTokenService;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
-use Magento\Framework\HTTP\Client\Curl;
 
 class Token implements HttpPostActionInterface
 {
-    private const AUTH_ENDPOINT = 'https://auth.buckaroo.io/oauth/token';
-    private const SCOPE         = 'clicktopay:save';
+    private const SCOPE = 'clicktopay:save';
 
     /**
      * @var JsonFactory
@@ -42,19 +40,14 @@ class Token implements HttpPostActionInterface
     private JsonFactory $resultJsonFactory;
 
     /**
-     * @var RequestInterface
-     */
-    private RequestInterface $request;
-
-    /**
      * @var ClicktopayConfig
      */
     private ClicktopayConfig $config;
 
     /**
-     * @var Curl
+     * @var OauthTokenService
      */
-    private Curl $curl;
+    private OauthTokenService $tokenService;
 
     /**
      * @var BuckarooLoggerInterface
@@ -68,24 +61,21 @@ class Token implements HttpPostActionInterface
 
     /**
      * @param JsonFactory             $resultJsonFactory
-     * @param RequestInterface        $request
      * @param ClicktopayConfig        $config
-     * @param Curl                    $curl
+     * @param OauthTokenService       $tokenService
      * @param BuckarooLoggerInterface $logger
      * @param EncryptorInterface      $encryptor
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
-        RequestInterface $request,
         ClicktopayConfig $config,
-        Curl $curl,
+        OauthTokenService $tokenService,
         BuckarooLoggerInterface $logger,
         EncryptorInterface $encryptor
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->request           = $request;
         $this->config            = $config;
-        $this->curl              = $curl;
+        $this->tokenService      = $tokenService;
         $this->logger            = $logger;
         $this->encryptor         = $encryptor;
     }
@@ -93,50 +83,30 @@ class Token implements HttpPostActionInterface
     /**
      * Proxy the Click to Pay OAuth client_credentials token request to avoid CORS.
      *
+     * Token fetching and server-side caching live in OauthTokenService, shared
+     * with the Hosted Fields token proxy.
+     *
      * @return Json
      */
     public function execute(): Json
     {
         // Both credentials are stored encrypted (obscure fields with the Encrypted backend
         // model), so scopeConfig returns ciphertext. Decrypt them before authenticating.
-        $clientId     = (string) $this->decryptCredential((string) $this->config->getClientId());
-        $clientSecret = (string) $this->decryptCredential((string) $this->config->getClientSecret());
+        $clientId     = $this->decryptCredential((string) $this->config->getClientId());
+        $clientSecret = $this->decryptCredential((string) $this->config->getClientSecret());
 
         if ($clientId === '' || $clientSecret === '') {
             $this->logger->addError('[ClicktoPay] Token proxy: clientId or clientSecret not configured');
             return $this->errorResponse('Click to Pay credentials are not configured.');
         }
 
-        try {
-            $credentials = base64_encode($clientId . ':' . $clientSecret);
-
-            $this->curl->setHeaders([
-                'Authorization' => 'Basic ' . $credentials,
-                'Content-Type'  => 'application/x-www-form-urlencoded',
-            ]);
-
-            $this->curl->post(
-                self::AUTH_ENDPOINT,
-                http_build_query([
-                    'grant_type' => 'client_credentials',
-                    'scope'      => self::SCOPE,
-                ])
-            );
-
-            $body = $this->curl->getBody();
-            $data = json_decode($body, true);
-
-            if (!isset($data['access_token'])) {
-                $this->logger->addError('[ClicktoPay] Token proxy: unexpected response', ['body' => $body]);
-                return $this->errorResponse('Failed to obtain access token.');
-            }
-
-            $result = $this->resultJsonFactory->create();
-            return $result->setData(['access_token' => $data['access_token']]);
-        } catch (\Exception $e) {
-            $this->logger->addError('[ClicktoPay] Token proxy exception: ' . $e->getMessage());
-            return $this->errorResponse('An error occurred while fetching the access token.');
+        $token = $this->tokenService->getToken($clientId, $clientSecret, self::SCOPE);
+        if ($token === null) {
+            return $this->errorResponse('Failed to obtain access token.');
         }
+
+        $result = $this->resultJsonFactory->create();
+        return $result->setData($token);
     }
 
     /**

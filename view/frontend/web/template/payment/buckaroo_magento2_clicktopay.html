@@ -71,6 +71,9 @@
         </div>
 
         <!-- Click to Pay Drop-in UI containers; SDK renders button and payment screen here -->
+        <div class="field init-error mage-error"
+             data-bind="text: initErrorMessage, visible: initErrorMessage"></div>
+
         <div id="buckaroo-clicktopay-button"
              style="margin: 10px 0;"
              data-bind="afterRender: initializeCaptureContext">

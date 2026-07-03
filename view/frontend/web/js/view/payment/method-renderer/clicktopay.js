@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
         'Magento_Checkout/js/model/totals',
-        'BuckarooSdk'
+        'BuckarooSdk',
+        'mage/translate'
     ],
     function (
         $,
@@ -53,25 +54,34 @@ define(
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
                 buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_clicktopay,
 
+                buttonWrapperId: '#buckaroo-clicktopay-button',
+                screenWrapperId: '#buckaroo-clicktopay-screen',
+                accessTokenCache: null,
+                captureContextAmount: null,
+                initSequence: 0,
+                totalsSubscription: null,
+                totalsDebounceTimer: null,
+
                 initObservable: function () {
-                    this._super().observe(['transientToken', 'identifier']);
+                    this._super().observe(['transientToken', 'identifier', 'initErrorMessage']);
                     this.transientToken('');
                     this.identifier('');
+                    this.initErrorMessage('');
                     return this;
                 },
 
                 /**
                  * Initialize the BuckarooSdk ClickToPay CaptureContext and render the Drop-in UI.
-                 * Only runs when this payment method is the selected one.
-                 * Overrides BuckarooSdk.TokenApi.getAccessToken to proxy through Magento (avoids CORS).
+                 *
+                 * Runs eagerly when the payment step renders (afterRender binding) so the
+                 * Drop-in UI is already there when the shopper selects the method, instead
+                 * of starting a token -> capture-context -> script-load waterfall on click.
+                 * Idempotent: re-runs only when the grand total changed, superseding any
+                 * still-pending initialization for a stale amount.
                  */
                 initializeCaptureContext: function () {
                     var self = this;
                     var config = this.buckaroo;
-
-                    if (this.getCode() !== this.isChecked()) {
-                        return;
-                    }
 
                     if (!config || !config.merchantIdentifier) {
                         return;
@@ -81,27 +91,26 @@ define(
                         return;
                     }
 
-                    var buttonWrapperId = '#buckaroo-clicktopay-button';
-                    var screenWrapperId = '#buckaroo-clicktopay-screen';
-
-                    if (!$(buttonWrapperId).length || !$(screenWrapperId).length) {
+                    if (!$(this.buttonWrapperId).length || !$(this.screenWrapperId).length) {
                         return;
                     }
 
+                    this.subscribeToTotalsChanges();
+
                     var grandTotal = totals.totals() ? totals.totals().grand_total : 0;
 
-                    BuckarooSdk.TokenApi.getAccessToken = function () {
-                        return $.ajax({
-                            url: window.BASE_URL + 'buckaroo/clicktopay/token',
-                            method: 'POST',
-                            data: { form_key: window.FORM_KEY }
-                        }).then(function (response) {
-                            return response.access_token;
-                        });
-                    };
+                    if (!grandTotal || grandTotal === this.captureContextAmount) {
+                        return;
+                    }
 
+                    this.captureContextAmount = grandTotal;
+                    this.initErrorMessage('');
+                    var sequence = ++this.initSequence;
+
+                    var captureContext;
+                    var captureContextOptions;
                     try {
-                        var captureContextOptions = new BuckarooSdk.ClickToPay.CaptureContextOptions(
+                        captureContextOptions = new BuckarooSdk.ClickToPay.CaptureContextOptions(
                             config.merchantIdentifier,
                             config.targetOrigins,
                             config.country,
@@ -117,28 +126,121 @@ define(
                             }
                         );
 
-                        var captureContext = new BuckarooSdk.ClickToPay.CaptureContext(
-                            buttonWrapperId,
-                            screenWrapperId,
+                        captureContext = new BuckarooSdk.ClickToPay.CaptureContext(
+                            this.buttonWrapperId,
+                            this.screenWrapperId,
                             captureContextOptions
                         );
-
-                        // The GenerateCaptureContext API returns PascalCase keys
-                        // (Successful, ScriptUrl, Jwt, Identifier, ErrorReason) but the
-                        // SDK reads camelCase. Normalize the response so the SDK's
-                        // success check and Drop-in UI initialization work.
-                        var originalGenerateCaptureContext = captureContext.generateCaptureContext;
-                        captureContext.generateCaptureContext = function (accessToken) {
-                            return originalGenerateCaptureContext.call(this, accessToken)
-                                .then(function (response) {
-                                    return self.normalizeCaptureContext(response);
-                                });
-                        };
-
-                        captureContext.generateAndLoadCaptureContext('', '');
                     } catch (e) {
+                        this.captureContextAmount = null;
+                        this.initErrorMessage(this.getInitErrorText());
                         console.error('[ClicktoPay] SDK initialization failed:', e);
+                        return;
                     }
+
+                    this.fetchAccessToken()
+                        .then(function (accessToken) {
+                            return captureContext.generateCaptureContext(accessToken);
+                        })
+                        .then(function (response) {
+                            // The GenerateCaptureContext API returns PascalCase keys
+                            // (Successful, ScriptUrl, Jwt, Identifier, ErrorReason) but the
+                            // SDK reads camelCase. Normalize the response so the success
+                            // check and Drop-in UI initialization work.
+                            return self.normalizeCaptureContext(response);
+                        })
+                        .then(function (context) {
+                            if (sequence !== self.initSequence) {
+                                // A newer initialization (changed grand total) superseded this one.
+                                return;
+                            }
+
+                            if (!context || !context.successful || !context.scriptUrl || !context.jwt) {
+                                throw new Error(
+                                    (context && context.errorReason) || 'Capture context response was not successful.'
+                                );
+                            }
+
+                            $(self.buttonWrapperId).empty();
+                            $(self.screenWrapperId).empty();
+
+                            BuckarooSdk.ClickToPay.initiateClickToPayDropInUI(
+                                context.identifier,
+                                context.scriptUrl,
+                                context.jwt,
+                                self.buttonWrapperId,
+                                self.screenWrapperId,
+                                captureContextOptions.processPaymentCallback
+                            );
+
+                            self.initErrorMessage('');
+                        })
+                        .catch(function (e) {
+                            if (sequence === self.initSequence) {
+                                self.captureContextAmount = null;
+                                self.initErrorMessage(self.getInitErrorText());
+                            }
+                            console.error('[ClicktoPay] SDK initialization failed:', e);
+                        });
+                },
+
+                /**
+                 * Shopper-facing message shown when the Drop-in UI could not be
+                 * initialized; mirrors the Hosted Fields (credit cards) wording.
+                 */
+                getInitErrorText: function () {
+                    return $.mage.__('An error occurred, please try another payment method or try again later.');
+                },
+
+                /**
+                 * Fetch the Click to Pay access token via the Magento proxy (avoids CORS),
+                 * caching it client-side until shortly before it expires so re-initialization
+                 * (e.g. after a coupon changes the grand total) skips the Magento round trip.
+                 */
+                fetchAccessToken: function () {
+                    var self = this;
+
+                    if (this.accessTokenCache && this.accessTokenCache.expiresAt > Date.now()) {
+                        return $.Deferred().resolve(this.accessTokenCache.token).promise();
+                    }
+
+                    return $.ajax({
+                        url: window.BASE_URL + 'buckaroo/clicktopay/token',
+                        method: 'POST',
+                        data: { form_key: window.FORM_KEY }
+                    }).then(function (response) {
+                        var expiresIn = parseInt(response.expires_in, 10) || 0;
+
+                        if (response.access_token && expiresIn > 0) {
+                            self.accessTokenCache = {
+                                token: response.access_token,
+                                expiresAt: Date.now() + (expiresIn * 1000)
+                            };
+                        }
+
+                        return response.access_token;
+                    });
+                },
+
+                /**
+                 * Re-initialize the capture context when the grand total changes
+                 * (coupon applied, shipping change, ...) so the amount shown in the
+                 * Click to Pay UI stays in sync with the quote. Debounced because
+                 * totals can emit several times for a single update.
+                 */
+                subscribeToTotalsChanges: function () {
+                    var self = this;
+
+                    if (this.totalsSubscription) {
+                        return;
+                    }
+
+                    this.totalsSubscription = totals.totals.subscribe(function () {
+                        clearTimeout(self.totalsDebounceTimer);
+                        self.totalsDebounceTimer = setTimeout(function () {
+                            self.initializeCaptureContext();
+                        }, 300);
+                    });
                 },
 
                 /**
