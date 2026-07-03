@@ -21,102 +21,46 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Creditcard;
 
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\HTTP\Client\Curl;
+use Buckaroo\Magento2\Service\OauthTokenService;
 
 /**
  * Fetches OAuth access tokens for Hosted Fields (credit card) from Buckaroo's auth API.
  *
- * Extracted from the GetToken controller so the HTTP concern lives in a single,
- * testable place and the controller stays thin.
+ * Thin adapter around the shared OauthTokenService, which adds server-side
+ * (encrypted) token caching and a request timeout. Kept as a separate class so
+ * existing integrations against this contract keep working.
  */
 class HostedFieldsTokenClient
 {
-    /**
-     * Buckaroo OAuth token endpoint.
-     */
-    private const TOKEN_URL = 'https://auth.buckaroo.io/oauth/token';
+    private const SCOPE = 'hostedfields:save';
 
     /**
-     * @var Curl
+     * @var OauthTokenService
      */
-    private $curlClient;
+    private OauthTokenService $tokenService;
 
     /**
-     * @var BuckarooLoggerInterface
+     * @param OauthTokenService $tokenService
      */
-    private $logger;
-
-    /**
-     * @param Curl $curlClient
-     * @param BuckarooLoggerInterface $logger
-     */
-    public function __construct(
-        Curl $curlClient,
-        BuckarooLoggerInterface $logger
-    ) {
-        $this->curlClient = $curlClient;
-        $this->logger = $logger;
+    public function __construct(OauthTokenService $tokenService)
+    {
+        $this->tokenService = $tokenService;
     }
 
     /**
      * Fetch an OAuth access token using the client-credentials grant.
      *
+     * Served from the shared server-side cache when a still-valid token exists;
+     * expires_in is the remaining lifetime, so the frontend refresh scheduling
+     * keeps working with cached tokens.
+     *
      * @param string $clientId
      * @param string $clientSecret
      *
-     * @return array|null Decoded response payload, or null when it could not be decoded
-     *
-     * @throws LocalizedException
+     * @return array{access_token: string, expires_in: int}|null null when the token could not be obtained
      */
     public function fetchToken(string $clientId, string $clientSecret): ?array
     {
-        $response = $this->sendPostRequest(
-            self::TOKEN_URL,
-            $clientId,
-            $clientSecret,
-            [
-                'scope'      => 'hostedfields:save',
-                'grant_type' => 'client_credentials'
-            ]
-        );
-
-        return json_decode($response, true);
-    }
-
-    /**
-     * Send a POST request using Magento's Curl client.
-     *
-     * @param string $url
-     * @param string $username
-     * @param string $password
-     * @param array $postData
-     *
-     * @return string
-     *
-     * @throws LocalizedException
-     */
-    private function sendPostRequest(string $url, string $username, string $password, array $postData): string
-    {
-        try {
-            // Set Basic Auth credentials without base64_encode()
-            $this->curlClient->setCredentials($username, $password);
-
-            // Set the headers and post fields
-            $this->curlClient->addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-            // Send the POST request
-            $this->curlClient->post($url, http_build_query($postData));
-
-            // Get the response body
-            return $this->curlClient->getBody();
-        } catch (\Exception $e) {
-            $this->logger->addError('Curl request error: ' . $e->getMessage());
-            throw new LocalizedException(
-                __('Error occurred during cURL request: %1', $e->getMessage()),
-                $e
-            );
-        }
+        return $this->tokenService->getToken($clientId, $clientSecret, self::SCOPE);
     }
 }

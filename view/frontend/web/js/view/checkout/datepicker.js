@@ -19,7 +19,7 @@
 define(
     [
         'jquery',
-        'jquery/ui',
+        'jquery-ui-modules/datepicker',
         'mage/translate'
     ],
     function ($) {
