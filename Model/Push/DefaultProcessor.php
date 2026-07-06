@@ -54,7 +54,6 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\Transaction\Status\Response;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -1988,11 +1987,9 @@ class DefaultProcessor implements PushProcessorInterface
         $orderIsCanceledOrWillBeCanceled = $this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED;
 
         $statusCode = $this->pushRequest->getStatusCode();
-        $statusCodeInt = $statusCode !== null ? (int)$statusCode : 0;
-        $isSuccessfulPayment = $this->isSuccessfulPaymentStatus($statusCodeInt);
 
-        if ($this->shouldSendPendingPaymentEmail($isSuccessfulPayment, $store, $paymentMethod)) {
-            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Success Status: ' . $statusCode . ')');
+        if ($this->shouldSendPendingPaymentEmail($orderIsCanceledOrWillBeCanceled, $store, $paymentMethod)) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Pending Status: ' . $statusCode . ')');
             $this->orderRequestService->sendOrderEmail($this->order);
         } else {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SKIP EMAIL (Status: ' . $statusCode . ', EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
@@ -2000,18 +1997,23 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Check if pending payment email should be sent
+     * Check if a pending payment email should be sent
      *
-     * @param bool  $isSuccessfulPayment
+     * This path is only reachable for methods where canProcessPendingPush() is true
+     * (Transfer, SEPA Direct Debit, PayPerEmail); for those a pending status
+     * (790/791/792) is the expected "order placed" signal, so the confirmation
+     * email must be sent unless the order is canceled.
+     *
+     * @param bool  $orderIsCanceledOrWillBeCanceled
      * @param mixed $store
      * @param mixed $paymentMethod
      *
      * @return bool
      */
-    private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
+    private function shouldSendPendingPaymentEmail(bool $orderIsCanceledOrWillBeCanceled, $store, $paymentMethod): bool
     {
         return !$this->order->getEmailSent()
-            && $isSuccessfulPayment
+            && !$orderIsCanceledOrWillBeCanceled
             && (
                 $this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -2184,18 +2186,6 @@ class DefaultProcessor implements PushProcessorInterface
         $words = explode('_', $field);
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
-    }
-
-    /**
-     * Checks if a given status code is a successful payment status.
-     *
-     * @param int $statusCode
-     *
-     * @return bool
-     */
-    private function isSuccessfulPaymentStatus(int $statusCode): bool
-    {
-        return $statusCode === Response::STATUSCODE_SUCCESS;
     }
 
     /**
