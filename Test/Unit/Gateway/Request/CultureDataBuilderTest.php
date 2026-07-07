@@ -21,13 +21,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request;
 
+use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\CultureDataBuilder;
 use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class CultureDataBuilderTest extends AbstractDataBuilderTest
+class CultureDataBuilderTest extends TestCase
 {
+    /**
+     * @var MockObject|Order
+     */
+    private $orderMock;
+
     /**
      * @var CultureDataBuilder
      */
@@ -35,7 +46,7 @@ class CultureDataBuilderTest extends AbstractDataBuilderTest
 
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->orderMock = $this->createMock(Order::class);
 
         // Real resolver: this test verifies the builder feeds it the right inputs.
         $this->builder = new CultureDataBuilder(new CultureCodeResolver());
@@ -57,9 +68,7 @@ class CultureDataBuilderTest extends AbstractDataBuilderTest
 
     public function testBuildWithoutBillingAddressHonoursStoreLocale(): void
     {
-        $store = $this->createMock(Store::class);
-        $store->method('getConfig')->with('general/locale/code')->willReturn('nl_NL');
-        $this->orderMock->method('getStore')->willReturn($store);
+        $this->mockStoreLocale('nl_NL');
         $this->orderMock->method('getBillingAddress')->willReturn(null);
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
@@ -70,9 +79,7 @@ class CultureDataBuilderTest extends AbstractDataBuilderTest
 
     public function testBuildFallsBackToDefaultWhenNothingUsable(): void
     {
-        $store = $this->createMock(Store::class);
-        $store->method('getConfig')->with('general/locale/code')->willReturn('xx_YY');
-        $this->orderMock->method('getStore')->willReturn($store);
+        $this->mockStoreLocale('xx_YY');
         $this->orderMock->method('getBillingAddress')->willReturn(null);
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
@@ -85,10 +92,7 @@ class CultureDataBuilderTest extends AbstractDataBuilderTest
         $store = $this->createMock(Store::class);
         $store->method('getConfig')->willThrowException(new \RuntimeException('no store'));
         $this->orderMock->method('getStore')->willReturn($store);
-
-        $billingAddress = $this->createMock(OrderAddressInterface::class);
-        $billingAddress->method('getCountryId')->willReturn('BE');
-        $this->orderMock->method('getBillingAddress')->willReturn($billingAddress);
+        $this->mockBillingCountry('BE');
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
 
@@ -104,14 +108,51 @@ class CultureDataBuilderTest extends AbstractDataBuilderTest
      */
     private function buildWith(string $countryId, string $storeLocale): array
     {
+        $this->mockStoreLocale($storeLocale);
+        $this->mockBillingCountry($countryId);
+
+        return $this->builder->build(['payment' => $this->getPaymentDOMock()]);
+    }
+
+    /**
+     * @param string $storeLocale
+     *
+     * @return void
+     */
+    private function mockStoreLocale(string $storeLocale): void
+    {
         $store = $this->createMock(Store::class);
         $store->method('getConfig')->with('general/locale/code')->willReturn($storeLocale);
         $this->orderMock->method('getStore')->willReturn($store);
+    }
 
+    /**
+     * @param string $countryId
+     *
+     * @return void
+     */
+    private function mockBillingCountry(string $countryId): void
+    {
         $billingAddress = $this->createMock(OrderAddressInterface::class);
         $billingAddress->method('getCountryId')->willReturn($countryId);
         $this->orderMock->method('getBillingAddress')->willReturn($billingAddress);
+    }
 
-        return $this->builder->build(['payment' => $this->getPaymentDOMock()]);
+    /**
+     * Build a payment data object mock exposing the order.
+     *
+     * @return MockObject|PaymentDataObjectInterface
+     */
+    private function getPaymentDOMock()
+    {
+        $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
+
+        $orderAdapter = $this->createMock(OrderAdapter::class);
+        $orderAdapter->method('getOrder')->willReturn($this->orderMock);
+        $paymentDOMock->method('getOrder')->willReturn($orderAdapter);
+
+        $paymentDOMock->method('getPayment')->willReturn($this->createMock(InfoInterface::class));
+
+        return $paymentDOMock;
     }
 }
