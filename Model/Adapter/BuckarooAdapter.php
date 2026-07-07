@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Observer\AddInTestModeMessage;
 use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Gateway\Request\CreditManagement\BuilderComposite;
+use Buckaroo\Magento2\Gateway\Request\CultureDataBuilder;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Enablemode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -165,7 +166,15 @@ class BuckarooAdapter
         // Extract original transaction mode if available (for post-transaction operations)
         $originalTransactionWasTest = $data[AddInTestModeMessage::PAYMENT_IN_TEST_MODE] ?? null;
 
-        $this->setClientSdk($method, $orderStoreId, $skipActiveCheck, $originalTransactionWasTest);
+        // Extract the billing-country-based culture (set by CultureDataBuilder) so the SDK client
+        // sends the correct "Culture" header. Strip it so it never reaches the request body.
+        $cultureOverride = null;
+        if (isset($data[CultureDataBuilder::CULTURE_KEY])) {
+            $cultureOverride = (string)$data[CultureDataBuilder::CULTURE_KEY];
+            unset($data[CultureDataBuilder::CULTURE_KEY]);
+        }
+
+        $this->setClientSdk($method, $orderStoreId, $skipActiveCheck, $originalTransactionWasTest, $cultureOverride);
         $payment = $this->buckaroo->method($this->getMethodName($method));
 
         try {
@@ -202,10 +211,11 @@ class BuckarooAdapter
     /**
      * Set Client SDK base on account configuration and payment method configuration
      *
-     * @param string    $paymentMethod
-     * @param int|null  $orderStoreId                Store ID from the order (for refund/capture operations)
-     * @param bool      $skipActiveCheck
-     * @param bool|null $originalTransactionWasTest  Whether original transaction was in test mode
+     * @param string      $paymentMethod
+     * @param int|null    $orderStoreId                Store ID from the order (for refund/capture operations)
+     * @param bool        $skipActiveCheck
+     * @param bool|null   $originalTransactionWasTest  Whether original transaction was in test mode
+     * @param string|null $cultureOverride             Culture code derived from the order billing country
      * @throws \Exception
      * @return void
      */
@@ -213,7 +223,8 @@ class BuckarooAdapter
         $paymentMethod = '',
         ?int $orderStoreId = null,
         bool $skipActiveCheck = false,
-        ?bool $originalTransactionWasTest = null
+        ?bool $originalTransactionWasTest = null,
+        ?string $cultureOverride = null
     ): void {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
@@ -233,6 +244,9 @@ class BuckarooAdapter
         $accountMode = $configProviderAccount->getActive($storeId);
         $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod, $skipActiveCheck, $originalTransactionWasTest);
 
+        // Prefer the order billing-country culture; fall back to the store/customer locale.
+        $culture = $cultureOverride ?? str_replace('_', '-', $this->localeResolver->getLocale());
+
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $this->encryptor->decrypt($configProviderAccount->getMerchantKey($storeId)),
             $this->encryptor->decrypt($configProviderAccount->getSecretKey($storeId)),
@@ -246,7 +260,7 @@ class BuckarooAdapter
             'Buckaroo',
             'Magento2',
             Data::BUCKAROO_VERSION,
-            str_replace('_', '-', $this->localeResolver->getLocale()),
+            $culture,
             null, // Disable SDK logging - SDK's BuckarooException handles null gracefully in log() method
             null, // timeout
             null  // connectTimeout
