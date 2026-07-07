@@ -1445,6 +1445,7 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerKlarnaDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <!-- Override BuckarooOrderRequest's "pay" action so the redirect returns service_action_from_magento=reserve -->
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
             </argument>
@@ -1520,6 +1521,7 @@
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DataRequestKeyDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1549,6 +1551,7 @@
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCancelReservationDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DataRequestKeyDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1571,6 +1574,7 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UpdateReservationDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1593,6 +1597,7 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExtendReservationDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
