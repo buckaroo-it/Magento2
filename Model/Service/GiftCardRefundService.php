@@ -34,13 +34,31 @@ use Magento\Sales\Model\Order;
  */
 class GiftCardRefundService implements GiftCardRefundServiceInterface
 {
+    /**
+     * @var BuckarooLoggerInterface
+     */
     private $logger;
+
+    /**
+     * @var bool|null
+     */
     private $isAdobeCommerceAvailable = null;
 
-    // Optional dependencies that may not exist in Magento Open Source
+    /**
+     * @var \Magento\GiftCardAccount\Api\GiftCardAccountRepositoryInterface|null
+     */
     private $giftCardRepo = null;
+
+    /**
+     * @var \Magento\GiftCardAccount\Model\HistoryFactory|null
+     */
     private $historyFactory = null;
 
+    /**
+     * Constructor.
+     *
+     * @param BuckarooLoggerInterface $logger
+     */
     public function __construct(
         BuckarooLoggerInterface $logger
     ) {
@@ -48,6 +66,12 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
         $this->initializeAdobeCommerceDependencies();
     }
 
+    /**
+     * Refund gift card amounts back to their accounts for the given order.
+     *
+     * @param Order $order
+     * @return void
+     */
     public function refund(Order $order): void
     {
         $this->logger->addDebug('[GiftCardRefundService] Processing refund for order #' . $order->getIncrementId());
@@ -122,11 +146,14 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     }
 
     /**
+     * Apply a single gift card refund and record the balance change in history.
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
      * @param Order $order
      * @param array $card
+     * @return void
      */
     private function refundCard(Order $order, array $card): void
     {

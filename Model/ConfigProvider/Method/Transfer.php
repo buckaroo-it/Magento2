@@ -54,8 +54,9 @@ class Transfer extends AbstractConfigProvider
     }
 
     /**
-     * @inheritdoc
      * Return logo URL based on Payment Method Logo config (generic vs SEPA Credit Transfer).
+     *
+     * @return string
      */
     public function getLogo(): string
     {
@@ -81,9 +82,10 @@ class Transfer extends AbstractConfigProvider
     /**
      * Get Due Date Y-m-d
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return string
+     * @throws \DateMalformedStringException
      */
     public function getDueDateFormated($store = null): string
     {
@@ -165,7 +167,10 @@ class Transfer extends AbstractConfigProvider
     {
         return $this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_METHOD_AFTER_EXPIRY, $store);
     }
+
     /**
+     * Get the payment fee configured for Transfer.
+     *
      * @param null|int $storeId
      *
      * @return float

@@ -86,6 +86,7 @@ class Push implements ValidatorInterface
 
     /**
      * Validate push — actual validation is performed via validateSignature() through HttppostPushRequest::validate().
+     *
      * This method exists to satisfy ValidatorInterface but must not be called directly.
      *
      * @param array|object $data

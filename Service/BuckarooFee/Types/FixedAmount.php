@@ -47,6 +47,13 @@ class FixedAmount
         $this->taxCalculate = $taxCalculate;
     }
 
+    /**
+     * Calculate the Buckaroo fee for a fixed amount including tax.
+     *
+     * @param CartInterface $cart
+     * @param float $amount
+     * @return Result
+     */
     public function calculate(CartInterface $cart, float $amount)
     {
         $tax = $this->taxCalculate->getTaxFromAmountIncludingTax($cart, $amount);

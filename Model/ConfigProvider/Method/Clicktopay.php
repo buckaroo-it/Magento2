@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\LogoService;
+use Laminas\Uri\UriFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -185,16 +186,21 @@ class Clicktopay extends AbstractConfigProvider
     public function getStoreBaseUrl(): string
     {
         $baseUrl = (string) $this->storeManager->getStore()->getBaseUrl();
-        $parts   = parse_url($baseUrl);
 
-        if (empty($parts['scheme']) || empty($parts['host'])) {
+        try {
+            $uri = UriFactory::factory($baseUrl);
+        } catch (\InvalidArgumentException $e) {
             return rtrim($baseUrl, '/');
         }
 
-        $origin = $parts['scheme'] . '://' . $parts['host'];
+        if (empty($uri->getScheme()) || empty($uri->getHost())) {
+            return rtrim($baseUrl, '/');
+        }
 
-        if (!empty($parts['port'])) {
-            $origin .= ':' . $parts['port'];
+        $origin = $uri->getScheme() . '://' . $uri->getHost();
+
+        if (!empty($uri->getPort())) {
+            $origin .= ':' . $uri->getPort();
         }
 
         return $origin;

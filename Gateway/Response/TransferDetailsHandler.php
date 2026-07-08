@@ -45,7 +45,9 @@ class TransferDetailsHandler implements HandlerInterface
     }
 
     /**
-     * @param $transactionResponse
+     * Extract the transfer service parameters from the transaction response.
+     *
+     * @param SDKTransactionResponse $transactionResponse
      *
      * @return array
      */

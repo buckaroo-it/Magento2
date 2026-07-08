@@ -24,6 +24,11 @@ use Magento\Backend\Block\Widget\Grid\Container;
 
 class Grid extends Container
 {
+    /**
+     * Initialize the giftcard grid container block properties.
+     *
+     * @return void
+     */
     protected function _construct()
     {
         $this->_blockGroup = 'Buckaroo_Magento2';

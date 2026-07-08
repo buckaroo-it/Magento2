@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
 use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -279,15 +280,15 @@ class Giftcard implements GiftcardInterface
      *
      * @param null|int|string $store
      *
-     * @throws \Exception
+     * @throws BuckarooException
      *
      * @return false|string
      */
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception(
-                "Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface"
+            throw new BuckarooException(
+                __("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface")
             );
         }
 
@@ -527,6 +528,11 @@ class Giftcard implements GiftcardInterface
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
 
+    /**
+     * Get the acquirer configured for the current giftcard service code.
+     *
+     * @return mixed
+     */
     private function getAcquirer()
     {
         return $this->giftcardRepository

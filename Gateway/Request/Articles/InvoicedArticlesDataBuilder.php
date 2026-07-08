@@ -31,11 +31,23 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
      */
     protected $articlesHandlerFactory;
 
+    /**
+     * Constructor
+     *
+     * @param ArticlesHandlerFactory $articlesHandlerFactory
+     */
     public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
     {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
     }
 
+    /**
+     * Build invoiced articles request data for the payment method.
+     *
+     * @param array $buildSubject
+     * @return array
+     * @throws \Buckaroo\Magento2\Exception
+     */
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);

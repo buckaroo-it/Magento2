@@ -7,7 +7,6 @@ use Magento\Framework\Api\SearchResultsInterface;
 
 interface AnalyticsSearchResultsInterface extends SearchResultsInterface
 {
-
     /**
      * Get Analytics list.
      *

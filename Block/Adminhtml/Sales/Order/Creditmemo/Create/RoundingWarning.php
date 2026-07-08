@@ -74,9 +74,10 @@ class RoundingWarning extends Template
     }
 
     /**
-     * @throws LogicException|Exception|LocalizedException
+     * Determine whether the rounding warning should be shown.
      *
      * @return bool
+     * @throws LogicException|Exception|LocalizedException
      */
     protected function shouldShowWarning()
     {

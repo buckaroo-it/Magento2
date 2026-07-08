@@ -34,7 +34,7 @@ use Monolog\Logger;
 class LogLevel implements OptionSourceInterface
 {
     /**
-     * {@inheritDoc}
+     * Return the log-level options for the system configuration dropdown.
      *
      * @param bool $withEmpty Whether to prepend an empty option.
      *

@@ -25,7 +25,10 @@ class Alipay extends AbstractConfigProvider
     public const CODE = 'buckaroo_magento2_alipay';
 
     public const XPATH_ALIPAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_alipay/payment_fee';
+
     /**
+     * Get the base allowed currencies for Alipay.
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array
@@ -49,6 +52,8 @@ class Alipay extends AbstractConfigProvider
     }
 
     /**
+     * Get the payment fee configured for Alipay.
+     *
      * @param null|int $storeId
      *
      * @return float

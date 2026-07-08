@@ -201,7 +201,9 @@ class Paypal extends AbstractConfigProvider
     }
 
     /**
-     * @param null $store
+     * Get the payment fee configured for PayPal.
+     *
+     * @param null|int|string $store
      *
      * @return string|int|float
      */

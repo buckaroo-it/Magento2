@@ -82,6 +82,11 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
         return 'B2B';
     }
 
+    /**
+     * Get the customer number for the order, falling back to "guest" when no customer is set.
+     *
+     * @return string|int
+     */
     protected function getCustomerNumber()
     {
         $customerNumber = "guest";

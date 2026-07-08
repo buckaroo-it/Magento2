@@ -222,6 +222,8 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
+     * Retrieve a giftcard by its service code.
+     *
      * @param string $serviceCode
      *
      * @return GiftcardInterface

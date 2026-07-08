@@ -55,21 +55,41 @@ class OptionalColorPicker extends Field
         return $this->_toHtml();
     }
 
+    /**
+     * Get the HTML id of the underlying form element
+     *
+     * @return string
+     */
     public function getFieldId(): string
     {
         return (string)$this->element->getId();
     }
 
+    /**
+     * Get the HTML name of the underlying form element
+     *
+     * @return string
+     */
     public function getFieldName(): string
     {
         return (string)$this->element->getName();
     }
 
+    /**
+     * Get the raw stored value of the form element
+     *
+     * @return string
+     */
     public function getFieldValue(): string
     {
         return (string)$this->element->getValue();
     }
 
+    /**
+     * Get the hex color value to display in the picker, falling back to the default
+     *
+     * @return string
+     */
     public function getPickerValue(): string
     {
         $value = trim($this->getFieldValue());
@@ -81,6 +101,11 @@ class OptionalColorPicker extends Field
         return preg_match('/^#[0-9a-fA-F]{6}$/', $value) ? $value : '#d6d6d6';
     }
 
+    /**
+     * Check whether the stored value represents an intentionally empty color
+     *
+     * @return bool
+     */
     public function isEmptyValue(): bool
     {
         $value = trim($this->getFieldValue());
@@ -88,6 +113,11 @@ class OptionalColorPicker extends Field
         return $value === '' || $value === self::EMPTY_MARKER;
     }
 
+    /**
+     * Get the marker string used to persist an intentionally empty color value
+     *
+     * @return string
+     */
     public function getEmptyMarker(): string
     {
         return self::EMPTY_MARKER;

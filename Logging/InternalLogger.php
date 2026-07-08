@@ -75,6 +75,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::EMERGENCY, $message, $context);
     }
+
     /**
      * Log an alert message.
      *
@@ -87,6 +88,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::ALERT, $message, $context);
     }
+
     /**
      * Log a critical message.
      *
@@ -99,6 +101,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::CRITICAL, $message, $context);
     }
+
     /**
      * Log an error message.
      *
@@ -111,6 +114,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::ERROR, $message, $context);
     }
+
     /**
      * Log a warning message.
      *
@@ -123,6 +127,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::WARNING, $message, $context);
     }
+
     /**
      * Log a notice message.
      *
@@ -135,6 +140,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::NOTICE, $message, $context);
     }
+
     /**
      * Log an informational message.
      *
@@ -147,6 +153,7 @@ class InternalLogger implements LoggerInterface
     {
         $this->logger->log(LogLevel::INFO, $message, $context);
     }
+
     /**
      * Log a debug message.
      *

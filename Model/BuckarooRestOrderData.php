@@ -26,8 +26,14 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 
 class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
 {
+    /**
+     * @var string
+     */
     private $orderIncrementId;
 
+    /**
+     * @var PaymentGroupTransaction
+     */
     private $groupTransaction;
 
     /**
@@ -35,6 +41,13 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
      */
     private $trResponseFactory;
 
+    /**
+     * Constructor
+     *
+     * @param string $orderIncrementId
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param TransactionResponseInterfaceFactory $trResponseFactory
+     */
     public function __construct(
         string $orderIncrementId,
         PaymentGroupTransaction $groupTransaction,
@@ -46,6 +59,8 @@ class BuckarooRestOrderData implements BuckarooRestOrderDataInterface
     }
 
     /**
+     * Get active group transactions for the order
+     *
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getGroupTransactions()

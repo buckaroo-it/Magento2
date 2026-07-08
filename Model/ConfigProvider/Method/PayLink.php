@@ -46,7 +46,7 @@ class PayLink extends AbstractConfigProvider
     /**
      * Get payment method from paylink paymennt methods list
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed
      */
@@ -72,7 +72,10 @@ class PayLink extends AbstractConfigProvider
 
         return (bool)$sendMail;
     }
+
     /**
+     * Get the PayLink payment fee.
+     *
      * @param null|int $storeId
      *
      * @return float

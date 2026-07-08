@@ -70,6 +70,8 @@ class AllowedCurrencies extends AbstractConfigProvider
     }
 
     /**
+     * Get the list of allowed currencies.
+     *
      * @return array
      */
     public function getAllowedCurrencies(): array
@@ -78,6 +80,8 @@ class AllowedCurrencies extends AbstractConfigProvider
     }
 
     /**
+     * Set the list of allowed currencies.
+     *
      * @param array $allowedCurrencies
      *
      * @return $this

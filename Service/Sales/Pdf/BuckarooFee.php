@@ -76,6 +76,11 @@ class BuckarooFee extends DefaultTotal
         parent::__construct($taxHelper, $taxCalculation, $ordersFactory, $data);
     }
 
+    /**
+     * Get the Buckaroo fee totals (excl. and incl. tax) formatted for PDF display.
+     *
+     * @return array
+     */
     public function getTotalsForDisplay(): array
     {
         $order    = $this->getOrder();

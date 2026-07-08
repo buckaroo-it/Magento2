@@ -12,12 +12,40 @@ use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class Analytics implements ObserverInterface
 {
+    /**
+     * @var CookieManagerInterface
+     */
     private $cookieManager;
+
+    /**
+     * @var AnalyticsInterface
+     */
     private $analyticsModel;
+
+    /**
+     * @var AnalyticsRepositoryInterface
+     */
     private $analyticsRepository;
+
+    /**
+     * @var AnalyticsConfigProvider
+     */
     private $configProvider;
+
+    /**
+     * @var BuckarooLog
+     */
     private $log;
 
+    /**
+     * Constructor.
+     *
+     * @param CookieManagerInterface $cookieManager
+     * @param AnalyticsInterface $analyticsModel
+     * @param AnalyticsRepositoryInterface $analyticsRepository
+     * @param AnalyticsConfigProvider $configProvider
+     * @param BuckarooLog $log
+     */
     public function __construct(
         CookieManagerInterface $cookieManager,
         AnalyticsInterface $analyticsModel,

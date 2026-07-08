@@ -327,7 +327,7 @@ class CreateCombinedInvoice
     /**
      * Get CM Address
      *
-     * @param $street
+     * @param string|array $street
      *
      * @return array
      *

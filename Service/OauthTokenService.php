@@ -91,9 +91,9 @@ class OauthTokenService
     }
 
     /**
-     * Get an access token for the given credentials and scope, from cache when
-     * a still-valid one exists, otherwise freshly fetched and cached.
+     * Get an access token for the given credentials and scope.
      *
+     * Served from cache when a still-valid token exists, otherwise freshly fetched and cached.
      * The returned expires_in is the remaining lifetime (margin already applied),
      * so callers can hand it straight to the browser.
      *

@@ -47,6 +47,14 @@ class Percentage
         $this->taxCalculate = $taxCalculate;
     }
 
+    /**
+     * Calculate the Buckaroo fee as a percentage of the cart subtotal.
+     *
+     * @param CartInterface $cart
+     * @param Total $total
+     * @param string|float $percentage
+     * @return Result|null
+     */
     public function calculate(CartInterface $cart, Total $total, $percentage)
     {
         $percentage = (float) rtrim($percentage, '%');

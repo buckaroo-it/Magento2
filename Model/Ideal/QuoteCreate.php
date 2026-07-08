@@ -19,6 +19,8 @@
  */
 namespace Buckaroo\Magento2\Model\Ideal;
 
+use Laminas\Stdlib\Parameters;
+
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
@@ -46,17 +48,64 @@ use Buckaroo\Magento2\Service\ExpressPayment\ProductValidationService;
  */
 class QuoteCreate implements IdealQuoteCreateInterface
 {
+    /**
+     * @var QuoteCreateResponseInterfaceFactory
+     */
     protected $responseFactory;
+
+    /**
+     * @var QuoteBuilderInterfaceFactory
+     */
     protected $quoteBuilderInterfaceFactory;
+
+    /**
+     * @var CustomerSession
+     */
     protected $customerSession;
+
+    /**
+     * @var CheckoutSession
+     */
     protected $checkoutSession;
+
+    /**
+     * @var QuoteRepository
+     */
     protected $quoteRepository;
+
+    /**
+     * @var CustomerRepositoryInterface
+     */
     protected $customerRepository;
+
+    /**
+     * @var AddressRepositoryInterface
+     */
     protected $addressRepository;
+
+    /**
+     * @var ShipmentEstimationInterface
+     */
     protected $shipmentEstimation;
+
+    /**
+     * @var Log
+     */
     protected $logger;
+
+    /**
+     * @var Quote
+     */
     protected $quote;
+
+    /**
+     * @var StoreManagerInterface
+     */
     protected $storeManager;
+
+    /**
+     * @var ProductValidationService
+     */
     protected $productValidationService;
 
     /**
@@ -382,8 +431,9 @@ class QuoteCreate implements IdealQuoteCreateInterface
     {
         try {
             // Parse form data to get product ID and options
-            $data = [];
-            parse_str($form_data, $data);
+            $parameters = new Parameters();
+            $parameters->fromString($form_data);
+            $data = $parameters->toArray();
 
             $productId = $data['product'] ?? null;
             $qty = $data['qty'] ?? 1;
@@ -412,7 +462,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
             $quote = $quoteBuilder->build();
 
             return $quote;
-        } catch (IdealException $idealEx) {
+        } catch (IdealException $idealEx) { // phpcs:ignore Magento2.Exceptions.ThrowCatch -- deliberate rethrow to keep iDEAL messages
             // Re-throw iDEAL exceptions to preserve the specific error message
             throw $idealEx;
         } catch (\Throwable $th) {

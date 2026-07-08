@@ -121,7 +121,7 @@ class OrderRequestService
     /**
      * Get the order increment ID based on the invoice number or order number.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return string|null
      */
@@ -141,10 +141,9 @@ class OrderRequestService
     }
 
     /**
-     * Sometimes the push does not contain the order id, when that's the case try to get the order by his payment,
-     * by using its own transaction key.
+     * Get the order by its payment transaction key when the push omits the order id.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @throws \Exception
      *
@@ -173,7 +172,7 @@ class OrderRequestService
      * This covers cancel pushes sent directly from Buckaroo plaza where brq_transactions is absent
      * but brq_SERVICE_klarnakp_ReservationNumber is present.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return Order|null
      */
@@ -197,7 +196,7 @@ class OrderRequestService
     /**
      * Retrieves the transaction key from the push request.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return string
      */
@@ -335,6 +334,13 @@ class OrderRequestService
         return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
     }
 
+    /**
+     * Update the persisted order totals directly in the sales_order table.
+     *
+     * @param Order $order
+     *
+     * @return bool
+     */
     public function updateTotalOnOrder($order)
     {
 

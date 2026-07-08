@@ -21,10 +21,24 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Magento\Framework\HTTP\Header;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class UseMobileViewDataBuilder implements BuilderInterface
 {
+    /**
+     * @var Header
+     */
+    private $httpHeader;
+
+    /**
+     * @param Header $httpHeader
+     */
+    public function __construct(Header $httpHeader)
+    {
+        $this->httpHeader = $httpHeader;
+    }
+
     /**
      * @inheritdoc
      *
@@ -42,7 +56,7 @@ class UseMobileViewDataBuilder implements BuilderInterface
      */
     public function isMobile(): bool
     {
-        $useragent = $_SERVER['HTTP_USER_AGENT'];
+        $useragent = (string)$this->httpHeader->getHttpUserAgent();
         return preg_match(
             '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i',
             $useragent

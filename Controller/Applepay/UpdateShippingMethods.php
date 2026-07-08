@@ -78,7 +78,17 @@ class UpdateShippingMethods extends AbstractApplepay
                     $shippingAddress->setCollectShippingRates(true);
                     $shippingMethodCode = $postValues['wallet']['identifier'] ?? null;
                     if (!$shippingMethodCode) {
-                        throw new \Exception("Shipping method identifier is missing.");
+                        $errorMessage = __(
+                            "Setting the new Shipping Method failed: %1",
+                            "Shipping method identifier is missing."
+                        );
+                        $this->logger->addDebug(sprintf(
+                            '[ApplePay] | [Controller] | [%s:%s] - Update Shipping Methods | ERROR: %s',
+                            __METHOD__,
+                            __LINE__,
+                            'Shipping method identifier is missing.'
+                        ));
+                        return $this->commonResponse([], $errorMessage);
                     }
                     $shippingAddress->setShippingMethod($shippingMethodCode);
 

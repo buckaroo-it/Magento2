@@ -30,6 +30,11 @@ class InvoiceHandlingOptions implements OptionSourceInterface
     public const PAYMENT = 1;
     public const SHIPMENT = 2;
 
+    /**
+     * Return the invoice handling options for the system configuration dropdown.
+     *
+     * @return array
+     */
     public function toOptionArray(): array
     {
         return [

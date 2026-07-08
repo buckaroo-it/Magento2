@@ -285,6 +285,7 @@ class GatewayCommand implements CommandInterface
 
     /**
      * Tries to map error messages from validation result and logs processed message.
+     *
      * Throws an exception with mapped message or default error.
      *
      * @param ResultInterface $result

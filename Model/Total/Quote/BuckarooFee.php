@@ -47,6 +47,9 @@ class BuckarooFee extends AbstractTotal
      */
     protected $calculate;
 
+    /**
+     * @var LoggerInterface
+     */
     protected $logger;
 
     /**

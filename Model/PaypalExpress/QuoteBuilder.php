@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
+use Laminas\Stdlib\Parameters;
+
 use Magento\Customer\Model\Group;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
@@ -64,6 +66,14 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected $quote;
 
+    /**
+     * Constructor
+     *
+     * @param QuoteFactory $quoteFactory
+     * @param ProductRepositoryInterface $productRepository
+     * @param DataObjectFactory $dataObjectFactory
+     * @param CustomerSession $customer
+     */
     public function __construct(
         QuoteFactory $quoteFactory,
         ProductRepositoryInterface $productRepository,
@@ -76,15 +86,19 @@ class QuoteBuilder implements QuoteBuilderInterface
         $this->customer = $customer;
     }
 
-    /** @inheritDoc */
+    /**
+     * @inheritDoc
+     */
     public function setFormData(string $formData)
     {
         $this->formData = $this->formatFormData($formData);
     }
+
     /**
      * Build quote from form data and session without persisting it
      *
      * @return \Magento\Quote\Model\Quote
+     * @throws PaypalExpressException
      */
     public function build()
     {
@@ -110,6 +124,7 @@ class QuoteBuilder implements QuoteBuilderInterface
                 ->setCustomerGroupId(Group::NOT_LOGGED_IN_ID);
         }
     }
+
     /**
      * Add product to quote
      *
@@ -132,6 +147,7 @@ class QuoteBuilder implements QuoteBuilderInterface
             throw new PaypalExpressException($exceptionMessage, 1);
         }
     }
+
     /**
      * Format form data
      *
@@ -141,8 +157,9 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $form_data)
     {
-        $data = [];
-        parse_str($form_data, $data);
+        $parameters = new Parameters();
+        $parameters->fromString($form_data);
+        $data = $parameters->toArray();
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);

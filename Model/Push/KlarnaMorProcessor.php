@@ -103,6 +103,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
     /**
      * Skip the push if the conditions are met.
+     *
      * Skips capture callbacks initiated by Magento to avoid duplicate processing.
      *
      * @throws \Exception
@@ -122,6 +123,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
     /**
      * Retrieves the transaction key from the push request.
+     *
      * For Klarna MOR, use the DataRequest key from push if available.
      *
      * @return string
@@ -139,6 +141,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
     /**
      * Save Buckaroo DataRequest key from push notification.
+     *
      * This replaces the old reservation number mechanism for the MOR flow.
      *
      * @return bool
@@ -197,6 +200,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
     /**
      * Determine whether an invoice should be created for this push.
+     *
      * When "Create Invoice After Shipment" is enabled, defer invoice creation.
      *
      * @param array $paymentDetails

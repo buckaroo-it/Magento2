@@ -131,8 +131,9 @@ class Token implements HttpPostActionInterface
     }
 
     /**
-     * @param string $message
+     * Create a JSON error response with an HTTP 500 status code.
      *
+     * @param string $message
      * @return Json
      */
     private function errorResponse(string $message): Json

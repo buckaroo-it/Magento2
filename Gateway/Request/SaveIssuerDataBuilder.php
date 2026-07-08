@@ -60,6 +60,8 @@ class SaveIssuerDataBuilder implements BuilderInterface
     }
 
     /**
+     * Save the last used issuer as a customer attribute.
+     *
      * @param InfoInterface|OrderPaymentInterface $payment
      */
     public function saveLastUsedIssuer($payment): void

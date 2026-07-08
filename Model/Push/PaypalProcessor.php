@@ -42,6 +42,9 @@ use Magento\Sales\Api\Data\TransactionInterface;
  */
 class PaypalProcessor extends DefaultProcessor
 {
+    /**
+     * @var PaypalConfig
+     */
     private $paypalConfig;
 
     /**
@@ -97,10 +100,11 @@ class PaypalProcessor extends DefaultProcessor
     }
 
     /**
-     * @throws BuckarooException
-     * @throws LocalizedException
+     * Get the new order status, adjusted for PayPal seller's protection when applicable.
      *
      * @return false|string|null
+     * @throws BuckarooException
+     * @throws LocalizedException
      */
     protected function getNewStatus()
     {

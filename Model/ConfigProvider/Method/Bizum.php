@@ -26,6 +26,8 @@ class Bizum extends AbstractConfigProvider
     public const XPATH_BIZUM_PAYMENT_FEE           = 'payment/buckaroo_magento2_bizum/payment_fee';
 
     /**
+     * Get the payment fee configured for Bizum.
+     *
      * @param null|int $storeId
      *
      * @return float
@@ -42,6 +44,8 @@ class Bizum extends AbstractConfigProvider
     }
 
     /**
+     * Get the base allowed currencies for Bizum.
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array

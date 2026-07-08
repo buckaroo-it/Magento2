@@ -101,6 +101,7 @@ class PaypalFormatData implements FormatFormDataInterface
 
     /**
      * Sanitize city name to meet Buckaroo validation requirements
+     *
      * Only allows A-Z, a-z, 0-9, -, ', spaces
      *
      * @param string $cityName

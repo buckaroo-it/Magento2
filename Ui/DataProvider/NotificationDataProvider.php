@@ -76,7 +76,10 @@ class NotificationDataProvider extends AbstractDataProvider
     }
 
     /**
+     * Add filter to the data provider; not supported for notifications.
+     *
      * @param Filter $filter
+     * @return null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

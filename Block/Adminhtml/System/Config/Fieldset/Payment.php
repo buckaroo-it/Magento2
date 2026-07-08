@@ -103,6 +103,12 @@ class Payment extends Fieldset
             ->toHtml();
     }
 
+    /**
+     * Render the payment methods overview template block.
+     *
+     * @return string
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function renderOverviewTemplate(): string
     {
         return (string) $this->getLayout()

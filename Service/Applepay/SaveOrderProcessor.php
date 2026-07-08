@@ -45,6 +45,20 @@ class SaveOrderProcessor
     private $order;
     /** @var BuckarooLoggerInterface */
     private $logger;
+
+    /**
+     * Constructor.
+     *
+     * @param QuoteManagement $quoteManagement
+     * @param CustomerSession $customerSession
+     * @param DataObjectFactory $objectFactory
+     * @param BuckarooResponseDataInterface $buckarooResponseData
+     * @param CheckoutSession $checkoutSession
+     * @param ConfigProviderFactory $configProviderFactory
+     * @param QuoteAddressService $quoteAddressService
+     * @param Order $order
+     * @param BuckarooLoggerInterface $logger
+     */
     public function __construct(
         QuoteManagement             $quoteManagement,
         CustomerSession             $customerSession,
@@ -68,7 +82,8 @@ class SaveOrderProcessor
     }
 
     /**
-     * Entry‑point called by the controller
+     * Entry-point called by the controller to place the Apple Pay order.
+     *
      * @param array $payload
      *
      * @return array
@@ -125,10 +140,13 @@ class SaveOrderProcessor
     }
 
     /**
+     * Submit the quote as an order, applying guest fallback, payment method and invoice handling.
+     *
      * @param Quote $quote
      * @param array $extra
      * @param array $payment
      *
+     * @return void
      * @throws Exception
      * @throws LocalizedException
      */
@@ -174,6 +192,9 @@ class SaveOrderProcessor
     }
 
     /**
+     * Convert the Buckaroo response into an array payload for the frontend.
+     *
+     * @return array
      * @throws Exception
      */
     private function handleResponse(): array
@@ -195,6 +216,8 @@ class SaveOrderProcessor
     }
 
     /**
+     * Build the success redirect action for the placed order.
+     *
      * @param string $incrementId
      *
      * @return array

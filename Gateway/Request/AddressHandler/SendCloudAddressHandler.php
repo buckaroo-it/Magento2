@@ -68,6 +68,12 @@ class SendCloudAddressHandler extends AbstractAddressHandler
         }
     }
 
+    /**
+     * Get the mapping of address field names to Sendcloud service point values.
+     *
+     * @param Order $order
+     * @return array
+     */
     private function getAddressMapping(Order $order): array
     {
         return [
@@ -79,6 +85,13 @@ class SendCloudAddressHandler extends AbstractAddressHandler
         ];
     }
 
+    /**
+     * Update a single address data entry with the mapped Sendcloud service point value.
+     *
+     * @param array $addressData
+     * @param array $mapping
+     * @return void
+     */
     private function updateAddressData(array &$addressData, array $mapping): void
     {
         foreach ($mapping as $mappingItem) {

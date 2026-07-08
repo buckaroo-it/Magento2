@@ -176,6 +176,8 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     private const CARE_OF_MAX_LENGTH = 50;
 
     /**
+     * Resolve the care-of value from the second street line for DACH countries.
+     *
      * @return string|null
      */
     private function resolveCareOf(): ?string

@@ -40,6 +40,11 @@ class ThemeBodyClass extends Template
         parent::__construct($context, $data);
     }
 
+    /**
+     * Add the current design theme code as a CSS class to the page body.
+     *
+     * @return $this
+     */
     protected function _prepareLayout()
     {
         $this->_design = $this->contextCopy->getDesignPackage();

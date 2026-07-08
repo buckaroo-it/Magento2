@@ -145,7 +145,7 @@ class PayPerEmail extends AbstractConfigProvider
 
         $visibleFrontBack = $this->getVisibleFrontBack();
         $forFrontend = ($visibleFrontBack === 'frontend' || $visibleFrontBack === 'both');
-        $forBackend  = ($visibleFrontBack === 'backend'  || $visibleFrontBack === 'both');
+        $forBackend  = ($visibleFrontBack === 'backend' || $visibleFrontBack === 'both');
 
         if ($areaCode === Area::AREA_ADMINHTML) {
             return $forBackend;
@@ -239,6 +239,8 @@ class PayPerEmail extends AbstractConfigProvider
     }
 
     /**
+     * Get the configured payment fee for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

@@ -24,6 +24,8 @@ namespace Buckaroo\Magento2\Api\Data;
 interface BuckarooRestOrderDataInterface
 {
     /**
+     * Get the group transactions belonging to the order.
+     *
      * @return \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterface[]
      */
     public function getGroupTransactions();

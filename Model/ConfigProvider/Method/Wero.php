@@ -26,6 +26,8 @@ class Wero extends AbstractConfigProvider
     public const XPATH_WERO_PAYMENT_FEE           = 'payment/buckaroo_magento2_wero/payment_fee';
 
     /**
+     * Get the payment fee configured for Wero.
+     *
      * @param null|int $storeId
      *
      * @return float
@@ -42,6 +44,8 @@ class Wero extends AbstractConfigProvider
     }
 
     /**
+     * Get the base allowed currencies for Wero.
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array
