@@ -53,6 +53,7 @@ class ApplepayDataBuilder implements BuilderInterface
     protected function getCustomerCardName(PaymentDataObjectInterface $paymentDO): string
     {
         $billingContact = \json_decode(
+            // phpcs:ignore Magento2.Functions.DiscouragedFunction -- frontend stores the Apple Pay JSON escaped
             stripslashes((string)$paymentDO->getPayment()->getAdditionalInformation('billingContact'))
         );
 

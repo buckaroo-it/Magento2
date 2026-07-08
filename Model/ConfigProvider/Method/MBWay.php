@@ -27,6 +27,8 @@ class MBWay extends AbstractConfigProvider
     public const XPATH_MBWAY_PAYMENT_FEE           = 'payment/buckaroo_magento2_mbway/payment_fee';
 
     /**
+     * Get the checkout configuration for MB WAY.
+     *
      * @return array
      */
     public function getConfig(): array
@@ -41,6 +43,8 @@ class MBWay extends AbstractConfigProvider
     }
 
     /**
+     * Get the payment fee configured for MB WAY.
+     *
      * @param null|int $storeId
      *
      * @return float

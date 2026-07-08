@@ -104,6 +104,8 @@ class SortIssuers extends Field
     }
 
     /**
+     * Return the issuers provided by the config provider.
+     *
      * @return array
      */
     public function getIssuers(): array
@@ -120,6 +122,8 @@ class SortIssuers extends Field
     }
 
     /**
+     * Return the formatted, sorted issuers from the config provider.
+     *
      * @return array
      */
     public function getSortedIssuers(): array
@@ -135,6 +139,11 @@ class SortIssuers extends Field
         return [];
     }
 
+    /**
+     * Return the sorted issuer codes as a comma-separated string.
+     *
+     * @return string
+     */
     public function getSortedIssuerCodes()
     {
         $sortedIssuerCodes = '';
@@ -150,6 +159,13 @@ class SortIssuers extends Field
         return $sortedIssuerCodes;
     }
 
+    /**
+     * Build the allowed-issuers selector from the sorted-issuers element name.
+     *
+     * @param string $elementName
+     *
+     * @return string
+     */
     private function getSelector($elementName)
     {
         $selector = str_replace('sorted_issuers', 'allowed_issuers', $elementName);
@@ -158,6 +174,13 @@ class SortIssuers extends Field
         return $selector;
     }
 
+    /**
+     * Return the configuration for the given element name, or the full configuration.
+     *
+     * @param string $elementName
+     *
+     * @return mixed
+     */
     public function getConfiguration($elementName = '')
     {
         return $this->configuration[$elementName] ?? $this->configuration;

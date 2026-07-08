@@ -77,6 +77,8 @@ class Giftcard extends AbstractModel implements GiftcardInterface
     }
 
     /**
+     * Set the giftcard acquirer.
+     *
      * @param string|null $acquirer
      *
      * @return $this
@@ -87,6 +89,8 @@ class Giftcard extends AbstractModel implements GiftcardInterface
     }
 
     /**
+     * Get the giftcard acquirer.
+     *
      * @return string|null
      */
     public function getAcquirer()

@@ -68,11 +68,13 @@ class PostNLAddressHandler extends AbstractAddressHandler
 
     /**
      * Check if there is a "pakjegemak" address stored in the quote by this order.
+     *
      * Afterpay wants to receive the "pakjegemak" address instead of the customer shipping address.
      *
      * @param int $quoteId
      *
      * @return array|Address
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     protected function getPostNLPakjeGemakAddressInQuote($quoteId)
     {

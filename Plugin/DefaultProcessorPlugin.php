@@ -47,8 +47,6 @@ class DefaultProcessorPlugin
      *
      * @param DefaultProcessor $subject
      * @param bool             $result
-     * @param string           $newStatus
-     * @param string           $message
      *
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -140,6 +138,8 @@ class DefaultProcessorPlugin
     }
 
     /**
+     * Read a protected or private property value from an object via reflection.
+     *
      * @param object $subject
      * @param string $name
      *

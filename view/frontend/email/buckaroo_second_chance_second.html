@@ -30,7 +30,14 @@
 "var checkout_url":"Checkout URL",
 "var customer_name":"Customer Name",
 "var customer_email":"Customer Email",
-"var order.getShippingDescription":"Shipping Description"
+"var order.getShippingDescription":"Shipping Description",
+"var order.shipping_description":"Shipping Description",
+"var order_data.is_not_virtual":"Order Is Not Virtual",
+"var order_id":"Order Id",
+"var store.frontend_name":"Store Frontend Name",
+"var store.getFrontendName()":"Store Frontend Name",
+"var store.getStoreEmail()":"Store Email",
+"var formatted_grand_total":"Formatted Grand Total"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -53,7 +60,7 @@
     <tr class="email-summary">
         <td>
             <h1 style="color: #d43f00;">{{trans 'Final Notice - Order <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
-            <p style="font-size: 18px; color: #d43f00; font-weight: bold;">{{trans 'Order Total: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+            <p style="font-size: 18px; color: #d43f00; font-weight: bold;">{{trans 'Order Total: %order_total' order_total=$formatted_grand_total |raw}}</p>
         </td>
     </tr>
     <tr class="email-information">
@@ -84,7 +91,7 @@
                     {{/depend}}
                 </tr>
             </table>
-            
+
             <div style="text-align: center; margin: 30px 0; background-color: #ffe6e6; padding: 20px; border: 2px solid #d43f00; border-radius: 10px;">
                 <p style="color: #d43f00; font-weight: bold; margin: 0 0 15px 0; font-size: 16px;">
                     {{trans "Limited time - Don't wait any longer!"}}
@@ -93,9 +100,9 @@
                     {{trans "Complete Order Now"}}
                 </a>
             </div>
-            
+
             {{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
-            
+
             <div style="margin-top: 30px; padding: 15px; background-color: #f5f5f5; border-left: 4px solid #1979c3;">
                 <p style="margin: 0; font-style: italic;">
                     {{trans 'Need help? Contact us at <a href="mailto:%store_email" style="color: #1979c3; text-decoration: none;">%store_email</a> and we\'ll be happy to assist you.' store_email=$store.getStoreEmail() |raw}}
@@ -105,4 +112,4 @@
     </tr>
 </table>
 
-{{template config_path="design/email/footer_template"}} 
+{{template config_path="design/email/footer_template"}}

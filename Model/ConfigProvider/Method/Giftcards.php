@@ -73,9 +73,8 @@ class Giftcards extends AbstractConfigProvider
      * @param PaymentFee                $paymentFeeHelper
      * @param LogoService               $logoService
      * @param StoreManagerInterface     $storeManager
-     * @param ResourceConnection        $resourceConnection
-     * @param GiftcardsSource           $giftcardsSource
      * @param GiftcardCollectionFactory $giftcardCollectionFactory
+     * @param GiftcardsSource           $giftcardsSource
      */
     public function __construct(
         Repository $assetRepo,
@@ -124,6 +123,12 @@ class Giftcards extends AbstractConfigProvider
         return $this->getMethodConfigValue(self::XPATH_GIFTCARDS_GROUP_GIFTCARDS, $store);
     }
 
+    /**
+     * Build the list of available giftcards with labels, logos and sort order.
+     *
+     * @return array
+     * @throws NoSuchEntityException
+     */
     public function getAvailableGiftcards()
     {
         $sort = (string)$this->getSortedGiftcards();
@@ -184,7 +189,7 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Allowed Giftcards
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed|null
      */
@@ -196,7 +201,7 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Sorted Giftcards
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed|null
      */
@@ -208,7 +213,7 @@ class Giftcards extends AbstractConfigProvider
     /**
      * Get Sorted Issuers (alias for getSortedGiftcards for SortIssuers block compatibility)
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed|null
      */
@@ -226,6 +231,7 @@ class Giftcards extends AbstractConfigProvider
 
     /**
      * Get all available giftcard issuers for the SortIssuers block
+     *
      * Uses the same source model as the admin multiselect to ensure consistency
      *
      * @throws NoSuchEntityException
@@ -348,6 +354,8 @@ class Giftcards extends AbstractConfigProvider
     }
 
     /**
+     * Get the configured payment fee for the giftcards method.
+     *
      * @param null|int $storeId
      *
      * @return bool|float

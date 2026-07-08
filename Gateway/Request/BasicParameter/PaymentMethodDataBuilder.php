@@ -76,8 +76,9 @@ class PaymentMethodDataBuilder implements BuilderInterface
     }
 
     /**
-     * Resolve actual provider type when the payment method is giftcards but no gift card
-     * transactions were recorded, meaning the order was paid entirely by another method.
+     * Resolve the actual provider type for giftcards orders paid entirely by another method.
+     *
+     * Applies when the payment method is giftcards but no gift card transactions were recorded.
      *
      * @param \Magento\Payment\Model\InfoInterface $payment
      * @param \Magento\Payment\Gateway\Data\OrderAdapterInterface $order

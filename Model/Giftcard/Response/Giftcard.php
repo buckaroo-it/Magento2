@@ -91,6 +91,18 @@ class Giftcard
      */
     private $orderRepository;
 
+    /**
+     * Giftcard response constructor
+     *
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param QuoteManagement $quoteManagement
+     * @param OrderManagementInterface $orderManagement
+     * @param OrderRepositoryInterface $orderRepository
+     * @param GiftcardRemove $giftcardRemoveService
+     * @param BuckarooLoggerInterface $logger
+     * @param BuckarooResponseData $buckarooResponseData
+     */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
@@ -357,6 +369,12 @@ class Giftcard
         return '';
     }
 
+    /**
+     * Roll back all partial group transaction payments made on the given order.
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return void
+     */
     public function rollbackAllPartialPayments($order)
     {
         try {

@@ -26,6 +26,8 @@ class Belfius extends AbstractConfigProvider
     public const XPATH_BELFIUS_PAYMENT_FEE           = 'payment/buckaroo_magento2_belfius/payment_fee';
 
     /**
+     * Get the payment fee configured for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

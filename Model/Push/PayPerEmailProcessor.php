@@ -116,6 +116,8 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Process the PayPerEmail push notification and update the order state accordingly.
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      *
@@ -123,6 +125,8 @@ class PayPerEmailProcessor extends DefaultProcessor
      *
      * @throws FileSystemException
      * @throws \Exception
+     *
+     * @return bool
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -304,6 +308,15 @@ class PayPerEmailProcessor extends DefaultProcessor
         return false;
     }
 
+    /**
+     * Persist the actual payment method and transaction key on the payment for later refunds.
+     *
+     * @param string $transactionKey
+     * @param string $transactionMethod
+     *
+     * @return void
+     * @throws LocalizedException
+     */
     private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): void
     {
         $this->payment->setAdditionalInformation(
@@ -319,6 +332,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         $this->order->save();
     }
 
+    /**
+     * Derive the actual payment method used from the push request data.
+     *
+     * @return string|null
+     */
     private function deriveActualPaymentMethodFromPush(): ?string
     {
         if (method_exists($this->pushRequest, 'getPrimaryService')) {
@@ -331,6 +349,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         return $this->findServiceInPushData();
     }
 
+    /**
+     * Scan the raw push data for a service key that identifies the actual payment method.
+     *
+     * @return string|null
+     */
     private function findServiceInPushData(): ?string
     {
         if (!method_exists($this->pushRequest, 'getData')) {
@@ -356,6 +379,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Add the push status message to the order status history and update its state when new.
+     *
+     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -415,6 +441,8 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine the new order status for the current push, handling B2B initial pushes.
+     *
      * @throws BuckarooException
      * @throws LocalizedException
      *
@@ -445,6 +473,14 @@ class PayPerEmailProcessor extends DefaultProcessor
         return $newStatus;
     }
 
+    /**
+     * Build the payment amount, description and force-state flags for the push.
+     *
+     * @param string $message
+     *
+     * @return array
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
@@ -484,6 +520,8 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine whether an invoice should be saved, handling B2B capture registration.
+     *
      * @param array $paymentDetails
      *
      * @throws \Exception
@@ -534,6 +572,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         return true;
     }
 
+    /**
+     * Check whether the PayPerEmail order has already been finalized.
+     *
+     * @return bool
+     */
     private function isAlreadyFinalizedPayPerEmailOrder(): bool
     {
         return in_array($this->order->getState(), [

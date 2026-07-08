@@ -76,6 +76,8 @@ class HouseNumberValidator extends AbstractValidator
     }
 
     /**
+     * Validate that the address street contains a house number for German addresses.
+     *
      * @param Address $address
      *
      * @throws Exception

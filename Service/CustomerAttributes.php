@@ -20,6 +20,14 @@ class CustomerAttributes
         $this->customerRepository = $customerRepository;
     }
 
+    /**
+     * Set a custom attribute value on the given customer and save it.
+     *
+     * @param int $customerId
+     * @param string $attribute
+     * @param string $value
+     * @return void
+     */
     public function setAttribute(int $customerId, string $attribute, string $value)
     {
         $customer = $this->customerRepository->getById($customerId);

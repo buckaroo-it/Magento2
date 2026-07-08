@@ -24,6 +24,12 @@ class Analytics
      */
     private $storeConfig;
 
+    /**
+     * Analytics config provider constructor.
+     *
+     * @param ScopeConfigInterface $storeConfig
+     * @param Json $serialize
+     */
     public function __construct(
         ScopeConfigInterface $storeConfig,
         Json $serialize
@@ -32,6 +38,11 @@ class Analytics
         $this->serialize = $serialize;
     }
 
+    /**
+     * Check whether GA client id tracking is enabled in configuration.
+     *
+     * @return bool
+     */
     public function isClientIdTrackingEnabled(): bool
     {
         $config = $this->storeConfig->getValue(
@@ -41,6 +52,11 @@ class Analytics
         return (bool)$config;
     }
 
+    /**
+     * Get the configured cookie/parameter pairs used for analytics tracking.
+     *
+     * @return array
+     */
     public function getCookieParamPairs(): array
     {
         $configValue = $this->storeConfig->getValue(

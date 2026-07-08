@@ -15,21 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      
+      - uses: actions/checkout@v5
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           coverage: none
-      
+
       - name: Install PHPCS and Magento Coding Standard
         run: |
           composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require squizlabs/php_codesniffer:^3.7
           composer global require magento/magento-coding-standard
           ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/magento/magento-coding-standard
-      
+
       - name: Run PHPCS with custom rules
         run: |
           ~/.composer/vendor/bin/phpcs --standard=phpcs.xml --colors -p .
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: extdn/github-actions-m2/magento-mess-detector@master
 
   phpstan:
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: extdn/github-actions-m2/magento-phpstan/8.4@master
         with:
           composer_name: buckaroo/magento2

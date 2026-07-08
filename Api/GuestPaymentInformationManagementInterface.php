@@ -26,7 +26,6 @@ use Magento\Quote\Api\Data\PaymentInterface;
 
 interface GuestPaymentInformationManagementInterface
 {
-
     /**
      * Set payment information and place order for a specified cart.
      *

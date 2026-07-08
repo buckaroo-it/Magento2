@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\AddressHandler;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\QuoteFactory;
@@ -37,12 +38,22 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
     protected $quoteRepository;
 
     /**
+     * @var CookieManagerInterface
+     */
+    protected $cookieManager;
+
+    /**
      * @param BuckarooLoggerInterface $logger
      * @param CartRepositoryInterface $quoteRepository
+     * @param CookieManagerInterface $cookieManager
      */
-    public function __construct(BuckarooLoggerInterface $logger, CartRepositoryInterface $quoteRepository)
-    {
+    public function __construct(
+        BuckarooLoggerInterface $logger,
+        CartRepositoryInterface $quoteRepository,
+        CookieManagerInterface $cookieManager
+    ) {
         $this->quoteRepository = $quoteRepository;
+        $this->cookieManager = $cookieManager;
         parent::__construct($logger);
     }
 
@@ -85,16 +96,16 @@ class DPDPickupAddressHandler extends AbstractAddressHandler
         $country = $quote->getDpdCountry();
 
         if (!$fullStreet && $quote->getDpdParcelshopId()) {
+            $fullStreet = $this->cookieManager->getCookie('dpd-selected-parcelshop-street') ?? '';
+            $postalCode = $this->cookieManager->getCookie('dpd-selected-parcelshop-zipcode') ?? '';
+            $city = $this->cookieManager->getCookie('dpd-selected-parcelshop-city') ?? '';
+            $country = $this->cookieManager->getCookie('dpd-selected-parcelshop-country') ?? '';
             $this->logger->addDebug(sprintf(
-                '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | cookie: %s',
+                '[CREATE_ORDER] | [Gateway] | [%s:%s] - Set shipping address fields by DPD Parcel | cookies: %s',
                 __METHOD__,
                 __LINE__,
-                var_export($_COOKIE, true)
+                var_export([$fullStreet, $postalCode, $city, $country], true)
             ));
-            $fullStreet = $_COOKIE['dpd-selected-parcelshop-street'] ?? '';
-            $postalCode = $_COOKIE['dpd-selected-parcelshop-zipcode'] ?? '';
-            $city = $_COOKIE['dpd-selected-parcelshop-city'] ?? '';
-            $country = $_COOKIE['dpd-selected-parcelshop-country'] ?? '';
         }
 
         $matches = false;

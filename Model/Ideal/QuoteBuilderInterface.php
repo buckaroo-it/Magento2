@@ -21,7 +21,6 @@ namespace Buckaroo\Magento2\Model\Ideal;
 
 interface QuoteBuilderInterface
 {
-
     /**
      * Set form data
      *

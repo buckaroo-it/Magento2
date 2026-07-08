@@ -22,14 +22,22 @@ namespace Buckaroo\Magento2\Api\Data;
 interface TotalBreakdownInterface
 {
     /**
+     * Get the item total breakdown entry
+     *
      * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getItemTotal();
+
     /**
+     * Get the shipping breakdown entry
+     *
      * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getShipping();
+
     /**
+     * Get the tax total breakdown entry
+     *
      * @return \Buckaroo\Magento2\Api\Data\BreakdownItemInterface
      */
     public function getTaxTotal();

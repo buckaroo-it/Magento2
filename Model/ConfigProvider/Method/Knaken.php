@@ -26,6 +26,8 @@ class Knaken extends AbstractConfigProvider
     public const XPATH_KNAKEN_PAYMENT_FEE = 'payment/buckaroo_magento2_knaken/payment_fee';
 
     /**
+     * Get the configured payment fee for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

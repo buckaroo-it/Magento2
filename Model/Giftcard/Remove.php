@@ -46,6 +46,13 @@ class Remove
      */
     private $removeCommand;
 
+    /**
+     * Constructor
+     *
+     * @param GroupTransactionRepository $groupTransactionRepository
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param CommandInterface $removeCommand
+     */
     public function __construct(
         GroupTransactionRepository $groupTransactionRepository,
         PaymentDataObjectFactory $paymentDataObjectFactory,
@@ -61,7 +68,7 @@ class Remove
      *
      * @param string $transactionId
      * @param string $orderId
-     * @param        $payment
+     * @param \Magento\Payment\Model\InfoInterface $payment
      *
      * @throws RemoveException
      * @throws CommandException

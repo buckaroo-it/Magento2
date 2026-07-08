@@ -10,20 +10,30 @@ use Magento\Framework\Api\DataObjectHelper;
 class Analytics extends \Magento\Framework\Model\AbstractModel
 {
 
+    /**
+     * @var DataObjectHelper
+     */
     protected $dataObjectHelper;
 
+    /**
+     * @var string
+     */
     protected $_eventPrefix = 'buckaroo_magento2_analytics';
 
+    /**
+     * @var AnalyticsInterfaceFactory
+     */
     protected $analyticsDataFactory;
 
     /**
-     * @param \Magento\Framework\Model\Context                            $context
-     * @param \Magento\Framework\Registry                                 $registry
-     * @param AnalyticsInterfaceFactory                                   $analyticsDataFactory
-     * @param DataObjectHelper                                            $dataObjectHelper
-     * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics            $resource
+     * @param \Magento\Framework\Model\Context $context
+     * @param \Magento\Framework\Registry $registry
+     * @param AnalyticsInterfaceFactory $analyticsDataFactory
+     * @param DataObjectHelper $dataObjectHelper
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics $resource
      * @param \Buckaroo\Magento2\Model\ResourceModel\Analytics\Collection $resourceCollection
-     * @param array                                                       $data
+     * @param array $data
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,

@@ -25,6 +25,9 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class ApplepayButton extends Field
 {
+    /**
+     * @var string
+     */
     protected $_template = 'Buckaroo_Magento2::applepay.phtml';
 
     /**
@@ -48,11 +51,21 @@ class ApplepayButton extends Field
         return $this->_toHtml();
     }
 
+    /**
+     * Get the configured Apple Pay button style value.
+     *
+     * @return string
+     */
     public function getButtonStyle(): string
     {
         return (string) $this->styleElement->getDataByKey('value');
     }
 
+    /**
+     * Get the id of the Apple Pay button style form element.
+     *
+     * @return string
+     */
     public function getButtonStyleElement(): string
     {
         return (string) $this->styleElement->getId();

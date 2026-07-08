@@ -23,6 +23,11 @@ namespace Buckaroo\Magento2\Model\Config\Source\TaxClass;
 
 class Product extends \Magento\Tax\Model\TaxClass\Source\Product
 {
+    /**
+     * Return product tax class options without an empty option.
+     *
+     * @return array
+     */
     public function toOptionArray(): array
     {
         return $this->getAllOptions(false);

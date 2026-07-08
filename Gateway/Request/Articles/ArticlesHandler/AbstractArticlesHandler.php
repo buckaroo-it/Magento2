@@ -724,7 +724,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get the discount cost line.
      *
-     * @deprecated Use getDiscountLines() to correctly split discounts per VAT rate.
+     * @deprecated A single discount line cannot represent discounts spread over multiple VAT rates.
+     * @see \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::getDiscountLines()
      * @return array
      */
     public function getDiscountLine(): array
@@ -773,7 +774,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-       $discountLines = $this->getDiscountLines();
+        $discountLines = $this->getDiscountLines();
 
         $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLines));
 
@@ -998,7 +999,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ];
     }
 
-
     /**
      * Safety net: if the assembled article lines do not sum exactly to the grand total
      * (rounding, unusual discount types, third-party fees), add an adjustment line to
@@ -1123,7 +1123,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Set payment
      *
-     * @param $payment
+     * @param InfoInterface $payment
      *
      * @return $this
      */

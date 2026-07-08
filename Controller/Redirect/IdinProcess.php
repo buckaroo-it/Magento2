@@ -57,6 +57,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
      * @var SpamLimitService
      */
     protected $spamLimitService;
+
     /**
      * @param Context                     $context
      * @param BuckarooLoggerInterface     $logger
@@ -72,6 +73,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
      * @param Recreate                    $quoteRecreate
      * @param RequestPushFactory          $requestPushFactory
      * @param LockManagerWrapper          $lockManager
+     * @param SpamLimitService            $spamLimitService
      * @param CustomerFactory             $customerFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
@@ -116,7 +118,10 @@ class IdinProcess extends Process implements HttpPostActionInterface
     }
 
     /**
+     * Process the iDIN redirect request and verify the customer.
+     *
      * @return ResponseInterface
+     * @throws \Exception
      */
     public function execute(): ResponseInterface
     {

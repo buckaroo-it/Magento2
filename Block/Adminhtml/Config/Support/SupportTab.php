@@ -132,8 +132,8 @@ class SupportTab extends Template implements RendererInterface
     /**
      * Check PHP Compatibility
      *
-     * @param $currentVersion
-     * @param $phpPatch
+     * @param array $currentVersion
+     * @param int $phpPatch
      *
      * @return int
      */

@@ -360,10 +360,11 @@ class Data extends AbstractHelper
     /**
      * Get order status by state
      *
-     * @param $order
-     * @param $orderState
+     * @param \Magento\Sales\Model\Order $order
+     * @param string $orderState
      *
      * @return mixed
+     * @throws LocalizedException
      */
     public function getOrderStatusByState($order, $orderState)
     {

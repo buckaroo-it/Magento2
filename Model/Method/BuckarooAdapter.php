@@ -227,6 +227,11 @@ class BuckarooAdapter extends Adapter
         return $result->isValid();
     }
 
+    /**
+     * Resolve the current store to its integer id when possible.
+     *
+     * @return int|null
+     */
     private function getResolvedStoreId(): ?int
     {
         $store = $this->getStore();

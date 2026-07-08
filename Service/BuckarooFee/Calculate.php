@@ -56,6 +56,13 @@ class Calculate
         $this->percentage = $percentage;
     }
 
+    /**
+     * Calculate the Buckaroo payment fee for the given quote.
+     *
+     * @param Quote $quote
+     * @param Total $total
+     * @return mixed
+     */
     public function calculatePaymentFee(Quote $quote, Total $total)
     {
         $paymentFee = $this->getPaymentFee($quote);
@@ -70,6 +77,12 @@ class Calculate
         return $this->fixedAmount->calculate($quote, (float)$paymentFee);
     }
 
+    /**
+     * Get the configured payment fee value for the quote's payment method.
+     *
+     * @param Quote $quote
+     * @return string|null
+     */
     public function getPaymentFee(Quote $quote)
     {
         $paymentMethod = $quote->getPayment()->getMethod();

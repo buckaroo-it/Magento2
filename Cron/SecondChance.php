@@ -63,6 +63,11 @@ class SecondChance
         $this->secondChanceRepository = $secondChanceRepository;
     }
 
+    /**
+     * Process second chance emails for all enabled stores.
+     *
+     * @return void
+     */
     public function execute()
     {
         try {

@@ -2,7 +2,7 @@
 <ruleset name="Buckaroo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
     <description>Buckaroo Magento2 Coding Standard</description>
-    
+
     <!-- Include Magento2 coding standard -->
     <rule ref="Magento2">
         <!-- Override line length to 250 characters (default is 120) -->
@@ -12,7 +12,7 @@
         <exclude name="Magento2.GraphQL"/>
         <exclude name="Squiz.CSS.NamedColours"/>
     </rule>
-    
+
     <!-- Set custom line length limit -->
     <rule ref="Generic.Files.LineLength">
         <properties>
@@ -20,9 +20,12 @@
             <property name="absoluteLineLimit" value="300"/>
         </properties>
     </rule>
-    
+
     <!-- Exclude specific paths from checks -->
     <exclude-pattern>*/Test/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/.github/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <!-- Vendored third-party library, not our code to restyle -->
+    <exclude-pattern>*/view/frontend/web/js/lib/buckaroo-sdk.js</exclude-pattern>
 </ruleset>

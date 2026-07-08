@@ -32,6 +32,11 @@ class QuotePlugin
      */
     protected $groupTransaction;
 
+    /**
+     * Constructor.
+     *
+     * @param PaymentGroupTransaction $groupTransaction
+     */
     public function __construct(
         PaymentGroupTransaction $groupTransaction
     ) {
@@ -41,7 +46,7 @@ class QuotePlugin
     /**
      * Around plugin for reserveOrderId method.
      *
-     * @param Quote    $subject
+     * @param Quote   $subject
      * @param Closure $proceed
      *
      * @return Quote

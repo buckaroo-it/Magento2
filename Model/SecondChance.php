@@ -29,20 +29,30 @@ use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection as SecondChanc
 
 class SecondChance extends \Magento\Framework\Model\AbstractModel implements SecondChanceInterface
 {
+    /**
+     * @var DataObjectHelper
+     */
     protected $dataObjectHelper;
 
+    /**
+     * @var string
+     */
     protected $_eventPrefix = 'buckaroo_magento2_second_chance';
 
+    /**
+     * @var SecondChanceInterfaceFactory
+     */
     protected $secondChanceDataFactory;
 
     /**
      * @param \Magento\Framework\Model\Context $context
-     * @param \Magento\Framework\Registry      $registry
-     * @param SecondChanceInterfaceFactory     $secondChanceDataFactory
-     * @param DataObjectHelper                 $dataObjectHelper
-     * @param SecondChanceResource             $resource
-     * @param SecondChanceCollection           $resourceCollection
-     * @param array                            $data
+     * @param \Magento\Framework\Registry $registry
+     * @param SecondChanceInterfaceFactory $secondChanceDataFactory
+     * @param DataObjectHelper $dataObjectHelper
+     * @param SecondChanceResource $resource
+     * @param SecondChanceCollection $resourceCollection
+     * @param array $data
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \Magento\Framework\Model\Context $context,

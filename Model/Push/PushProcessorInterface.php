@@ -7,6 +7,8 @@ use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 interface PushProcessorInterface
 {
     /**
+     * Process a push request received from Buckaroo.
+     *
      * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
      *
      * @return bool

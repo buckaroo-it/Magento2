@@ -829,6 +829,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 'secondChanceToken' => $secondChance->getToken(),
                 'customer_name' => $order->getCustomerName(),
                 'customer_email' => $order->getCustomerEmail(),
+                'formatted_grand_total' => $order->formatPrice($order->getGrandTotal()),
                 'order_data' => [
                     'customer_name' => $order->getCustomerName(),
                     'is_not_virtual' => $order->getIsNotVirtual(),

@@ -151,6 +151,8 @@ class CancelRemainingReservation
     }
 
     /**
+     * Resolve the command manager for the given Klarna payment method code.
+     *
      * @param string $methodCode
      * @return CommandManagerInterface|null
      */
@@ -168,6 +170,8 @@ class CancelRemainingReservation
     }
 
     /**
+     * Check whether the order or payment holds a Klarna reservation reference.
+     *
      * @param Order $order
      * @param \Magento\Sales\Model\Order\Payment $payment
      * @param string $methodCode

@@ -11,7 +11,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 interface AnalyticsRepositoryInterface
 {
-
     /**
      * Save Analytics
      *

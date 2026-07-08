@@ -11,18 +11,10 @@ use Magento\Checkout\Model\Layout\AbstractTotalsProcessor;
 class TotalsProcessor extends AbstractTotalsProcessor implements LayoutProcessorInterface
 {
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * Set the Buckaroo fee title in the checkout totals layout.
      *
-     * @codeCoverageIgnore
-     */
-    public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-    ) {
-        parent::__construct($scopeConfig);
-    }
-
-    /**
-     * {@inheritdoc}
+     * @param array $jsLayout
+     * @return array
      */
     public function process($jsLayout)
     {

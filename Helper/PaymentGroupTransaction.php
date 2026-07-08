@@ -57,6 +57,9 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     private $logger;
 
+    /**
+     * @var ResourceConnection
+     */
     protected $resourceConnection;
 
     /**

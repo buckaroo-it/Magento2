@@ -30,7 +30,14 @@
 "var checkout_url":"Betaallink",
 "var customer_name":"Klantnaam",
 "var customer_email":"E-mailadres klant",
-"var order.getShippingDescription":"Verzendmethode"
+"var order.getShippingDescription":"Verzendmethode",
+"var order.shipping_description":"Verzendmethode",
+"var order_data.is_not_virtual":"Order is niet virtueel",
+"var order_id":"Ordernummer",
+"var store.frontend_name":"Winkelnaam",
+"var store.getFrontendName()":"Winkelnaam",
+"var store.getStoreEmail()":"E-mailadres winkel",
+"var formatted_grand_total":"Totaalbedrag"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -53,7 +60,7 @@
     <tr class="email-summary">
         <td>
             <h1>{{trans 'Jouw bestelling <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
-            <p>{{trans 'Totaalbedrag: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+            <p>{{trans 'Totaalbedrag: %order_total' order_total=$formatted_grand_total |raw}}</p>
         </td>
     </tr>
     <tr class="email-information">

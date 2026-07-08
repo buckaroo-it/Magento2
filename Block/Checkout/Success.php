@@ -51,6 +51,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
      * @param Config          $orderConfig
      * @param HttpContext     $httpContext
      * @param CurrentCustomer $currentCustomer
+     * @param PriceHelper     $priceHelper
      * @param array           $data
      */
     public function __construct(
@@ -143,6 +144,9 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
 
     /**
      * Format price in order currency.
+     *
+     * @param float $amount
+     * @return string
      */
     public function formatPrice(float $amount): string
     {
@@ -150,7 +154,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     }
 
     /**
-     * Get last real order from checkout session.
+     * Get the last real order from the checkout session.
      */
     public function getOrder(): ?OrderInterface
     {

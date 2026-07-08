@@ -28,6 +28,8 @@ class TotalsConverter
     }
 
     /**
+     * Add the Buckaroo fee tax details to the buckaroo_fee total segment.
+     *
      * @param \Magento\Quote\Model\Cart\TotalsConverter  $subject
      * @param \Closure                                   $proceed
      * @param \Magento\Quote\Model\Quote\Address\Total[] $addressTotals

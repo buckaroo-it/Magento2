@@ -26,10 +26,11 @@ use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Model\Quote;
 
+// phpcs:disable Magento2.Functions.StaticFunction -- pure stateless helpers, mirrors Magento\Payment\Gateway\Helper\SubjectReader
 class SubjectReader
 {
     /**
-     * Reads payment method instance from subject
+     * Reads payment method instance from the subject
      *
      * @param array $subject
      *

@@ -34,6 +34,7 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Escaper;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 
@@ -46,6 +47,11 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @var Klarnakp
      */
     private $klarnakpConfig;
+
+    /**
+     * @var Escaper
+     */
+    private $escaper;
 
     /**
      * @param OrderRequestService     $orderRequestService
@@ -62,6 +68,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param ResourceConnection      $resourceConnection
      * @param GiftcardCollection      $giftcardCollection
      * @param Klarnakp                $klarnakpConfig
+     * @param Escaper                 $escaper
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -79,7 +86,8 @@ class KlarnaKpProcessor extends DefaultProcessor
         Uncancel $uncancelService,
         ResourceConnection $resourceConnection,
         GiftcardCollection $giftcardCollection,
-        Klarnakp $klarnakpConfig
+        Klarnakp $klarnakpConfig,
+        Escaper $escaper
     ) {
         parent::__construct(
             $orderRequestService,
@@ -97,10 +105,12 @@ class KlarnaKpProcessor extends DefaultProcessor
             $giftcardCollection
         );
         $this->klarnakpConfig = $klarnakpConfig;
+        $this->escaper = $escaper;
     }
 
     /**
      * Process the push according to the response status.
+     *
      * For KlarnaKp, detect Plaza-originated cancel reservation pushes that arrive as statuscode 190.
      *
      * @throws \Exception
@@ -182,7 +192,7 @@ class KlarnaKpProcessor extends DefaultProcessor
             }
         }
 
-        $cancelTrxId = htmlspecialchars((string)$this->pushRequest->getDatarequest(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $cancelTrxId = $this->escaper->escapeHtml((string)$this->pushRequest->getDatarequest());
         $description = sprintf(
             'Order cancelled via Buckaroo Plaza (KlarnaKp reservation released).'
             . ' Cancel transaction: <a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s"'
@@ -288,6 +298,12 @@ class KlarnaKpProcessor extends DefaultProcessor
         return $trxId;
     }
 
+    /**
+     * Persist the Klarna KP reservation number from the push onto the order.
+     *
+     * @return bool
+     * @throws \Exception
+     */
     protected function setBuckarooReservationNumber(): bool
     {
         $reservationNumberFromPush = $this->pushRequest->getServiceKlarnakpReservationnumber();
@@ -329,6 +345,8 @@ class KlarnaKpProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine whether an invoice should be saved for the current Klarna KP push.
+     *
      * @param array $paymentDetails
      *
      * @throws \Exception
@@ -359,6 +377,7 @@ class KlarnaKpProcessor extends DefaultProcessor
 
     /**
      * Process succeeded push authorization for Klarna KP.
+     *
      * Handles the special case where a canceled order can become successful within 48 hours.
      *
      * @throws \Exception

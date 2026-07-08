@@ -44,6 +44,13 @@ class SetExistingOrderItems implements ObserverInterface
      */
     protected $groupTransaction;
 
+    /**
+     * Constructor
+     *
+     * @param OrderItemCollectionFactory $orderItemCollectionFactory
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooLoggerInterface $logger
+     */
     public function __construct(
         OrderItemCollectionFactory $orderItemCollectionFactory,
         PaymentGroupTransaction $groupTransaction,
@@ -76,6 +83,12 @@ class SetExistingOrderItems implements ObserverInterface
         }
     }
 
+    /**
+     * Retrieve the order item collection filtered by the given order id.
+     *
+     * @param int|string $orderId
+     * @return \Magento\Sales\Api\Data\OrderItemInterface[]
+     */
     protected function getOrderItemsByOrderId($orderId)
     {
         $collection = $this->orderItemCollectionFactory->create();

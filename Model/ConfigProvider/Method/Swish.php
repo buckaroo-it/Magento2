@@ -26,6 +26,8 @@ class Swish extends AbstractConfigProvider
     public const XPATH_SWISH_PAYMENT_FEE           = 'payment/buckaroo_magento2_swish/payment_fee';
 
     /**
+     * Get the payment fee configured for Swish.
+     *
      * @param null|int $storeId
      *
      * @return float
@@ -42,6 +44,8 @@ class Swish extends AbstractConfigProvider
     }
 
     /**
+     * Get the base allowed currencies for Swish.
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array

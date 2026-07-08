@@ -41,6 +41,9 @@ class Info extends \Magento\Payment\Block\Info
      */
     protected $giftcardCollection;
 
+    /**
+     * @var UrlInterface
+     */
     protected $baseUrl;
 
     /**
@@ -194,6 +197,7 @@ class Info extends \Magento\Payment\Block\Info
 
     /**
      * Get all payment methods from group transactions (for mixed payments)
+     *
      * This includes both giftcards and other payment methods (ideal, alipay, etc)
      *
      * @throws LocalizedException
@@ -252,7 +256,8 @@ class Info extends \Magento\Payment\Block\Info
 
     /**
      * Get the actual payment method used from raw transaction details
-     * Useful when payment method is "giftcards" but no giftcards were actually used
+     *
+     * Useful when the payment method is "giftcards" but no giftcards were actually used
      *
      * @return array|null ['code' => 'ideal', 'label' => 'Ideal']
      * @throws LocalizedException

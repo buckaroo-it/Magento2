@@ -69,6 +69,8 @@ class PayByBank extends AbstractConfigProvider
     }
 
     /**
+     * Retrieve the checkout configuration for the PayByBank payment method.
+     *
      * @return array
      */
     public function getConfig(): array

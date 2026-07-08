@@ -203,7 +203,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
                 __LINE__,
                 $exception->getMessage()
             ));
-            $this->messageManager->addErrorMessage(__(self::GENERAL_ERROR_MESSAGE));
+            $this->messageManager->addErrorMessage(
+                __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+            );
             return $this->handleProcessedResponse('checkout/cart');
         }
     }

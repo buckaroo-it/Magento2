@@ -11,6 +11,13 @@ use Magento\Sales\Model\Order;
 
 class TransferProcessor extends DefaultProcessor
 {
+    /**
+     * Get the payment details (amount, description, force state) for the push.
+     *
+     * @param string $message
+     * @return array
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
@@ -123,6 +130,8 @@ class TransferProcessor extends DefaultProcessor
     }
 
     /**
+     * Get the transfer payment details from the push request.
+     *
      * @return array
      */
     protected function getTransferDetails(): array
@@ -149,6 +158,9 @@ class TransferProcessor extends DefaultProcessor
     }
 
     /**
+     * Add the push status message to the order status history.
+     *
+     * @return void
      */
     protected function setOrderStatusMessage(): void
     {

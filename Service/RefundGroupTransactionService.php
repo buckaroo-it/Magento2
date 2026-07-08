@@ -242,7 +242,7 @@ class RefundGroupTransactionService
                     $refundAmount,
                     $response['object']->getStatusCode()
                 ));
-                
+
                 // Update amount left to refund ONLY on success
                 $this->amountLeftToRefund -= $refundAmount;
 
@@ -710,5 +710,4 @@ class RefundGroupTransactionService
             $order->getIncrementId()
         ));
     }
-
 }

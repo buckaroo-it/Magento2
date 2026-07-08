@@ -35,13 +35,16 @@ class CartTotalRepository
     }
 
     /**
+     * Add Buckaroo fee totals to the cart totals result.
+     *
      * @param TotalRepository $subject
-     * @param \Closure        $proceed
-     * @param int             $cartId
+     * @param \Closure $proceed
+     * @param int $cartId
      *
      * @return TotalsInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function aroundGet(TotalRepository $subject, \Closure $proceed, $cartId)
     {

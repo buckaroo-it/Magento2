@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Request\Address;
 
 trait AfterpayCareOfAddressTrait
 {
-
     /**
      * @inheritdoc
      */
@@ -66,6 +65,8 @@ trait AfterpayCareOfAddressTrait
     }
 
     /**
+     * Check whether the given country is a DACH country (DE, AT, CH).
+     *
      * @param string $countryId
      *
      * @return bool

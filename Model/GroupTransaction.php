@@ -114,6 +114,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     {
         return $this->getData('currency');
     }
+
     /**
      * Getter for amount
      *
@@ -123,6 +124,7 @@ class GroupTransaction extends AbstractModel implements GroupTransactionInterfac
     {
         return (float)$this->getData('amount');
     }
+
     /**
      * Getter for order increment it
      *

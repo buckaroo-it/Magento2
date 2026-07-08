@@ -51,6 +51,7 @@ class StreetFormatter
 
     /**
      * Street is always an array since it is parsed with two field objects.
+     *
      * Nondeless it could be that only the first field is parsed to the array
      *
      * @param array $street

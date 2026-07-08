@@ -64,8 +64,9 @@ class Cancel
     }
 
     /**
-     * Cancels a transaction, updates the order status, and cancels the order
-     * if the configuration is set to cancel on failed transactions.
+     * Cancel a transaction and update the order status.
+     *
+     * Also cancels the order if the configuration is set to cancel on failed transactions.
      *
      * @param TransactionInterface|Transaction $transaction
      *

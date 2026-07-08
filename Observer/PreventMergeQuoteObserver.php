@@ -41,7 +41,10 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
     }
 
     /**
+     * Prevent quote merging for group transactions by clearing the source quote items.
+     *
      * @param Observer $observer
+     * @return void
      *
      * @throws Exception
      */
@@ -58,6 +61,12 @@ class PreventMergeQuoteObserver implements \Magento\Framework\Event\ObserverInte
         }
     }
 
+    /**
+     * Remove all items from the given quote.
+     *
+     * @param mixed $quote
+     * @return void
+     */
     private function removeAllItems($quote): void
     {
         $items = $quote->getItemsCollection();

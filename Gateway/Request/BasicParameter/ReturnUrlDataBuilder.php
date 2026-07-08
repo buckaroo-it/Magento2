@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Laminas\Uri\UriFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
@@ -137,6 +138,12 @@ class ReturnUrlDataBuilder implements BuilderInterface
         return $this->formKey->getFormKey();
     }
 
+    /**
+     * Get the custom return URL stored on the payment, if it is a valid http(s) URL.
+     *
+     * @param Order $order
+     * @return string|null
+     */
     public function getReturnUrlFromPayment(Order $order): ?string
     {
         if ($order->getPayment() === null ||
@@ -145,10 +152,16 @@ class ReturnUrlDataBuilder implements BuilderInterface
             return null;
         }
         $returnUrl = (string)$order->getPayment()->getAdditionalInformation(self::ADDITIONAL_RETURN_URL);
-        if (!filter_var($returnUrl, FILTER_VALIDATE_URL) === false &&
-            in_array(parse_url($returnUrl, PHP_URL_SCHEME), ['http', 'https'])
-        ) {
-            return $returnUrl;
+        if (filter_var($returnUrl, FILTER_VALIDATE_URL) !== false) {
+            try {
+                $scheme = UriFactory::factory($returnUrl)->getScheme();
+            } catch (\InvalidArgumentException $e) {
+                return null;
+            }
+
+            if (in_array($scheme, ['http', 'https'])) {
+                return $returnUrl;
+            }
         }
 
         return null;

@@ -105,7 +105,9 @@ class AllowedCountries implements OptionSourceInterface
     }
 
     /**
-     * $method is what is defined in system.xml (i.e. ::ideal) and is directly passed to toOptionArray for method
+     * Handle dynamic calls for methods defined in system.xml (i.e. :ideal).
+     *
+     * The called method name is directly passed to toOptionArray for method
      * configuration exemptions.
      *
      * @param string     $method

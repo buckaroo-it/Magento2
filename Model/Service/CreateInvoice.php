@@ -96,15 +96,15 @@ class CreateInvoice
     private $orderStatusHistoryRepository;
 
     /**
-     * @param Account                 $configAccount
-     * @param Log                     $logger
+     * @param Account $configAccount
+     * @param Log $logger
      * @param PaymentGroupTransaction $groupTransaction
-     * @param InvoiceSender           $invoiceSender
-     * @param InvoiceService          $invoiceService
-     * @param TransactionFactory      $transactionFactory
-     * @param Registry                $registry
-     * @param Data                    $helper
-     * @param Json|null                                  $jsonSerializer
+     * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Registry $registry
+     * @param Data $helper
+     * @param Json|null $jsonSerializer
      * @param OrderStatusHistoryRepositoryInterface|null $orderStatusHistoryRepository
      */
     public function __construct(
@@ -233,6 +233,8 @@ class CreateInvoice
     }
 
     /**
+     * Add transaction data to the payment for the given transaction key.
+     *
      * @param mixed $payment
      * @param mixed $transactionKey
      * @param mixed $datas
@@ -340,6 +342,13 @@ class CreateInvoice
         return $qtys;
     }
 
+    /**
+     * Prepare the invoice item qtys, falling back to all invoiceable items when none are given.
+     *
+     * @param Order $order
+     * @param array $invoiceItems
+     * @return array
+     */
     private function prepareInvoiceItems(Order $order, array $invoiceItems): array
     {
         if (empty($invoiceItems)) {

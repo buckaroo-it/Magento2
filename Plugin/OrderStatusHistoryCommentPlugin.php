@@ -34,6 +34,11 @@ class OrderStatusHistoryCommentPlugin
      */
     private $checkPaymentType;
 
+    /**
+     * Constructor.
+     *
+     * @param CheckPaymentType $checkPaymentType
+     */
     public function __construct(CheckPaymentType $checkPaymentType)
     {
         $this->checkPaymentType = $checkPaymentType;
@@ -83,6 +88,12 @@ class OrderStatusHistoryCommentPlugin
         return [$updatedComment, $status];
     }
 
+    /**
+     * Get the Buckaroo refund transaction key stored on the order payment.
+     *
+     * @param Order $order
+     * @return string|null
+     */
     private function getRefundTransactionId(Order $order): ?string
     {
         $payment = $order->getPayment();
@@ -95,11 +106,24 @@ class OrderStatusHistoryCommentPlugin
         return null;
     }
 
+    /**
+     * Append the transaction id link to the comment text.
+     *
+     * @param string $commentText
+     * @param string $transactionId
+     * @return string
+     */
     private function appendTransactionId(string $commentText, string $transactionId): string
     {
         return rtrim($commentText) . ' Transaction ID: "' . $this->buildTransactionIdLink($transactionId) . '"';
     }
 
+    /**
+     * Build the Buckaroo Plaza transaction details link for the given transaction id.
+     *
+     * @param string $transactionId
+     * @return string
+     */
     private function buildTransactionIdLink(string $transactionId): string
     {
         // Keep consistent with HtmlTransactionIdObserver's plaza link structure.

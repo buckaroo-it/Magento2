@@ -152,8 +152,9 @@ class NotificationRenderer
     }
 
     /**
-     * Searches a given string for a URL, formats it to an HTML anchor tag, and returns the original string in the
-     * correct HTML format.
+     * Search a given string for URLs and format them into HTML anchor tags.
+     *
+     * Returns the original string in the correct HTML format.
      *
      * @param string $content
      *

@@ -100,6 +100,8 @@ class RefundProcessor extends DefaultProcessor
     }
 
     /**
+     * Process a refund push request received from Buckaroo.
+     *
      * @param PushRequestInterface $pushRequest
      *
      * @return bool

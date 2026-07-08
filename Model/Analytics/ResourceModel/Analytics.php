@@ -5,7 +5,6 @@ namespace Buckaroo\Magento2\Model\Analytics\ResourceModel;
 
 class Analytics extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
-
     /**
      * Define resource model
      */

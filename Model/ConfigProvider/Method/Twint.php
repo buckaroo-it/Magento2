@@ -31,7 +31,10 @@ class Twint extends AbstractConfigProvider
     protected $allowedCurrencies = [
         'CHF'
     ];
+
     /**
+     * Get the payment fee configured for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

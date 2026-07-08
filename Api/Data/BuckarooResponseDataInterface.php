@@ -24,7 +24,18 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 
 interface BuckarooResponseDataInterface
 {
+    /**
+     * Get the Buckaroo transaction response.
+     *
+     * @return TransactionResponse|null
+     */
     public function getResponse(): ?TransactionResponse;
 
+    /**
+     * Set the Buckaroo transaction response.
+     *
+     * @param TransactionResponse $transactionResponse
+     * @return BuckarooResponseDataInterface
+     */
     public function setResponse(TransactionResponse $transactionResponse): BuckarooResponseDataInterface;
 }

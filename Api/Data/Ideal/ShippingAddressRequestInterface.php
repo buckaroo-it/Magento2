@@ -76,6 +76,7 @@ interface ShippingAddressRequestInterface
      * @param string $street
      */
     public function setStreet(string $street);
+
     /**
      * Get city
      *

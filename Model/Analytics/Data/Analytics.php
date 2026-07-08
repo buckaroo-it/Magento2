@@ -7,7 +7,6 @@ use Buckaroo\Magento2\Api\Data\AnalyticsInterface;
 
 class Analytics extends \Magento\Framework\Api\AbstractExtensibleObject implements AnalyticsInterface
 {
-
     /**
      * Get analytics_id
      *
