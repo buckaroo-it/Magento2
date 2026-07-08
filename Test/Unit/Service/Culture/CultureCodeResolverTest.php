@@ -50,26 +50,30 @@ class CultureCodeResolverTest extends TestCase
     public static function resolveProvider(): array
     {
         return [
-            // The reported bug: Belgium order on a Dutch store must be nl-BE, not nl-NL.
+            // The reported bug: Belgium order must not be nl-NL. Language chosen among BE natives only.
             'BE dutch store'             => ['BE', 'nl_NL', 'nl-BE'],
             'BE french browser'          => ['BE', 'fr_BE', 'fr-BE'],
             'BE french store'            => ['BE', 'fr_FR', 'fr-BE'],
-            'BE english store'           => ['BE', 'en_US', 'en-BE'],
             'BE no hint -> primary'      => ['BE', null, 'nl-BE'],
             'BE unknown lang -> primary' => ['BE', 'pl_PL', 'nl-BE'],
+            // A generic English store locale must NOT produce the synthetic en-BE; stay native.
+            'BE english store'           => ['BE', 'en_US', 'nl-BE'],
 
             // Netherlands
             'NL default'                 => ['NL', 'nl_NL', 'nl-NL'],
-            'NL english'                 => ['NL', 'en_US', 'en-NL'],
+            // Regression: NL on an en_US store previously produced the rejected en-NL. Must be nl-NL.
+            'NL english store'           => ['NL', 'en_US', 'nl-NL'],
 
-            // Switzerland (four supported languages)
+            // Switzerland (three native languages)
             'CH german'                  => ['CH', 'de_CH', 'de-CH'],
             'CH french'                  => ['CH', 'fr_FR', 'fr-CH'],
             'CH italian'                 => ['CH', 'it_IT', 'it-CH'],
+            'CH english store -> primary'=> ['CH', 'en_US', 'de-CH'],
             'CH no hint -> primary'      => ['CH', null, 'de-CH'],
 
             // Single-language / requested countries
             'DE'                         => ['DE', 'de_DE', 'de-DE'],
+            'DE english store'           => ['DE', 'en_US', 'de-DE'],
             'AT'                         => ['AT', 'de_AT', 'de-AT'],
             'FR'                         => ['FR', 'fr_FR', 'fr-FR'],
             'IT'                         => ['IT', 'it_IT', 'it-IT'],
@@ -82,17 +86,15 @@ class CultureCodeResolverTest extends TestCase
             'SE'                         => ['SE', 'sv_SE', 'sv-SE'],
             'NO'                         => ['NO', 'nb_NO', 'nb-NO'],
             'DK'                         => ['DK', 'da_DK', 'da-DK'],
+            'US'                         => ['US', 'en_US', 'en-US'],
 
             // Country id casing is normalized
             'lowercase country'          => ['be', 'fr_BE', 'fr-BE'],
 
-            // Unmapped country: honour a valid locale hint, else default
-            'unmapped valid hint'        => ['LU', 'de_DE', 'de-DE'],
-            'unmapped unknown hint'      => ['LU', 'xx_YY', CultureCodeResolver::DEFAULT_CULTURE],
+            // Unmapped / missing billing country -> safe default
+            'unmapped country'           => ['LU', 'de_DE', CultureCodeResolver::DEFAULT_CULTURE],
             'unmapped no hint'           => ['LU', null, CultureCodeResolver::DEFAULT_CULTURE],
-
-            // Missing / empty billing country
-            'empty country no hint'      => ['', null, CultureCodeResolver::DEFAULT_CULTURE],
+            'empty country'              => ['', null, CultureCodeResolver::DEFAULT_CULTURE],
             'null country'               => [null, null, CultureCodeResolver::DEFAULT_CULTURE],
         ];
     }

@@ -33,36 +33,37 @@ namespace Buckaroo\Magento2\Service\Culture;
 class CultureCodeResolver
 {
     /**
-     * Culture used when the billing country and locale hint provide no usable match.
+     * Culture used when the billing country provides no usable match.
      *
-     * Matches the Buckaroo SDK's own default and is accepted by Klarna everywhere.
+     * Matches the Buckaroo SDK's own default and is a valid culture everywhere.
      */
     public const DEFAULT_CULTURE = 'en-GB';
 
     /**
-     * Supported culture codes per billing country (ISO 3166-1 alpha-2).
+     * Native culture codes per billing country (ISO 3166-1 alpha-2).
      *
      * The first entry of each list is the country's primary/default culture.
+     * Every value is a real culture code accepted by the Buckaroo Culture header.
      *
      * @var array<string, string[]>
      */
     public const COUNTRY_CULTURES = [
-        'NL' => ['nl-NL', 'en-NL'],
-        'BE' => ['nl-BE', 'fr-BE', 'be-BE', 'en-BE'],
-        'DE' => ['de-DE', 'en-DE'],
-        'AT' => ['de-AT', 'en-AT'],
-        'CH' => ['de-CH', 'fr-CH', 'it-CH', 'en-CH'],
-        'SE' => ['sv-SE', 'en-SE'],
-        'NO' => ['nb-NO', 'en-NO'],
-        'DK' => ['da-DK', 'en-DK'],
-        'FI' => ['fi-FI', 'sv-FI', 'en-FI'],
+        'NL' => ['nl-NL'],
+        'BE' => ['nl-BE', 'fr-BE'],
+        'DE' => ['de-DE'],
+        'AT' => ['de-AT'],
+        'CH' => ['de-CH', 'fr-CH', 'it-CH'],
+        'SE' => ['sv-SE'],
+        'NO' => ['nb-NO'],
+        'DK' => ['da-DK'],
+        'FI' => ['fi-FI', 'sv-FI'],
         'GB' => ['en-GB'],
         'IE' => ['en-IE'],
-        'FR' => ['fr-FR', 'en-FR'],
-        'IT' => ['it-IT', 'en-IT'],
-        'ES' => ['es-ES', 'en-ES'],
-        'PT' => ['pt-PT', 'en-PT'],
-        'PL' => ['pl-PL', 'en-PL'],
+        'FR' => ['fr-FR'],
+        'IT' => ['it-IT'],
+        'ES' => ['es-ES'],
+        'PT' => ['pt-PT'],
+        'PL' => ['pl-PL'],
         'US' => ['en-US'],
     ];
 
@@ -72,38 +73,32 @@ class CultureCodeResolver
      * @param string|null $countryId  Billing address country id (ISO 3166-1 alpha-2)
      * @param string|null $localeHint Locale to disambiguate multi-language countries (e.g. "fr_BE", "nl-NL")
      *
-     * @return string A culture code from the supported whitelist
+     * @return string A real culture code accepted by the Buckaroo Culture header
      */
     public function resolve(?string $countryId, ?string $localeHint = null): string
     {
         $country = strtoupper(trim((string)$countryId));
+
+        if (!isset(self::COUNTRY_CULTURES[$country])) {
+            return self::DEFAULT_CULTURE;
+        }
+
+        $cultures = self::COUNTRY_CULTURES[$country];
         $language = $this->extractLanguage($localeHint);
 
-        if (isset(self::COUNTRY_CULTURES[$country])) {
-            $cultures = self::COUNTRY_CULTURES[$country];
-
-            if ($language !== null) {
-                foreach ($cultures as $culture) {
-                    if (strpos($culture, $language . '-') === 0) {
-                        return $culture;
-                    }
+        if ($language !== null) {
+            foreach ($cultures as $culture) {
+                if (strpos($culture, $language . '-') === 0) {
+                    return $culture;
                 }
             }
-
-            return $cultures[0];
         }
 
-        // Unmapped country: honour the locale hint verbatim when it is a supported culture.
-        $normalized = $this->normalizeLocale($localeHint);
-        if ($normalized !== null && in_array($normalized, $this->getSupportedCultures(), true)) {
-            return $normalized;
-        }
-
-        return self::DEFAULT_CULTURE;
+        return $cultures[0];
     }
 
     /**
-     * Flattened list of every supported culture code.
+     * Flattened list of every culture code this resolver can emit.
      *
      * @return string[]
      */
@@ -129,33 +124,5 @@ class CultureCodeResolver
         $language = strtolower($parts[0] ?? '');
 
         return preg_match('/^[a-z]{2}$/', $language) === 1 ? $language : null;
-    }
-
-    /**
-     * Normalize a locale hint to the "xx-YY" culture format, or null when it is not a full locale.
-     *
-     * @param string|null $localeHint
-     *
-     * @return string|null
-     */
-    private function normalizeLocale(?string $localeHint): ?string
-    {
-        if ($localeHint === null || trim($localeHint) === '') {
-            return null;
-        }
-
-        $parts = preg_split('/[_-]/', trim($localeHint));
-        if (count($parts) < 2) {
-            return null;
-        }
-
-        $language = strtolower($parts[0]);
-        $region = strtoupper($parts[1]);
-
-        if (preg_match('/^[a-z]{2}$/', $language) !== 1 || preg_match('/^[A-Z]{2}$/', $region) !== 1) {
-            return null;
-        }
-
-        return $language . '-' . $region;
     }
 }
