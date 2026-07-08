@@ -34,6 +34,9 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Quote\Model\QuoteFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteBuilder implements QuoteBuilderInterface
 {
     /**
