@@ -66,20 +66,17 @@ class CultureDataBuilderTest extends TestCase
         $this->assertSame(['buckaroo_culture' => 'fr-BE'], $result);
     }
 
-    public function testBuildWithoutBillingAddressHonoursStoreLocale(): void
+    public function testBuildDutchCountryOnEnglishStoreStaysNative(): void
     {
-        $this->mockStoreLocale('nl_NL');
-        $this->orderMock->method('getBillingAddress')->willReturn(null);
+        // Regression for the 400 "not a known culture": en_US store must not yield en-NL.
+        $result = $this->buildWith('NL', 'en_US');
 
-        $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
-
-        // No billing country: fall back to the (whitelisted) store locale verbatim.
         $this->assertSame(['buckaroo_culture' => 'nl-NL'], $result);
     }
 
-    public function testBuildFallsBackToDefaultWhenNothingUsable(): void
+    public function testBuildFallsBackToDefaultWhenBillingAddressMissing(): void
     {
-        $this->mockStoreLocale('xx_YY');
+        $this->mockStoreLocale('nl_NL');
         $this->orderMock->method('getBillingAddress')->willReturn(null);
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
