@@ -40,6 +40,7 @@ class Klarnakp extends AbstractConfigProvider
         'DKK',
         'GBP',
         'NOK',
+        'PLN',
         'SEK'
     ];
 

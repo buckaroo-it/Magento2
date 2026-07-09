@@ -22,17 +22,10 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder;
-use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
-use PHPUnit\Framework\MockObject\MockObject;
 
 class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
 {
-    /**
-     * @var CurrencyDataBuilder|MockObject
-     */
-    private $currencyDataBuilderMock;
-
     /**
      * @var AmountDebitDataBuilder
      */
@@ -45,54 +38,30 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->currencyDataBuilderMock = $this->createMock(CurrencyDataBuilder::class);
-
-        $this->builder = new AmountDebitDataBuilder($this->currencyDataBuilderMock);
+        $this->builder = new AmountDebitDataBuilder();
     }
 
     /**
      * @dataProvider amountDataProvider
      *
-     * @param float|null  $grandTotal
-     * @param float|null  $baseGrandTotal
-     * @param string      $orderCurrency
-     * @param string|null $serviceCurrency
-     * @param float       $expectedAmount
+     * @param float|null $grandTotal
+     * @param float      $expectedAmount
      *
      * @throws \Exception
      */
-    public function testBuild(
-        ?float $grandTotal,
-        ?float $baseGrandTotal,
-        string $orderCurrency,
-        ?string $serviceCurrency,
-        float $expectedAmount
-    ) {
-        $this->orderMock->expects($this->atMost(1))
-            ->method('getGrandTotal')
+    public function testBuild(?float $grandTotal, float $expectedAmount)
+    {
+        $this->orderMock->method('getGrandTotal')
             ->willReturn($grandTotal);
-        $this->orderMock->expects($this->atMost(1))
-            ->method('getBaseGrandTotal')
-            ->willReturn($baseGrandTotal);
-        $this->orderMock->method('getOrderCurrencyCode')
-            ->willReturn($orderCurrency);
 
-        if ($grandTotal == null || $baseGrandTotal == null) {
+        if ($expectedAmount == 0) {
             $this->expectException(\Exception::class);
             $this->expectExceptionMessage('Total of the order can not be empty.');
         }
 
-        $buildSubject = [
+        $result = $this->builder->build([
             'payment' => $this->getPaymentDOMock()
-        ];
-
-        // null serviceCurrency means the service resolved a currency different from the order currency
-        $this->currencyDataBuilderMock->method('getAllowedCurrencies')
-            ->willReturn([]);
-        $this->currencyDataBuilderMock->method('getCurrency')
-            ->willReturn($serviceCurrency ?? 'EUR');
-
-        $result = $this->builder->build($buildSubject);
+        ]);
 
         $this->assertEquals($expectedAmount, $result[AmountDebitDataBuilder::AMOUNT_DEBIT]);
     }
@@ -100,71 +69,30 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     public static function amountDataProvider(): array
     {
         return [
-            'valid grandTotal'               => [
-                'grandTotal'      => 100,
-                'baseGrandTotal'  => 80,
-                'orderCurrency'   => 'USD',
-                'serviceCurrency' => 'USD',
-                'expectedAmount'  => 100
+            'order grand total is sent as-is'    => [
+                'grandTotal'     => 100,
+                'expectedAmount' => 100
             ],
-            'valid baseGrandTotal'           => [
-                'grandTotal'      => 100,
-                'baseGrandTotal'  => 90,
-                'orderCurrency'   => 'USD',
-                'serviceCurrency' => 'EUR',
-                'expectedAmount'  => 90
+            'PLN order sends the PLN grand total' => [
+                'grandTotal'     => 167.67,
+                'expectedAmount' => 167.67
             ],
-            'invalid grandTotal null'        => [
-                'grandTotal'      => null,
-                'baseGrandTotal'  => 100,
-                'orderCurrency'   => 'USD',
-                'serviceCurrency' => 'USD',
-                'expectedAmount'  => 0
+            'missing grand total throws'         => [
+                'grandTotal'     => null,
+                'expectedAmount' => 0
             ],
-            'invalid baseGrandTotal null'    => [
-                'grandTotal'      => 100,
-                'baseGrandTotal'  => null,
-                'orderCurrency'   => 'USD',
-                'serviceCurrency' => 'EUR',
-                'expectedAmount'  => 100
-            ],
-            'valid but null serviceCurrency' => [
-                'grandTotal'      => 100,
-                'baseGrandTotal'  => 80,
-                'orderCurrency'   => 'USD',
-                'serviceCurrency' => null,
-                'expectedAmount'  => 80
+            'zero grand total throws'            => [
+                'grandTotal'     => 0.0,
+                'expectedAmount' => 0
             ],
         ];
     }
 
     public function testGetAmount()
     {
-        $this->orderMock->method('getOrderCurrencyCode')
-            ->willReturn('USD');
-
-        $this->currencyDataBuilderMock->method('getCurrency')
-            ->willReturn('USD');
-
         $this->orderMock->method('getGrandTotal')
             ->willReturn(100.00);
 
         $this->assertEquals(100.00, $this->builder->getAmount($this->orderMock));
-    }
-
-    public function testSetAmount()
-    {
-        $this->orderMock->method('getOrderCurrencyCode')
-            ->willReturn('USD');
-
-        $this->currencyDataBuilderMock->method('getCurrency')
-            ->willReturn('EUR');
-
-        $this->orderMock->method('getBaseGrandTotal')
-            ->willReturn(80.00);
-
-        $this->builder->setAmount($this->orderMock);
-
-        $this->assertEquals(80.00, $this->builder->getAmount());
     }
 }
