@@ -21,13 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Service\DataBuilderService;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
+use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use InvalidArgumentException;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
 
 class AmountCreditDataBuilder implements BuilderInterface
@@ -44,9 +46,9 @@ class AmountCreditDataBuilder implements BuilderInterface
     public $refundAmount;
 
     /**
-     * @var DataBuilderService
+     * @var TransactionCurrencyResolver
      */
-    private $dataBuilderService;
+    private $transactionCurrencyResolver;
 
     /**
      * @var RefundGroupTransactionService
@@ -56,14 +58,14 @@ class AmountCreditDataBuilder implements BuilderInterface
     /**
      * Constructor
      *
-     * @param DataBuilderService            $dataBuilderService
+     * @param TransactionCurrencyResolver   $transactionCurrencyResolver
      * @param RefundGroupTransactionService $refundGroupService
      */
     public function __construct(
-        DataBuilderService $dataBuilderService,
+        TransactionCurrencyResolver $transactionCurrencyResolver,
         RefundGroupTransactionService $refundGroupService
     ) {
-        $this->dataBuilderService = $dataBuilderService;
+        $this->transactionCurrencyResolver = $transactionCurrencyResolver;
         $this->refundGroupService = $refundGroupService;
     }
 
@@ -92,9 +94,11 @@ class AmountCreditDataBuilder implements BuilderInterface
         $hasGroupTransactions = $this->refundGroupService->hasGroupTransactions($order->getIncrementId());
         $isSingleGiftcard = (bool)$payment->getAdditionalInformation('single_giftcard_payment');
 
+        $amountAdjustedForGroupTransactions = false;
         if ($hasGroupTransactions || $isSingleGiftcard) {
             $this->refundGroupService->refundGroupTransactions($buildSubject);
             $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
+            $amountAdjustedForGroupTransactions = true;
 
             if ($this->refundAmount < 0.01) {
                 $payment->setIsTransactionClosed(true);
@@ -102,7 +106,7 @@ class AmountCreditDataBuilder implements BuilderInterface
             }
         }
 
-        $this->setRefundAmount($order);
+        $this->setRefundAmount($order, $payment, $amountAdjustedForGroupTransactions);
 
         return [
             self::AMOUNT_CREDIT => $this->getRefundAmount()
@@ -122,17 +126,37 @@ class AmountCreditDataBuilder implements BuilderInterface
     /**
      * Set Refund Amount Based on Currency
      *
-     * @param Order $order
+     * Magento hands the refund amount in base currency (Payment::refund() passes the
+     * creditmemo's base grand total), while the transaction was sent in the order
+     * currency. Prefer the creditmemo's stored order-currency grand total over
+     * converting the base amount by rate: Magento computed it directly from the
+     * order-currency prices, so repeated partial refunds cannot accumulate rounding
+     * drift. The base-to-order rate conversion remains only for the group-transaction
+     * remainder, which is tracked in base currency by RefundGroupTransactionService.
+     *
+     * @param Order         $order
+     * @param InfoInterface $payment
+     * @param bool          $amountAdjustedForGroupTransactions
+     * @throws Exception
      */
-    protected function setRefundAmount($order)
-    {
-        /**
-         * @todo find a way to fix the cumulative rounding issue that occurs in creditmemos.
-         *       This problem occurs when the creditmemo is being refunded in the order's currency, rather than the
-         *       store's base currency.
-         */
-        if ($this->dataBuilderService->getElement('currency') == $order->getOrderCurrencyCode()) {
-            $this->refundAmount = round($this->refundAmount * $order->getBaseToOrderRate(), 2);
+    protected function setRefundAmount(
+        Order $order,
+        InfoInterface $payment,
+        bool $amountAdjustedForGroupTransactions = false
+    ) {
+        $transactionCurrency = $this->transactionCurrencyResolver->resolve($order, $payment->getMethodInstance());
+        if ($transactionCurrency != $order->getOrderCurrencyCode()
+            || $order->getOrderCurrencyCode() == $order->getBaseCurrencyCode()
+        ) {
+            return;
         }
+
+        $creditmemo = $payment->getCreditmemo();
+        if (!$amountAdjustedForGroupTransactions && $creditmemo !== null) {
+            $this->refundAmount = (float)$creditmemo->getGrandTotal();
+            return;
+        }
+
+        $this->refundAmount = round($this->refundAmount * $order->getBaseToOrderRate(), 2);
     }
 }

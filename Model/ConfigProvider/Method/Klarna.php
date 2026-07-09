@@ -39,6 +39,7 @@ class Klarna extends AbstractConfigProvider
         'SEK',
         'NOK',
         'CHF',
+        'PLN',
     ];
 
     /**

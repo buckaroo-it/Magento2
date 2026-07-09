@@ -49,7 +49,9 @@ class CurrencyDataBuilderTest extends BaseTest
         $this->paymentMethodInstanceMock = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
         $this->orderMock = $this->getFakeMock(\Magento\Sales\Model\Order::class)->getMock();
         $this->configProviderMethodFactoryMock = $this->createMock(Factory::class);
-        $this->currencyDataBuilder = new CurrencyDataBuilder($this->configProviderMethodFactoryMock);
+        $this->currencyDataBuilder = new CurrencyDataBuilder(
+            new \Buckaroo\Magento2\Service\TransactionCurrencyResolver($this->configProviderMethodFactoryMock)
+        );
     }
 
     /**
@@ -134,8 +136,12 @@ class CurrencyDataBuilderTest extends BaseTest
                 [CurrencyDataBuilder::KEY_CURRENCY => 'GBP']
             ],
             [
+                // Strict: no fallback to the base currency when the order currency is unsupported
                 'GBP', 'EUR', 'buckaroo_magento_ideal', ['USD', 'EUR'],
-                [CurrencyDataBuilder::KEY_CURRENCY => 'EUR']
+                new \Buckaroo\Magento2\Exception(
+                // @codingStandardsIgnoreLine
+                    __("The selected payment method does not support the selected currency or the store's base currency.")
+                ),
             ],
             [
                 'GBP', 'EUR', null, ['USD', 'GBP'],
