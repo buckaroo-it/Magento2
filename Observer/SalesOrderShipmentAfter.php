@@ -139,11 +139,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $payment = $this->order->getPayment();
         $paymentMethod = $payment->getMethodInstance();
         $paymentMethodCode = $paymentMethod->getCode();
+        $storeId = (int)$this->order->getStoreId();
 
         /** @var Klarnakp $klarnakpConfig */
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
-            && $klarnakpConfig->isInvoiceCreatedAfterShipment()
+            && $klarnakpConfig->isInvoiceCreatedAfterShipment($storeId)
         ) {
             if (!$this->order->hasInvoices()) {
                 $this->createInvoice();
@@ -155,7 +156,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         /** @var Klarna $klarnaConfig */
         $klarnaConfig = $this->configProviderFactory->get('klarna');
         if (($paymentMethodCode == 'buckaroo_magento2_klarna')
-            && $klarnaConfig->isInvoiceCreatedAfterShipment()
+            && $klarnaConfig->isInvoiceCreatedAfterShipment($storeId)
         ) {
             if (!$this->order->hasInvoices()) {
                 $this->createInvoice(true);
@@ -167,7 +168,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         /** @var Afterpay20 $afterpayConfig */
         $afterpayConfig = $this->configProviderFactory->get('afterpay20');
         if (($paymentMethodCode == 'buckaroo_magento2_afterpay20')
-            && $afterpayConfig->isInvoiceCreatedAfterShipment()
+            && $afterpayConfig->isInvoiceCreatedAfterShipment($storeId)
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
             if (!$this->order->hasInvoices()) {
