@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = 'Buckaroo\Magento2\Model\Push\PayPerEmailProcessor';
