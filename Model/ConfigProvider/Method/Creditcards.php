@@ -358,11 +358,17 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getFieldBackgroundColor($storeId = null): string
     {
-        return $this->scopeConfig->getValue(
+        $value = (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_FIELD_BACKGROUND_COLOR,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        ) ?: '#fefefe';
+        );
+
+        if ($value === '__EMPTY__') {
+            return 'transparent';
+        }
+
+        return $value !== '' ? $value : '#fefefe';
     }
 
     /**
