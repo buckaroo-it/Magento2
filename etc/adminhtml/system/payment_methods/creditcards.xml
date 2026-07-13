@@ -156,9 +156,9 @@
 
             <field id="field_background_color" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Background Color</label>
-                <comment><![CDATA[Background color for hosted fields.]]></comment>
+                <comment><![CDATA[Background color for hosted fields. Use "Use no color" for a transparent background.]]></comment>
                 <config_path>payment/buckaroo_magento2_creditcards/field_background_color</config_path>
-                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ColorPicker</frontend_model>
+                <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\OptionalBackgroundColorPicker</frontend_model>
             </field>
 
             <field id="field_border_color" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
