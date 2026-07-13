@@ -35,6 +35,7 @@ use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollect
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -78,6 +79,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param ResourceConnection      $resourceConnection
      * @param GiftcardCollection      $giftcardCollection
      * @param PayPerEmail             $configPayPerEmail
+     * @param CurrencyFactory|null    $currencyFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -95,7 +97,8 @@ class PayPerEmailProcessor extends DefaultProcessor
         Uncancel                $uncancelService,
         ResourceConnection      $resourceConnection,
         GiftcardCollection      $giftcardCollection,
-        PayPerEmail             $configPayPerEmail
+        PayPerEmail             $configPayPerEmail,
+        ?CurrencyFactory        $currencyFactory = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -110,7 +113,8 @@ class PayPerEmailProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            $currencyFactory
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
