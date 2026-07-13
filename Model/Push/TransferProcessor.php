@@ -22,8 +22,10 @@ class TransferProcessor extends DefaultProcessor
     {
         // Set amount
         $amount = $this->order->getTotalDue();
+        $amountCurrency = $this->order->getOrderCurrencyCode();
         if (!empty($this->pushRequest->getAmount())) {
             $amount = floatval($this->pushRequest->getAmount());
+            $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
         /**
@@ -36,11 +38,11 @@ class TransferProcessor extends DefaultProcessor
         if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             if ($this->pushRequest->hasPostData('transaction_method', 'transfer')) {
-                $description .= 'Amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+                $description .= 'Amount of ' . $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
             }
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
             $forceState = true;
         }

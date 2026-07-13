@@ -45,6 +45,8 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -69,6 +71,11 @@ class DefaultProcessor implements PushProcessorInterface
      * @var Account
      */
     public $configAccount;
+
+    /**
+     * @var CurrencyFactory
+     */
+    private $currencyFactory;
 
     /**
      * @var PushRequestInterface
@@ -192,7 +199,8 @@ class DefaultProcessor implements PushProcessorInterface
         GiftCardRefundService     $giftCardRefundService,
         Uncancel                  $uncancelService,
         ResourceConnection        $resourceConnection,
-        GiftcardCollection        $giftcardCollection
+        GiftcardCollection        $giftcardCollection,
+        ?CurrencyFactory          $currencyFactory = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -208,6 +216,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
+        $this->currencyFactory = $currencyFactory ?: ObjectManager::getInstance()->get(CurrencyFactory::class);
     }
 
     /**
@@ -978,11 +987,16 @@ class DefaultProcessor implements PushProcessorInterface
      * @param float $amount
      * @param string $message
      * @param string $newStatus
+     * @param string|null $amountCurrency
      * @return bool
      * @throws LocalizedException
      */
-    private function handleCaptureWithDeferredInvoicing(float $amount, string $message, string $newStatus): bool
-    {
+    private function handleCaptureWithDeferredInvoicing(
+        float $amount,
+        string $message,
+        string $newStatus,
+        ?string $amountCurrency = null
+    ): bool {
         $this->logger->addDebug(sprintf(
             '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
             __METHOD__,
@@ -994,12 +1008,13 @@ class DefaultProcessor implements PushProcessorInterface
         $captureAmount = $amount;
         if (!empty($this->pushRequest->getAmount())) {
             $captureAmount = (float)$this->pushRequest->getAmount();
+            $amountCurrency = $amountCurrency ?: $this->getPaymentCurrencyCode();
         }
 
         $this->recordCaptureWithoutInvoice($payment, $captureAmount);
 
         $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-            . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
             . ' has been captured. Invoice will be created on shipment.';
 
         $this->orderRequestService->updateOrderStatus(
@@ -1443,8 +1458,10 @@ class DefaultProcessor implements PushProcessorInterface
         if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             if (!empty($this->pushRequest->getAmount())) {
                 $amount = (float)$this->pushRequest->getAmount();
+                $amountCurrency = $this->getPaymentCurrencyCode();
             }
 
             // Check if invoice should be created on shipment instead
@@ -1458,11 +1475,12 @@ class DefaultProcessor implements PushProcessorInterface
             }
 
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus);
+                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus, $amountCurrency);
             }
 
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
+                . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
+                . ' has been captured.';
 
             if (!$this->saveInvoice()) {
                 $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_INVOICE_FAILED', __METHOD__, __LINE__));
@@ -2077,8 +2095,10 @@ class DefaultProcessor implements PushProcessorInterface
     {
         // Set amount
         $amount = $this->order->getTotalDue();
+        $amountCurrency = $this->order->getOrderCurrencyCode();
         if (!empty($this->pushRequest->getAmount())) {
             $amount = floatval($this->pushRequest->getAmount());
+            $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
         /**
@@ -2097,15 +2117,16 @@ class DefaultProcessor implements PushProcessorInterface
         if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             $description .= 'Total amount of ' .
-                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             if ($isShipmentMode) {
-                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Payment will be captured when order is shipped.';
             } else {
-                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Please create an invoice to capture the authorized amount.';
             }
             $forceState = true;
@@ -2425,5 +2446,51 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->order->save();
         return true;
+    }
+
+    /**
+     * Format an amount for order comments using the currency that matches the amount.
+     *
+     * When the amount comes from a Buckaroo push, use the push/payment currency. When the
+     * amount is taken from Magento base totals, pass the base currency code explicitly.
+     *
+     * @param float|string $amount
+     * @param string|null $currencyCode
+     * @return string
+     */
+    protected function formatCommentAmount($amount, ?string $currencyCode = null): string
+    {
+        $currencyCode = $currencyCode ?: $this->getPaymentCurrencyCode();
+
+        if ($currencyCode === $this->order->getOrderCurrencyCode()) {
+            return $this->order->getOrderCurrency()->formatTxt($amount);
+        }
+
+        if ($currencyCode === $this->order->getBaseCurrencyCode()) {
+            return $this->order->getBaseCurrency()->formatTxt($amount);
+        }
+
+        return $this->currencyFactory->create()->load($currencyCode)->formatTxt($amount);
+    }
+
+    /**
+     * Currency used for the Buckaroo payment / push amount.
+     *
+     * Prefer the currency from the current push; fall back to order currency, then base.
+     *
+     * @return string
+     */
+    protected function getPaymentCurrencyCode(): string
+    {
+        $currency = $this->pushRequest ? $this->pushRequest->getCurrency() : null;
+
+        if (!empty($currency)) {
+            return (string)$currency;
+        }
+
+        return (string)(
+            $this->order->getOrderCurrencyCode()
+            ?: $this->order->getBaseCurrencyCode()
+        );
     }
 }

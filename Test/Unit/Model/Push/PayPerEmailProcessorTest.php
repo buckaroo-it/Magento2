@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
+/**
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = 'Buckaroo\Magento2\Model\Push\PayPerEmailProcessor';
@@ -21,6 +24,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $resourceConnectionMock;
     private $giftcardCollectionMock;
     private $configPayPerEmailMock;
+    private $currencyFactoryMock;
 
     public function setUp(): void
     {
@@ -40,6 +44,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->resourceConnectionMock = $this->getFakeMock('Magento\Framework\App\ResourceConnection')->getMock();
         $this->giftcardCollectionMock = $this->getFakeMock('Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection')->getMock();
         $this->configPayPerEmailMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail')->getMock();
+        $this->currencyFactoryMock = $this->getFakeMock('Magento\Directory\Model\CurrencyFactory')->getMock();
     }
 
     public function getInstance(array $args = [])
@@ -59,6 +64,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'resourceConnection' => $this->resourceConnectionMock,
             'giftcardCollection' => $this->giftcardCollectionMock,
             'configPayPerEmail' => $this->configPayPerEmailMock,
+            'currencyFactory' => $this->currencyFactoryMock,
         ] + $args);
     }
 

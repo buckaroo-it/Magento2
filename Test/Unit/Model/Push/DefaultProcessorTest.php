@@ -22,6 +22,7 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $uncancelServiceMock;
     private $resourceConnectionMock;
     private $giftcardCollectionMock;
+    private $currencyFactoryMock;
 
     public function setUp(): void
     {
@@ -40,6 +41,7 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->uncancelServiceMock = $this->getFakeMock('Buckaroo\Magento2\Service\Order\Uncancel')->getMock();
         $this->resourceConnectionMock = $this->getFakeMock('Magento\Framework\App\ResourceConnection')->getMock();
         $this->giftcardCollectionMock = $this->getFakeMock('Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection')->getMock();
+        $this->currencyFactoryMock = $this->getFakeMock('Magento\Directory\Model\CurrencyFactory')->getMock();
     }
 
     public function getInstance(array $args = [])
@@ -58,6 +60,7 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'uncancelService' => $this->uncancelServiceMock,
             'resourceConnection' => $this->resourceConnectionMock,
             'giftcardCollection' => $this->giftcardCollectionMock,
+            'currencyFactory' => $this->currencyFactoryMock,
         ] + $args);
     }
 

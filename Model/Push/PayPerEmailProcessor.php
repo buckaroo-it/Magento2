@@ -35,6 +35,7 @@ use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollect
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
@@ -78,6 +79,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param ResourceConnection      $resourceConnection
      * @param GiftcardCollection      $giftcardCollection
      * @param PayPerEmail             $configPayPerEmail
+     * @param CurrencyFactory|null    $currencyFactory
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -95,7 +97,8 @@ class PayPerEmailProcessor extends DefaultProcessor
         Uncancel                $uncancelService,
         ResourceConnection      $resourceConnection,
         GiftcardCollection      $giftcardCollection,
-        PayPerEmail             $configPayPerEmail
+        PayPerEmail             $configPayPerEmail,
+        ?CurrencyFactory        $currencyFactory = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -110,7 +113,8 @@ class PayPerEmailProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            $currencyFactory
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
@@ -485,8 +489,10 @@ class PayPerEmailProcessor extends DefaultProcessor
     {
         // Set amount
         $amount = $this->order->getTotalDue();
+        $amountCurrency = $this->order->getOrderCurrencyCode();
         if (!empty($this->pushRequest->getAmount())) {
             $amount = floatval($this->pushRequest->getAmount());
+            $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
         /**
@@ -499,11 +505,12 @@ class PayPerEmailProcessor extends DefaultProcessor
         if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             $description .= 'Total amount of ' .
-                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
             $forceState = true;
         }
