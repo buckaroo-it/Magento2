@@ -24,8 +24,10 @@ namespace Buckaroo\Magento2\Model\Service\Order;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Phrase;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -50,18 +52,53 @@ class ExtendReservation
     private BuckarooLoggerInterface $logger;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
      * @param CommandManagerInterface  $commandManager
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
      * @param BuckarooLoggerInterface  $logger
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         CommandManagerInterface $commandManager,
         PaymentDataObjectFactory $paymentDataObjectFactory,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->commandManager           = $commandManager;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         $this->logger                   = $logger;
+        $this->orderRepository          = $orderRepository;
+    }
+
+    /**
+     * Check whether the order holds an active Klarna MOR reservation that can be extended.
+     *
+     * @param Order $order
+     *
+     * @return bool
+     */
+    public function canExtend(Order $order): bool
+    {
+        $payment = $order->getPayment();
+
+        if ($payment === null || $payment->getMethod() !== Klarna::CODE) {
+            return false;
+        }
+
+        if ($payment->getAdditionalInformation('voided_by_buckaroo')) {
+            return false;
+        }
+
+        if (in_array($order->getState(), [Order::STATE_CANCELED, Order::STATE_CLOSED], true)) {
+            return false;
+        }
+
+        return !empty($order->getBuckarooDatarequestKey())
+            || !empty($payment->getAdditionalInformation('buckaroo_datarequest_key'));
     }
 
     /**
@@ -110,6 +147,11 @@ class ExtendReservation
                 $order->getIncrementId()
             ));
 
+            $this->addHistoryComment(
+                $order,
+                __('Buckaroo: Klarna reservation extended at payment provider.')
+            );
+
             return true;
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
@@ -117,7 +159,35 @@ class ExtendReservation
                 $order->getIncrementId(),
                 $e->getMessage()
             ));
+
+            $this->addHistoryComment(
+                $order,
+                __('Buckaroo: failed to extend Klarna reservation. %1', $e->getMessage())
+            );
+
             throw new LocalizedException(__($e->getMessage()), $e);
+        }
+    }
+
+    /**
+     * Add a status history comment to the order and persist it.
+     *
+     * @param Order $order
+     * @param Phrase $comment
+     *
+     * @return void
+     */
+    private function addHistoryComment(Order $order, Phrase $comment): void
+    {
+        try {
+            $order->addCommentToStatusHistory((string)$comment);
+            $this->orderRepository->save($order);
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[KLARNA_MOR] Could not save history comment for order %s: %s',
+                $order->getIncrementId(),
+                $e->getMessage()
+            ));
         }
     }
 }
