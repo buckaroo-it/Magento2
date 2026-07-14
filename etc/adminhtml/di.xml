@@ -24,5 +24,6 @@
     <type name="Magento\Backend\Block\Widget\Button\Toolbar">
         <plugin name="orderFormToolbarButtons" type="Buckaroo\Magento2\Block\Widget\Button\Toolbar" />
         <plugin name="Buckaroo_Magento2::pluginBefore" type="Buckaroo\Magento2\Plugin\PluginBefore" />
+        <plugin name="Buckaroo_Magento2::addExtendReservationButton" type="Buckaroo\Magento2\Plugin\AddExtendReservationButton" />
     </type>
 </config>
