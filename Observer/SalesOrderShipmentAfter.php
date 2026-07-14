@@ -141,6 +141,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $paymentMethodCode = $paymentMethod->getCode();
         $storeId = (int)$this->order->getStoreId();
 
+        $storeId = (int)$this->order->getStoreId();
+
         /** @var Klarnakp $klarnakpConfig */
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
