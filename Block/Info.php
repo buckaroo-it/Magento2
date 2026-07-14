@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Block;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\DataObject;
@@ -386,6 +387,36 @@ class Info extends \Magento\Payment\Block\Info
     {
         parent::_construct();
         $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
+    }
+
+    /**
+     * Get the Buckaroo transaction key to display as a plain payment reference
+     *
+     * @throws LocalizedException
+     *
+     * @return string|null
+     */
+    public function getPaymentTransactionReference(): ?string
+    {
+        $transactionKey = $this->getInfo()
+            ->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+
+        if (!is_string($transactionKey) || trim($transactionKey) === '') {
+            return null;
+        }
+
+        return $transactionKey;
+    }
+
+    /**
+     * Render as PDF using the consumer-facing Buckaroo payment info template
+     *
+     * @return string
+     */
+    public function toPdf()
+    {
+        $this->setTemplate('Buckaroo_Magento2::info/pdf/default.phtml');
+        return $this->toHtml();
     }
 
     /**
