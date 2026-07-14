@@ -1287,7 +1287,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">IdealAdminInfo</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">IdealValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">IdealCommandPool</argument>
@@ -1308,6 +1308,9 @@
             <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
         </arguments>
     </virtualType>
+    <!-- Deprecated: no longer used as iDEAL infoBlockType; all methods share
+         Buckaroo\Magento2\Block\Info. Kept for backward compatibility with
+         third-party references and scheduled for removal in a future release. -->
     <virtualType name="IdealAdminInfo" type="Buckaroo\Magento2\Block\AdminInfo">
         <arguments>
             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
