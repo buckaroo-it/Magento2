@@ -49,7 +49,7 @@ class KlarnaMorDataRequestPushDetector
             return false;
         }
 
-        if ($pushRequest->hasAdditionalInformation('initiated_by_magento', 1)) {
+        if ($this->isMagentoInitiatedPush($pushRequest)) {
             return false;
         }
 
@@ -61,12 +61,30 @@ class KlarnaMorDataRequestPushDetector
      *
      * @return bool
      */
+    private function isMagentoInitiatedPush(PushRequestInterface $pushRequest): bool
+    {
+        if (method_exists($pushRequest, 'hasAdditionalInformation')
+            && $pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+        ) {
+            return true;
+        }
+
+        $initiatedByMagento = $pushRequest->getAdditionalInformation('initiated_by_magento');
+
+        return $initiatedByMagento === '1' || $initiatedByMagento === 1;
+    }
+
+    /**
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return bool
+     */
     private function isKlarnaPush(PushRequestInterface $pushRequest): bool
     {
         $services = array_filter([
             $this->getPushValue($pushRequest, 'PrimaryService'),
-            $this->getPushValue($pushRequest, 'TransactionMethod'),
-            $pushRequest->getPaymentMethod(),
+            $pushRequest->getTransactionMethod(),
+            $this->getPushValue($pushRequest, 'PaymentMethod'),
         ]);
 
         foreach ($services as $service) {

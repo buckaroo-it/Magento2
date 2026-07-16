@@ -52,10 +52,9 @@ class KlarnaMorDataRequestPushDetectorTest extends TestCase
     public function testDoesNotAcknowledgeMagentoInitiatedPush(): void
     {
         $pushRequest = $this->createPlazaPushMock();
-        $pushRequest->method('hasAdditionalInformation')
-            ->willReturnCallback(static function (string $name, $value): bool {
-                return $name === 'initiated_by_magento' && $value === 1;
-            });
+        $pushRequest->method('getAdditionalInformation')
+            ->with('initiated_by_magento')
+            ->willReturn('1');
 
         $this->assertFalse($this->detector->shouldAcknowledgeWithoutOrder($pushRequest));
     }
@@ -73,13 +72,18 @@ class KlarnaMorDataRequestPushDetectorTest extends TestCase
      */
     private function createPlazaPushMock()
     {
-        $pushRequest = $this->createMock(PushRequestInterface::class);
+        $pushRequest = $this->getMockBuilder(PushRequestInterface::class)
+            ->addMethods(['get'])
+            ->getMock();
+
         $pushRequest->method('getDatarequest')->willReturn('DD0A97CDF9F84ADD88CA923278A16C5D');
         $pushRequest->method('getOrderNumber')->willReturn(null);
         $pushRequest->method('getInvoiceNumber')->willReturn(null);
         $pushRequest->method('getStatusCode')->willReturn((string)BuckarooStatusCode::SUCCESS);
-        $pushRequest->method('getPaymentMethod')->willReturn(null);
-        $pushRequest->method('hasAdditionalInformation')->willReturn(false);
+        $pushRequest->method('getTransactionMethod')->willReturn(null);
+        $pushRequest->method('getAdditionalInformation')
+            ->with('initiated_by_magento')
+            ->willReturn(null);
         $pushRequest->method('get')->willReturnCallback(static function (string $property): ?string {
             return $property === 'PrimaryService' ? 'klarna' : null;
         });
