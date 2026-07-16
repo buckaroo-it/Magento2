@@ -377,7 +377,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipSpecificTypesOfRequsts(): bool
     {
-        $types = ['capture', 'cancelauthorize', 'cancelreservation'];
+        $types = ['capture', 'cancelauthorize', 'cancelreservation', 'extendreservation', 'updatereservation'];
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequest->getRelatedtransactionRefund())

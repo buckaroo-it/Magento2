@@ -807,6 +807,16 @@
             <argument name="action" xsi:type="string">cancelreservation</argument>
         </arguments>
     </virtualType>
+    <virtualType name="AdditionalParametersExtendReservationDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">extendreservation</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AdditionalParametersUpdateReservationDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">updatereservation</argument>
+        </arguments>
+    </virtualType>
     <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">fromPayPerEmail</argument>
@@ -1577,6 +1587,8 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UpdateReservationDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersUpdateReservationDataBuilder</item>
                 <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
@@ -1589,9 +1601,16 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaExtendReservationRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionExtendReserve</argument>
-            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="handler" xsi:type="object">KlarnaExtendReservationResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="KlarnaExtendReservationResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="extend_reservation_push_key" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ExtendReservationPushKeyHandler</item>
+            </argument>
         </arguments>
     </virtualType>
     <virtualType name="KlarnaExtendReservationRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
@@ -1600,6 +1619,8 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExtendReservationDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersExtendReservationDataBuilder</item>
                 <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>

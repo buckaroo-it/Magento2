@@ -63,12 +63,18 @@ class OrderRequestService
     private $klarnaKpOrderService;
 
     /**
+     * @var KlarnaMorOrderService
+     */
+    private KlarnaMorOrderService $klarnaMorOrderService;
+
+    /**
      * @param Order                   $order
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface    $transaction
      * @param OrderEmailService       $orderEmailService
      * @param ResourceConnection      $resourceConnection
      * @param KlarnaKpOrderService    $klarnaKpOrderService
+     * @param KlarnaMorOrderService   $klarnaMorOrderService
      */
     public function __construct(
         Order $order,
@@ -76,7 +82,8 @@ class OrderRequestService
         TransactionInterface $transaction,
         OrderEmailService $orderEmailService,
         ResourceConnection $resourceConnection,
-        KlarnaKpOrderService $klarnaKpOrderService
+        KlarnaKpOrderService $klarnaKpOrderService,
+        KlarnaMorOrderService $klarnaMorOrderService
     ) {
         $this->order = $order;
         $this->logger = $logger;
@@ -84,6 +91,7 @@ class OrderRequestService
         $this->orderEmailService = $orderEmailService;
         $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
+        $this->klarnaMorOrderService = $klarnaMorOrderService;
     }
 
     /**
@@ -161,6 +169,10 @@ class OrderRequestService
         }
 
         if (!$order || !$order->getId()) {
+            $order = $this->getOrderByKlarnaMorDataRequestKey($pushRequest);
+        }
+
+        if (!$order || !$order->getId()) {
             throw new BuckarooException(__('There was no order found by transaction Id'));
         }
 
@@ -191,6 +203,56 @@ class OrderRequestService
         }
 
         return $order;
+    }
+
+    /**
+     * Try to find the order by the Klarna MOR DataRequest key or a pending ExtendReservation push key.
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return Order|null
+     */
+    protected function getOrderByKlarnaMorDataRequestKey($pushRequest): ?Order
+    {
+        foreach ($this->getKlarnaMorDataRequestLookupKeys($pushRequest) as $dataRequestKey) {
+            $order = $this->klarnaMorOrderService->getOrderByDataRequestKey($dataRequestKey);
+
+            if ($order === null) {
+                $order = $this->klarnaMorOrderService->getOrderByPendingDataRequestPushKey($dataRequestKey);
+            }
+
+            if ($order !== null) {
+                $this->order = $order;
+                return $order;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Collect candidate Klarna MOR data request keys from the push payload.
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return string[]
+     */
+    protected function getKlarnaMorDataRequestLookupKeys($pushRequest): array
+    {
+        $keys = [];
+
+        if (!empty($pushRequest->getDatarequest())) {
+            $keys[] = $pushRequest->getDatarequest();
+        }
+
+        if (method_exists($pushRequest, 'getRelatedDatarequest')) {
+            $relatedKey = $pushRequest->getRelatedDatarequest();
+            if (!empty($relatedKey)) {
+                $keys[] = $relatedKey;
+            }
+        }
+
+        return array_values(array_unique($keys));
     }
 
     /**

@@ -243,6 +243,16 @@ class HttppostPushRequest extends AbstractPushRequest implements PushRequestInte
     }
 
     /**
+     * Get the related/parent data request key when provided by Buckaroo.
+     *
+     * @return string|null
+     */
+    public function getRelatedDatarequest(): ?string
+    {
+        return $this->request['brq_datarequest_'] ?? null;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getTransactions(): ?string
