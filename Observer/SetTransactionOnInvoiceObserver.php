@@ -124,8 +124,18 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
-        return $payment->getAdditionalInformation(
+        $invoiceHandling = $payment->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
-        ) == InvoiceHandlingOptions::SHIPMENT;
+        );
+
+        if ($invoiceHandling == InvoiceHandlingOptions::SHIPMENT) {
+            return true;
+        }
+
+        if ($invoiceHandling !== null && $invoiceHandling !== '') {
+            return false;
+        }
+
+        return $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT;
     }
 }

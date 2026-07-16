@@ -126,7 +126,7 @@ class Index extends Action implements HttpPostActionInterface
      * Validates the credentials by sending them to the Buckaroo client for confirmation.
      * If the credentials are valid, a success response is generated.
      * Otherwise, an error message is returned stating the credentials are invalid.
-     *
+     *323
      * @param string $merchantKey The merchant key to validate.
      * @param string $secretKey   The secret key to validate.
      *

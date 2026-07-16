@@ -171,7 +171,7 @@ class SaveOrderProcessor
             ->get('account')
             ->getInvoiceHandling($quote->getStore());
 
-        if ($invoiceCfg === InvoiceHandlingOptions::SHIPMENT) {
+        if ($invoiceCfg == InvoiceHandlingOptions::SHIPMENT) {
             $paymentInstance->setAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING,
                 $invoiceCfg
