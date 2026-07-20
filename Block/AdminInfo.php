@@ -113,8 +113,22 @@ class AdminInfo extends ConfigurableInfo
      */
     public function toPdf()
     {
-        $this->setTemplate('Buckaroo_Magento2::info/pdf/default.phtml');
-        return $this->toHtml();
+        $title = $this->getMethod()->getTitle();
+        $title = preg_replace('/\s*\+\s*(%?\S.*|[€$£].*|\d.*)$/u', '', $title) ?: $title;
+        $rows = [$this->escapeHtml($title)];
+
+        if ($transactionReference = $this->getPaymentTransactionReference()) {
+            // Zero-width space: survives Magento PDF empty-row / whitespace filtering
+            $rows[] = "\u{200B}";
+            $rows[] = '(' . $this->escapeHtml($transactionReference) . ')';
+        }
+
+        foreach ($this->getSpecificInformation() as $label => $value) {
+            $rows[] = $this->escapeHtml((string)$label) . ': '
+                . $this->escapeHtml(implode(' ', $this->getValueAsArray($value)));
+        }
+
+        return implode('{{pdf_row_separator}}', $rows) . '{{pdf_row_separator}}';
     }
 
     /**
