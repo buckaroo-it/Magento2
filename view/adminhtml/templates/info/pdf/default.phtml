@@ -27,8 +27,10 @@ $specificInfo = $block->getSpecificInformation();
 <?= $block->escapeHtml($block->getMethod()->getTitle()) ?>
 {{pdf_row_separator}}
 <?php if ($transactionReference = $block->getPaymentTransactionReference()): ?>
-    (<?= $block->escapeHtml($transactionReference) ?>)
-    {{pdf_row_separator}}
+<?= "\xE2\x80\x8B" ?>
+{{pdf_row_separator}}
+(<?= $block->escapeHtml($transactionReference) ?>)
+{{pdf_row_separator}}
 <?php endif; ?>
 <?php if ($specificInfo): ?>
     <?php foreach ($specificInfo as $label => $value): ?>

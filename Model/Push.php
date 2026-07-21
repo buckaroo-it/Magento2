@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Service\Push\KlarnaMorDataRequestPushDetector;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 
 class Push implements PushInterface
@@ -63,12 +64,18 @@ class Push implements PushInterface
     protected $lockManager;
 
     /**
-     * @param BuckarooLoggerInterface $logger
-     * @param RequestPushFactory      $requestPushFactory
-     * @param PushProcessorsFactory   $pushProcessorsFactory
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
-     * @param LockManagerWrapper      $lockManager
+     * @var KlarnaMorDataRequestPushDetector
+     */
+    private KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector;
+
+    /**
+     * @param BuckarooLoggerInterface           $logger
+     * @param RequestPushFactory                $requestPushFactory
+     * @param PushProcessorsFactory             $pushProcessorsFactory
+     * @param OrderRequestService               $orderRequestService
+     * @param PushTransactionType               $pushTransactionType
+     * @param LockManagerWrapper                $lockManager
+     * @param KlarnaMorDataRequestPushDetector  $klarnaMorDataRequestPushDetector
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -76,7 +83,8 @@ class Push implements PushInterface
         PushProcessorsFactory $pushProcessorsFactory,
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
-        LockManagerWrapper $lockManager
+        LockManagerWrapper $lockManager,
+        KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector
     ) {
         $this->logger = $logger;
         $this->pushRequest = $requestPushFactory->create();
@@ -84,6 +92,7 @@ class Push implements PushInterface
         $this->orderRequestService = $orderRequestService;
         $this->pushTransactionType = $pushTransactionType;
         $this->lockManager = $lockManager;
+        $this->klarnaMorDataRequestPushDetector = $klarnaMorDataRequestPushDetector;
     }
 
     /**
@@ -108,6 +117,19 @@ class Push implements PushInterface
                 ));
                 return true;
             }
+
+            if ($this->klarnaMorDataRequestPushDetector->shouldAcknowledgeWithoutOrder($this->pushRequest)) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH] | [KLARNA_MOR] | [%s:%s] - Plaza data request push without order reference'
+                    . ' acknowledged | dataRequest: %s | message: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->pushRequest->getDatarequest() ?? 'null',
+                    $e->getMessage()
+                ));
+                return true;
+            }
+
             throw $e;
         }
 

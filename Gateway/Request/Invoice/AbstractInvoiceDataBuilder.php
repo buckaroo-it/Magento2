@@ -67,7 +67,7 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
 
         $order = $this->getOrder();
 
-        $totalOrder = $order->getBaseGrandTotal();
+        $totalOrder = $order->getGrandTotal();
         $this->numberOfInvoices = $order->getInvoiceCollection()->count();
         $this->currentInvoiceTotal = 0;
 

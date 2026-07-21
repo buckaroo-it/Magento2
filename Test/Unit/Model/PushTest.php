@@ -12,6 +12,7 @@ use Buckaroo\Magento2\Model\Push\PushProcessorsFactory;
 use Buckaroo\Magento2\Model\Push\PushProcessorInterface;
 use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
+use Buckaroo\Magento2\Service\Push\KlarnaMorDataRequestPushDetector;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
@@ -42,6 +43,9 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var MockObject|LockManagerWrapper */
     private $lockManagerMock;
 
+    /** @var MockObject|KlarnaMorDataRequestPushDetector */
+    private $klarnaMorDataRequestPushDetectorMock;
+
     /** @var MockObject|PushRequestInterface */
     private $pushRequestMock;
 
@@ -55,6 +59,8 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->orderRequestServiceMock = $this->getFakeMock(OrderRequestService::class)->getMock();
         $this->pushTransactionTypeMock = $this->getFakeMock(PushTransactionType::class)->getMock();
         $this->lockManagerMock = $this->getFakeMock(LockManagerWrapper::class)->getMock();
+        $this->klarnaMorDataRequestPushDetectorMock = $this->getFakeMock(KlarnaMorDataRequestPushDetector::class)->getMock();
+        $this->klarnaMorDataRequestPushDetectorMock->method('shouldAcknowledgeWithoutOrder')->willReturn(false);
 
         $this->pushRequestMock = $this->getFakeMock(PushRequestInterface::class)->getMock();
         $this->requestPushFactoryMock->method('create')->willReturn($this->pushRequestMock);
@@ -69,6 +75,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             'orderRequestService' => $this->orderRequestServiceMock,
             'pushTransactionType' => $this->pushTransactionTypeMock,
             'lockManager' => $this->lockManagerMock,
+            'klarnaMorDataRequestPushDetector' => $this->klarnaMorDataRequestPushDetectorMock,
         ] + $args);
     }
 

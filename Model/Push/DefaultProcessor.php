@@ -377,7 +377,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipSpecificTypesOfRequsts(): bool
     {
-        $types = ['capture', 'cancelauthorize', 'cancelreservation'];
+        $types = ['capture', 'cancelauthorize', 'cancelreservation', 'extendreservation', 'updatereservation'];
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequest->getRelatedtransactionRefund())
@@ -1656,10 +1656,17 @@ class DefaultProcessor implements PushProcessorInterface
     protected function canPushInvoice(): bool
     {
         if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
-            // For authorize payments with shipment-based invoicing, allow processing to set the flag
+            // For authorize payments with shipment-based invoicing, allow processing to set the flag.
+            // Fall back to config when the payment additional_information flag is not set yet
+            // (otherwise saveInvoice() never runs and the flag is never persisted).
             $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
+
+            if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+                $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+            }
+
             return ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
         }
 
@@ -2113,6 +2120,9 @@ class DefaultProcessor implements PushProcessorInterface
         $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
         );
+        if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+            $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+        }
         $isShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($this->canPushInvoice() && !$isShipmentMode) {

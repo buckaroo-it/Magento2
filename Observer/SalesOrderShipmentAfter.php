@@ -364,8 +364,33 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
         /** @var Order\Payment $payment */
-        return $payment->getAdditionalInformation(
+        $invoiceHandling = $payment->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
-        ) == InvoiceHandlingOptions::SHIPMENT;
+        );
+
+        if ($invoiceHandling == InvoiceHandlingOptions::SHIPMENT) {
+            return true;
+        }
+
+        // Flag may be missing on authorize transactions placed before it was persisted;
+        // fall back to the account Invoice Handling configuration.
+        if ($invoiceHandling !== null && $invoiceHandling !== '') {
+            return false;
+        }
+
+        try {
+            $accountConfig = $this->configProviderFactory->get('account');
+            return $accountConfig->getInvoiceHandling($this->order->getStore())
+                == InvoiceHandlingOptions::SHIPMENT;
+        } catch (\Exception $e) {
+            $this->logger->addError(sprintf(
+                '[CREATE_INVOICE] | [Observer] | [%s:%s] - Unable to resolve invoice handling config | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+
+            return false;
+        }
     }
 }

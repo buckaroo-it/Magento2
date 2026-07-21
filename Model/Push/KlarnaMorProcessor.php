@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
+use Buckaroo\Magento2\Service\Push\KlarnaMorOrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -90,6 +91,69 @@ class KlarnaMorProcessor extends DefaultProcessor
             $resourceConnection,
             $giftcardCollection
         );
+    }
+
+    /**
+     * Process the push according to the response status.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    protected function processPushByStatus(): bool
+    {
+        if ($this->isPlazaSecondaryDataRequestPush()) {
+            return $this->processPlazaSecondaryDataRequestPush();
+        }
+
+        return parent::processPushByStatus();
+    }
+
+    /**
+     * Detect a Plaza-originated extend/update reservation push for Klarna MOR.
+     *
+     * @return bool
+     */
+    private function isPlazaSecondaryDataRequestPush(): bool
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS
+            || $this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            || empty($this->pushRequest->getDatarequest())
+        ) {
+            return false;
+        }
+
+        return $this->shouldPreserveExistingDataRequestKey((string)$this->pushRequest->getDatarequest());
+    }
+
+    /**
+     * Record a Plaza extend/update reservation on the Magento order without altering the reservation key.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    private function processPlazaSecondaryDataRequestPush(): bool
+    {
+        $dataRequestKey = (string)$this->pushRequest->getDatarequest();
+
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_MOR] | [%s:%s] - Processing Plaza secondary data request push for order %s | key: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $dataRequestKey
+        ));
+
+        $this->order->addCommentToStatusHistory(
+            (string)__(
+                'Buckaroo: Klarna reservation updated via Buckaroo Plaza (DataRequest: %1).',
+                $dataRequestKey
+            )
+        );
+        $this->order->save();
+
+        return true;
     }
 
     /**
@@ -163,6 +227,18 @@ class KlarnaMorProcessor extends DefaultProcessor
         ));
 
         if (!empty($dataRequestKey)) {
+            if ($this->shouldPreserveExistingDataRequestKey($dataRequestKey)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_MOR] | [%s:%s] - Preserving existing DataRequest key for order %s. '
+                    . 'Incoming push key %s belongs to a secondary MOR data request.',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $dataRequestKey
+                ));
+                return false;
+            }
+
             $this->order->setBuckarooDatarequestKey($dataRequestKey);
             $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
             $this->order->save();
@@ -191,7 +267,40 @@ class KlarnaMorProcessor extends DefaultProcessor
 
 
     /**
-     * Saves the invoice for the order.
+     * Secondary MOR data requests (extend/update) must not replace the original reservation key.
+     *
+     * @param string $incomingDataRequestKey
+     *
+     * @return bool
+     */
+    private function shouldPreserveExistingDataRequestKey(string $incomingDataRequestKey): bool
+    {
+        $existingKey = $this->order->getBuckarooDatarequestKey()
+            ?? $this->payment->getAdditionalInformation('buckaroo_datarequest_key');
+
+        if (empty($existingKey) || $existingKey === $incomingDataRequestKey) {
+            return false;
+        }
+
+        $secondaryActions = ['extendreservation', 'updatereservation'];
+
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $secondaryActions)
+        ) {
+            return true;
+        }
+
+        $pendingKeys = (array)$this->payment->getAdditionalInformation(
+            KlarnaMorOrderService::PENDING_DATAREQUEST_PUSH_KEYS
+        );
+
+        return isset($pendingKeys[$incomingDataRequestKey]);
+    }
+
+    /**
+     * Determine whether an invoice should be created for this push.
+     *
+     * When "Create Invoice After Shipment" is enabled, defer invoice creation.
      *
      * @throws \Magento\Framework\Exception\LocalizedException
      *
