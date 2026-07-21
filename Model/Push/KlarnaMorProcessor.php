@@ -26,7 +26,6 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
@@ -45,11 +44,6 @@ use Magento\Sales\Model\Order;
 class KlarnaMorProcessor extends DefaultProcessor
 {
     /**
-     * @var Klarna
-     */
-    private Klarna $klarnaConfig;
-
-    /**
      * @param OrderRequestService     $orderRequestService
      * @param PushTransactionType     $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -63,7 +57,6 @@ class KlarnaMorProcessor extends DefaultProcessor
      * @param Uncancel                $uncancelService
      * @param ResourceConnection      $resourceConnection
      * @param GiftcardCollection      $giftcardCollection
-     * @param Klarna                  $klarnaConfig
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -80,8 +73,7 @@ class KlarnaMorProcessor extends DefaultProcessor
         GiftCardRefundService $giftCardRefundService,
         Uncancel $uncancelService,
         ResourceConnection $resourceConnection,
-        GiftcardCollection $giftcardCollection,
-        Klarna $klarnaConfig
+        GiftcardCollection $giftcardCollection
     ) {
         parent::__construct(
             $orderRequestService,
@@ -98,7 +90,6 @@ class KlarnaMorProcessor extends DefaultProcessor
             $resourceConnection,
             $giftcardCollection
         );
-        $this->klarnaConfig = $klarnaConfig;
     }
 
     /**
@@ -124,19 +115,19 @@ class KlarnaMorProcessor extends DefaultProcessor
     /**
      * Retrieves the transaction key from the push request.
      *
-     * For Klarna MOR, use the DataRequest key from push if available.
-     *
      * @return string
      */
     protected function getTransactionKey(): string
     {
-        $trxId = parent::getTransactionKey();
+        $isCapturePush = $this->pushRequest->hasPostData('transaction_type', 'C800')
+            || $this->pushRequest->hasPostData('mutationtype', 'collecting')
+            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
 
-        if (!empty($this->pushRequest->getDatarequest())) {
-            $trxId = $this->pushRequest->getDatarequest();
+        if ($isCapturePush && !empty($this->pushRequest->getTransactions())) {
+            return $this->pushRequest->getTransactions();
         }
 
-        return $trxId;
+        return parent::getTransactionKey();
     }
 
     /**
@@ -198,34 +189,43 @@ class KlarnaMorProcessor extends DefaultProcessor
         return false;
     }
 
+
     /**
-     * Determine whether an invoice should be created for this push.
+     * Saves the invoice for the order.
      *
-     * When "Create Invoice After Shipment" is enabled, defer invoice creation.
-     *
-     * @param array $paymentDetails
-     *
-     * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
      *
      * @return bool
      */
-    protected function invoiceShouldBeSaved(array &$paymentDetails): bool
+    protected function saveInvoice(): bool
     {
-        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
-            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
-            && $this->klarnaConfig->isInvoiceCreatedAfterShipment()
-        ) {
-            $this->dontSaveOrderUponSuccessPush = true;
-            return false;
+        $isCapturePush = $this->pushRequest->hasPostData('transaction_type', 'C800')
+            || $this->pushRequest->hasPostData('mutationtype', 'collecting')
+            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+
+        if ($isCapturePush) {
+            $captureTransactionKey = $this->getTransactionKey();
+
+            if (!empty($captureTransactionKey)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_MOR] | [%s:%s] - Plaza capture push for order %s; '
+                    . 'saving capture transaction key: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $captureTransactionKey
+                ));
+                $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $captureTransactionKey);
+                $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
+                $this->payment->save();
+            }
+
+            if ($this->order->hasInvoices()) {
+                return true;
+            }
         }
 
-        if (!empty($this->pushRequest->getDatarequest())
-            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
-        ) {
-            return true;
-        }
-
-        return true;
+        return parent::saveInvoice();
     }
 
     /**

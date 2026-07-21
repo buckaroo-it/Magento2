@@ -1715,7 +1715,8 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        if ($this->payment->getMethod() === 'buckaroo_magento2_klarnakp') {
+        $klarnaPaymentMethods = ['buckaroo_magento2_klarnakp', 'buckaroo_magento2_klarna'];
+        if (in_array($this->payment->getMethod(), $klarnaPaymentMethods)) {
             $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
             $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
             $this->payment->save();
