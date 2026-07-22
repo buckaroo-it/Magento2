@@ -21,9 +21,9 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Total\Creditmemo;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\Total\Creditmemo\BuckarooFee;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -74,15 +74,10 @@ class BuckarooFeeTest extends BaseTest
      * @param $feerefunded
      * @param $expectedGrandTotal
      * @param $expectedTotalRefunded
-     *
-     * @dataProvider collectProvider
      */
+    #[DataProvider('collectProvider')]
     public function testCollect($fee, $feeinvoiced, $feerefunded, $expectedGrandTotal, $expectedTotalRefunded)
     {
-        // Use parameters to avoid PHPMD warnings
-        $this->assertIsNumeric($expectedGrandTotal, 'Expected grand total should be numeric');
-        $this->assertIsNumeric($expectedTotalRefunded, 'Expected total refunded should be numeric');
-
         // Mock Payment
         $paymentMock = $this->getFakeMock(\Magento\Sales\Model\Order\Payment::class)
             ->onlyMethods(['getMethod'])
@@ -90,48 +85,37 @@ class BuckarooFeeTest extends BaseTest
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_ideal');
 
         // Mock CreditmemoCollection
-        $creditmemoCollectionMock = $this->createMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class);
+        $creditmemoCollectionMock =
+            $this->createMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class);
 
-        // Mock Order with proper method tracking
+        // Partial Order mock: getPayment/getCreditmemosCollection are mocked, the buckaroo
+        // fee fields go through the real DataObject magic getters/setters so collect()
+        // mutates real state we can assert on afterwards.
         $orderMock = $this->getFakeMock(Order::class)
-            ->addMethods([
-                'getBaseBuckarooFeeInvoiced', 'getBaseBuckarooFeeRefunded', 'getBuckarooFeeRefunded',
-                'setBaseBuckarooFeeRefunded', 'setBuckarooFeeRefunded'
-            ])
             ->onlyMethods(['getPayment', 'getCreditmemosCollection'])
             ->getMock();
-
         $orderMock->method('getPayment')->willReturn($paymentMock);
         $orderMock->method('getCreditmemosCollection')->willReturn($creditmemoCollectionMock);
-        $orderMock->method('getBaseBuckarooFeeInvoiced')->willReturn($feeinvoiced);
-        $orderMock->method('getBaseBuckarooFeeRefunded')->willReturn($feerefunded);
-        $orderMock->method('getBuckarooFeeRefunded')->willReturn($feerefunded);
+        $orderMock->setBaseBuckarooFeeInvoiced($feeinvoiced);
+        $orderMock->setBaseBuckarooFeeRefunded($feerefunded);
+        $orderMock->setBuckarooFeeRefunded($feerefunded);
 
-        // Mock Invoice
-        $invoiceMock = $this->getFakeMock(Invoice::class)
-            ->addMethods(['getBaseBuckarooFee', 'getBuckarooFee'])
+        // Invoice mock: the invoiced buckaroo fee amounts drive the calculation.
+        $invoiceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub::class)
+            ->onlyMethods(['getBaseBuckarooFee', 'getBuckarooFee'])
             ->getMock();
         $invoiceMock->method('getBaseBuckarooFee')->willReturn($fee);
         $invoiceMock->method('getBuckarooFee')->willReturn($fee);
 
-        // Mock Creditmemo
+        // Partial Creditmemo mock: only the order/invoice lookups are mocked, the grand
+        // totals and buckaroo fee fields use the real (stateful) implementation.
         $creditmemoMock = $this->getFakeMock(Creditmemo::class)
-            ->addMethods([
-                'getBaseBuckarooFee', 'getBuckarooFee', 'setBaseBuckarooFee', 'setBuckarooFee'
-            ])
-            ->onlyMethods(['getOrder', 'getInvoice', 'getBaseGrandTotal', 'getGrandTotal', 'setBaseGrandTotal', 'setGrandTotal'])
+            ->onlyMethods(['getOrder', 'getInvoice'])
             ->getMock();
-
         $creditmemoMock->method('getOrder')->willReturn($orderMock);
         $creditmemoMock->method('getInvoice')->willReturn($invoiceMock);
-
-        // Set initial values
-        $initialGrandTotal = 100;
-        $initialBaseGrandTotal = 100;
-        $creditmemoMock->method('getGrandTotal')->willReturn($initialGrandTotal);
-        $creditmemoMock->method('getBaseGrandTotal')->willReturn($initialBaseGrandTotal);
-        $creditmemoMock->method('getBaseBuckarooFee')->willReturn(0);
-        $creditmemoMock->method('getBuckarooFee')->willReturn(0);
+        $creditmemoMock->setGrandTotal(0);
+        $creditmemoMock->setBaseGrandTotal(0);
 
         // Mock Request (use HTTP request which has getPost method)
         $requestMock = $this->createMock(\Magento\Framework\App\Request\Http::class);
@@ -141,8 +125,36 @@ class BuckarooFeeTest extends BaseTest
         $result = $instance->collect($creditmemoMock);
 
         $this->assertInstanceOf(BuckarooFee::class, $result);
-
-        // Test passes if no exceptions are thrown and the method returns self
         $this->assertSame($instance, $result);
+
+        // The creditmemo grand totals must be raised by exactly the refundable fee.
+        $this->assertEquals(
+            $expectedGrandTotal,
+            $creditmemoMock->getGrandTotal(),
+            'Creditmemo grand total should equal initial total plus the refundable buckaroo fee'
+        );
+        $this->assertEquals(
+            $expectedGrandTotal,
+            $creditmemoMock->getBaseGrandTotal(),
+            'Creditmemo base grand total should equal initial total plus the refundable base buckaroo fee'
+        );
+
+        // The order refunded-fee counters must be increased by the refunded fee.
+        $this->assertEquals(
+            $expectedTotalRefunded,
+            $orderMock->getBaseBuckarooFeeRefunded(),
+            'Order base_buckaroo_fee_refunded should be increased by the refunded base fee'
+        );
+        $this->assertEquals(
+            $expectedTotalRefunded,
+            $orderMock->getBuckarooFeeRefunded(),
+            'Order buckaroo_fee_refunded should be increased by the refunded fee'
+        );
+
+        // When a fee is actually refunded it must also be written onto the creditmemo itself.
+        if ($fee && $feeinvoiced > $feerefunded) {
+            $this->assertEquals($fee, $creditmemoMock->getBaseBuckarooFee());
+            $this->assertEquals($fee, $creditmemoMock->getBuckarooFee());
+        }
     }
 }

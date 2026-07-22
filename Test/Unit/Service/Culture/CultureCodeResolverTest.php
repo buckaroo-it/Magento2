@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Culture;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 use PHPUnit\Framework\TestCase;
 
@@ -36,9 +38,7 @@ class CultureCodeResolverTest extends TestCase
         $this->resolver = new CultureCodeResolver();
     }
 
-    /**
-     * @dataProvider resolveProvider
-     */
+    #[DataProvider('resolveProvider')]
     public function testResolve(?string $country, ?string $localeHint, string $expected): void
     {
         $this->assertSame($expected, $this->resolver->resolve($country, $localeHint));

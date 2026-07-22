@@ -7,6 +7,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\PaymentFlow;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -23,10 +25,10 @@ class PaymentFlowTest extends BaseTest
     }
 
     /**
-     * @dataProvider toOptionArrayProvider
      *
      * @param array $expected
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray(array $expected)
     {
         $instance = $this->getInstance();

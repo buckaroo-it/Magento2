@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\IssuerValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
@@ -50,13 +52,13 @@ class IssuerValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider issuerValidatorDataProvider
      *
      * @param mixed $chosenIssuer
      * @param mixed $paymentMethodCode
      * @param mixed $isValid
      * @param mixed $failMessage
      */
+    #[DataProvider('issuerValidatorDataProvider')]
     public function testValidate($chosenIssuer, $paymentMethodCode, $isValid, $failMessage)
     {
         $paymentDataObjectInterface = $this->createMock(PaymentDataObjectInterface::class);

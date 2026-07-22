@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Block;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Block\Info;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -66,10 +68,10 @@ class InfoTest extends TestCase
     }
 
     /**
-     * @dataProvider missingTransactionKeyProvider
      *
      * @param mixed $storedValue
      */
+    #[DataProvider('missingTransactionKeyProvider')]
     public function testGetPaymentTransactionReferenceReturnsNullWhenKeyIsMissing($storedValue): void
     {
         $this->paymentInfoMock->method('getAdditionalInformation')

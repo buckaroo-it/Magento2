@@ -20,6 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -52,13 +54,12 @@ class CreditcardsTest extends BaseTest
     /**
      * @param $expected
      *
-     * @dataProvider getConfigProvider
      */
+    #[DataProvider('getConfigProvider')]
     public function testGetConfig($expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->willReturnMap([
                 [
@@ -159,13 +160,12 @@ class CreditcardsTest extends BaseTest
      * @param $value
      * @param $expected
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 Creditcards::XPATH_CREDITCARDS_PAYMENT_FEE,

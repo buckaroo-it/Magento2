@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
@@ -64,11 +66,11 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider getBuildDataProvider
      *
      * @param string $expectedAddress
      * @param int    $expectedType
      */
+    #[DataProvider('getBuildDataProvider')]
     public function testBuild(string $expectedAddress, int $expectedType): void
     {
         $this->createOrderMock(
@@ -114,7 +116,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         $store = $this->createMock(Store::class);
         $this->orderMock->method('getRemoteIp')->willReturn($remoteIp);
         $this->orderMock->method('getStore')->willReturn($store);
-        $orderPaymentMock = $this->getMockForAbstractClass(
+        $orderPaymentMock = $this->createMock(
             OrderPaymentInterface::class,
             [],
             '',
@@ -132,11 +134,11 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider isIpPrivateDataProvider
      *
      * @param string $ip
      * @param bool   $expectedResult
      */
+    #[DataProvider('isIpPrivateDataProvider')]
     public function testIsIpPrivate(string $ip, bool $expectedResult): void
     {
         $isIpPrivate = $this->invokeIsIpPrivateMethod($this->clientIPDataBuilder, $ip);
@@ -174,7 +176,6 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     {
         $reflection = new \ReflectionClass(ClientIPDataBuilder::class);
         $method = $reflection->getMethod('isIpPrivate');
-        $method->setAccessible(true);
 
         return $method->invokeArgs($clientIPDataBuilder, [$ip]);
     }

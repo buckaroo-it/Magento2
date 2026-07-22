@@ -232,7 +232,7 @@ class Account extends AbstractConfigProvider
         }
 
         $label = str_replace('{order_number}', $order->getIncrementId(), $label);
-        $label = str_replace('{shop_name}', $order->getIncrementId(), $label);
+        $label = str_replace('{shop_name}', $store->getName(), $label);
 
         $products = $order->getItems();
         if (count($products)) {

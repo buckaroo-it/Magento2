@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Service;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
@@ -62,7 +64,6 @@ class TransactionCurrencyResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider resolveDataProvider
      *
      * @param string      $orderCurrency
      * @param array       $allowedCurrencies
@@ -70,6 +71,7 @@ class TransactionCurrencyResolverTest extends TestCase
      *
      * @throws Exception
      */
+    #[DataProvider('resolveDataProvider')]
     public function testResolve(
         string $orderCurrency,
         array $allowedCurrencies,
@@ -151,7 +153,7 @@ class TransactionCurrencyResolverTest extends TestCase
         $configProviderMock = $this->getMockBuilder(AbstractConfigProvider::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getAllowedCurrencies'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $configProviderMock->method('getAllowedCurrencies')->willReturn($allowedCurrencies);
 
         $this->configProviderMethodFactoryMock->method('get')

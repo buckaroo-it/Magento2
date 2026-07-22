@@ -103,7 +103,6 @@ abstract class BaseTest extends TestCase
     protected function getMethod($method, $instance)
     {
         $method = new \ReflectionMethod($instance, $method);
-        $method->setAccessible(true);
 
         return $method;
     }
@@ -157,7 +156,6 @@ abstract class BaseTest extends TestCase
 
         $reflection = new \ReflectionObject($instance);
         $property = $reflection->getProperty($property);
-        $property->setAccessible(true);
         return $property->getValue($instance);
     }
 
@@ -176,7 +174,6 @@ abstract class BaseTest extends TestCase
 
         $reflection = new \ReflectionObject($instance);
         $property = $reflection->getProperty($property);
-        $property->setAccessible(true);
         $property->setValue($instance, $value);
 
         return $property;
@@ -250,7 +247,7 @@ abstract class BaseTest extends TestCase
     public function assignDataTest($fixture)
     {
         $data = $this->getFakeMock(\Magento\Framework\DataObject::class)->getMock();
-        $infoInterface = $this->getFakeMock(\Magento\Payment\Model\InfoInterface::class)->getMockForAbstractClass();
+        $infoInterface = $this->getFakeMock(\Magento\Payment\Model\InfoInterface::class)->getMock();
 
         foreach ($fixture as $key => $value) {
             $camelCase = preg_replace_callback(

@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -38,12 +40,12 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderTestValidate
      *
      * @param string $quoteCurrency
      * @param bool   $currencyAllowed
      * @param bool   $expectedResult
      */
+    #[DataProvider('dataProviderTestValidate')]
     public function testValidate(
         string $quoteCurrency,
         bool $currencyAllowed,

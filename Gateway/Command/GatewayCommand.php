@@ -311,7 +311,7 @@ class GatewayCommand implements CommandInterface
                 $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
             }
         } else {
-            $messages[] = (string)$result->getFailsDescription()[0] ?? '';
+            $messages[] = (string)($result->getFailsDescription()[0] ?? '');
         }
 
         $errorMessage = '';

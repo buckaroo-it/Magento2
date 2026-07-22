@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -57,8 +59,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param bool  $expected
      *
-     * @dataProvider isSecondChanceEnabledProvider
      */
+    #[DataProvider('isSecondChanceEnabledProvider')]
     public function testIsSecondChanceEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -93,8 +95,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param bool  $expected
      *
-     * @dataProvider isFirstEmailEnabledProvider
      */
+    #[DataProvider('isFirstEmailEnabledProvider')]
     public function testIsFirstEmailEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -129,8 +131,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param bool  $expected
      *
-     * @dataProvider isSecondEmailEnabledProvider
      */
+    #[DataProvider('isSecondEmailEnabledProvider')]
     public function testIsSecondEmailEnabled($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -165,8 +167,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed  $configValue
      * @param string $expected
      *
-     * @dataProvider getFirstEmailTemplateProvider
      */
+    #[DataProvider('getFirstEmailTemplateProvider')]
     public function testGetFirstEmailTemplate($configValue, $expected)
     {
         // $expected parameter is from data provider but not used in this test implementation
@@ -203,8 +205,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed  $configValue
      * @param string $expected
      *
-     * @dataProvider getSecondEmailTemplateProvider
      */
+    #[DataProvider('getSecondEmailTemplateProvider')]
     public function testGetSecondEmailTemplate($configValue, $expected)
     {
         // $expected parameter is from data provider but not used in this test implementation
@@ -243,8 +245,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param int   $expected
      *
-     * @dataProvider getFirstEmailTimingProvider
      */
+    #[DataProvider('getFirstEmailTimingProvider')]
     public function testGetFirstEmailTiming($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -281,8 +283,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param int   $expected
      *
-     * @dataProvider getSecondEmailTimingProvider
      */
+    #[DataProvider('getSecondEmailTimingProvider')]
     public function testGetSecondEmailTiming($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -318,8 +320,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param bool  $expected
      *
-     * @dataProvider shouldSkipOutOfStockProvider
      */
+    #[DataProvider('shouldSkipOutOfStockProvider')]
     public function testShouldSkipOutOfStock($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -356,8 +358,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param int   $expected
      *
-     * @dataProvider getPruneDaysProvider
      */
+    #[DataProvider('getPruneDaysProvider')]
     public function testGetPruneDays($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();
@@ -393,8 +395,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param mixed $configValue
      * @param bool  $expected
      *
-     * @dataProvider canSendMultipleEmailsProvider
      */
+    #[DataProvider('canSendMultipleEmailsProvider')]
     public function testCanSendMultipleEmails($configValue, $expected)
     {
         $store = $this->getFakeMock(Store::class)->getMock();

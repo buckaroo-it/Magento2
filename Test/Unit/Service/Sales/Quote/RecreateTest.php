@@ -76,10 +76,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->cartRepository = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $this->cart = $this->getFakeMock(Cart::class)->getMock();
-        $this->checkoutSession = $this->getFakeMock(CheckoutSession::class, false)
-            ->addMethods(['unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])
-            ->onlyMethods(['replaceQuote', 'setQuoteId'])
-            ->getMock();
+        $this->checkoutSession = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class, false)
+            ->onlyMethods(['replaceQuote', 'setQuoteId', 'unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])->getMock();
         $this->quoteFactory = $this->getFakeMock(QuoteFactory::class)->getMock();
         $this->productFactory = $this->getFakeMock(ProductFactory::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -170,19 +168,15 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $oldQuote = $this->getFakeMock(Quote::class, false)
             ->onlyMethods(['load', 'getId', 'getPayment', 'setIsActive', 'save'])
             ->getMock();
-        $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest'])
-            ->addMethods(['setCustomerId', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
-            ->getMock();
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'getPayment', 'getCustomerIsGuest', 'setCustomerId', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();
         $billingAddress = $this->getFakeMock(Address::class)->getMock();
         $shippingAddress = $this->getFakeMock(Address::class)->getMock();
-        $quoteBillingAddress = $this->getFakeMock(\Magento\Quote\Model\Quote\Address::class)
-            ->addMethods(['importOrderAddress'])
-            ->getMock();
-        $quoteShippingAddress = $this->getFakeMock(\Magento\Quote\Model\Quote\Address::class)
-            ->addMethods(['importOrderAddress', 'setShippingMethod', 'setCollectShippingRates'])
-            ->getMock();
+        $quoteBillingAddress = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AddressStub::class)
+            ->onlyMethods(['importOrderAddress'])->getMock();
+        $quoteShippingAddress = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AddressStub::class)
+            ->onlyMethods(['importOrderAddress', 'setShippingMethod', 'setCollectShippingRates'])->getMock();
 
         // Setup order data
         $order->method('getIncrementId')->willReturn('000000001');
@@ -296,10 +290,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $order = $this->getFakeMock(Order::class)->getMock();
         $oldQuote = $this->getFakeMock(Quote::class)->getMock();
-        $newQuote = $this->getFakeMock(Quote::class, false)
-            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest'])
-            ->addMethods(['setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])
-            ->getMock();
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])->getMock();
         $store = $this->getFakeMock(Store::class)->getMock();
 
         // Setup guest order

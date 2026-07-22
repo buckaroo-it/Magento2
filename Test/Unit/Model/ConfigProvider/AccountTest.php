@@ -90,6 +90,42 @@ class AccountTest extends BaseTest
         ->willReturn(
             'Order {order_number} shop: {shop_name} product: {product_name}'
         );
-        $this->assertEquals("Order {$orderNumber} shop: {$orderNumber} product: {$productName}", $account->getParsedLabel($storeMock, $orderMock));
+
+        $result = $account->getParsedLabel($storeMock, $orderMock);
+
+        $this->assertSame(
+            "Order {$orderNumber} shop: {$shopName} product: {$productName}",
+            $result
+        );
+
+        // Every placeholder must have been substituted.
+        $this->assertStringNotContainsString('{order_number}', $result);
+        $this->assertStringNotContainsString('{shop_name}', $result);
+        $this->assertStringNotContainsString('{product_name}', $result);
+    }
+
+    public function testGetParsedLabelReturnsStoreNameWhenNoLabelIsConfigured()
+    {
+        $shopName = 'Shop Name';
+
+        $storeMock = $this->getFakeMock(Store::class)
+            ->onlyMethods(['getName'])
+            ->getMock();
+        $storeMock->expects($this->once())->method('getName')->willReturn($shopName);
+
+        $orderMock = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getIncrementId', 'getItems'])
+            ->getMock();
+        $orderMock->expects($this->never())->method('getIncrementId');
+        $orderMock->expects($this->never())->method('getItems');
+
+        $account = $this->getFakeMock(Account::class)
+            ->onlyMethods(['getTransactionLabel'])
+            ->getMock();
+        $account->method('getTransactionLabel')
+            ->with($storeMock)
+            ->willReturn(null);
+
+        $this->assertSame($shopName, $account->getParsedLabel($storeMock, $orderMock));
     }
 }

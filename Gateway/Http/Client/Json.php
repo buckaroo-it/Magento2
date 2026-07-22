@@ -39,12 +39,12 @@ class Json
     /**
      * @var string
      */
-    private $secretKey;
+    private $secretKey = '';
 
     /**
      * @var string
      */
-    private $websiteKey;
+    private $websiteKey = '';
 
     /**
      * @param Curl                    $client

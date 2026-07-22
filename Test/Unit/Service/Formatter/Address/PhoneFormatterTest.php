@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -144,8 +146,8 @@ class PhoneFormatterTest extends BaseTest
      * @param $country
      * @param $expected
      *
-     * @dataProvider formatProvider
      */
+    #[DataProvider('formatProvider')]
     public function testFormat($number, $country, $expected)
     {
         $instance = $this->getInstance();

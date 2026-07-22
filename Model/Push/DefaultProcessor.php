@@ -1530,7 +1530,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @throws Exception
      */
-    private function processSucceededPushAuthorization(): void
+    protected function processSucceededPushAuthorization(): void
     {
         $authPpaymentMethods = [
             Afterpay::CODE,

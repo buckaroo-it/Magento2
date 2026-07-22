@@ -36,16 +36,13 @@ class SetBuckarooFeeTest extends BaseTest
      */
     public function testInvoiceRegisterHappyPath()
     {
-        $quoteMock = $this->getMockBuilder(Quote::class)
+        $quoteMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getBaseBuckarooFee'])
-            ->getMock();
+            ->onlyMethods(['getBaseBuckarooFee'])->getMock();
         $quoteMock->method('getBaseBuckarooFee')->willReturn(false);
 
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->onlyMethods(['getEvent'])
-            ->addMethods(['getQuote'])
-            ->getMock();
+        $observerMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)
+            ->onlyMethods(['getEvent', 'getQuote'])->getMock();
         $observerMock->method('getEvent')->willReturnSelf();
         $observerMock->method('getQuote')->willReturn($quoteMock);
 
@@ -68,17 +65,9 @@ class SetBuckarooFeeTest extends BaseTest
         $getBaseBuckarooFeeInclTax = rand(1, 1000);
         $getBuckarooFeeBaseTaxAmount = rand(1, 1000);
 
-        $orderMock = $this->getMockBuilder(Order::class)
+        $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
             ->disableOriginalConstructor()
-            ->addMethods([
-                'setBuckarooFee',
-                'setBaseBuckarooFee',
-                'setBuckarooFeeInclTax',
-                'setBuckarooFeeTaxAmount',
-                'setBaseBuckarooFeeInclTax',
-                'setBuckarooFeeBaseTaxAmount'
-            ])
-            ->getMock();
+            ->onlyMethods(['setBuckarooFee', 'setBaseBuckarooFee', 'setBuckarooFeeInclTax', 'setBuckarooFeeTaxAmount', 'setBaseBuckarooFeeInclTax', 'setBuckarooFeeBaseTaxAmount'])->getMock();
         $orderMock->expects($this->once())->method('setBuckarooFee')->with($buckarooFee);
         $orderMock->expects($this->once())->method('setBaseBuckarooFee')->with($buckarooBaseFee);
         $orderMock->expects($this->once())->method('setBuckarooFeeInclTax')->with($getBuckarooFeeInclTax);
@@ -86,17 +75,9 @@ class SetBuckarooFeeTest extends BaseTest
         $orderMock->expects($this->once())->method('setBaseBuckarooFeeInclTax')->with($getBaseBuckarooFeeInclTax);
         $orderMock->expects($this->once())->method('setBuckarooFeeBaseTaxAmount')->with($getBuckarooFeeBaseTaxAmount);
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
+        $quoteMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->addMethods([
-                'getBuckarooFee',
-                'getBaseBuckarooFee',
-                'getBuckarooFeeInclTax',
-                'getBuckarooFeeTaxAmount',
-                'getBaseBuckarooFeeInclTax',
-                'getBuckarooFeeBaseTaxAmount'
-            ])
-            ->getMock();
+            ->onlyMethods(['getBuckarooFee', 'getBaseBuckarooFee', 'getBuckarooFeeInclTax', 'getBuckarooFeeTaxAmount', 'getBaseBuckarooFeeInclTax', 'getBuckarooFeeBaseTaxAmount'])->getMock();
         $quoteMock->method('getBuckarooFee')->willReturn($buckarooFee);
         $quoteMock->method('getBaseBuckarooFee')->willReturn($buckarooBaseFee);
         $quoteMock->method('getBuckarooFeeInclTax')->willReturn($getBuckarooFeeInclTax);
@@ -104,10 +85,8 @@ class SetBuckarooFeeTest extends BaseTest
         $quoteMock->method('getBaseBuckarooFeeInclTax')->willReturn($getBaseBuckarooFeeInclTax);
         $quoteMock->method('getBuckarooFeeBaseTaxAmount')->willReturn($getBuckarooFeeBaseTaxAmount);
 
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->onlyMethods(['getEvent'])
-            ->addMethods(['getQuote', 'getOrder'])
-            ->getMock();
+        $observerMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)
+            ->onlyMethods(['getEvent', 'getQuote', 'getOrder'])->getMock();
         $observerMock->method('getEvent')->willReturnSelf();
         $observerMock->method('getOrder')->willReturn($orderMock);
         $observerMock->method('getQuote')->willReturn($quoteMock);

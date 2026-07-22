@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
@@ -45,9 +47,7 @@ class AreaCodeValidatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider validateDataProvider
-     */
+    #[DataProvider('validateDataProvider')]
     public function testValidate(
         string $areaCode,
         ?string $availableInBackend,

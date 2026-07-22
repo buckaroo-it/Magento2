@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Recipient;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
@@ -63,10 +65,10 @@ class KlarnaDataBuilderTest extends AbstractDataBuilderTest
      * parameter must always be sent as "unknown" regardless of any legacy
      * customer_gender value that might still be present on the payment.
      *
-     * @dataProvider customerGenderProvider
      *
      * @param string|null $customerGender
      */
+    #[DataProvider('customerGenderProvider')]
     public function testGenderIsAlwaysUnknown(?string $customerGender): void
     {
         $this->paymentMock = $this->createMock(InfoInterface::class);
@@ -86,7 +88,7 @@ class KlarnaDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array<string, array{0: string|null}>
      */
-    public function customerGenderProvider(): array
+    public static function customerGenderProvider(): array
     {
         return [
             'legacy male value' => ['1'],

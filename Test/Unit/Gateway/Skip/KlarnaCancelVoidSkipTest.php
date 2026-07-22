@@ -151,11 +151,9 @@ class KlarnaCancelVoidSkipTest extends TestCase
      */
     private function createOrderMock(?string $dataRequestKey = null, ?string $reservationNumber = null)
     {
-        $orderMock = $this->getMockBuilder(Order::class)
+        $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getBuckarooDatarequestKey', 'getBuckarooReservationNumber'])
-            ->onlyMethods(['getIncrementId'])
-            ->getMock();
+            ->onlyMethods(['getIncrementId', 'getBuckarooDatarequestKey', 'getBuckarooReservationNumber'])->getMock();
 
         $orderMock->method('getBuckarooDatarequestKey')->willReturn($dataRequestKey);
         $orderMock->method('getBuckarooReservationNumber')->willReturn($reservationNumber);

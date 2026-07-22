@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Model\SecondChanceFactory;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance as ResourceSecondChance;
@@ -134,8 +136,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param string $paymentMethod
      * @param int    $expectedCalls
      *
-     * @dataProvider createSecondChanceProvider
      */
+    #[DataProvider('createSecondChanceProvider')]
     public function testCreateSecondChance($secondChanceEnabled, $paymentMethod, $expectedCalls)
     {
         $store = $this->getFakeMock(Store::class, true);
@@ -164,7 +166,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             $order->method('getCustomerEmail')->willReturn('test@example.com');
 
             // Create proper mock for the interface using getMockForAbstractClass to handle all abstract methods
-            $secondChanceData = $this->getMockForAbstractClass(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
+            $secondChanceData = $this->createMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
             $secondChanceData->method('setOrderId')->willReturn($secondChanceData);
             $secondChanceData->method('setStoreId')->willReturn($secondChanceData);
             $secondChanceData->method('setCustomerEmail')->willReturn($secondChanceData);
@@ -189,7 +191,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             // For cases where expectedCalls = 0, ensure factory and resource are set up properly
             $secondChanceDataFactory = $this->getFakeMock(SecondChanceInterfaceFactory::class, true);
             // Still need to return a valid mock even when not saving, as the method may still call create()
-            $secondChanceData = $this->getMockForAbstractClass(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
+            $secondChanceData = $this->createMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
             $secondChanceData->method('setOrderId')->willReturn($secondChanceData);
             $secondChanceData->method('setStoreId')->willReturn($secondChanceData);
             $secondChanceData->method('setCustomerEmail')->willReturn($secondChanceData);
@@ -278,8 +280,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param array $stockData
      * @param bool  $expectedResult
      *
-     * @dataProvider checkOrderProductsIsInStockProvider
      */
+    #[DataProvider('checkOrderProductsIsInStockProvider')]
     public function testCheckOrderProductsIsInStock($orderItems, $stockData, $expectedResult)
     {
         $order = $this->getFakeMock(Order::class, true);
@@ -331,9 +333,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param int    $step
      * @param string $expectedTemplate
      *
-     * @dataProvider sendMailProvider
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
+    #[DataProvider('sendMailProvider')]
     public function testSendMail($step, $expectedTemplate)
     {
         $order = $this->getFakeMock(Order::class, true);

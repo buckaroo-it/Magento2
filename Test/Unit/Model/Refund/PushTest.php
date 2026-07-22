@@ -86,15 +86,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testReceiveRefundPushSuccess()
     {
-        $postDataMock = $this->getMockForAbstractClass(
-            PushRequestInterface::class,
-            [],
-            '',
-            true,
-            true,
-            true,
-            ['getTransactions', 'getAdditionalInformation', 'getTransactionMethod', 'getTransactionType', 'getAmountCredit', 'hasAdditionalInformation', 'getCurrency', 'getStatusCode', 'getStatusMessage']
-        );
+        $postDataMock = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
 
         $postDataMock->method('getTransactions')->willReturn('trans123');
         $postDataMock->method('getAdditionalInformation')->willReturn(null);
@@ -147,7 +139,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testReceiveRefundPushDisabled()
     {
-        $postDataMock = $this->getMockForAbstractClass(PushRequestInterface::class);
+        $postDataMock = $this->createMock(PushRequestInterface::class);
         $orderMock = $this->getFakeMock(Order::class)->getMock();
 
         $this->configRefundMock->method('getAllowPush')->willReturn(false);
@@ -162,7 +154,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testReceiveRefundPushExistingCreditmemo()
     {
-        $postDataMock = $this->getMockForAbstractClass(
+        $postDataMock = $this->createMock(
             PushRequestInterface::class,
             [],
             '',
@@ -190,7 +182,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testReceiveRefundPushInvalidSignature()
     {
-        $postDataMock = $this->getMockForAbstractClass(PushRequestInterface::class);
+        $postDataMock = $this->createMock(PushRequestInterface::class);
         $orderMock = $this->getFakeMock(Order::class)->getMock();
         $orderMock->method('canCreditmemo')->willReturn(false);
 
@@ -207,15 +199,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testCreateCreditmemoFailure()
     {
         // Test the actual functionality - when createCreditmemo returns false
-        $postDataMock = $this->getMockForAbstractClass(
-            PushRequestInterface::class,
-            [],
-            '',
-            true,
-            true,
-            true,
-            ['getAmountCredit', 'getCurrency']
-        );
+        $postDataMock = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
         $postDataMock->method('getAmountCredit')->willReturn(100.0);
         $postDataMock->method('getCurrency')->willReturn('EUR');
 

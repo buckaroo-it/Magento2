@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\PaypalExpress\Response;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Api\Data\BreakdownItemInterface;
 use Buckaroo\Magento2\Api\Data\BreakdownItemInterfaceFactory;
 use Buckaroo\Magento2\Model\PaypalExpress\Response\BreakdownItem;
@@ -62,10 +64,8 @@ class TotalBreakdownTest extends BaseTest
         float $taxSegment,
         string $currency = 'EUR'
     ): TotalBreakdown {
-        $quoteMock = $this->getFakeMock(Quote::class)
-            ->onlyMethods(['getId'])
-            ->addMethods(['getGrandTotal', 'getQuoteCurrencyCode'])
-            ->getMock();
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
+            ->onlyMethods(['getId', 'getGrandTotal', 'getQuoteCurrencyCode'])->getMock();
         $quoteMock->method('getGrandTotal')->willReturn($grandTotal);
         $quoteMock->method('getQuoteCurrencyCode')->willReturn($currency);
         $quoteMock->method('getId')->willReturn(1);
@@ -73,13 +73,11 @@ class TotalBreakdownTest extends BaseTest
         $segments = $this->buildSegments($shippingSegment, $taxSegment);
 
         $totalsMock = $this->getFakeMock(TotalsInterface::class)
-            ->onlyMethods(['getTotalSegments'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $totalsMock->method('getTotalSegments')->willReturn($segments);
 
         $repoMock = $this->getFakeMock(CartTotalRepositoryInterface::class)
-            ->onlyMethods(['get'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $repoMock->method('get')->with(1)->willReturn($totalsMock);
 
         $factoryMock = $this->getMockBuilder(BreakdownItemInterfaceFactory::class)
@@ -114,8 +112,7 @@ class TotalBreakdownTest extends BaseTest
                 continue;
             }
             $seg = $this->getFakeMock(TotalSegmentInterface::class)
-                ->onlyMethods(['getValue'])
-                ->getMockForAbstractClass();
+                ->getMock();
             $seg->method('getValue')->willReturn((string)$value);
             $segments[$code] = $seg;
         }
@@ -127,9 +124,7 @@ class TotalBreakdownTest extends BaseTest
     // getItemTotal() correctness
     // -------------------------------------------------------------------------
 
-    /**
-     * @dataProvider breakdownProvider
-     */
+    #[DataProvider('breakdownProvider')]
     public function testGetItemTotalReturnsGrandTotalMinusShippingMinusTax(
         float $grandTotal,
         float $shipping,
@@ -158,13 +153,12 @@ class TotalBreakdownTest extends BaseTest
     // Invariant: item_total + shipping + tax_total == grand_total (no off-by-1c)
     // -------------------------------------------------------------------------
 
-    /**
-     * @dataProvider breakdownProvider
-     */
+    #[DataProvider('breakdownProvider')]
     public function testBreakdownComponentsSumExactlyToGrandTotal(
         float $grandTotal,
         float $shipping,
-        float $tax
+        float $tax,
+        string $expectedItemTotal
     ): void {
         $breakdown = $this->makeBreakdown($grandTotal, $shipping, $tax);
 
@@ -184,24 +178,19 @@ class TotalBreakdownTest extends BaseTest
 
     public function testCartTotalRepositoryIsCalledOnlyOncePerBreakdownRequest(): void
     {
-        $quoteMock = $this->getFakeMock(Quote::class)
-            ->onlyMethods(['getId'])
-            ->addMethods(['getGrandTotal', 'getQuoteCurrencyCode'])
-            ->getMock();
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
+            ->onlyMethods(['getId', 'getGrandTotal', 'getQuoteCurrencyCode'])->getMock();
         $quoteMock->method('getGrandTotal')->willReturn(29.98);
         $quoteMock->method('getQuoteCurrencyCode')->willReturn('EUR');
         $quoteMock->method('getId')->willReturn(42);
 
-        $taxSeg = $this->getFakeMock(TotalSegmentInterface::class)
-            ->onlyMethods(['getValue'])->getMockForAbstractClass();
+        $taxSeg = $this->getFakeMock(TotalSegmentInterface::class)->getMock();
         $taxSeg->method('getValue')->willReturn('4.79');
 
-        $totalsMock = $this->getFakeMock(TotalsInterface::class)
-            ->onlyMethods(['getTotalSegments'])->getMockForAbstractClass();
+        $totalsMock = $this->getFakeMock(TotalsInterface::class)->getMock();
         $totalsMock->method('getTotalSegments')->willReturn(['tax' => $taxSeg]);
 
-        $repoMock = $this->getFakeMock(CartTotalRepositoryInterface::class)
-            ->onlyMethods(['get'])->getMockForAbstractClass();
+        $repoMock = $this->getFakeMock(CartTotalRepositoryInterface::class)->getMock();
 
         // THE KEY ASSERTION: exactly 1 repo call even though 3 getters are invoked
         $repoMock->expects($this->once())

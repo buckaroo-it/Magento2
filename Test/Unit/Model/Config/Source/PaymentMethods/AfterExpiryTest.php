@@ -5,6 +5,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PaymentMethods;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -35,8 +37,8 @@ class AfterExpiryTest extends BaseTest
     /**
      * @param array $paymentOption
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();

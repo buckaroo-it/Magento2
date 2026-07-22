@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\AdditionalInformation;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\AdditionalInformation\IssuerDataBuilder;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -42,10 +44,10 @@ class IssuerDataBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider buildDataProvider
      *
      * @param array $expectedResult
      */
+    #[DataProvider('buildDataProvider')]
     public function testBuild(array $expectedResult): void
     {
         $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);

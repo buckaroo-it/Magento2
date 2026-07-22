@@ -86,7 +86,7 @@ class DefaultTransaction implements ClientInterface
             'client' => static::class
         ];
         $response['object'] = [];
-        $paymentMethod = $data['payment_method'];
+        $paymentMethod = $data['payment_method'] ?? '';
         unset($data['payment_method']);
 
         if ($this->action === TransactionType::REFUND &&

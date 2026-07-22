@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\VisibleFrontBack;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -49,8 +51,8 @@ class VisibleFrontBackTest extends BaseTest
     /**
      * @param $visibleFrontBack
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($visibleFrontBack)
     {
         $instance = $this->getInstance();
@@ -81,8 +83,8 @@ class VisibleFrontBackTest extends BaseTest
     /**
      * @param $visibleFrontBack
      *
-     * @dataProvider toArrayProvider
      */
+    #[DataProvider('toArrayProvider')]
     public function testToArray($visibleFrontBack)
     {
         $instance = $this->getInstance();

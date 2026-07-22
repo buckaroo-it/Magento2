@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 
@@ -42,13 +44,13 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider amountDataProvider
      *
      * @param float|null $grandTotal
      * @param float      $expectedAmount
      *
      * @throws \Exception
      */
+    #[DataProvider('amountDataProvider')]
     public function testBuild(?float $grandTotal, float $expectedAmount)
     {
         $this->orderMock->method('getGrandTotal')

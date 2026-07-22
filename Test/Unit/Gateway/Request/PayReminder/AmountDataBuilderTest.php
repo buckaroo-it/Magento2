@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\PayReminder;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\PayReminder\AmountDataBuilder;
 use Buckaroo\Magento2\Service\PayReminderService;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
@@ -51,12 +53,12 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider buildDataProvider
      *
      * @param string $serviceAction
      * @param float  $payRemainder
      * @param array  $expectedResult
      */
+    #[DataProvider('buildDataProvider')]
     public function testBuild(string $serviceAction, float $payRemainder, array $expectedResult): void
     {
         $incrementId = '100000001';

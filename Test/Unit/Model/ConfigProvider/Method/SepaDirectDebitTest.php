@@ -20,6 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -59,13 +61,12 @@ class SepaDirectDebitTest extends BaseTest
     /**
      * @param $expected
      *
-     * @dataProvider getConfigProvider
      */
+    #[DataProvider('getConfigProvider')]
     public function testGetConfig($expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function($path, $scope = null, $scopeId = null) {
                 // Use parameters to avoid PHPMD warnings
@@ -130,13 +131,12 @@ class SepaDirectDebitTest extends BaseTest
      * @param $value
      * @param $expected
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(SepaDirectDebit::CODE, AbstractConfigProvider::PAYMENT_FEE),

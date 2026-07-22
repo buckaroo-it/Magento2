@@ -497,19 +497,19 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $edition = $this->softwareData->getProductMetaData()->getEdition();
 
         if ($this->order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$this->order->getDiscountAmount());
+            $discount -= abs((float)$this->order->getDiscountAmount());
 
             $includesTax = (bool)$this->scopeConfig->getValue(
                 static::TAX_CALCULATION_INCLUDES_TAX,
                 ScopeInterface::SCOPE_STORE
             );
             if (!$includesTax) {
-                $discount -= abs((double)$this->order->getDiscountTaxCompensationAmount());
+                $discount -= abs((float)$this->order->getDiscountTaxCompensationAmount());
             }
         }
 
         if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$this->order->getCustomerBalanceAmount());
+            $discount -= abs((float)$this->order->getCustomerBalanceAmount());
         }
 
         return $discount;
@@ -525,7 +525,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $totalExclTax = 0.0;
         $weightedTax = 0.0;
 
-        foreach ($this->order->getAllVisibleItems() as $item) {
+        foreach (($this->order->getAllVisibleItems() ?: []) as $item) {
             $rowTotal = (float)$item->getRowTotal();
             if ($rowTotal <= 0) {
                 continue;
@@ -564,11 +564,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getServiceCostLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
     {
-        $buckarooFeeLine = (double)$order->getBuckarooFeeInclTax();
+        $buckarooFeeLine = (float)$order->getBuckarooFeeInclTax();
 
         if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
             $this->buckarooLog->addDebug(__METHOD__ . '|5|');
-            $buckarooFeeLine = (double)$order->getBuckarooFee();
+            $buckarooFeeLine = (float)$order->getBuckarooFee();
         }
 
         $article = [];
@@ -742,7 +742,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected function getOrderVatGroups(): array
     {
         $groups = [];
-        foreach ($this->order->getAllVisibleItems() as $item) {
+        foreach (($this->order->getAllVisibleItems() ?: []) as $item) {
             $rowTotal = (float)$item->getRowTotal();
             if ($rowTotal <= 0) {
                 continue;

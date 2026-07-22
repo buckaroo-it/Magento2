@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
@@ -30,13 +32,13 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider availableBasedOnAmountValidatorDataProvider
      *
      * @param mixed $maximum
      * @param mixed $minimum
      * @param mixed $grandTotal
      * @param mixed $isValid
      */
+    #[DataProvider('availableBasedOnAmountValidatorDataProvider')]
     public function testValidate($maximum, $minimum, $grandTotal, $isValid)
     {
         $paymentMethodInstanceMock = $this->createMock(MethodInterface::class);
@@ -48,11 +50,9 @@ class AvailableBasedOnAmountValidatorTest extends TestCase
             ]);
 
         // Create a more robust Quote mock that doesn't trigger internal factory calls
-        $quoteMock = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
+        $quoteMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getStoreId', 'getShippingAddress', 'getBillingAddress'])
-            ->addMethods(['getGrandTotal'])
-            ->getMock();
+            ->onlyMethods(['getStoreId', 'getShippingAddress', 'getBillingAddress', 'getGrandTotal'])->getMock();
         $quoteMock->method('getGrandTotal')
             ->willReturn($grandTotal);
         $quoteMock->method('getStoreId')

@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -42,9 +44,7 @@ class ClicktopayTest extends BaseTest
         ];
     }
 
-    /**
-     * @dataProvider configProvider
-     */
+    #[DataProvider('configProvider')]
     public function testGetConfig(bool $active): void
     {
         $scopeConfig    = $this->createScopeConfigMock($active);

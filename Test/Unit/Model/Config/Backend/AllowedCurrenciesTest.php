@@ -36,9 +36,8 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
      */
     public function testSaveNoValue()
     {
-        $resourceMock = $this->getFakeMock(AbstractResource::class)
-            ->addMethods(['save'])
-            ->getMockForAbstractClass();
+        $resourceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AbstractResourceStub::class)
+            ->onlyMethods(['save'])->getMock();
         $resourceMock->method('save');
 
         $instance = $this->getInstance(['resource' => $resourceMock]);
@@ -57,9 +56,8 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMock();
         $configProviderMock->method('getAllowedCurrencies')->willReturn(['EUR', 'USD']);
 
-        $resourceMock = $this->getFakeMock(AbstractResource::class)
-            ->addMethods(['save'])
-            ->getMockForAbstractClass();
+        $resourceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AbstractResourceStub::class)
+            ->onlyMethods(['save'])->getMock();
         $resourceMock->method('save');
 
         $instance = $this->getInstance(['configProvider' => $configProviderMock, 'resource' => $resourceMock]);
@@ -87,7 +85,7 @@ class AllowedCurrenciesTest extends \Buckaroo\Magento2\Test\BaseTest
             ]
         ]);
 
-        $localeResolverMock = $this->getFakeMock(\Magento\Framework\Locale\ResolverInterface::class)->getMockForAbstractClass();
+        $localeResolverMock = $this->getFakeMock(\Magento\Framework\Locale\ResolverInterface::class)->getMock();
         $localeResolverMock->method('getLocale')->willReturn('en_US');
 
         $instance = $this->getInstance([
