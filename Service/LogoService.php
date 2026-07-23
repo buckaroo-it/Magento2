@@ -65,8 +65,9 @@ class LogoService
         $mappings = [
             "afterpay2"        => "svg/riverty.svg",
             "afterpay20"       => "svg/riverty.svg",
-            "capayablein3"     => "svg/in3.svg",
-            "capayablepostpay" => "svg/in3.svg",
+            "capayablein3"         => "svg/in3.svg",
+            "capayablepostpay"     => "svg/in3.svg",
+            "zakelijkoprekening"   => "svg/zakelijk-op-rekening-abn-amro.svg",
             "creditcard"       => "svg/creditcards.svg",
             "creditcards"      => "svg/creditcards.svg",
             "giftcards"        => "svg/giftcards.svg",

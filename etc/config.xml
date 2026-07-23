@@ -801,6 +801,35 @@
                 <can_use_checkout>1</can_use_checkout>
             </buckaroo_magento2_capayablein3>
 
+            <buckaroo_magento2_zakelijkoprekening>
+                <active>0</active>
+                <model>ZakelijkOpRekeningFacade</model>
+                <order_status>pending</order_status>
+                <title>Zakelijk op rekening</title>
+                <display_subtext>1</display_subtext>
+                <subtext>Betaal later</subtext>
+                <allowspecific>1</allowspecific>
+                <specificcountry>NL</specificcountry>
+                <sort_order>255</sort_order>
+                <order_email>1</order_email>
+                <group>buckaroo_magento2</group>
+                <payment_action>authorize</payment_action>
+                <available_in_backend>0</available_in_backend>
+                <min_amount>250</min_amount>
+                <max_amount>25000</max_amount>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_capture_partial>1</can_capture_partial>
+                <can_order>0</can_order>
+                <can_void>0</can_void>
+                <can_cancel>0</can_cancel>
+                <can_refund>1</can_refund>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_use_internal>0</can_use_internal>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+            </buckaroo_magento2_zakelijkoprekening>
+
             <buckaroo_magento2_alipay>
                 <active>0</active>
                 <model>AlipayFacade</model>

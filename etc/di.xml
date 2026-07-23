@@ -357,6 +357,10 @@
                     <item name="type" xsi:type="string">in3</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
                 </item>
+                <item name="zakelijkoprekening" xsi:type="array">
+                    <item name="type" xsi:type="string">zakelijkoprekening</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening</item>
+                </item>
                 <item name="capayablepostpay" xsi:type="array">
                     <item name="type" xsi:type="string">capayablepostpay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayablePostpay</item>
@@ -509,6 +513,7 @@
                 <item name="kbc" xsi:type="string">kbcpaymentbutton</item>
                 <item name="Capayable" xsi:type="string">in3old</item>
                 <item name="capayablein3" xsi:type="string">in3old</item>
+                <item name="zakelijkoprekening" xsi:type="string">in3</item>
                 <item name="afterpay20" xsi:type="string">afterpay</item>
                 <item name="afterpay" xsi:type="string">afterpaydigiaccept</item>
                 <item name="afterpay2" xsi:type="string">afterpaydigiaccept</item>
@@ -592,6 +597,7 @@
                 <item name="area_code" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator</item>
                 <item name="based_on_amount" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnAmountValidator</item>
                 <item name="based_on_customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerType</item>
+                <item name="based_on_company" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCompanyValidator</item>
                 <item name="based_on_currency" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator</item>
                 <item name="based_on_customer_group" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator</item>
                 <item name="based_on_pos_settings" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnPOSValidator</item>
@@ -604,6 +610,7 @@
                 <item name="based_on_ip" xsi:type="string">based_on_ip</item>
                 <item name="based_on_amount" xsi:type="string">based_on_amount</item>
                 <item name="based_on_customer_type" xsi:type="string">based_on_customer_type</item>
+                <item name="based_on_company" xsi:type="string">based_on_company</item>
                 <item name="based_on_currency" xsi:type="string">based_on_currency</item>
                 <item name="based_on_customer_group" xsi:type="string">based_on_customer_group</item>
                 <item name="based_on_pos_settings" xsi:type="string">based_on_pos_settings</item>
@@ -744,6 +751,7 @@
                 <item name="afterpay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayOldHandler</item>
                 <item name="afterpay20" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AfterpayHandler</item>
                 <item name="capayablein3" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\CapayableIn3Handler</item>
+                <item name="zakelijkoprekening" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ZakelijkOpRekeningHandler</item>
                 <item name="billink" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\BillinkHandler</item>
                 <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler</item>
             </argument>
@@ -2353,6 +2361,99 @@
     <!-- END Capayable Order Command -->
     <!-- END Capayable Commands infrastructure -->
     <!-- END Payment Method: Capayable -->
+
+    <!-- Payment Method: Zakelijk op rekening (ABN AMRO B2B via In3 Authorize/Capture) -->
+    <virtualType name="ZakelijkOpRekeningFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">ZakelijkOpRekeningValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">BuckarooValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">ZakelijkOpRekeningGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ZakelijkOpRekeningValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">ZakelijkOpRekeningConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ZakelijkOpRekeningConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="ZakelijkOpRekeningGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">ZakelijkOpRekeningAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">ZakelijkOpRekeningCaptureCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zakelijk op rekening Authorize Command -->
+    <virtualType name="ZakelijkOpRekeningAuthorizeCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">ZakelijkOpRekeningAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">AuthorizeResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ZakelijkOpRekeningAuthorizeRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="route" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\RouteDataBuilder</item>
+                <item name="customer_type" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Capayable\CustomerTypeDataBuilder</item>
+                <item name="customer" xsi:type="string">CustomerCapayableDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersAuthorizeDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Zakelijk op rekening Capture Command -->
+    <virtualType name="ZakelijkOpRekeningCaptureCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">ZakelijkOpRekeningCaptureRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">TransactionCapture</argument>
+            <argument name="logger" xsi:type="object">Psr\Log\LoggerInterface</argument>
+            <argument name="spamLimitService" xsi:type="object">Buckaroo\Magento2\Service\SpamLimitService</argument>
+            <argument name="cancelOrder" xsi:type="object">Buckaroo\Magento2\Model\Service\CancelOrder</argument>
+            <argument name="lockManager" xsi:type="object">Buckaroo\Magento2\Model\LockManagerWrapper</argument>
+            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="ZakelijkOpRekeningCaptureRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
+                <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
+                <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
+                <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
+                <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersCaptureDataBuilder</item>
+                <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\InvoiceNumberDataBuilder</item>
+                <item name="amountDebit" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\AmountInvoicedDataBuilder</item>
+                <item name="original_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Invoice\OriginalTransactionKeyDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Payment Method: Zakelijk op rekening -->
 
     <!-- Payment Method: Eps -->
     <!-- Eps Payment Method Facade configuration -->
@@ -4410,6 +4511,10 @@
                 <item name="capayablein3" xsi:type="array">
                     <item name="type" xsi:type="string">capayablein3</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
+                </item>
+                <item name="zakelijkoprekening" xsi:type="array">
+                    <item name="type" xsi:type="string">zakelijkoprekening</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening</item>
                 </item>
                 <item name="capayablepostpay" xsi:type="array">
                     <item name="type" xsi:type="string">capayablepostpay</item>

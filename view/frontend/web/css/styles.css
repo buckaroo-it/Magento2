@@ -100,6 +100,30 @@
     display: block;
     font-size: 1.35rem;
 }
+.bk-zakelijk-label {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+.bk-zakelijk-title {
+    font-weight: 600;
+}
+.bk-zakelijk-subtext {
+    color: #757575;
+    font-weight: 400;
+}
+.bk-zakelijk-tooltip-wrap {
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.bk-zakelijk-tooltip a {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+.bk-zakelijk-tooltip a:hover {
+    color: #93c5fd;
+}
 .bk-mrcash {
     margin-top: 10px;
 }

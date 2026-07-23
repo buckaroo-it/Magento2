@@ -334,6 +334,7 @@ class Data extends AbstractHelper
             ['value' => 'applepay',       'label' => __('Apple Pay')],
             ['value' => 'billink',       'label' => __('Billink')],
             ['value' => 'capayablein3',       'label' => __('In3')],
+            ['value' => 'zakelijkoprekening', 'label' => __('Zakelijk op rekening')],
             ['value' => 'creditcard',       'label' => __('Credit and debit cards')],
             ['value' => 'creditcards',       'label' => __('Credit and debit cards (Hosted Fields)')],
             ['value' => 'eps',       'label' => __('EPS')],
