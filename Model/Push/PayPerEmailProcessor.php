@@ -226,7 +226,6 @@ class PayPerEmailProcessor extends DefaultProcessor
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
             $this->payment->setMethod('buckaroo_magento2_payperemail');
-            $this->payment->save();
             $this->order->save();
         }
     }
@@ -332,7 +331,6 @@ class PayPerEmailProcessor extends DefaultProcessor
             $transactionKey
         );
         $this->payment->setMethod('buckaroo_magento2_' . $transactionMethod);
-        $this->payment->save();
         $this->order->save();
     }
 

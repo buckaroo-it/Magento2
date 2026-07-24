@@ -17,3 +17,6 @@ if (file_exists($magentoAutoloader)) {
     // Fallback to module's vendor (standalone execution)
     require_once __DIR__ . '/../vendor/autoload.php';
 }
+
+// Provide stubs for Magento code-generated factories when generated/code is unavailable
+require_once __DIR__ . '/Unit/Stubs/GeneratedFactoriesStub.php';

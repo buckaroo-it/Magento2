@@ -339,9 +339,7 @@ class OrderRequestService
                 $this->order->setStatus($newStatus);
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
-                    ->setStatus($newStatus)
-                    ->save();
+                    ->setStatus($newStatus);
                 $this->order->save();
             } else {
                 $this->order->addCommentToStatusHistory($description, $newStatus);
@@ -351,7 +349,6 @@ class OrderRequestService
             if ($dontSaveOrderUponSuccessPush) {
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
                     ->save();
             } else {
                 $this->order->addCommentToStatusHistory($description);
