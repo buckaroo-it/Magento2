@@ -89,7 +89,7 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          * @param QuoteIdMaskFactory $quoteIdMaskFactory
          * @param CartRepositoryInterface $cartRepository
          * @param BuckarooLoggerInterface $logger
-         * @param QuoteIdMask|null $quoteIdMaskResource
+         * @param QuoteIdMask $quoteIdMaskResource
          */
         public function __construct(
             \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
