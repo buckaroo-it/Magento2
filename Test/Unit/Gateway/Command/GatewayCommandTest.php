@@ -628,7 +628,7 @@ class GatewayCommandTest extends BaseTest
         $request = ['invoice' => self::ORDER_INCREMENT_ID];
         $transfer = $this->createMock(TransferInterface::class);
 
-        $this->requestBuilder->method('build')->willReturn($request);
+        $this->requestBuilder->method('build')->with($commandSubject)->willReturn($request);
         $this->transferFactory->method('create')->with($request)->willReturn($transfer);
         $this->client->method('placeRequest')
             ->with($this->identicalTo($transfer))

@@ -45,6 +45,8 @@ parameters:
         # Ignore all Adobe Commerce gift card related classes in our service
         - '#.*GiftCardRefundService\.php.*Class Magento\\GiftCardAccount\\.*not found#'
         - '#.*Magento\\GiftCardAccount\\.*not found.*#'
+        # PHPUnit 12.4+ attribute; CI analyses against Magento's bundled PHPUnit 10 where it does not exist
+        - '#Attribute class PHPUnit\\Framework\\Attributes\\AllowMockObjectsWithoutExpectations does not exist#'
 
 
 services:

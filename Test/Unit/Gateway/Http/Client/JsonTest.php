@@ -90,10 +90,15 @@ class JsonTest extends BaseTest
         );
 
         // Recompute the signature from the header parts to pin the HMAC algorithm.
-        [, $hmac, $nonce, $timestamp] = explode(
+        // Indexed access instead of list destructuring: PDepend in the CI mess
+        // detector cannot parse a skipped slot ("[, $a] =").
+        $authParts = explode(
             ':',
             substr($headers[2], strlen('Authorization: hmac '))
         );
+        $hmac = $authParts[1];
+        $nonce = $authParts[2];
+        $timestamp = $authParts[3];
 
         // phpcs:ignore Magento2.Security.InsecureFunction
         $encodedContent = base64_encode(md5($expectedJson, true));

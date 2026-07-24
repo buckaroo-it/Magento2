@@ -17,6 +17,7 @@ namespace Buckaroo\Magento2\Api\Data {
             /**
              * @param array $data
              * @return BreakdownItemInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -31,6 +32,7 @@ namespace Buckaroo\Magento2\Api\Data {
             /**
              * @param array $data
              * @return SecondChanceInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -45,6 +47,7 @@ namespace Buckaroo\Magento2\Api\Data {
             /**
              * @param array $data
              * @return SecondChanceSearchResultsInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -61,6 +64,7 @@ namespace Buckaroo\Magento2\Api\Data\PaypalExpress {
             /**
              * @param array $data
              * @return OrderCreateResponseInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -77,6 +81,7 @@ namespace Buckaroo\Magento2\Model\PaypalExpress {
             /**
              * @param array $data
              * @return OrderUpdate|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -93,6 +98,7 @@ namespace Magento\Payment\Gateway\Validator {
             /**
              * @param array $data
              * @return ResultInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {
@@ -109,6 +115,7 @@ namespace Magento\MediaStorage\Model\File {
             /**
              * @param array $data
              * @return Uploader|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
              */
             public function create(array $data = [])
             {

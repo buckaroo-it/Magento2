@@ -5,6 +5,12 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Refund;
 
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 
+/**
+ * Fixed-value implementation of PushRequestInterface for refund push tests.
+ * Interface-mandated parameters are intentionally unused.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+ */
 abstract class PushRequestStub implements PushRequestInterface
 {
     public function hasAdditionalInformation($key, $value)
