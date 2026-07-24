@@ -26,8 +26,7 @@ use Magento\Framework\App\Request\Http;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask;
+use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Onestepcheckout\Iosc\Helper\Data;
 use Onestepcheckout\Iosc\Model\DataManager;
 use Onestepcheckout\Iosc\Model\MockManager;
@@ -39,9 +38,9 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
         /**
-         * @var \Magento\Quote\Model\QuoteIdMaskFactory
+         * @var \Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface
          */
-        protected $quoteIdMaskFactory;
+        protected $maskedQuoteIdToQuoteId;
 
         /**
          * @var \Magento\Quote\Api\CartRepositoryInterface
@@ -74,22 +73,15 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
          */
         protected $checkoutSession;
 
-
-        /**
-         * @var \Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask
-         */
-        private $quoteIdMaskResource;
-
         /**
          * @param DataManager $dataManager
          * @param Http $request
          * @param MockManager $mockManager
          * @param Data $helper
          * @param Session $checkoutSession
-         * @param QuoteIdMaskFactory $quoteIdMaskFactory
+         * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
          * @param CartRepositoryInterface $cartRepository
          * @param BuckarooLoggerInterface $logger
-         * @param QuoteIdMask $quoteIdMaskResource
          */
         public function __construct(
             \Onestepcheckout\Iosc\Model\DataManager $dataManager, /** @phpstan-ignore-line */
@@ -97,15 +89,13 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             \Onestepcheckout\Iosc\Model\MockManager $mockManager, /** @phpstan-ignore-line */
             \Onestepcheckout\Iosc\Helper\Data $helper, /** @phpstan-ignore-line */
             \Magento\Checkout\Model\Session $checkoutSession,
-            \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
+            MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
             \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
-            BuckarooLoggerInterface $logger,
-            QuoteIdMask $quoteIdMaskResource
+            BuckarooLoggerInterface $logger
         ) {
-            $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+            $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
             $this->cartRepository     = $cartRepository;
             $this->logger             = $logger;
-            $this->quoteIdMaskResource = $quoteIdMaskResource;
             /** @phpstan-ignore-next-line */
             parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
         }
@@ -129,9 +119,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
-                $quoteIdMask = $this->quoteIdMaskFactory->create();
-                $this->quoteIdMaskResource->load($quoteIdMask, $cartId, 'masked_id');
-                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+                $quoteId = $this->maskedQuoteIdToQuoteId->execute($cartId);
+                $billingAddress = $this->cartRepository->getActive($quoteId)->getBillingAddress();
             }
 
             /** @phpstan-ignore-next-line */
@@ -163,9 +152,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
-                $quoteIdMask = $this->quoteIdMaskFactory->create();
-                $this->quoteIdMaskResource->load($quoteIdMask, $cartId, 'masked_id');
-                $billingAddress = $this->cartRepository->getActive($quoteIdMask->getQuoteId())->getBillingAddress();
+                $quoteId = $this->maskedQuoteIdToQuoteId->execute($cartId);
+                $billingAddress = $this->cartRepository->getActive($quoteId)->getBillingAddress();
             }
 
             /** @phpstan-ignore-next-line */
