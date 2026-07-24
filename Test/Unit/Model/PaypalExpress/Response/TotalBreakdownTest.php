@@ -170,6 +170,7 @@ class TotalBreakdownTest extends BaseTest
         );
 
         $this->assertSame(round($grandTotal, 2), $sum);
+        $this->assertSame($expectedItemTotal, $breakdown->getItemTotal()->getValue());
     }
 
     // -------------------------------------------------------------------------

@@ -5,6 +5,9 @@ namespace Buckaroo\Magento2\Test\Unit\Stubs;
 /**
  * PHPUnit 12 replacement for MockBuilder::addMethods() on \Magento\Checkout\Model\Session.
  * Declares the magic methods tests need to configure on their doubles.
+ *
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class SessionStub2 extends \Magento\Checkout\Model\Session
 {

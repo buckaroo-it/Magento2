@@ -116,15 +116,7 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         $store = $this->createMock(Store::class);
         $this->orderMock->method('getRemoteIp')->willReturn($remoteIp);
         $this->orderMock->method('getStore')->willReturn($store);
-        $orderPaymentMock = $this->createMock(
-            OrderPaymentInterface::class,
-            [],
-            '',
-            false,
-            false,
-            true,
-            []
-        );
+        $orderPaymentMock = $this->createMock(OrderPaymentInterface::class);
         $orderPaymentMock->method('getMethod')
             ->willReturn($paymentMethod);
         $this->orderMock->method('getPayment')->willReturn($orderPaymentMock);
