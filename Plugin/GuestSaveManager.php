@@ -36,9 +36,6 @@ use Onestepcheckout\Iosc\Model\MockManager;
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
-    /**
-     * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
-     */
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
         /**
@@ -103,14 +100,12 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
             \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
             BuckarooLoggerInterface $logger,
-            ?\Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask $quoteIdMaskResource = null
+            QuoteIdMask $quoteIdMaskResource
         ) {
             $this->quoteIdMaskFactory = $quoteIdMaskFactory;
             $this->cartRepository     = $cartRepository;
             $this->logger             = $logger;
-            $this->quoteIdMaskResource = $quoteIdMaskResource
-                ?? \Magento\Framework\App\ObjectManager::getInstance()
-                    ->get(\Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask::class);
+            $this->quoteIdMaskResource = $quoteIdMaskResource;
             /** @phpstan-ignore-next-line */
             parent::__construct($dataManager, $request, $mockManager, $helper, $checkoutSession);
         }
