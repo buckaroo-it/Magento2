@@ -205,7 +205,6 @@ class Recreate
                     $this->checkoutSession->unsRedirectUrl();
                     $this->checkoutSession->unsLastQuoteId();
 
-                    $quote->save();
                     $this->cartRepository->save($quote);
 
                     return $quote;

@@ -340,7 +340,6 @@ class Giftcard
             $this->orderManagement->cancel($order->getEntityId());
             $order->addCommentToStatusHistory($this->getErrorMessage())
                 ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
                 ->save();
             $this->rollbackAllPartialPayments($order);
         }

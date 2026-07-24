@@ -903,8 +903,7 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        // 7. Save payment and order changes
-        $this->payment->save();
+        // 7. Save order changes (payment is persisted by the order save cascade)
         $this->order->save();
 
         $this->logger->addDebug(sprintf(

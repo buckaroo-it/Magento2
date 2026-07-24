@@ -271,7 +271,6 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
 
             $order->addCommentToStatusHistory(__($historyComment))
                 ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
                 ->save();
         }
     }

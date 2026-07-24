@@ -73,7 +73,6 @@ class CancelOrder
                         __('Canceled on browser back button')
                     )
                         ->setIsCustomerNotified(false)
-                        ->setEntityName('invoice')
                         ->save();
                 } finally {
                     if ($originalRequestOnVoid !== null) {
