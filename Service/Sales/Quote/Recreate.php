@@ -104,6 +104,7 @@ class Recreate
      * @param PaymentHelper $paymentHelper
      * @param ProductRepositoryInterface $productRepository
      * @param SecondChanceConfig|null $secondChanceConfig
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         CartRepositoryInterface    $cartRepository,

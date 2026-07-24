@@ -118,6 +118,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * @param PaymentGroupTransaction $groupTransaction
      * @param CartRepositoryInterface $cartRepository
      * @throws NoSuchEntityException
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,

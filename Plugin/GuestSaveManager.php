@@ -36,6 +36,9 @@ use Onestepcheckout\Iosc\Model\MockManager;
 
 if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
 
+    /**
+     * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+     */
     class GuestSaveManager extends \Onestepcheckout\Iosc\Plugin\GuestSaveManager
     {
         /**

@@ -104,6 +104,7 @@ class Order
      * @param BuckarooLoggerInterface $logger
      * @param ResourceConnection $resourceConnection
      * @param OrderRepositoryInterface $orderRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Account $accountConfig,

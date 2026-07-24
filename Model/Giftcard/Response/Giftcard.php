@@ -116,6 +116,7 @@ class Giftcard
      * @param BuckarooResponseData $buckarooResponseData
      * @param OrderCommentHistoryService $orderCommentHistoryService
      * @param CartRepositoryInterface $cartRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,

@@ -139,6 +139,7 @@ class Idin extends AbstractConfigProvider
      * @param CustomerRepository $customerRepository
      * @param Address $addressResource
      * @param ProductRepositoryInterface $productRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Account $configProviderAccount,

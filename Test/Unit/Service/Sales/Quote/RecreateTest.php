@@ -355,7 +355,6 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testDuplicateWithMissingOriginalQuote()
     {
         $order = $this->getFakeMock(Order::class)->getMock();
-        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
 
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(999);

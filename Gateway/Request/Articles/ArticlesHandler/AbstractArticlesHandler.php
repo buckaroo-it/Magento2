@@ -135,6 +135,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      * @param PayReminderService $payReminderService
      * @param \Magento\Quote\Model\ResourceModel\Quote|null $quoteResource
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
