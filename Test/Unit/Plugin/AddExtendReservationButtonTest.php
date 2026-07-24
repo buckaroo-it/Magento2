@@ -97,7 +97,7 @@ class AddExtendReservationButtonTest extends TestCase
         // Assert
         $this->buttonListMock->expects($this->once())
             ->method('add')
-            ->with('extendKlarnaReservationButton', $this->isArray(), -1);
+            ->with('extendKlarnaReservationButton', $this->callback('is_array'), -1);
 
         // Act
         $this->plugin->beforePushButtons($this->toolbarMock, $contextMock, $this->buttonListMock);

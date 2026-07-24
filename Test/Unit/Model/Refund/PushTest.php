@@ -154,15 +154,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testReceiveRefundPushExistingCreditmemo()
     {
-        $postDataMock = $this->createMock(
-            PushRequestInterface::class,
-            [],
-            '',
-            true,
-            true,
-            true,
-            ['getTransactions']
-        );
+        $postDataMock = $this->createMock(PushRequestInterface::class);
         $postDataMock->method('getTransactions')->willReturn('trans123');
 
         $creditmemoCollectionMock = $this->getFakeMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class)->getMock();
