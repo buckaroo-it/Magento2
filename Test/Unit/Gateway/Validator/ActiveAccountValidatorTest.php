@@ -2,6 +2,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\ActiveAccountValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
@@ -39,11 +41,11 @@ class ActiveAccountValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider accountActiveProvider
      *
      * @param mixed $accountActive
      * @param bool  $isValid
      */
+    #[DataProvider('accountActiveProvider')]
     public function testValidate($accountActive, bool $isValid)
     {
         // Create mock quote

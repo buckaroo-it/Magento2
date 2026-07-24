@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
@@ -65,7 +67,6 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider buildDataProvider
      *
      * @param float $amount
      * @param float $amountLeftToRefund
@@ -74,6 +75,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
      * @throws ClientException
      * @throws ConverterException
      */
+    #[DataProvider('buildDataProvider')]
     public function testBuild(float $amount, float $amountLeftToRefund, float $expectedResult): void
     {
         $this->orderMock->method('getBaseGrandTotal')->willReturn($amount);

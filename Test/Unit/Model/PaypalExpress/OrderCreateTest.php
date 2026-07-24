@@ -65,12 +65,12 @@ class OrderCreateTest extends BaseTest
     {
         $defaults = [
             'responseFactory'        => $this->getFakeMock(OrderCreateResponseInterfaceFactory::class)->getMock(),
-            'quoteManagement'        => $this->getFakeMock(CartManagementInterface::class)->getMockForAbstractClass(),
+            'quoteManagement'        => $this->getFakeMock(CartManagementInterface::class)->getMock(),
             'maskedQuoteIdToQuoteId' => $this->getFakeMock(MaskedQuoteIdToQuoteId::class)->getMock(),
             'customerSession'        => $this->getFakeMock(CustomerSession::class)->getMock(),
             'checkoutSession'        => $this->getFakeMock(CheckoutSession::class)->getMock(),
-            'quoteRepository'        => $this->getFakeMock(CartRepositoryInterface::class)->getMockForAbstractClass(),
-            'orderRepository'        => $this->getFakeMock(OrderRepositoryInterface::class)->getMockForAbstractClass(),
+            'quoteRepository'        => $this->getFakeMock(CartRepositoryInterface::class)->getMock(),
+            'orderRepository'        => $this->getFakeMock(OrderRepositoryInterface::class)->getMock(),
             'orderUpdateFactory'     => $this->getFakeMock(OrderUpdateFactory::class)->getMock(),
             'logger'                 => $this->getFakeMock(Log::class)->getMock(),
         ];
@@ -82,7 +82,6 @@ class OrderCreateTest extends BaseTest
     private function callMethod(object $object, string $method, array $args = []): mixed
     {
         $ref = new \ReflectionMethod($object, $method);
-        $ref->setAccessible(true);
         return $ref->invokeArgs($object, $args);
     }
 
@@ -100,10 +99,8 @@ class OrderCreateTest extends BaseTest
         QuoteAddress $billingAddress,
         string $customerEmail = 'pending@paypal.customer'
     ): Quote {
-        $quoteMock = $this->getFakeMock(Quote::class)
-            ->onlyMethods(['getShippingAddress', 'getBillingAddress', 'getCustomer', 'getId'])
-            ->addMethods(['getCustomerEmail', 'setCustomerEmail'])
-            ->getMock();
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
+            ->onlyMethods(['getShippingAddress', 'getBillingAddress', 'getCustomer', 'getId', 'getCustomerEmail', 'setCustomerEmail'])->getMock();
 
         $quoteMock->method('getShippingAddress')->willReturn($shippingAddress);
         $quoteMock->method('getBillingAddress')->willReturn($billingAddress);
@@ -123,16 +120,8 @@ class OrderCreateTest extends BaseTest
      */
     private function makeAddressWithPlaceholders(): QuoteAddress
     {
-        $address = $this->getFakeMock(QuoteAddress::class)
-            ->onlyMethods([
-                'getFirstname', 'setFirstname',
-                'getLastname',  'setLastname',
-                'getStreet',    'setStreet',
-                'getTelephone', 'setTelephone',
-                'getEmail',     'setEmail',
-            ])
-            ->addMethods(['setShouldIgnoreValidation']) // magic __call, not a real PHP method
-            ->getMock();
+        $address = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AddressStub::class) // magic __call, not a real PHP method
+            ->onlyMethods(['getFirstname', 'setFirstname', 'getLastname', 'setLastname', 'getStreet', 'setStreet', 'getTelephone', 'setTelephone', 'getEmail', 'setEmail', 'setShouldIgnoreValidation'])->getMock();
 
         $address->method('getFirstname')->willReturn('PayPal');
         $address->method('getLastname')->willReturn('Customer');
@@ -193,8 +182,7 @@ class OrderCreateTest extends BaseTest
         $sessionMock->method('getCustomerId')->willReturn(42); // int from session
 
         $customerMock = $this->getFakeMock(CustomerInterface::class)
-            ->onlyMethods(['getId'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $customerMock->method('getId')->willReturn('42'); // string from DB
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -216,8 +204,7 @@ class OrderCreateTest extends BaseTest
         $sessionMock->method('getCustomerId')->willReturn(7);
 
         $customerMock = $this->getFakeMock(CustomerInterface::class)
-            ->onlyMethods(['getId'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $customerMock->method('getId')->willReturn(7);
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -241,8 +228,7 @@ class OrderCreateTest extends BaseTest
         $sessionMock->method('getCustomerId')->willReturn(1);
 
         $customerMock = $this->getFakeMock(CustomerInterface::class)
-            ->onlyMethods(['getId'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $customerMock->method('getId')->willReturn('2');
 
         $quoteMock = $this->getFakeMock(Quote::class)
@@ -274,8 +260,7 @@ class OrderCreateTest extends BaseTest
         $quoteMock = $this->makeQuoteMock($shippingAddress, $billingAddress);
         $quoteMock->expects($this->once())->method('setCustomerEmail')->with('');
 
-        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->onlyMethods(['save'])->getMockForAbstractClass();
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $repoMock->expects($this->once())->method('save')->with($quoteMock);
 
         $instance = $this->makeOrderCreate(['quoteRepository' => $repoMock]);
@@ -295,8 +280,7 @@ class OrderCreateTest extends BaseTest
         $quoteMock = $this->makeQuoteMock($address, $address, 'jane@example.com');
         $quoteMock->expects($this->never())->method('setCustomerEmail');
 
-        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->onlyMethods(['save'])->getMockForAbstractClass();
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $repoMock->expects($this->once())->method('save');
 
         $instance = $this->makeOrderCreate(['quoteRepository' => $repoMock]);
@@ -308,8 +292,7 @@ class OrderCreateTest extends BaseTest
         $address  = $this->makeAddressWithPlaceholders();
         $quoteMock = $this->makeQuoteMock($address, $address);
 
-        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->onlyMethods(['save'])->getMockForAbstractClass();
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $repoMock->method('save')->willThrowException(new \RuntimeException('DB error'));
 
         $instance = $this->makeOrderCreate(['quoteRepository' => $repoMock]);
@@ -338,15 +321,11 @@ class OrderCreateTest extends BaseTest
             ->onlyMethods(['setAdditionalInformation', 'setMethod'])
             ->getMock();
 
-        $customerMock = $this->getFakeMock(CustomerInterface::class)
-            ->onlyMethods(['getId'])->getMockForAbstractClass();
+        $customerMock = $this->getFakeMock(CustomerInterface::class)->getMock();
         $customerMock->method('getId')->willReturn(null);
 
-        $quoteMock = $this->getFakeMock(Quote::class)
-            ->onlyMethods(['getShippingAddress', 'getBillingAddress', 'getPayment',
-                           'getCustomer', 'reserveOrderId', 'getId'])
-            ->addMethods(['getCustomerEmail', 'setCustomerEmail'])
-            ->getMock();
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
+            ->onlyMethods(['getShippingAddress', 'getBillingAddress', 'getPayment', 'getCustomer', 'reserveOrderId', 'getId', 'getCustomerEmail', 'setCustomerEmail'])->getMock();
         $quoteMock->method('getShippingAddress')->willReturn($address);
         $quoteMock->method('getBillingAddress')->willReturn($address);
         $quoteMock->method('getPayment')->willReturn($payment);
@@ -358,16 +337,14 @@ class OrderCreateTest extends BaseTest
             ->onlyMethods(['execute'])->getMock();
         $maskedMock->method('execute')->willReturn(1);
 
-        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)
-            ->onlyMethods(['get', 'save'])->getMockForAbstractClass();
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $repoMock->method('get')->willReturn($quoteMock);
 
         $sessionMock = $this->getFakeMock(CustomerSession::class)
             ->onlyMethods(['isLoggedIn'])->getMock();
         $sessionMock->method('isLoggedIn')->willReturn(false);
 
-        $quoteMgmtMock = $this->getFakeMock(CartManagementInterface::class)
-            ->onlyMethods(['placeOrder'])->getMockForAbstractClass();
+        $quoteMgmtMock = $this->getFakeMock(CartManagementInterface::class)->getMock();
         $quoteMgmtMock->method('placeOrder')
             ->willThrowException(new \RuntimeException('placeOrder failed'));
 

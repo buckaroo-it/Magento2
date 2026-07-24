@@ -77,7 +77,7 @@ class OauthTokenServiceTest extends BaseTest
         $cache->expects($this->once())->method('load')->willReturn(false);
         $cache->expects($this->once())
             ->method('save')
-            ->with('encrypted-cache-payload', $this->isType('string'), [], 3540);
+            ->with('encrypted-cache-payload', $this->callback('is_string'), [], 3540);
 
         $curl = $this->createMock(Curl::class);
         $curl->expects($this->once())->method('setTimeout');

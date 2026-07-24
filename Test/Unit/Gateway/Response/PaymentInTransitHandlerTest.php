@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Response\PaymentInTransitHandler;
 
 class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
@@ -37,11 +39,11 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
-     * @dataProvider handleDataProvider
      *
      * @param bool $hasRedirect
      * @param bool $inTransit
      */
+    #[DataProvider('handleDataProvider')]
     public function testHandle(bool $hasRedirect, bool $inTransit)
     {
         $this->transactionResponse

@@ -56,7 +56,7 @@ class Edit extends Container
 
         if ($giftcard->getId()) {
             $giftcardTitle = $this->escapeHtml($giftcard->getLabel());
-            return (string) __("Edit Giftcard '%s'", $giftcardTitle);
+            return (string) __("Edit Giftcard '%1'", $giftcardTitle);
         }
 
         return (string) __('Add Giftcard');

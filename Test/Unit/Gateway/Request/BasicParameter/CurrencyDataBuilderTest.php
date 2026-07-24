@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -55,7 +57,6 @@ class CurrencyDataBuilderTest extends BaseTest
     }
 
     /**
-     * @dataProvider currencyDataProvider
      *
      * @param mixed $orderCurrencyCode
      * @param mixed $baseCurrencyCode
@@ -63,6 +64,7 @@ class CurrencyDataBuilderTest extends BaseTest
      * @param mixed $allowedCurrencies
      * @param mixed $expectedResult
      */
+    #[DataProvider('currencyDataProvider')]
     public function testBuild(
         $orderCurrencyCode,
         $baseCurrencyCode,
@@ -80,7 +82,7 @@ class CurrencyDataBuilderTest extends BaseTest
         $configProviderMock = $this->getMockBuilder(AbstractConfigProvider::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getAllowedCurrencies'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $configProviderMock->method('getAllowedCurrencies')->willReturn($allowedCurrencies);
 
         $this->configProviderMethodFactoryMock->expects($this->atMost(1))
@@ -108,9 +110,8 @@ class CurrencyDataBuilderTest extends BaseTest
     private function getPaymentDOMock()
     {
         // Use the already prepared order mock so currency codes are available
-        $orderAdapterMock = $this->getMockBuilder(\Magento\Payment\Gateway\Data\OrderAdapterInterface::class)
-            ->addMethods(['getOrder'])
-            ->getMockForAbstractClass();
+        $orderAdapterMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderAdapterInterfaceStub::class)
+            ->getMock();
         $orderAdapterMock->method('getOrder')->willReturn($this->orderMock);
 
         $paymentMock = $this->createMock(\Magento\Payment\Model\InfoInterface::class);

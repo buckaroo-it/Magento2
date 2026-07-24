@@ -93,11 +93,11 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     public function initBuckarooFeeData(array $data, $salesModel)
     {
         if (isset($data['extension_attributes']['buckaroo_fee'])) {
-            $salesModel->setBuckarooFee((double)$data['extension_attributes']['buckaroo_fee']);
+            $salesModel->setBuckarooFee((float)$data['extension_attributes']['buckaroo_fee']);
         }
 
         if (isset($data['extension_attributes']['base_buckaroo_fee'])) {
-            $salesModel->setBaseBuckarooFee((double)$data['extension_attributes']['base_buckaroo_fee']);
+            $salesModel->setBaseBuckarooFee((float)$data['extension_attributes']['base_buckaroo_fee']);
         }
     }
 

@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Response\ReservationNumberHandler;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
@@ -43,7 +45,6 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
-     * @dataProvider reservationNumberDataProvider
      *
      * @param string     $paymentMethod
      * @param bool       $hasReservationNumber
@@ -51,6 +52,7 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
      *
      * @throws \Exception
      */
+    #[DataProvider('reservationNumberDataProvider')]
     public function testHandle(
         string $paymentMethod,
         bool $hasReservationNumber,
@@ -61,11 +63,9 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
             ->willReturn($paymentMethod);
 
         if ($paymentMethod == 'buckaroo_magento2_klarnakp') {
-            $orderMock = $this->getMockBuilder(Order::class)
+            $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
                 ->disableOriginalConstructor()
-                ->addMethods(['getBuckarooReservationNumber', 'setBuckarooReservationNumber'])
-                ->onlyMethods(['save'])
-                ->getMock();
+                ->onlyMethods(['save', 'getBuckarooReservationNumber', 'setBuckarooReservationNumber'])->getMock();
 
             $orderMock
                 ->method('getBuckarooReservationNumber')

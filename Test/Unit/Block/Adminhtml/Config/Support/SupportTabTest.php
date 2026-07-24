@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Config\Support;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -50,12 +52,12 @@ class SupportTabTest extends BaseTest
     }
 
     /**
-     * @dataProvider getVersionsDataProvider
      *
      * @param string $version
      * @param string $phpVersions
      * @param int    $returnValue
      */
+    #[DataProvider('getVersionsDataProvider')]
     public function testWithDifferentMagentoVersionsAndPhpVersions(string $version, string $phpVersions, int $returnValue)
     {
         $productMetaDataMock = $this->getFakeMock(ProductMetadataInterface::class)->getMock();
@@ -73,7 +75,7 @@ class SupportTabTest extends BaseTest
     public static function getVersionsDataProvider(): array
     {
         return [
-            ['2.4.5', '8.1, 8.2, 8.3, 8.4', 1],
+            ['2.4.5', '8.1, 8.2, 8.3, 8.4, 8.5', 1],
             ['6.6.6', 'Cannot determine compatible PHP versions', 0]
         ];
     }

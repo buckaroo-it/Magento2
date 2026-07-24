@@ -52,10 +52,9 @@ class EditTest extends BaseTest
         $buckarooGiftcardDataMock->method('setGiftcardModel')->with($giftcardMock)->willReturnSelf();
 
         // Create session mock - use addMethods for getFormData
-        $sessionMock = $this->getMockBuilder(Session::class)
+        $sessionMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getFormData'])
-            ->getMock();
+            ->onlyMethods(['getFormData'])->getMock();
         $sessionMock->method('getFormData')->willReturn([]);
 
         // Create message manager mock

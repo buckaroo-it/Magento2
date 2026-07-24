@@ -6,6 +6,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -38,13 +40,12 @@ class PaypalTest extends BaseTest
     /**
      * @param array $expected
      *
-     * @dataProvider getConfigProvider
      */
+    #[DataProvider('getConfigProvider')]
     public function testGetConfig($expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         // Make the method active and return EUR for allowed_currencies; null for anything else.
         $scopeConfigMock->method('getValue')
@@ -131,13 +132,12 @@ class PaypalTest extends BaseTest
      * @param mixed $value
      * @param mixed $expected
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         // Stub exactly how the live model queries the fee:
         $scopeConfigMock->method('getValue')

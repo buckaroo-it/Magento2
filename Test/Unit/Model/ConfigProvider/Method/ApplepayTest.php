@@ -26,11 +26,11 @@ class ApplepayTest extends BaseTest
     }
 
     /**
-     * @dataProvider configProvider
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
      * @param bool $active
      */
+    #[DataProvider('configProvider')]
     public function testGetConfig(bool $active): void
     {
         // 1) Scope config
@@ -97,10 +97,9 @@ class ApplepayTest extends BaseTest
         }
 
         // 4) Account (merchant GUID) — some envs may not use it; just stub the method without asserting calls
-        $account = $this->getMockBuilder(\Buckaroo\Magento2\Model\ConfigProvider\Account::class)
+        $account = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\AccountStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getMerchantGuid'])
-            ->getMock();
+            ->onlyMethods(['getMerchantGuid'])->getMock();
         $account->method('getMerchantGuid')->willReturn('GUID12345');
 
         // Instance under test

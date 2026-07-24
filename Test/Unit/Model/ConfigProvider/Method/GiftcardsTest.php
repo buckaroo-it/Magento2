@@ -35,8 +35,7 @@ class GiftcardsTest extends BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')->willReturnMap([
             // Make the giftcards method active
             [
@@ -93,8 +92,7 @@ class GiftcardsTest extends BaseTest
     public function testGetPaymentFee()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with('payment/buckaroo_magento2_giftcards/active', ScopeInterface::SCOPE_STORE)
             ->willReturn(false);

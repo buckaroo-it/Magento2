@@ -20,6 +20,8 @@
  */
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\Giftcards;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -93,8 +95,8 @@ class GiftcardsTest extends BaseTest
      * @param $giftcardData
      * @param $expected
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($giftcardData, $expected)
     {
         $sortOrderBuilderMock = $this->getFakeMock(\Magento\Framework\Api\SortOrderBuilder::class)

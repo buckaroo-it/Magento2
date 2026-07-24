@@ -49,17 +49,16 @@ class ProcessTest extends BaseTest
      */
     public function testExecute()
     {
-        $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
+        $response = $this->getFakeMock(ResponseInterface::class)->getMock();
 
-        $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
+        $request = $this->getFakeMock(RequestInterface::class)->getMock();
         $request->method('getParams')->willReturn([]);
 
-        $redirect = $this->getFakeMock(RedirectInterface::class)->onlyMethods(['redirect'])->getMockForAbstractClass();
+        $redirect = $this->getFakeMock(RedirectInterface::class)->getMock();
         $redirect->method('redirect');
 
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
-            ->onlyMethods(['addErrorMessage'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $messageManagerMock->method('addErrorMessage');
 
         $contextMock = $this->getFakeMock(Context::class)
@@ -76,10 +75,8 @@ class ProcessTest extends BaseTest
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
 
         // Add RequestPushFactory mock for redirectRequest
-        $pushRequestMock = $this->getMockBuilder(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
-            ->addMethods(['getOriginalRequest', 'getData'])
-            ->onlyMethods(['getStatusCode'])
-            ->getMockForAbstractClass();
+        $pushRequestMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn([]);
         $pushRequestMock->method('getStatusCode')->willReturn('');
@@ -112,18 +109,17 @@ class ProcessTest extends BaseTest
             'brq_datarequest' => null
         ];
 
-        $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
+        $response = $this->getFakeMock(ResponseInterface::class)->getMock();
 
-        $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
+        $request = $this->getFakeMock(RequestInterface::class)->getMock();
 
         $request->method('getParams')->willReturn($params);
 
-        $redirect = $this->getFakeMock(RedirectInterface::class)->getMockForAbstractClass();
+        $redirect = $this->getFakeMock(RedirectInterface::class)->getMock();
         $redirect->expects($this->once())->method('redirect')->with($response, 'failure_url', []);
 
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
-            ->onlyMethods(['addErrorMessage'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $messageManagerMock->method('addErrorMessage');
 
         $contextMock = $this->getFakeMock(Context::class)
@@ -146,13 +142,10 @@ class ProcessTest extends BaseTest
 
         $quoteRecreateMock->method('recreate')->willReturn(false);
 
-        $payment = $this->getFakeMock(Payment::class)
-            ->addMethods(['canProcessPostData'])
-            ->onlyMethods(['getMethodInstance'])
-            ->getMock();
+        $payment = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PaymentStub::class)
+            ->onlyMethods(['getMethodInstance', 'canProcessPostData'])->getMock();
         $methodInstance = $this->getFakeMock(\Magento\Payment\Model\MethodInterface::class)
-            ->onlyMethods(['getCode', 'getConfigData'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $methodInstance->method('getCode')->willReturn('buckaroo_magento2_other');
         $methodInstance->method('getConfigData')->willReturn('0');
         $payment->method('getMethodInstance')->willReturn($methodInstance);
@@ -175,7 +168,7 @@ class ProcessTest extends BaseTest
         $orderMock->method('save')->willReturnSelf();
         $orderMock->method('getPayment')->willReturn($payment);
 
-        $helperMock = $this->getFakeMock(Data::class)->addMethods(['setRestoreQuoteLastOrder'])->getMock();
+        $helperMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\DataStub::class)->onlyMethods(['setRestoreQuoteLastOrder'])->getMock();
 
         $orderStatusFactoryMock = $this->getFakeMock(OrderStatusFactory::class)->onlyMethods(['get'])->getMock();
         $orderStatusFactoryMock->method('get')
@@ -189,10 +182,8 @@ class ProcessTest extends BaseTest
         $transactionMock->method('getOrder')->willReturn($orderMock);
 
         // Mock PushRequestInterface for redirectRequest dependency
-        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
-            ->addMethods(['getOriginalRequest', 'getData', 'hasPostData', 'hasAdditionalInformation'])
-            ->onlyMethods(['getStatusCode'])
-            ->getMockForAbstractClass();
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('490');
@@ -209,15 +200,8 @@ class ProcessTest extends BaseTest
         $lockManagerMock->method('lockOrder')->willReturn(true);
 
         // Mock CheckoutSession with getters and setters used by controller
-        $checkoutSessionMock = $this->getFakeMock(\Magento\Checkout\Model\Session::class)
-            ->addMethods([
-                'setRestoreQuoteLastOrder',
-                'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId',
-                'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId',
-                'setLastOrderStatus'
-            ])
-            ->onlyMethods(['restoreQuote'])
-            ->getMock();
+        $checkoutSessionMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class)
+            ->onlyMethods(['restoreQuote', 'setRestoreQuoteLastOrder', 'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId', 'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId', 'setLastOrderStatus'])->getMock();
         $checkoutSessionMock->method('setRestoreQuoteLastOrder')->willReturnSelf();
         $checkoutSessionMock->method('getLastSuccessQuoteId')->willReturn(null);
         $checkoutSessionMock->method('getLastQuoteId')->willReturn(null);
@@ -263,17 +247,16 @@ class ProcessTest extends BaseTest
             'brq_datarequest' => null
         ];
 
-        $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
+        $response = $this->getFakeMock(ResponseInterface::class)->getMock();
 
-        $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
+        $request = $this->getFakeMock(RequestInterface::class)->getMock();
         $request->method('getParams')->willReturn($params);
 
-        $redirect = $this->getFakeMock(RedirectInterface::class)->getMockForAbstractClass();
+        $redirect = $this->getFakeMock(RedirectInterface::class)->getMock();
         $redirect->expects($this->once())->method('redirect')->with($response, 'failure_url', []);
 
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
-            ->onlyMethods(['addErrorMessage'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $messageManagerMock->method('addErrorMessage');
 
         $contextMock = $this->getFakeMock(Context::class)
@@ -292,13 +275,10 @@ class ProcessTest extends BaseTest
         $configProviderMock->method('getFailureRedirectToCheckout')->willReturn(false);
         $configProviderMock->method('getCancelOnBrowserBack')->willReturn(false);
 
-        $payment = $this->getFakeMock(Payment::class)
-            ->addMethods(['canProcessPostData'])
-            ->onlyMethods(['getMethodInstance'])
-            ->getMock();
+        $payment = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PaymentStub::class)
+            ->onlyMethods(['getMethodInstance', 'canProcessPostData'])->getMock();
         $methodInstance2 = $this->getFakeMock(\Magento\Payment\Model\MethodInterface::class)
-            ->onlyMethods(['getCode', 'getConfigData'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $methodInstance2->method('getCode')->willReturn('buckaroo_magento2_other');
         $methodInstance2->method('getConfigData')->willReturn('0');
         $payment->method('getMethodInstance')->willReturn($methodInstance2);
@@ -314,7 +294,7 @@ class ProcessTest extends BaseTest
         $orderMock->method('getStore')->willReturnSelf();
         $orderMock->method('getPayment')->willReturn($payment);
 
-        $helperMock = $this->getFakeMock(Data::class)->addMethods(['setRestoreQuoteLastOrder'])->getMock();
+        $helperMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\DataStub::class)->onlyMethods(['setRestoreQuoteLastOrder'])->getMock();
 
         $transactionMock = $this->getFakeMock(\Magento\Sales\Model\Order\Payment\Transaction::class)
             ->onlyMethods(['getOrder', 'load'])
@@ -328,10 +308,8 @@ class ProcessTest extends BaseTest
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
 
         // Mock PushRequestInterface for redirectRequest dependency
-        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
-            ->addMethods(['getOriginalRequest', 'getData', 'hasPostData', 'hasAdditionalInformation'])
-            ->onlyMethods(['getStatusCode'])
-            ->getMockForAbstractClass();
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('490');
@@ -348,15 +326,8 @@ class ProcessTest extends BaseTest
         $lockManagerMock->method('lockOrder')->willReturn(true);
 
         // Mock CheckoutSession
-        $checkoutSessionMock = $this->getFakeMock(\Magento\Checkout\Model\Session::class)
-            ->addMethods([
-                'setRestoreQuoteLastOrder',
-                'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId',
-                'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId',
-                'setLastOrderStatus'
-            ])
-            ->onlyMethods(['restoreQuote'])
-            ->getMock();
+        $checkoutSessionMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class)
+            ->onlyMethods(['restoreQuote', 'setRestoreQuoteLastOrder', 'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId', 'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId', 'setLastOrderStatus'])->getMock();
         $checkoutSessionMock->method('setRestoreQuoteLastOrder')->willReturnSelf();
         $checkoutSessionMock->method('getLastSuccessQuoteId')->willReturn(null);
         $checkoutSessionMock->method('getLastQuoteId')->willReturn(null);
@@ -399,17 +370,16 @@ class ProcessTest extends BaseTest
             'brq_statuscode' => 190,
         ];
 
-        $response = $this->getFakeMock(ResponseInterface::class)->getMockForAbstractClass();
+        $response = $this->getFakeMock(ResponseInterface::class)->getMock();
 
-        $request = $this->getFakeMock(RequestInterface::class)->onlyMethods(['getParams'])->getMockForAbstractClass();
+        $request = $this->getFakeMock(RequestInterface::class)->getMock();
         $request->method('getParams')->willReturn($params);
 
-        $redirect = $this->getFakeMock(RedirectInterface::class)->getMockForAbstractClass();
+        $redirect = $this->getFakeMock(RedirectInterface::class)->getMock();
         $redirect->expects($this->once())->method('redirect')->with($response, 'success_url', []);
 
         $messageManagerMock = $this->getFakeMock(ManagerInterface::class)
-            ->onlyMethods(['addSuccessMessage'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $messageManagerMock->method('addSuccessMessage');
 
         $contextMock = $this->getFakeMock(Context::class)
@@ -425,10 +395,8 @@ class ProcessTest extends BaseTest
             ->getMock();
         $configProviderMock->method('getSuccessRedirect')->willReturn('success_url');
 
-        $payment = $this->getFakeMock(Payment::class)
-            ->addMethods(['canProcessPostData', 'processCustomPostData'])
-            ->onlyMethods(['getMethodInstance'])
-            ->getMock();
+        $payment = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PaymentStub::class)
+            ->onlyMethods(['getMethodInstance', 'canProcessPostData', 'processCustomPostData'])->getMock();
         $payment->method('getMethodInstance')->willReturnSelf();
         $payment->method('canProcessPostData')->with($payment, $params)->willReturn(true);
         $payment->method('processCustomPostData')->with($payment, $params);
@@ -455,7 +423,7 @@ class ProcessTest extends BaseTest
             ->with($this->anything(), $orderMock)
             ->willReturn('success');
 
-        $helperMock = $this->getFakeMock(Data::class)->addMethods(['setRestoreQuoteLastOrder'])->getMock();
+        $helperMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\DataStub::class)->onlyMethods(['setRestoreQuoteLastOrder'])->getMock();
 
         // Add redirectFactory mock for Action controllers
         $redirectMock = $this->createMock(\Magento\Framework\Controller\Result\Redirect::class);
@@ -463,10 +431,8 @@ class ProcessTest extends BaseTest
         $redirectFactoryMock->method('create')->willReturn($redirectMock);
 
         // Mock PushRequestInterface for redirectRequest dependency
-        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)
-            ->addMethods(['getOriginalRequest', 'getData', 'hasPostData', 'hasAdditionalInformation'])
-            ->onlyMethods(['getStatusCode', 'getDatarequest'])
-            ->getMockForAbstractClass();
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
         $pushRequestMock->method('getOriginalRequest')->willReturn([]);
         $pushRequestMock->method('getData')->willReturn(['test' => 'data']);
         $pushRequestMock->method('getStatusCode')->willReturn('190');
@@ -484,15 +450,8 @@ class ProcessTest extends BaseTest
         $lockManagerMock->method('lockOrder')->willReturn(true);
 
         // Mock CheckoutSession
-        $checkoutSessionMock = $this->getFakeMock(\Magento\Checkout\Model\Session::class)
-            ->addMethods([
-                'setRestoreQuoteLastOrder',
-                'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId',
-                'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId',
-                'setLastOrderStatus'
-            ])
-            ->onlyMethods(['restoreQuote'])
-            ->getMock();
+        $checkoutSessionMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class)
+            ->onlyMethods(['restoreQuote', 'setRestoreQuoteLastOrder', 'getLastSuccessQuoteId', 'getLastQuoteId', 'getLastOrderId', 'getLastRealOrderId', 'setLastSuccessQuoteId', 'setLastQuoteId', 'setLastOrderId', 'setLastRealOrderId', 'setLastOrderStatus'])->getMock();
         $checkoutSessionMock->method('setRestoreQuoteLastOrder')->willReturnSelf();
         $checkoutSessionMock->method('getLastSuccessQuoteId')->willReturn(null);
         $checkoutSessionMock->method('getLastQuoteId')->willReturn(null);

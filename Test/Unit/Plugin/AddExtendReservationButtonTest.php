@@ -97,7 +97,7 @@ class AddExtendReservationButtonTest extends TestCase
         // Assert
         $this->buttonListMock->expects($this->once())
             ->method('add')
-            ->with('extendKlarnaReservationButton', $this->isType('array'), -1);
+            ->with('extendKlarnaReservationButton', $this->callback('is_array'), -1);
 
         // Act
         $this->plugin->beforePushButtons($this->toolbarMock, $contextMock, $this->buttonListMock);
@@ -171,10 +171,8 @@ class AddExtendReservationButtonTest extends TestCase
      */
     private function createContextMock(?string $orderId, string $fullActionName)
     {
-        $requestMock = $this->getMockBuilder(RequestInterface::class)
-            ->onlyMethods(['getParam'])
-            ->addMethods(['getFullActionName'])
-            ->getMockForAbstractClass();
+        $requestMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\RequestInterfaceStub::class)
+            ->getMock();
         $requestMock->method('getParam')->with('order_id')->willReturn($orderId);
         $requestMock->method('getFullActionName')->willReturn($fullActionName);
 

@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Payment;
@@ -146,8 +148,8 @@ class CreateCombinedInvoiceTest extends BaseTest
      * @param $address
      * @param $expected
      *
-     * @dataProvider getCmAddressProvider
      */
+    #[DataProvider('getCmAddressProvider')]
     public function testGetCmAddress($address, $expected)
     {
         $instance = $this->getInstance();

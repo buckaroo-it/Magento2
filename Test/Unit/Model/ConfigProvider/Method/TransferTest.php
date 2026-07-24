@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -40,8 +42,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
     protected function paymentFeeConfig($value)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function ($path, $scope = null, $scopeId = null) use ($value) {
                 // Use parameters to avoid PHPMD warnings
@@ -62,8 +63,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testInactive()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Transfer::CODE, AbstractConfigProvider::ACTIVE),
@@ -85,8 +85,7 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $sendEmail = '1';
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')->willReturnCallback(function ($path = null) {
             // Return active = 1 for the payment method to ensure it's enabled
             if (strpos($path, '/active') !== false) {
@@ -130,8 +129,8 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param $value
      * @param $expected
      *
-     * @dataProvider getSendMailProvider
      */
+    #[DataProvider('getSendMailProvider')]
     public function testHasSendMail($value, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();

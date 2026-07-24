@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Transaction;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
@@ -69,16 +71,15 @@ class CancelTest extends BaseTest
      * @param $orderCancel
      * @param $expectedCallCount
      *
-     * @dataProvider cancelProvider
      */
+    #[DataProvider('cancelProvider')]
     public function testCancel($accountCancel, $orderCancel, $expectedCallCount)
     {
         $paymentMock = $this->getFakeMock(Payment::class)->onlyMethods(['getMethodInstance', 'cancel'])->getMock();
         $paymentMock->method('getMethodInstance')->willReturnSelf();
 
         $paymentRepositoryMock = $this->getFakeMock(OrderPaymentRepositoryInterface::class)
-            ->onlyMethods(['get'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $paymentRepositoryMock->method('get')->willReturn($paymentMock);
 
         $accountMock = $this->getFakeMock(Account::class)->onlyMethods(['getCancelOnFailed'])->getMock();
@@ -123,14 +124,14 @@ class CancelTest extends BaseTest
      * @param $method
      * @param $expectedCallCount
      *
-     * @dataProvider cancelOrderProvider
      */
+    #[DataProvider('cancelOrderProvider')]
     public function testCancelOrder($method, $expectedCallCount)
     {
         $methodInstanceMock = $this->getMockBuilder(\Magento\Payment\Model\Method\AbstractMethod::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getCode'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $methodInstanceMock->method('getCode')->willReturn($method);
         $paymentMock = $this->getFakeMock(Payment::class)
             ->onlyMethods(['getMethodInstance', 'setAdditionalInformation', 'save'])
@@ -175,8 +176,8 @@ class CancelTest extends BaseTest
      * @param $state
      * @param $expectedParameter
      *
-     * @dataProvider updateStatusProvider
      */
+    #[DataProvider('updateStatusProvider')]
     public function testUpdateStatus($state, $expectedParameter)
     {
         $orderMock = $this->getFakeMock(Order::class)
@@ -208,8 +209,7 @@ class CancelTest extends BaseTest
         $paymentMock->method('cancel')->with($paymentMock);
 
         $paymentRepositoryMock = $this->getFakeMock(OrderPaymentRepositoryInterface::class)
-            ->onlyMethods(['get'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $paymentRepositoryMock->method('get')->with(123)->willReturn($paymentMock);
 
         $instance = $this->getInstance(['orderPaymentRepository' => $paymentRepositoryMock]);

@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\PayPerEmail;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\PaymentMethods\PayPerEmail;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -76,8 +78,8 @@ class PayPerEmailTest extends BaseTest
     /**
      * @param $paymentOption
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();

@@ -79,11 +79,9 @@ abstract class AbstractCommandBasedTest extends TestCase
 
         // Build a Quote double that explicitly allows stubbing getPayment()
         // and (optionally) getGrandTotal().
-        $this->quoteMock = $this->getMockBuilder(Quote::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getPayment'])   // make getPayment stub-able
-            ->addMethods(['getGrandTotal']) // add if your Magento version lacks it
-            ->getMock();
+        $this->quoteMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
+            ->disableOriginalConstructor()   // make getPayment stub-able // add if your Magento version lacks it
+            ->onlyMethods(['getPayment', 'getGrandTotal'])->getMock();
 
         // Payment: allow chaining setAdditionalInformation()
         $this->paymentMock = $this->getMockBuilder(Payment::class)

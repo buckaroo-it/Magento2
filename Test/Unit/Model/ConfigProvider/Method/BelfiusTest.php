@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Store\Model\ScopeInterface;
@@ -56,15 +58,14 @@ class BelfiusTest extends BaseTest
      * @param $active
      * @param $expected
      *
-     * @dataProvider getConfigProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[DataProvider('getConfigProvider')]
     public function testGetConfig($active, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $valueMap = [
             [
@@ -142,13 +143,12 @@ class BelfiusTest extends BaseTest
      *
      * @covers ::getPaymentFee
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($value, $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $scopeConfigMock->method('getValue')
             ->with(

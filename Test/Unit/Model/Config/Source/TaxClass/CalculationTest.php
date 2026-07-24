@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\TaxClass;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\TaxClass\Calculation;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -39,8 +41,8 @@ class CalculationTest extends BaseTest
     /**
      * @param array $paymentOption
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();

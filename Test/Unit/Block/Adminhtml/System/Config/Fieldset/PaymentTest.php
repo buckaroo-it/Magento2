@@ -29,9 +29,20 @@ class PaymentTest extends BaseTest
 {
     protected $instanceClass = Payment::class;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        // Payment's parent (Config Fieldset) pulls SecureHtmlRenderer from the
+        // global ObjectManager because Payment::__construct does not forward it.
+        $objectManager = $this->createMock(\Magento\Framework\ObjectManagerInterface::class);
+        $objectManager->method('get')->willReturnCallback(
+            fn (string $type) => $this->getMockBuilder($type)->disableOriginalConstructor()->getMock()
+        );
+        \Magento\Framework\App\ObjectManager::setInstance($objectManager);
+    }
+
     public function testIsCollapseState()
     {
-        $this->markTestSkipped('Requires full Magento ObjectManager bootstrap — use integration tests.');
 
         $instance = $this->getInstance();
 
@@ -43,7 +54,6 @@ class PaymentTest extends BaseTest
 
     public function testGetHeaderCommentHtml()
     {
-        $this->markTestSkipped('Requires full Magento ObjectManager bootstrap — use integration tests.');
 
         $instance = $this->getInstance();
 

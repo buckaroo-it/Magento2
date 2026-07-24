@@ -32,7 +32,7 @@ class TransactionPayOrInInstallments extends DefaultTransaction
     {
         $action = TransactionType::PAY_IN_INSTALLMENTS;
 
-        if ($data['additionalParameters']['service_action_from_magento'] === TransactionType::PAY) {
+        if (($data['additionalParameters']['service_action_from_magento'] ?? null) === TransactionType::PAY) {
             $action = TransactionType::PAY;
         }
 

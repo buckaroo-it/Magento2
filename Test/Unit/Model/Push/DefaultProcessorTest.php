@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order;
 
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -105,9 +107,7 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         ];
     }
 
-    /**
-     * @dataProvider pendingPaymentEmailProvider
-     */
+    #[DataProvider('pendingPaymentEmailProvider')]
     public function testShouldSendPendingPaymentEmail(
         bool $emailSent,
         bool $orderIsCanceled,

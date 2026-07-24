@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -122,8 +124,8 @@ class ServiceParametersTest extends BaseTest
      * @param $filter
      * @param $expected
      *
-     * @dataProvider serviceParametersGetProvider
      */
+    #[DataProvider('serviceParametersGetProvider')]
     public function testGetCreateCombinedInvoice($requestParameters, $filter, $expected)
     {
         $infoInstanceMock = $this->getFakeMock(Payment::class, true);
@@ -146,8 +148,8 @@ class ServiceParametersTest extends BaseTest
      * @param $filter
      * @param $expected
      *
-     * @dataProvider serviceParametersGetProvider
      */
+    #[DataProvider('serviceParametersGetProvider')]
     public function testGetCreateCreditNote($requestParameters, $filter, $expected)
     {
         $infoInstanceMock = $this->getFakeMock(Payment::class, true);

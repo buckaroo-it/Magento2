@@ -37,8 +37,7 @@ class CreditcardTest extends BaseTest
         $allowedCurrencies = 'USD,EUR';
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         // Mock the getValue calls for different config paths
         $scopeConfigMock->method('getValue')->willReturnMap([
@@ -82,8 +81,7 @@ class CreditcardTest extends BaseTest
     public function testGetActive()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Creditcard::CODE, AbstractConfigProvider::ACTIVE),

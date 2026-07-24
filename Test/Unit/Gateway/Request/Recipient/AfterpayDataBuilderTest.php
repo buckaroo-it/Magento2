@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Recipient;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -52,12 +54,12 @@ class AfterpayDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider careOfDataProvider
      *
      * @param string      $countryId
      * @param array       $street
      * @param string|null $expectedCareOf
      */
+    #[DataProvider('careOfDataProvider')]
     public function testBuildCareOfMapping(string $countryId, array $street, ?string $expectedCareOf): void
     {
         $this->addressMock->method('getStreet')->willReturn($street);
@@ -83,7 +85,7 @@ class AfterpayDataBuilderTest extends AbstractDataBuilderTest
     /**
      * @return array[]
      */
-    public function careOfDataProvider(): array
+    public static function careOfDataProvider(): array
     {
         $exactlyFiftyCharacters = str_repeat('A', 50);
         $longerThanFiftyCharacters = str_repeat('B', 60);

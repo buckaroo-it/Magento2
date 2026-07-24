@@ -21,95 +21,193 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
-use Magento\Framework\Event\Observer;
-use Magento\Payment\Model\MethodInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Observer\SendOrderConfirmation;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\Order\Payment;
 
 class SendOrderConfirmationTest extends BaseTest
 {
     protected $instanceClass = SendOrderConfirmation::class;
 
-    public function testExecuteNotBuckaroo()
+    /**
+     * A non-Buckaroo payment must cause an early return: no order lookup and
+     * no confirmation email.
+     */
+    public function testExecuteNotBuckarooNeverSendsEmail()
     {
-        $paymentMock = $this->getFakeMock(Payment::class)->onlyMethods(['getMethod'])->getMock();
+        $paymentMock = $this->getFakeMock(Payment::class)
+            ->onlyMethods(['getMethod', 'getOrder'])
+            ->getMock();
         $paymentMock->method('getMethod')->willReturn('fake_method');
+        $paymentMock->expects($this->never())->method('getOrder');
 
-        $observerMock = $this->getFakeMock(Observer::class)->addMethods(['getPayment'])->getMock();
-        $observerMock->method('getPayment')->willReturn($paymentMock);
+        $orderSenderMock = $this->createOrderSenderMock();
+        $orderSenderMock->expects($this->never())->method('send');
 
-        $instance = $this->getInstance();
-        $result = $instance->execute($observerMock);
-
-        // Add assertion to verify the method handles non-Buckaroo payments correctly
-        $this->assertNull($result, 'Execute should return null for non-Buckaroo payment methods');
+        $instance = $this->getInstance([
+            'orderSender' => $orderSenderMock,
+            'logger' => $this->createLoggerMock(),
+        ]);
+        $instance->execute($this->createObserverMock($paymentMock));
     }
 
-    public function testExecuteIsBuckarooNoOrderSend()
+    /**
+     * A redirect payment method must skip sending the confirmation email.
+     */
+    public function testExecuteRedirectMethodNeverSendsEmail()
     {
-        $orderMock = $this->getFakeMock(Order::class)->onlyMethods(['save'])->getMock();
-        $orderMock->method('save')->willReturnSelf();
+        $orderMock = $this->getFakeMock(Order::class, true);
+        $paymentMock = $this->createBuckarooPaymentMock($orderMock, true);
 
-        // Create a concrete mock class instead of trying to mock the abstract MethodInterface
-        $methodInstanceMock = $this->getMockBuilder(\stdClass::class)->getMock();
-        $methodInstanceMock->usesRedirect = true;
+        $orderSenderMock = $this->createOrderSenderMock();
+        $orderSenderMock->expects($this->never())->method('send');
 
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->onlyMethods(['getMethod', 'getOrder', 'getMethodInstance'])
-            ->getMock();
-        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2');
-        $paymentMock->method('getOrder')->willReturn($orderMock);
-        $paymentMock->method('getMethodInstance')->willReturn($methodInstanceMock);
+        $accountConfigMock = $this->createAccountConfigMock();
+        $accountConfigMock->expects($this->never())->method('getOrderConfirmationEmail');
 
-        $observerMock = $this->getFakeMock(Observer::class)->addMethods(['getPayment'])->getMock();
-        $observerMock->method('getPayment')->willReturn($paymentMock);
+        $instance = $this->getInstance([
+            'accountConfig' => $accountConfigMock,
+            'orderSender' => $orderSenderMock,
+            'logger' => $this->createLoggerMock(),
+        ]);
+        $instance->execute($this->createObserverMock($paymentMock));
+    }
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->onlyMethods(['getOrderConfirmationEmail','getCreateOrderBeforeTransaction'])->getMock();
+    /**
+     * A non-redirect Buckaroo payment with confirmation email enabled, no
+     * email sent yet and a real increment id must send the confirmation
+     * email exactly once, in forced sync mode.
+     */
+    public function testExecuteSendsConfirmationEmailOnce()
+    {
+        $orderMock = $this->createOrderMock(false);
+        $paymentMock = $this->createBuckarooPaymentMock($orderMock, false);
+
+        $orderSenderMock = $this->createOrderSenderMock();
+        $orderSenderMock->expects($this->once())
+            ->method('send')
+            ->with($orderMock, true)
+            ->willReturn(true);
+
+        $accountConfigMock = $this->createAccountConfigMock();
         $accountConfigMock->method('getOrderConfirmationEmail')->willReturn(true);
         $accountConfigMock->method('getCreateOrderBeforeTransaction')->willReturn(false);
 
-        $instance = $this->getInstance(['accountConfig' => $accountConfigMock]);
-        $result = $instance->execute($observerMock);
-
-        // Add assertion to verify method execution for redirect payments
-        $this->assertNull($result, 'Execute should handle redirect payments without sending email');
+        $instance = $this->getInstance([
+            'accountConfig' => $accountConfigMock,
+            'orderSender' => $orderSenderMock,
+            'logger' => $this->createLoggerMock(),
+        ]);
+        $instance->execute($this->createObserverMock($paymentMock));
     }
 
-    public function testExecuteIsBuckarooOrderSend()
+    /**
+     * When the order email was already sent, the observer must not send it
+     * again even though everything else allows sending.
+     */
+    public function testExecuteEmailAlreadySentNeverSendsEmail()
+    {
+        $orderMock = $this->createOrderMock(true);
+        $paymentMock = $this->createBuckarooPaymentMock($orderMock, false);
+
+        $orderSenderMock = $this->createOrderSenderMock();
+        $orderSenderMock->expects($this->never())->method('send');
+
+        $accountConfigMock = $this->createAccountConfigMock();
+        $accountConfigMock->method('getOrderConfirmationEmail')->willReturn(true);
+        $accountConfigMock->method('getCreateOrderBeforeTransaction')->willReturn(false);
+
+        $instance = $this->getInstance([
+            'accountConfig' => $accountConfigMock,
+            'orderSender' => $orderSenderMock,
+            'logger' => $this->createLoggerMock(),
+        ]);
+        $instance->execute($this->createObserverMock($paymentMock));
+    }
+
+    /**
+     * @param bool $emailSent
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createOrderMock(bool $emailSent)
     {
         $orderMock = $this->getFakeMock(Order::class)
-            ->onlyMethods(['getEmailSent', 'getStore', 'getIncrementId', 'save'])
+            ->onlyMethods(['getEmailSent', 'getIncrementId', 'getStore', 'getStoreId', 'getId'])
             ->getMock();
-        $orderMock->method('save')->willReturnSelf();
-        $orderMock->method('getEmailSent')->willReturn(false);
-        $orderMock->method('getStore');
-        $orderMock->method('getIncrementId')->willReturn(rand(1, 100));
+        $orderMock->method('getEmailSent')->willReturn($emailSent);
+        $orderMock->method('getIncrementId')->willReturn('100000001');
+        $orderMock->method('getId')->willReturn(1);
 
-        // Create a concrete mock class instead of trying to mock the abstract MethodInterface
-        $methodInstanceMock = $this->getMockBuilder(\stdClass::class)->getMock();
-        $methodInstanceMock->usesRedirect = false;
+        return $orderMock;
+    }
+
+    /**
+     * @param \PHPUnit\Framework\MockObject\MockObject $orderMock
+     * @param bool                                     $usesRedirect
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createBuckarooPaymentMock($orderMock, bool $usesRedirect)
+    {
+        $methodInstance = new \stdClass();
+        $methodInstance->usesRedirect = $usesRedirect;
 
         $paymentMock = $this->getFakeMock(Payment::class)
             ->onlyMethods(['getMethod', 'getOrder', 'getMethodInstance'])
             ->getMock();
-        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2');
+        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_ideal');
         $paymentMock->method('getOrder')->willReturn($orderMock);
-        $paymentMock->method('getMethodInstance')->willReturn($methodInstanceMock);
+        $paymentMock->method('getMethodInstance')->willReturn($methodInstance);
 
-        $observerMock = $this->getFakeMock(Observer::class)->addMethods(['getPayment'])->getMock();
+        return $paymentMock;
+    }
+
+    /**
+     * @param \PHPUnit\Framework\MockObject\MockObject $paymentMock
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createObserverMock($paymentMock)
+    {
+        $observerMock = $this->getFakeMock(ObserverStub::class)
+            ->onlyMethods(['getPayment'])
+            ->getMock();
         $observerMock->method('getPayment')->willReturn($paymentMock);
 
-        $accountConfigMock = $this->getFakeMock(Account::class)->onlyMethods(['getOrderConfirmationEmail','getCreateOrderBeforeTransaction'])->getMock();
-        $accountConfigMock->method('getOrderConfirmationEmail')->willReturn(true);
-        $accountConfigMock->method('getCreateOrderBeforeTransaction')->willReturn(false);
+        return $observerMock;
+    }
 
-        $instance = $this->getInstance(['accountConfig' => $accountConfigMock]);
-        $result = $instance->execute($observerMock);
+    /**
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createOrderSenderMock()
+    {
+        return $this->getFakeMock(OrderSender::class)
+            ->onlyMethods(['send'])
+            ->getMock();
+    }
 
-        // Add assertion to verify method execution for non-redirect payments
-        $this->assertNull($result, 'Execute should handle non-redirect payments and process order email');
+    /**
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createAccountConfigMock()
+    {
+        return $this->getFakeMock(Account::class)
+            ->onlyMethods(['getOrderConfirmationEmail', 'getCreateOrderBeforeTransaction'])
+            ->getMock();
+    }
+
+    /**
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createLoggerMock()
+    {
+        return $this->getMockBuilder(BuckarooLoggerInterface::class)->getMock();
     }
 }

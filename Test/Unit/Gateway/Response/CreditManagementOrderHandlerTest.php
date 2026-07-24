@@ -39,10 +39,12 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(): void
     {
         $invoiceKey = 'test_invoice_key';
-        $this->orderPaymentMock->method('setAdditionalInformation')
+        $this->orderPaymentMock->expects($this->once())
+            ->method('setAdditionalInformation')
             ->with(CreditManagementOrderHandler::INVOICE_KEY, $invoiceKey);
 
-        $this->transactionResponse->method('data')
+        $this->transactionResponse->expects($this->once())
+            ->method('data')
             ->with('Services')
             ->willReturn([
                 [
@@ -67,7 +69,6 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
         ];
 
         $method = new \ReflectionMethod(CreditManagementOrderHandler::class, 'getCreditManagementService');
-        $method->setAccessible(true);
         $result = $method->invoke($this->creditManagementOrderHandler, $services);
 
         $this->assertEquals($services[0], $result);
@@ -83,7 +84,6 @@ class CreditManagementOrderHandlerTest extends AbstractResponseHandlerTest
         ];
 
         $method = new \ReflectionMethod(CreditManagementOrderHandler::class, 'getInvoiceKey');
-        $method->setAccessible(true);
         $result = $method->invoke($this->creditManagementOrderHandler, $service);
 
         $this->assertEquals($service['Parameters'][0]['Value'], $result);

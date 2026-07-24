@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Config\Form\Field;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Backend\Block\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -58,14 +60,14 @@ class FieldsetTest extends BaseTest
      * @param $configValue
      * @param $expected
      *
-     * @dataProvider getFrontendClassProvider
      */
+    #[DataProvider('getFrontendClassProvider')]
     public function testGetFrontendClass($configValue, $expected)
     {
         $methodId = 'test_method';
         $elementMock = $this->getFakeMock(AbstractElement::class)
             ->onlyMethods(['getData'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $elementMock->expects($this->atLeastOnce())->method('getData')->with('group')->willReturn([
             'id' => $methodId,
             'children' => [
@@ -75,9 +77,9 @@ class FieldsetTest extends BaseTest
             ]
         ]);
 
-        $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
+        $requestMock = $this->getFakeMock(RequestInterface::class)->getMock();
 
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMockForAbstractClass();
+        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')->willReturn($configValue);
 
         $contextMock = $this->getFakeMock(Context::class)->onlyMethods(['getScopeConfig', 'getRequest'])->getMock();
@@ -98,12 +100,12 @@ class FieldsetTest extends BaseTest
                 ]
             ]
         ];
-        $elementMock = $this->getFakeMock(AbstractElement::class)->onlyMethods(['getData'])->getMockForAbstractClass();
+        $elementMock = $this->getFakeMock(AbstractElement::class)->onlyMethods(['getData'])->getMock();
         $elementMock->method('getData')->with('group')->willReturn($elementGroupArray);
 
-        $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
+        $requestMock = $this->getFakeMock(RequestInterface::class)->getMock();
 
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMockForAbstractClass();
+        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfigMock->method('getValue')
             ->with('buckaroo_magento2/config/path', ScopeConfigInterface::SCOPE_TYPE_DEFAULT, null)
             ->willReturn('1');
@@ -146,11 +148,11 @@ class FieldsetTest extends BaseTest
      * @param $website
      * @param $expected
      *
-     * @dataProvider getScopeValueProvider
      */
+    #[DataProvider('getScopeValueProvider')]
     public function testGetScopeValue($store, $website, $expected)
     {
-        $requestMock = $this->getFakeMock(RequestInterface::class)->getMockForAbstractClass();
+        $requestMock = $this->getFakeMock(RequestInterface::class)->getMock();
         $requestMock->method('getParam')
             ->willReturnCallback(function ($param, $default = null) use ($store, $website) {
                 // Use the parameters to avoid PHPMD warnings

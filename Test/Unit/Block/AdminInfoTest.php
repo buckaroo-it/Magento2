@@ -107,7 +107,6 @@ class AdminInfoTest extends TestCase
     private function invokeSetDataToTransfer(DataObject $transport, string $field, string $value): void
     {
         $method = new \ReflectionMethod(AdminInfo::class, 'setDataToTransfer');
-        $method->setAccessible(true);
         $method->invoke($this->block, $transport, $field, $value);
     }
 }
