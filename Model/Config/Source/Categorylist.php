@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Config\Source;
 
+use Magento\Catalog\Api\CategoryRepositoryInterface;
 use Magento\Catalog\Model\CategoryFactory;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory;
 use Magento\Framework\Data\OptionSourceInterface;
@@ -40,15 +41,23 @@ class Categorylist implements OptionSourceInterface
     protected $categoryCollectionFactory;
 
     /**
-     * @param CategoryFactory   $categoryFactory
+     * @var CategoryRepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @param CategoryFactory $categoryFactory
      * @param CollectionFactory $categoryCollectionFactory
+     * @param CategoryRepositoryInterface $categoryRepository
      */
     public function __construct(
         CategoryFactory $categoryFactory,
-        CollectionFactory $categoryCollectionFactory
+        CollectionFactory $categoryCollectionFactory,
+        CategoryRepositoryInterface $categoryRepository
     ) {
         $this->categoryFactory = $categoryFactory;
         $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -144,12 +153,14 @@ class Categorylist implements OptionSourceInterface
         array_pop($catTree);
 
         if ($catTree && (count($catTree) > count($rootCats))) {
-            $categoryObj = $this->categoryFactory->create();
             foreach ($catTree as $catId) {
                 if (!in_array($catId, $rootCats)) {
                     if (!isset($this->categoriesCache[$catId])) {
-                        $category = $categoryObj->load($catId);
-                        $this->categoriesCache[$catId] = $category->getName();
+                        try {
+                            $this->categoriesCache[$catId] = $this->categoryRepository->get($catId)->getName();
+                        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                            $this->categoriesCache[$catId] = '';
+                        }
                     }
                     $parentName .= $this->categoriesCache[$catId] . ' -> ';
                 }

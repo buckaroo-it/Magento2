@@ -41,7 +41,10 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -59,23 +62,25 @@ class IdinProcess extends Process implements HttpPostActionInterface
     protected $spamLimitService;
 
     /**
-     * @param Context                     $context
-     * @param BuckarooLoggerInterface     $logger
-     * @param Quote                       $quote
-     * @param AccountConfig               $accountConfig
-     * @param OrderRequestService         $orderRequestService
-     * @param OrderStatusFactory          $orderStatusFactory
-     * @param CheckoutSession             $checkoutSession
-     * @param CustomerSession             $customerSession
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
+     * @param OrderRequestService $orderRequestService
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderService                $orderService
-     * @param ManagerInterface            $eventManager
-     * @param Recreate                    $quoteRecreate
-     * @param RequestPushFactory          $requestPushFactory
-     * @param LockManagerWrapper          $lockManager
-     * @param SpamLimitService            $spamLimitService
-     * @param CustomerFactory             $customerFactory
-     *
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @param LockManagerWrapper $lockManager
+     * @param SpamLimitService $spamLimitService
+     * @param CustomerFactory $customerFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param CartRepositoryInterface $cartRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -94,7 +99,10 @@ class IdinProcess extends Process implements HttpPostActionInterface
         RequestPushFactory $requestPushFactory,
         LockManagerWrapper $lockManager,
         SpamLimitService $spamLimitService,
-        CustomerFactory $customerFactory
+        CustomerFactory $customerFactory,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository,
+        OrderPaymentRepositoryInterface $paymentRepository
     ) {
         parent::__construct(
             $context,
@@ -111,7 +119,10 @@ class IdinProcess extends Process implements HttpPostActionInterface
             $quoteRecreate,
             $requestPushFactory,
             $lockManager,
-            $spamLimitService
+            $spamLimitService,
+            $orderRepository,
+            $cartRepository,
+            $paymentRepository
         );
 
         $this->customerResourceFactory = $customerFactory;

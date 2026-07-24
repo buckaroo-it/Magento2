@@ -28,12 +28,16 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\KlarnaMorOrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -45,36 +49,43 @@ use Magento\Sales\Model\Order;
 class KlarnaMorProcessor extends DefaultProcessor
 {
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
         BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Uncancel $uncancelService,
-        ResourceConnection $resourceConnection,
-        GiftcardCollection $giftcardCollection
+        Data                                                $helper,
+        TransactionInterface             $transaction,
+        PaymentGroupTransaction          $groupTransaction,
+        BuckarooStatusCode               $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -89,7 +100,12 @@ class KlarnaMorProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            null,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
     }
 
@@ -151,7 +167,7 @@ class KlarnaMorProcessor extends DefaultProcessor
                 $dataRequestKey
             )
         );
-        $this->order->save();
+        $this->orderRepository->save($this->order);
 
         return true;
     }
@@ -241,7 +257,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
             $this->order->setBuckarooDatarequestKey($dataRequestKey);
             $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_MOR] | [%s:%s] - Successfully saved DataRequest key from PUSH for order %s: %s',
@@ -326,7 +342,7 @@ class KlarnaMorProcessor extends DefaultProcessor
                 ));
                 $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $captureTransactionKey);
                 $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
-                $this->payment->save();
+                $this->paymentRepository->save($this->payment);
             }
 
             if ($this->order->hasInvoices()) {
@@ -372,7 +388,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
             if ($this->order->getState() !== Order::STATE_CANCELED) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->save();
+                $this->orderRepository->save($this->order);
             }
         }
     }

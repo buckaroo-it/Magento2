@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class ReservationNumberHandler implements HandlerInterface
 {
@@ -36,12 +37,20 @@ class ReservationNumberHandler implements HandlerInterface
     private $logger;
 
     /**
-     * @param BuckarooLoggerInterface $logger
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @param BuckarooLoggerInterface  $logger
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -91,7 +100,7 @@ class ReservationNumberHandler implements HandlerInterface
             if (isset($serviceParameters['klarnakp_reservationnumber'])) {
                 $reservationNumber = $serviceParameters['klarnakp_reservationnumber'];
                 $order->setBuckarooReservationNumber($reservationNumber);
-                $order->save();
+                $this->orderRepository->save($order);
 
                 $this->logger->addDebug(sprintf(
                     '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number for order %s: %s',

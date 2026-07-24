@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Buckaroo\Magento2\Model\GiftcardFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Page;
@@ -58,12 +59,18 @@ class Index extends Action implements HttpGetActionInterface
     protected $adapterFactory;
 
     /**
-     * @param Context         $context
-     * @param PageFactory     $resultPageFactory
+     * @var Giftcard
+     */
+    protected $giftcardResource;
+
+    /**
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
      * @param GiftcardFactory $giftcardFactory
-     * @param Filesystem      $fileSystem
+     * @param Filesystem $fileSystem
      * @param UploaderFactory $uploaderFactory
-     * @param AdapterFactory  $adapterFactory
+     * @param AdapterFactory $adapterFactory
+     * @param Giftcard $giftcardResource
      */
     public function __construct(
         Context $context,
@@ -71,7 +78,8 @@ class Index extends Action implements HttpGetActionInterface
         GiftcardFactory $giftcardFactory,
         Filesystem $fileSystem,
         UploaderFactory $uploaderFactory,
-        AdapterFactory $adapterFactory
+        AdapterFactory $adapterFactory,
+        Giftcard $giftcardResource
     ) {
         parent::__construct($context);
 
@@ -80,6 +88,7 @@ class Index extends Action implements HttpGetActionInterface
         $this->fileSystem = $fileSystem;
         $this->adapterFactory = $adapterFactory;
         $this->uploaderFactory = $uploaderFactory;
+        $this->giftcardResource = $giftcardResource;
     }
 
     /**

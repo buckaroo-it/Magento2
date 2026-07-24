@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -27,18 +28,26 @@ class CancelOrder
     private $logger;
 
     /**
-     * @param OrderRepositoryInterface $orderRepositoryInterface
-     * @param OrderManagementInterface $orderManagementInterface
-     * @param BuckarooLoggerInterface  $logger
+     * @var OrderCommentHistoryService
+     */
+    private $orderCommentHistoryService;
+
+    /**
+     * @param OrderRepositoryInterface   $orderRepositoryInterface
+     * @param OrderManagementInterface   $orderManagementInterface
+     * @param BuckarooLoggerInterface    $logger
+     * @param OrderCommentHistoryService $orderCommentHistoryService
      */
     public function __construct(
         OrderRepositoryInterface $orderRepositoryInterface,
         OrderManagementInterface $orderManagementInterface,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        OrderCommentHistoryService $orderCommentHistoryService
     ) {
         $this->orderRepositoryInterface = $orderRepositoryInterface;
         $this->orderManagementInterface = $orderManagementInterface;
         $this->logger = $logger;
+        $this->orderCommentHistoryService = $orderCommentHistoryService;
     }
 
     /**
@@ -69,11 +78,7 @@ class CancelOrder
 
                 try {
                     $this->orderManagementInterface->cancel($order->getEntityId());
-                    $order->addCommentToStatusHistory(
-                        __('Canceled on browser back button')
-                    )
-                        ->setIsCustomerNotified(false)
-                        ->save();
+                    $this->orderCommentHistoryService->add($order, __('Canceled on browser back button'));
                 } finally {
                     if ($originalRequestOnVoid !== null) {
                         BuckarooAdapter::$requestOnVoid = $originalRequestOnVoid;

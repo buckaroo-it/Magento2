@@ -55,6 +55,11 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
     private $historyFactory = null;
 
     /**
+     * @var \Magento\GiftCardAccount\Model\ResourceModel\History|null
+     */
+    private $historyResource = null;
+
+    /**
      * Constructor.
      *
      * @param BuckarooLoggerInterface $logger
@@ -121,6 +126,9 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                 );
                 $this->historyFactory = $objectManager->get(
                     \Magento\GiftCardAccount\Model\HistoryFactory::class
+                );
+                $this->historyResource = $objectManager->get(
+                    \Magento\GiftCardAccount\Model\ResourceModel\History::class
                 );
             } catch (\Throwable $e) {
                 $message = '[GiftCardRefundService] Failed to initialize Adobe Commerce dependencies: ';
@@ -219,7 +227,7 @@ class GiftCardRefundService implements GiftCardRefundServiceInterface
                     throw new Exception(__('Gift card account not properly assigned to history record'));
                 }
 
-                $history->save();
+                $this->historyResource->save($history);
 
                 $this->logger->addDebug(sprintf(
                     '[GiftCardRefundService] History record created successfully for gift card #%s',

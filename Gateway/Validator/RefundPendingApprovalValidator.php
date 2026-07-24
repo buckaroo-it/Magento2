@@ -32,6 +32,7 @@ use Magento\Framework\Registry;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 
 class RefundPendingApprovalValidator extends AbstractValidator
@@ -57,24 +58,32 @@ class RefundPendingApprovalValidator extends AbstractValidator
     private $resourceConnection;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
      * @param BuckarooLoggerInterface $logger
-     * @param ResultInterfaceFactory  $resultFactory
-     * @param RefundConfigProvider    $refundConfigProvider
-     * @param ResourceConnection      $resourceConnection
-     * @param Registry                $registry
+     * @param ResultInterfaceFactory $resultFactory
+     * @param RefundConfigProvider $refundConfigProvider
+     * @param ResourceConnection $resourceConnection
+     * @param Registry $registry
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
         ResultInterfaceFactory $resultFactory,
         RefundConfigProvider $refundConfigProvider,
         ResourceConnection $resourceConnection,
-        Registry $registry
+        Registry $registry,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($resultFactory);
         $this->logger = $logger;
         $this->refundConfigProvider = $refundConfigProvider;
         $this->registry = $registry;
         $this->resourceConnection = $resourceConnection;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -147,9 +156,10 @@ class RefundPendingApprovalValidator extends AbstractValidator
 
             $order->addStatusHistoryComment(
                 __("The refund has been initiated but it is waiting for a approval. Login to the Buckaroo Plaza to finalize the refund by approving it.")
-            )->setIsCustomerNotified(false)->save();
+            )->setIsCustomerNotified(false);
 
-            $payment->save();
+            // Single save persists the order, the payment changes above and the pending history comment
+            $this->orderRepository->save($order);
 
             return $this->createResult(
                 false,

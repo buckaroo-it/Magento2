@@ -131,7 +131,7 @@ class Index extends Action implements HttpGetActionInterface
         } finally {
             $payment = $order->getPayment();
             $payment->setMethod($currentPayment);
-            $order->save();
+            $this->orderRepository->save($order);
         }
 
         $redirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

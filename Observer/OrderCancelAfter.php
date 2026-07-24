@@ -33,6 +33,7 @@ use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -76,13 +77,19 @@ class OrderCancelAfter implements ObserverInterface
     private CancelRemainingReservation $cancelRemainingReservation;
 
     /**
-     * @param Json                       $client
-     * @param Encryptor                  $encryptor
-     * @param Account                    $configProviderAccount
-     * @param PayPerEmail                $configProviderPPE
-     * @param BuckarooLoggerInterface    $logger
-     * @param AppState                   $appState
+     * @var OrderPaymentRepositoryInterface
+     */
+    private $paymentRepository;
+
+    /**
+     * @param Json $client
+     * @param Encryptor $encryptor
+     * @param Account $configProviderAccount
+     * @param PayPerEmail $configProviderPPE
+     * @param BuckarooLoggerInterface $logger
+     * @param AppState $appState
      * @param CancelRemainingReservation $cancelRemainingReservation
+     * @param OrderPaymentRepositoryInterface $paymentRepository
      */
     public function __construct(
         Json $client,
@@ -91,8 +98,10 @@ class OrderCancelAfter implements ObserverInterface
         PayPerEmail $configProviderPPE,
         BuckarooLoggerInterface $logger,
         AppState $appState,
-        CancelRemainingReservation $cancelRemainingReservation
+        CancelRemainingReservation $cancelRemainingReservation,
+        OrderPaymentRepositoryInterface $paymentRepository
     ) {
+        $this->paymentRepository = $paymentRepository;
         $this->client                       = $client;
         $this->encryptor                    = $encryptor;
         $this->configProviderAccount        = $configProviderAccount;

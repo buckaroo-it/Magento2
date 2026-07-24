@@ -24,12 +24,17 @@ namespace Buckaroo\Magento2\Service\Push;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderRequestService
 {
     /**
@@ -68,13 +73,25 @@ class OrderRequestService
     private KlarnaMorOrderService $klarnaMorOrderService;
 
     /**
-     * @param Order                   $order
+     * @var OrderCommentHistoryService
+     */
+    private OrderCommentHistoryService $orderCommentHistoryService;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @param Order $order
      * @param BuckarooLoggerInterface $logger
-     * @param TransactionInterface    $transaction
-     * @param OrderEmailService       $orderEmailService
-     * @param ResourceConnection      $resourceConnection
-     * @param KlarnaKpOrderService    $klarnaKpOrderService
-     * @param KlarnaMorOrderService   $klarnaMorOrderService
+     * @param TransactionInterface $transaction
+     * @param OrderEmailService $orderEmailService
+     * @param ResourceConnection $resourceConnection
+     * @param KlarnaKpOrderService $klarnaKpOrderService
+     * @param KlarnaMorOrderService $klarnaMorOrderService
+     * @param OrderCommentHistoryService $orderCommentHistoryService
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Order $order,
@@ -83,7 +100,9 @@ class OrderRequestService
         OrderEmailService $orderEmailService,
         ResourceConnection $resourceConnection,
         KlarnaKpOrderService $klarnaKpOrderService,
-        KlarnaMorOrderService $klarnaMorOrderService
+        KlarnaMorOrderService $klarnaMorOrderService,
+        OrderCommentHistoryService $orderCommentHistoryService,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->order = $order;
         $this->logger = $logger;
@@ -92,6 +111,8 @@ class OrderRequestService
         $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
         $this->klarnaMorOrderService = $klarnaMorOrderService;
+        $this->orderCommentHistoryService = $orderCommentHistoryService;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -290,8 +311,7 @@ class OrderRequestService
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {
-            $this->order->addCommentToStatusHistory($note, $this->order->getStatus());
-            $this->order->save();
+            $this->orderCommentHistoryService->add($this->order, $note);
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
@@ -340,19 +360,17 @@ class OrderRequestService
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
                     ->setStatus($newStatus);
-                $this->order->save();
+                $this->orderRepository->save($this->order);
             } else {
                 $this->order->addCommentToStatusHistory($description, $newStatus);
-                $this->order->save(); // Save the order to persist state and status changes
+                $this->orderRepository->save($this->order);
             }
         } else {
             if ($dontSaveOrderUponSuccessPush) {
-                $this->order->addCommentToStatusHistory($description)
-                    ->setIsCustomerNotified(false)
-                    ->save();
+                $this->orderCommentHistoryService->add($this->order, $description);
             } else {
                 $this->order->addCommentToStatusHistory($description);
-                $this->order->save(); // Save the order to persist changes
+                $this->orderRepository->save($this->order);
             }
         }
 
@@ -429,7 +447,7 @@ class OrderRequestService
      */
     public function saveAndReloadOrder()
     {
-        $this->order->save();
+        $this->orderRepository->save($this->order);
         $this->loadOrder();
     }
 

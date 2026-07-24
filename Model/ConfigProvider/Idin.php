@@ -20,11 +20,13 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\AddressFactory;
+use Magento\Customer\Model\ResourceModel\Address;
 use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -117,14 +119,27 @@ class Idin extends AbstractConfigProvider
     private $productFactory;
 
     /**
-     * @param Account               $configProviderAccount
+     * @var \Magento\Customer\Model\ResourceModel\Address
+     */
+    private $addressResource;
+
+    /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    private $productRepository;
+
+    /**
+     * @param Account $configProviderAccount
      * @param StoreManagerInterface $storeManager
-     * @param CustomerSession       $customerSession
-     * @param ProductFactory        $productFactory
-     * @param CheckoutSession       $checkoutSession
-     * @param ScopeConfigInterface  $scopeConfig
-     * @param AddressFactory        $addressFactory
-     * @param CustomerRepository    $customerRepository
+     * @param CustomerSession $customerSession
+     * @param ProductFactory $productFactory
+     * @param CheckoutSession $checkoutSession
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AddressFactory $addressFactory
+     * @param CustomerRepository $customerRepository
+     * @param Address $addressResource
+     * @param ProductRepositoryInterface $productRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         Account $configProviderAccount,
@@ -134,7 +149,9 @@ class Idin extends AbstractConfigProvider
         CheckoutSession $checkoutSession,
         ScopeConfigInterface $scopeConfig,
         AddressFactory $addressFactory,
-        CustomerRepository $customerRepository
+        CustomerRepository $customerRepository,
+        \Magento\Customer\Model\ResourceModel\Address $addressResource,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
     ) {
         parent::__construct($scopeConfig);
         $this->storeManager = $storeManager;
@@ -144,6 +161,8 @@ class Idin extends AbstractConfigProvider
         $this->checkoutSession = $checkoutSession;
         $this->addressFactory = $addressFactory;
         $this->customerRepository = $customerRepository;
+        $this->addressResource = $addressResource;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -230,10 +249,12 @@ class Idin extends AbstractConfigProvider
             return true;
         }
 
-        if ($customer->getDefaultBilling()
-            && ($billingAddress = $this->addressFactory->create()->load($customer->getDefaultBilling()))
-            && $billingAddress->getCountryId()) {
-            return strtolower($billingAddress->getCountryId()) == 'nl';
+        if ($customer->getDefaultBilling()) {
+            $billingAddress = $this->addressFactory->create();
+            $this->addressResource->load($billingAddress, $customer->getDefaultBilling());
+            if ($billingAddress->getCountryId()) {
+                return strtolower($billingAddress->getCountryId()) == 'nl';
+            }
         }
 
         return true;
@@ -284,7 +305,7 @@ class Idin extends AbstractConfigProvider
         $active = false;
         foreach ($quote->getAllVisibleItems() as $item) {
             $productId = $item->getProductId();
-            $product = $this->productFactory->create()->load($productId);
+            $product = $this->productRepository->getById($productId);
 
             switch ($this->configProviderAccount->getIdinMode($this->storeManager->getStore())) {
                 case 1:

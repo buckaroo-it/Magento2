@@ -30,12 +30,16 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Escaper;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -54,22 +58,25 @@ class KlarnaKpProcessor extends DefaultProcessor
     private $escaper;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param Klarnakp                $klarnakpConfig
-     * @param Escaper                 $escaper
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param Klarnakp $klarnakpConfig
+     * @param Escaper $escaper
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -78,16 +85,20 @@ class KlarnaKpProcessor extends DefaultProcessor
         BuckarooLoggerInterface $logger,
         Data $helper,
         TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Uncancel $uncancelService,
-        ResourceConnection $resourceConnection,
-        GiftcardCollection $giftcardCollection,
-        Klarnakp $klarnakpConfig,
-        Escaper $escaper
+        PaymentGroupTransaction                                  $groupTransaction,
+        BuckarooStatusCode                                       $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        Klarnakp                         $klarnakpConfig,
+        Escaper                          $escaper,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -102,7 +113,12 @@ class KlarnaKpProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            null,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
         $this->klarnakpConfig = $klarnakpConfig;
         $this->escaper = $escaper;
@@ -178,7 +194,7 @@ class KlarnaKpProcessor extends DefaultProcessor
             $payment = $this->order->getPayment();
 
             $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-            $payment->save();
+            $this->paymentRepository->save($payment);
 
             $methodInstance = $payment->getMethodInstance();
             $methodInstanceClass = get_class($methodInstance);
@@ -320,7 +336,7 @@ class KlarnaKpProcessor extends DefaultProcessor
 
         if (!empty($reservationNumberFromPush)) {
             $this->order->setBuckarooReservationNumber($reservationNumberFromPush);
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number from PUSH for order %s: %s',
@@ -425,7 +441,7 @@ class KlarnaKpProcessor extends DefaultProcessor
             // Only set to processing if not already canceled (the canUpdateOrderStatus will handle canceled->new transition)
             if ($this->order->getState() !== Order::STATE_CANCELED) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->save();
+                $this->orderRepository->save($this->order);
             }
         }
     }

@@ -198,7 +198,7 @@ class GroupTransactionRepository implements GroupTransactionRepositoryInterface
     public function getById($groupTransactionId)
     {
         $groupTransaction = $this->groupTransactionFactory->create();
-        $groupTransaction->load($groupTransactionId);
+        $this->resource->load($groupTransaction, $groupTransactionId);
 
         if (!$groupTransaction->getId()) {
             throw new NoSuchEntityException(__('GroupTransaction with id "%1" does not exist.', $groupTransactionId));

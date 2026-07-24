@@ -41,14 +41,14 @@ class Save extends Index implements HttpPostActionInterface
             $giftcardId = $this->getRequest()->getParam('entity_id');
 
             if ($giftcardId) {
-                $giftcardModel->load($giftcardId);
+                $this->giftcardResource->load($giftcardModel, $giftcardId);
             }
 
             $formData = $this->getFormData();
             $giftcardModel->setData($formData);
 
             try {
-                $giftcardModel->save();
+                $this->giftcardResource->save($giftcardModel);
                 $this->messageManager->addSuccess(__('The giftcard has been saved.'));
 
                 if ($this->getRequest()->getParam('back')) {

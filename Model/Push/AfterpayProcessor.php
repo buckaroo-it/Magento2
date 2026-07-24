@@ -77,7 +77,11 @@ class AfterpayProcessor extends DefaultProcessor
         Uncancel                $uncancelService,
         ResourceConnection      $resourceConnection,
         GiftcardCollection      $giftcardCollection,
-        Afterpay20              $afterpayConfig
+        Afterpay20              $afterpayConfig,
+        ?\Magento\Sales\Api\OrderRepositoryInterface $orderRepository = null,
+        ?\Magento\Sales\Api\OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?\Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository = null,
+        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -92,7 +96,12 @@ class AfterpayProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            null,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
         $this->afterpayConfig = $afterpayConfig;
     }

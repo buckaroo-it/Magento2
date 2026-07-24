@@ -25,37 +25,37 @@ use LogicException;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\Template;
-use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class KlarnaDiscountPartialInformation extends Template
 {
-    /**
-     * @var OrderInterface
-     */
-    protected $order;
-
     /**
      * @var Factory
      */
     protected $configProviderFactory;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * RoundingWarning constructor.
      *
-     * @param OrderInterface $order
+     * @param OrderRepositoryInterface $orderRepository
      * @param Factory        $configProviderFactory
      * @param Context        $context
      * @param array          $data
      */
     public function __construct(
-        OrderInterface $order,
+        OrderRepositoryInterface $orderRepository,
         Factory $configProviderFactory,
         Context $context,
         array $data = []
     ) {
         parent::__construct($context, $data);
 
-        $this->order = $order;
+        $this->orderRepository = $orderRepository;
         $this->configProviderFactory = $configProviderFactory;
     }
 
@@ -81,7 +81,7 @@ class KlarnaDiscountPartialInformation extends Template
     protected function shouldShowWarning()
     {
         if ($orderId = $this->getRequest()->getParam('order_id')) {
-            $order = $this->order->load($orderId);
+            $order = $this->orderRepository->get((int)$orderId);
             $payment = $order->getPayment();
 
             /**

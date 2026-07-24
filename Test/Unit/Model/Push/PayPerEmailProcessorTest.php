@@ -65,6 +65,10 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'giftcardCollection' => $this->giftcardCollectionMock,
             'configPayPerEmail' => $this->configPayPerEmailMock,
             'currencyFactory' => $this->currencyFactoryMock,
+            'orderRepository' => $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class),
+            'paymentRepository' => $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class),
+            'invoiceRepository' => $this->createMock(\Magento\Sales\Api\InvoiceRepositoryInterface::class),
+            'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
         ] + $args);
     }
 

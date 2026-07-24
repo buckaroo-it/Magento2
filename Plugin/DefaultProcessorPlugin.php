@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 class DefaultProcessorPlugin
 {
@@ -33,13 +34,22 @@ class DefaultProcessorPlugin
      */
     protected $configProviderCreditcard;
 
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
     /**
      * @param Creditcard $configProviderCreditcard
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
-        Creditcard $configProviderCreditcard
+        Creditcard $configProviderCreditcard,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->configProviderCreditcard = $configProviderCreditcard;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -122,7 +132,7 @@ class DefaultProcessorPlugin
                         __('Order has been put on hold, because it is unsecure.')
                     );
 
-                $order->save();
+                $this->orderRepository->save($order);
             }
         }
 

@@ -24,9 +24,23 @@ namespace Buckaroo\Magento2\Gateway\Response;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 
 class SkipPushHandler implements HandlerInterface
 {
+    /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    private OrderPaymentRepositoryInterface $paymentRepository;
+
+    /**
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     */
+    public function __construct(OrderPaymentRepositoryInterface $paymentRepository)
+    {
+        $this->paymentRepository = $paymentRepository;
+    }
+
     /**
      * Handles response
      *
@@ -58,7 +72,7 @@ class SkipPushHandler implements HandlerInterface
             if (!empty($payment->getOrder()) && !empty($payment->getOrder()->getId())) {
                 // Only save payment if order is already saved, this to avoid foreign key constraint error
                 // on table sales_order_payment, column parent_id.
-                $payment->save();
+                $this->paymentRepository->save($payment);
             }
         }
     }

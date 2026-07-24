@@ -49,22 +49,30 @@ class Edit extends Action implements HttpGetActionInterface
     private $buckarooGiftcardData;
 
     /**
-     * @param Context                       $context
-     * @param PageFactory                   $resultPageFactory
-     * @param GiftcardFactory               $giftcardFactory
+     * @var \Buckaroo\Magento2\Model\ResourceModel\Giftcard
+     */
+    private $giftcardResource;
+
+    /**
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
+     * @param GiftcardFactory $giftcardFactory
      * @param BuckarooGiftcardDataInterface $buckarooGiftcardData
+     * @param \Buckaroo\Magento2\Model\ResourceModel\Giftcard $giftcardResource
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         GiftcardFactory $giftcardFactory,
-        BuckarooGiftcardDataInterface $buckarooGiftcardData
+        BuckarooGiftcardDataInterface $buckarooGiftcardData,
+        \Buckaroo\Magento2\Model\ResourceModel\Giftcard $giftcardResource
     ) {
         parent::__construct($context);
 
         $this->buckarooGiftcardData = $buckarooGiftcardData;
         $this->resultPageFactory = $resultPageFactory;
         $this->giftcardFactory = $giftcardFactory;
+        $this->giftcardResource = $giftcardResource;
     }
 
     /**
@@ -84,7 +92,7 @@ class Edit extends Action implements HttpGetActionInterface
         $model = $this->giftcardFactory->create();
 
         if ($giftcardId) {
-            $model->load($giftcardId);
+            $this->giftcardResource->load($model, $giftcardId);
             if (!$model->getId()) {
                 $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
                 return $this->_redirect('*/*/');

@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Service\Sales\Quote;
 
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -86,29 +87,38 @@ class Recreate
     protected $secondChanceConfig;
 
     /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
+
+    /**
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
-     * @param CheckoutSession         $checkoutSession
-     * @param QuoteFactory            $quoteFactory
-     * @param ProductFactory          $productFactory
-     * @param ManagerInterface        $messageManager
-     * @param Log                     $logger
-     * @param StoreManagerInterface   $storeManager
-     * @param PaymentHelper           $paymentHelper
+     * @param CheckoutSession $checkoutSession
+     * @param QuoteFactory $quoteFactory
+     * @param ProductFactory $productFactory
+     * @param ManagerInterface $messageManager
+     * @param Log $logger
+     * @param StoreManagerInterface $storeManager
+     * @param PaymentHelper $paymentHelper
+     * @param ProductRepositoryInterface $productRepository
      * @param SecondChanceConfig|null $secondChanceConfig
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        CartRepositoryInterface $cartRepository,
-        CheckoutSession $checkoutSession,
-        QuoteFactory $quoteFactory,
-        ProductFactory $productFactory,
-        ManagerInterface $messageManager,
-        Log $logger,
-        StoreManagerInterface $storeManager,
-        PaymentHelper $paymentHelper,
-        ?SecondChanceConfig $secondChanceConfig = null
+        CartRepositoryInterface    $cartRepository,
+        CheckoutSession            $checkoutSession,
+        QuoteFactory               $quoteFactory,
+        ProductFactory             $productFactory,
+        ManagerInterface           $messageManager,
+        Log                        $logger,
+        StoreManagerInterface      $storeManager,
+        PaymentHelper              $paymentHelper,
+        ProductRepositoryInterface $productRepository,
+        ?SecondChanceConfig        $secondChanceConfig = null
     ) {
+        $this->productRepository = $productRepository;
         $this->cartRepository       = $cartRepository;
         $this->checkoutSession      = $checkoutSession;
         $this->quoteFactory         = $quoteFactory;
@@ -158,7 +168,7 @@ class Recreate
     {
 
         try {
-            $oldQuote = $this->quoteFactory->create()->load($quoteId);
+            $oldQuote = $this->cartRepository->get((int)$quoteId);
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $this->logger->addError($e->getMessage());
@@ -180,14 +190,13 @@ class Recreate
                     $quote->setCustomerEmail($oldQuote->getCustomerEmail());
                 }
                 $quote->merge($oldQuote);
-                $quote->save();
 
                 // Set the correct store environment after merge
                 $store = $this->storeManager->getStore($oldQuote->getStoreId());
                 $quote->setStore($store);
                 $quote->setIsActive(true);
                 $quote->collectTotals();
-                $quote->save();
+                $this->cartRepository->save($quote);
 
             } catch (\Exception $e) {
                 $this->logger->addError($e->getMessage());
@@ -234,7 +243,7 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
-            $oldQuote = $this->quoteFactory->create()->load($order->getQuoteId());
+            $oldQuote = $this->cartRepository->get((int)$order->getQuoteId());
 
             if (!$oldQuote->getId()) {
                 $this->logger->addError('Original quote not found for order: ' . $order->getIncrementId());
@@ -274,7 +283,7 @@ class Recreate
             // Add products to quote
             foreach ($order->getAllVisibleItems() as $orderItem) {
                 try {
-                    $product = $this->productFactory->create()->load($orderItem->getProductId());
+                    $product = $this->productRepository->getById($orderItem->getProductId());
                     if ($product->getId()) {
                         $buyRequest = $orderItem->getProductOptionByCode('info_buyRequest');
                         if ($buyRequest) {
@@ -344,7 +353,7 @@ class Recreate
 
             // Save quote first before setting payment method
             $quote->setIsActive(true);
-            $quote->save();
+            $this->cartRepository->save($quote);
 
             // Additional merge for custom data (after quote is saved)
             $this->additionalMerge($oldQuote, $quote, $response);
@@ -405,7 +414,7 @@ class Recreate
                 }
             }
 
-            $quote->save();
+            $this->cartRepository->save($quote);
 
             // Set in checkout session
             $this->checkoutSession->replaceQuote($quote);
@@ -414,7 +423,7 @@ class Recreate
             // Deactivate the original quote to prevent Magento from re-attaching it
             // after a successful second-chance checkout for logged-in customers.
             $oldQuote->setIsActive(false);
-            $oldQuote->save();
+            $this->cartRepository->save($oldQuote);
 
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;

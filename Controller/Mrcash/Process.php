@@ -39,7 +39,9 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
@@ -72,35 +74,31 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     protected $transactionRepository;
 
     /**
-     * @var OrderRepositoryInterface
-     */
-    private $orderRepository;
-
-    /**
      * @var LockManagerWrapper
      */
     protected $lockManager;
 
     /**
-     * @param Context                        $context
-     * @param BuckarooLoggerInterface        $logger
-     * @param Quote                          $quote
-     * @param AccountConfig                  $accountConfig
-     * @param OrderRequestService            $orderRequestService
-     * @param OrderStatusFactory             $orderStatusFactory
-     * @param CheckoutSession                $checkoutSession
-     * @param CustomerSession                $customerSession
-     * @param CustomerRepositoryInterface    $customerRepository
-     * @param OrderService                   $orderService
-     * @param ManagerInterface               $eventManager
-     * @param Recreate                       $quoteRecreate
-     * @param RequestPushFactory             $requestPushFactory
-     * @param SearchCriteriaBuilder          $searchCriteriaBuilder
-     * @param OrderRepositoryInterface       $orderRepository
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
+     * @param OrderRequestService $orderRequestService
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderRepositoryInterface $orderRepository
      * @param TransactionRepositoryInterface $transactionRepository
-     * @param LockManagerWrapper             $lockManagerWrapper
-     * @param SpamLimitService               $spamLimitService
-     *
+     * @param LockManagerWrapper $lockManagerWrapper
+     * @param SpamLimitService $spamLimitService
+     * @param CartRepositoryInterface $cartRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -121,7 +119,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         OrderRepositoryInterface $orderRepository,
         TransactionRepositoryInterface $transactionRepository,
         LockManagerWrapper $lockManagerWrapper,
-        SpamLimitService $spamLimitService
+        SpamLimitService $spamLimitService,
+        CartRepositoryInterface $cartRepository,
+        OrderPaymentRepositoryInterface $paymentRepository
     ) {
         parent::__construct(
             $context,
@@ -138,7 +138,10 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $quoteRecreate,
             $requestPushFactory,
             $lockManagerWrapper,
-            $spamLimitService
+            $spamLimitService,
+            $orderRepository,
+            $cartRepository,
+            $paymentRepository
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

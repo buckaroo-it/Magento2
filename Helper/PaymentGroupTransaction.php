@@ -174,7 +174,9 @@ class PaymentGroupTransaction extends AbstractHelper
             $response['ServiceCode']
         ));
 
-        return $groupTransaction->save();
+        $this->resourceModel->save($groupTransaction);
+
+        return $groupTransaction;
     }
 
     /**
@@ -239,7 +241,9 @@ class PaymentGroupTransaction extends AbstractHelper
             $servicecode
         ));
 
-        return $groupTransaction->save();
+        $this->resourceModel->save($groupTransaction);
+
+        return $groupTransaction;
     }
 
     /**
@@ -254,9 +258,11 @@ class PaymentGroupTransaction extends AbstractHelper
     public function updateGroupTransaction($item)
     {
         $groupTransaction = $this->groupTransactionFactory->create();
-        $groupTransaction->load($item['entity_id']);
+        $this->resourceModel->load($groupTransaction, $item['entity_id']);
         $groupTransaction->setData($item);
-        return $groupTransaction->save();
+        $this->resourceModel->save($groupTransaction);
+
+        return $groupTransaction;
     }
 
     /**

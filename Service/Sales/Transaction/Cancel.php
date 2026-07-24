@@ -27,6 +27,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment as PaymentOrder;
 use Magento\Sales\Model\Order\Payment\Transaction;
@@ -49,18 +50,26 @@ class Cancel
     private $orderStatusFactory;
 
     /**
-     * @param OrderStatusFactory              $orderStatusFactory
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @param OrderStatusFactory $orderStatusFactory
      * @param OrderPaymentRepositoryInterface $orderPaymentRepository
-     * @param Account                         $account
+     * @param Account $account
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         OrderStatusFactory $orderStatusFactory,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
-        Account $account
+        Account $account,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
         $this->orderStatusFactory = $orderStatusFactory;
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->account = $account;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -119,10 +128,11 @@ class Cancel
 
         if ($paymentCode == 'buckaroo_magento2_afterpay' || $paymentCode == 'buckaroo_magento2_afterpay2') {
             $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-            $payment->save();
+            $this->orderPaymentRepository->save($payment);
         }
 
-        $order->cancel()->save();
+        $order->cancel();
+        $this->orderRepository->save($order);
     }
 
     /**
@@ -142,6 +152,6 @@ class Cancel
         }
 
         $order->addCommentToStatusHistory($comment, $newStatus);
-        $order->save();
+        $this->orderRepository->save($order);
     }
 }
