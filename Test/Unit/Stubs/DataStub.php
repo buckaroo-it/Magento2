@@ -7,6 +7,7 @@ namespace Buckaroo\Magento2\Test\Unit\Stubs;
  * Declares the magic methods tests need to configure on their doubles.
  *
  * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class DataStub extends \Buckaroo\Magento2\Helper\Data
 {
