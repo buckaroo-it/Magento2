@@ -32,6 +32,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -40,6 +41,9 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -65,22 +69,25 @@ class PayPerEmailProcessor extends DefaultProcessor
     private $isPayPerEmailB2BModePush = null;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param PayPerEmail             $configPayPerEmail
-     * @param CurrencyFactory|null    $currencyFactory
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param PayPerEmail $configPayPerEmail
+     * @param CurrencyFactory|null $currencyFactory
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -89,16 +96,20 @@ class PayPerEmailProcessor extends DefaultProcessor
         BuckarooLoggerInterface $logger,
         Data                    $helper,
         TransactionInterface    $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode      $buckarooStatusCode,
-        OrderStatusFactory      $orderStatusFactory,
-        Account                 $configAccount,
-        GiftCardRefundService   $giftCardRefundService,
-        Uncancel                $uncancelService,
-        ResourceConnection      $resourceConnection,
-        GiftcardCollection      $giftcardCollection,
-        PayPerEmail             $configPayPerEmail,
-        ?CurrencyFactory        $currencyFactory = null
+        PaymentGroupTransaction                                  $groupTransaction,
+        BuckarooStatusCode                                       $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        PayPerEmail                      $configPayPerEmail,
+        ?CurrencyFactory                 $currencyFactory = null,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -114,7 +125,11 @@ class PayPerEmailProcessor extends DefaultProcessor
             $uncancelService,
             $resourceConnection,
             $giftcardCollection,
-            $currencyFactory
+            $currencyFactory,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
@@ -163,7 +178,7 @@ class PayPerEmailProcessor extends DefaultProcessor
                 ));
                 if ($this->order->getState() === Order::STATE_COMPLETE) {
                     $this->order->setState(Order::STATE_PROCESSING);
-                    $this->order->save();
+                    $this->orderRepository->save($this->order);
                 }
                 return true;
             }
@@ -208,7 +223,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         $this->processPushByStatus();
 
         if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
 
         return true;
@@ -226,7 +241,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
             $this->payment->setMethod('buckaroo_magento2_payperemail');
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
     }
 
@@ -331,7 +346,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $transactionKey
         );
         $this->payment->setMethod('buckaroo_magento2_' . $transactionMethod);
-        $this->order->save();
+        $this->orderRepository->save($this->order);
     }
 
     /**
@@ -541,14 +556,14 @@ class PayPerEmailProcessor extends DefaultProcessor
                 ? $this->order->getGrandTotal()
                 : $this->order->getBaseTotalDue();
             $this->payment->registerCaptureNotification($amount);
-            $this->payment->save();
             $this->order->setState('complete');
             $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             if ($transactionKey = $this->getTransactionKey()) {
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
-                    $invoice->setTransactionId($transactionKey)->save();
+                    $invoice->setTransactionId($transactionKey);
+                    $this->invoiceRepository->save($invoice);
                 }
             }
             return false;

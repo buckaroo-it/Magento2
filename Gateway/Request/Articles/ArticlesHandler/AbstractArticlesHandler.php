@@ -120,15 +120,21 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected $payReminderService;
 
     /**
-     * @param ScopeConfigInterface        $scopeConfig
-     * @param BuckarooLog                 $buckarooLog
-     * @param QuoteFactory                $quoteFactory
-     * @param Calculation                 $taxCalculation
-     * @param Config                      $taxConfig
-     * @param BuckarooFee                 $configProviderBuckarooFee
-     * @param SoftwareData                $softwareData
+     * @var \Magento\Quote\Model\ResourceModel\Quote
+     */
+    protected $quoteResource;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param BuckarooLog $buckarooLog
+     * @param QuoteFactory $quoteFactory
+     * @param Calculation $taxCalculation
+     * @param Config $taxConfig
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param SoftwareData $softwareData
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
-     * @param PayReminderService          $payReminderService
+     * @param PayReminderService $payReminderService
+     * @param \Magento\Quote\Model\ResourceModel\Quote|null $quoteResource
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -139,8 +145,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
-        PayReminderService $payReminderService
+        PayReminderService $payReminderService,
+        ?\Magento\Quote\Model\ResourceModel\Quote $quoteResource = null
     ) {
+        $this->quoteResource = $quoteResource
+            ?? \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(\Magento\Quote\Model\ResourceModel\Quote::class);
         $this->scopeConfig = $scopeConfig;
         $this->buckarooLog = $buckarooLog;
         $this->quoteFactory = $quoteFactory;
@@ -270,7 +280,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public function getQuote(): Quote
     {
         if (!$this->quote instanceof Quote) {
-            $this->quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create();
+            $this->quoteResource->load($quote, $this->getOrder()->getQuoteId());
+            $this->quote = $quote;
         }
 
         return $this->quote;

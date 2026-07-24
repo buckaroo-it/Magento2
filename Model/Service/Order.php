@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory as MethodFactory;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
@@ -88,15 +89,21 @@ class Order
     private $configProviderFactory;
 
     /**
-     * @param Account                  $accountConfig
-     * @param MethodFactory            $configProviderMethodFactory
-     * @param Factory                  $configProviderFactory
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
+     * @param Account $accountConfig
+     * @param MethodFactory $configProviderMethodFactory
+     * @param Factory $configProviderFactory
      * @param StoreRepositoryInterface $storeRepository
-     * @param CollectionFactory        $orderFactory
-     * @param OrderStatusFactory       $orderStatusFactory
-     * @param Data                     $helper
-     * @param BuckarooLoggerInterface  $logger
-     * @param ResourceConnection       $resourceConnection
+     * @param CollectionFactory $orderFactory
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Data $helper
+     * @param BuckarooLoggerInterface $logger
+     * @param ResourceConnection $resourceConnection
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Account $accountConfig,
@@ -107,8 +114,10 @@ class Order
         OrderStatusFactory $orderStatusFactory,
         Data $helper,
         BuckarooLoggerInterface $logger,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        OrderRepositoryInterface $orderRepository
     ) {
+        $this->orderRepository = $orderRepository;
         $this->accountConfig = $accountConfig;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->configProviderFactory = $configProviderFactory;
@@ -365,7 +374,7 @@ class Order
                 $statusMessage = $statusMessage ?: 'Order canceled due to payment failure';
                 $order->addCommentToStatusHistory($statusMessage, $failedStatus, false);
             }
-            $order->save();
+            $this->orderRepository->save($order);
             return true;
         }
 

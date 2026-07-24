@@ -357,7 +357,8 @@ class KlarnaKpHandlerTest extends TestCase
             $this->buckarooFee,
             $this->softwareData,
             $this->configProviderFactory,
-            $this->payReminderService
+            $this->payReminderService,
+            $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class)
         );
     }
 

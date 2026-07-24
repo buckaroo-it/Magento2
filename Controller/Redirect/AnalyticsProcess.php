@@ -43,7 +43,7 @@ class AnalyticsProcess extends Process
         // Store the status code in payment additional information for success page plugin
         $statusCode = (int)$this->redirectRequest->getStatusCode();
         $this->payment->setAdditionalInformation('buckaroo_statuscode', $statusCode);
-        $this->payment->save();
+        $this->paymentRepository->save($this->payment);
 
         $successMessage = __('Your order has been placed successfully.');
         if (method_exists($this, 'addSuccessMessage')) {

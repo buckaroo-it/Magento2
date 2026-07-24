@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Invoice;
 
@@ -50,21 +51,29 @@ class SendInvoiceMail implements ObserverInterface
     private $invoiceSender;
 
     /**
-     * @param Account                 $accountConfig
-     * @param InvoiceSender           $invoiceSender
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
+     * @param Account $accountConfig
+     * @param InvoiceSender $invoiceSender
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
+     * @param Data $helper
+     * @param InvoiceRepositoryInterface $invoiceRepository
      */
     public function __construct(
         Account $accountConfig,
         InvoiceSender $invoiceSender,
         BuckarooLoggerInterface $logger,
-        Data $helper
+        Data $helper,
+        InvoiceRepositoryInterface $invoiceRepository
     ) {
         $this->accountConfig = $accountConfig;
         $this->invoiceSender = $invoiceSender;
         $this->logger = $logger;
         $this->helper = $helper;
+        $this->invoiceRepository = $invoiceRepository;
     }
 
     /**
@@ -92,7 +101,7 @@ class SendInvoiceMail implements ObserverInterface
         $canCapture = $payment->getMethodInstance()->canCapture();
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
-            $invoice->save();
+            $this->invoiceRepository->save($invoice);
             $this->logger->addDebug(
                 '[SEND_EMAIL] | [Observer] | ['.__METHOD__.':'.__LINE__.'] - Send email on creating invoice'
             );

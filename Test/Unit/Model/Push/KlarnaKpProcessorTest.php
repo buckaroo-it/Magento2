@@ -40,6 +40,8 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $giftcardCollectionMock;
     private $klarnakpConfigMock;
     private $escaperMock;
+    private $orderRepositoryMock;
+    private $paymentRepositoryMock;
 
     public function setUp(): void
     {
@@ -60,6 +62,8 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->giftcardCollectionMock = $this->getFakeMock('Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection')->getMock();
         $this->klarnakpConfigMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp')->getMock();
         $this->escaperMock = $this->getFakeMock('Magento\Framework\Escaper')->getMock();
+        $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
+        $this->paymentRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class);
 
         // The processor constructor does not receive a CurrencyFactory and falls back to
         // ObjectManager::getInstance(); provide one for the duration of the test.
@@ -98,6 +102,10 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'giftcardCollection'    => $this->giftcardCollectionMock,
             'klarnakpConfig'        => $this->klarnakpConfigMock,
             'escaper'               => $this->escaperMock,
+            'orderRepository'       => $this->orderRepositoryMock,
+            'paymentRepository'     => $this->paymentRepositoryMock,
+            'invoiceRepository'     => $this->createMock(\Magento\Sales\Api\InvoiceRepositoryInterface::class),
+            'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
         ]);
     }
 
@@ -281,7 +289,8 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('setBuckarooReservationNumber')
             ->with('RESERVATION-1')
             ->willReturnSelf();
-        $orderMock->expects($this->once())->method('save')->willReturnSelf();
+        $orderMock->expects($this->never())->method('save');
+        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
 
         $this->setProperty('pushRequest', $pushRequest, $instance);
         $this->setProperty('order', $orderMock, $instance);
@@ -389,7 +398,8 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $orderMock = $this->preparePushAuthorization($instance, '190', Order::STATE_NEW);
         $orderMock->expects($this->once())->method('setState')->with(Order::STATE_PROCESSING)->willReturnSelf();
-        $orderMock->expects($this->once())->method('save')->willReturnSelf();
+        $orderMock->expects($this->never())->method('save');
+        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
 
         $this->invoke('processSucceededPushAuthorization', $instance);
     }
@@ -499,7 +509,8 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('setAdditionalInformation')
             ->with('buckaroo_failed_authorize', 1)
             ->willReturnSelf();
-        $paymentMock->expects($this->once())->method('save')->willReturnSelf();
+        $paymentMock->expects($this->never())->method('save');
+        $this->paymentRepositoryMock->expects($this->once())->method('save')->with($paymentMock);
 
         $orderMock->expects($this->once())
             ->method('cancel')

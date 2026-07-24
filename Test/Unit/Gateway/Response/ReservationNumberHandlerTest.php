@@ -36,12 +36,18 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
      */
     protected $reservationNumberHandler;
 
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $orderRepositoryMock;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $loggerMock = $this->createMock(BuckarooLoggerInterface::class);
-        $this->reservationNumberHandler = new ReservationNumberHandler($loggerMock);
+        $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
+        $this->reservationNumberHandler = new ReservationNumberHandler($loggerMock, $this->orderRepositoryMock);
     }
 
     /**
@@ -83,9 +89,9 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
             }
 
             if ($hasReservationNumber) {
-                $orderMock->expects($this->never())->method('save');
+                $this->orderRepositoryMock->expects($this->never())->method('save');
             } else {
-                $orderMock->expects($this->once())->method('save')->willReturnSelf();
+                $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
             }
 
             $this->orderPaymentMock

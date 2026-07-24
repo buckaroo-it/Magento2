@@ -134,7 +134,7 @@ class BillinkHandler extends AbstractArticlesHandler
         $count = 1;
         $bundleProductQty = 0;
 
-        $quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
+        $quote = $this->getQuote();
         $cartData = $quote->getAllItems();
 
         /**

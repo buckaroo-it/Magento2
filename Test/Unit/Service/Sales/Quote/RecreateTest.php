@@ -95,11 +95,11 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $store = $this->getFakeMock(Store::class)->getMock();
 
         $this->quoteFactory->method('create')
-            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+            ->willReturn($newQuote);
 
-        $oldQuote->method('load')
+        $this->cartRepository->method('get')
             ->with($quoteId)
-            ->willReturnSelf();
+            ->willReturn($oldQuote);
 
         $oldQuote->expects($this->atLeastOnce())->method('getId')->willReturn($quoteId);
         $oldQuote->method('getStoreId')->willReturn($storeId);
@@ -139,19 +139,12 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         $quoteId = 999;
 
-        $oldQuote = $this->getFakeMock(Quote::class)->getMock();
-
-        $this->quoteFactory->method('create')
-            ->willReturn($oldQuote);
-
-        $oldQuote->method('load')
+        $this->cartRepository->method('get')
             ->with($quoteId)
-            ->willReturnSelf();
-
-        $oldQuote->method('getId')->willReturn(null);
+            ->willThrowException(new \Magento\Framework\Exception\NoSuchEntityException());
 
         $instance = $this->getInstance([
-            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
             'logger' => $this->logger,
         ]);
 
@@ -201,18 +194,19 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         // Setup quotes
         $this->quoteFactory->method('create')
-            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+            ->willReturn($newQuote);
+
+        $this->cartRepository->method('get')->with(123)->willReturn($oldQuote);
 
         $oldQuotePayment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class, false)
             ->onlyMethods(['getMethod'])
             ->getMock();
         $oldQuotePayment->method('getMethod')->willReturn('buckaroo_magento2_ideal');
 
-        $oldQuote->method('load')->with(123)->willReturnSelf();
         $oldQuote->method('getId')->willReturn(123);
         $oldQuote->method('getPayment')->willReturn($oldQuotePayment);
         $oldQuote->expects($this->once())->method('setIsActive')->with(false)->willReturnSelf();
-        $oldQuote->expects($this->once())->method('save');
+        $oldQuote->expects($this->never())->method('save');
 
         // Setup store manager
         $this->storeManager->method('getStore')->with(1)->willReturn($store);
@@ -244,10 +238,9 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $product = $this->getFakeMock(Product::class)->getMock();
         $product->method('getId')->willReturn(1);
 
-        $this->productFactory->method('create')
-            ->willReturn($product);
-
-        $product->method('load')->with(1)->willReturnSelf();
+        $productRepositoryMock = $this->getFakeMock(\Magento\Catalog\Api\ProductRepositoryInterface::class)
+            ->getMock();
+        $productRepositoryMock->method('getById')->with(1)->willReturn($product);
 
         $newQuote->method('addProduct')
             ->with($product, $this->isInstanceOf(\Magento\Framework\DataObject::class));
@@ -271,7 +264,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'quoteFactory' => $this->quoteFactory,
-            'productFactory' => $this->productFactory,
+            'cartRepository' => $this->cartRepository,
+            'productRepository' => $productRepositoryMock,
             'checkoutSession' => $this->checkoutSession,
             'storeManager' => $this->storeManager,
             'logger' => $this->logger,
@@ -308,12 +302,13 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getShippingAddress')->willReturn(null);
 
         $this->quoteFactory->method('create')
-            ->willReturnOnConsecutiveCalls($oldQuote, $newQuote);
+            ->willReturn($newQuote);
 
-        $oldQuote->method('load')->with(123)->willReturnSelf();
+        $this->cartRepository->method('get')->with(123)->willReturn($oldQuote);
+
         $oldQuote->method('getId')->willReturn(123);
         $oldQuote->expects($this->once())->method('setIsActive')->with(false)->willReturnSelf();
-        $oldQuote->expects($this->once())->method('save');
+        $oldQuote->expects($this->never())->method('save');
 
         // Setup store manager
         $this->storeManager->method('getStore')->with(1)->willReturn($store);
@@ -342,7 +337,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'quoteFactory' => $this->quoteFactory,
-            'productFactory' => $this->productFactory,
+            'cartRepository' => $this->cartRepository,
             'checkoutSession' => $this->checkoutSession,
             'storeManager' => $this->storeManager,
             'logger' => $this->logger,
@@ -365,17 +360,14 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(999);
 
-        $this->quoteFactory->method('create')
-            ->willReturn($oldQuote);
+        $this->cartRepository->method('get')
+            ->with(999)
+            ->willThrowException(new \Magento\Framework\Exception\NoSuchEntityException());
 
-        $oldQuote->method('load')->with(999)->willReturnSelf();
-        $oldQuote->method('getId')->willReturn(null);
-
-        $this->logger->method('addError')
-            ->with($this->stringContains('Original quote not found'));
+        $this->logger->method('addError');
 
         $instance = $this->getInstance([
-            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
             'logger' => $this->logger,
         ]);
 
@@ -390,7 +382,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(123);
 
-        $this->quoteFactory->method('create')
+        $this->cartRepository->method('get')
+            ->with(123)
             ->willThrowException(new \Exception('Test exception'));
 
         $this->logger->method('addError')
@@ -399,7 +392,7 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->messageManager->method('addErrorMessage');
 
         $instance = $this->getInstance([
-            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
             'messageManager' => $this->messageManager,
             'logger' => $this->logger,
         ]);

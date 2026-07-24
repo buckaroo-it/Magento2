@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Service\Push\KlarnaMorOrderService;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 
 /**
  * Registers the ExtendReservation DataRequest key so the async push can be matched to the order.
@@ -39,11 +40,18 @@ class ExtendReservationPushKeyHandler implements HandlerInterface
     private BuckarooLoggerInterface $logger;
 
     /**
-     * @param BuckarooLoggerInterface $logger
+     * @var OrderPaymentRepositoryInterface
      */
-    public function __construct(BuckarooLoggerInterface $logger)
+    private OrderPaymentRepositoryInterface $paymentRepository;
+
+    /**
+     * @param BuckarooLoggerInterface         $logger
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     */
+    public function __construct(BuckarooLoggerInterface $logger, OrderPaymentRepositoryInterface $paymentRepository)
     {
         $this->logger = $logger;
+        $this->paymentRepository = $paymentRepository;
     }
 
     /**
@@ -68,7 +76,7 @@ class ExtendReservationPushKeyHandler implements HandlerInterface
         $payment->setAdditionalInformation(KlarnaMorOrderService::PENDING_DATAREQUEST_PUSH_KEYS, $pendingKeys);
 
         if (!empty($payment->getOrder()) && !empty($payment->getOrder()->getId())) {
-            $payment->save();
+            $this->paymentRepository->save($payment);
         }
 
         $this->logger->addDebug(sprintf(

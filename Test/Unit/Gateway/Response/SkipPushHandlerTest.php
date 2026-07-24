@@ -35,7 +35,9 @@ class SkipPushHandlerTest extends AbstractResponseHandlerTest
     protected function setUp(): void
     {
         parent::setUp();
-        $this->skipPushHandler = new SkipPushHandler();
+        $this->skipPushHandler = new SkipPushHandler(
+            $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class)
+        );
     }
 
     /**

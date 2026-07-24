@@ -35,6 +35,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\ConverterException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Api\Data\StoreInterface;
@@ -101,16 +102,21 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     private $formKey;
 
     /**
-     * @param ScopeConfigInterface    $scopeConfig
-     * @param Account                 $configProviderAccount
-     * @param UrlInterface            $urlBuilder
-     * @param FormKey                 $formKey
-     * @param StoreManagerInterface   $storeManager
-     * @param SDKTransferFactory      $transferFactory
-     * @param ClientInterface         $clientInterface
-     * @param RequestInterface        $httpRequest
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Account $configProviderAccount
+     * @param UrlInterface $urlBuilder
+     * @param FormKey $formKey
+     * @param StoreManagerInterface $storeManager
+     * @param SDKTransferFactory $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
-     *
+     * @param CartRepositoryInterface $cartRepository
      * @throws NoSuchEntityException
      */
     public function __construct(
@@ -122,8 +128,10 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         SDKTransferFactory $transferFactory,
         ClientInterface $clientInterface,
         RequestInterface $httpRequest,
-        PaymentGroupTransaction $groupTransaction
+        PaymentGroupTransaction $groupTransaction,
+        CartRepositoryInterface $cartRepository
     ) {
+        $this->cartRepository = $cartRepository;
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -211,7 +219,8 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         if ($quote->getReservedOrderId() !== null) {
             return $quote->getReservedOrderId();
         }
-        $quote->reserveOrderId()->save();
+        $quote->reserveOrderId();
+        $this->cartRepository->save($quote);
         return $quote->getReservedOrderId();
     }
 
