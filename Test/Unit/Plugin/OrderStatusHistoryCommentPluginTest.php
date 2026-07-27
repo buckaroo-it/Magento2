@@ -6,38 +6,40 @@ use Buckaroo\Magento2\Plugin\OrderStatusHistoryCommentPlugin;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 class OrderStatusHistoryCommentPluginTest extends BaseTest
 {
     protected $instanceClass = OrderStatusHistoryCommentPlugin::class;
 
-    public function testOfflineRefundCommentIsCleanedForBuckarooPayment(): void
+    public function testPlazaOfflineRefundCommentIsNormalizedToOnline(): void
     {
-        $orderMock = $this->getOrderMock();
+        $orderMock = $this->getOrderMock('A7BDD18D052843098E3461FE3EDA423B');
         $comment = 'We refunded $59.00 offline. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"';
 
         $result = $this->getInstance([
             'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
         ])->beforeAddStatusHistoryComment($orderMock, $comment, 'closed');
 
-        $this->assertSame(['We refunded $59.00 online. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"', 'closed'], $result);
+        $this->assertStringContainsString('online', $result[0]);
+        $this->assertStringNotContainsString('offline', $result[0]);
     }
 
-    public function testOnlineRefundCommentIsLeftUntouched(): void
+    public function testAdminOfflineRefundCommentIsLeftUntouched(): void
     {
-        $orderMock = $this->getOrderMock();
-        $comment = 'We refunded $59.00 online. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-refund"';
+        $orderMock = $this->getOrderMock(null);
+        $comment = 'We refunded $59.00 offline. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"';
 
         $result = $this->getInstance([
             'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
-        ])->beforeAddStatusHistoryComment($orderMock, $comment, 'processing');
+        ])->beforeAddStatusHistoryComment($orderMock, $comment, 'closed');
 
-        $this->assertSame([$comment, 'processing'], $result);
+        $this->assertSame([$comment, 'closed'], $result);
     }
 
     public function testNonBuckarooOfflineRefundCommentIsLeftUntouched(): void
     {
-        $orderMock = $this->getOrderMock();
+        $orderMock = $this->getOrderMock(null);
         $comment = 'We refunded $59.00 offline. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"';
 
         $result = $this->getInstance([
@@ -47,21 +49,15 @@ class OrderStatusHistoryCommentPluginTest extends BaseTest
         $this->assertSame([$comment, false], $result);
     }
 
-    public function testBuckarooNonRefundCommentContainingTransactionIdIsLeftUntouched(): void
+    private function getOrderMock(?string $plazaRefundTransactionKey): Order
     {
-        $orderMock = $this->getOrderMock();
-        $comment = 'Registered notification about captured amount of $59.00. Transaction ID: "A7BDD18D052843098E3461FE3EDA423B-capture"';
-
-        $result = $this->getInstance([
-            'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
-        ])->beforeAddStatusHistoryComment($orderMock, $comment, 'processing');
-
-        $this->assertSame([$comment, 'processing'], $result);
-    }
-
-    private function getOrderMock(): Order
-    {
-        $paymentMock = $this->createMock(\Magento\Sales\Api\Data\OrderPaymentInterface::class);
+        $paymentMock = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getAdditionalInformation'])
+            ->getMock();
+        $paymentMock->method('getAdditionalInformation')
+            ->with('buckaroo_refund_transaction_key')
+            ->willReturn($plazaRefundTransactionKey);
 
         $orderMock = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
