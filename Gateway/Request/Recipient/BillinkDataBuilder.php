@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\AddressFactory;
@@ -49,11 +50,17 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * @param Data                 $helper
      * @param ScopeConfigInterface $scopeConfig
      * @param AddressFactory       $addressFactory
+     * @param BirthDateFormatter   $birthDateFormatter
      * @param string               $addressType
      */
-    public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, AddressFactory $addressFactory, string $addressType = 'billing')
-    {
-        parent::__construct($addressType);
+    public function __construct(
+        Data $helper,
+        ScopeConfigInterface $scopeConfig,
+        AddressFactory $addressFactory,
+        BirthDateFormatter $birthDateFormatter,
+        string $addressType = 'billing'
+    ) {
+        parent::__construct($birthDateFormatter, $addressType);
         $this->scopeConfig = $scopeConfig;
         $this->helper = $helper;
         $this->addressFactory = $addressFactory;
@@ -84,31 +91,20 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
-     * Returns the birthdate of the customer
+     * Returns the birthdate of the customer, or null when none is usable.
      *
-     * @return false|string
+     * Unlike the other recipients, Billink accepts a request without a
+     * birthDate - B2B orders have no natural one - so no placeholder is
+     * substituted here.
+     *
+     * @return string|null
      */
-    protected function getBirthDate()
+    protected function getBirthDate(): ?string
     {
-        $customerDoB = (string)$this->payment->getAdditionalInformation('customer_DoB');
-        if (empty($customerDoB)) {
-            $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
-        }
-
-        if (!is_string($customerDoB) || strlen(trim($customerDoB)) === 0) {
-            return null;
-        }
-
-        $birthDayStamp = date(
-            $this->getFormatDate(),
-            strtotime(str_replace('/', '-', $customerDoB))
+        return $this->birthDateFormatter->format(
+            $this->getRawBirthDate(),
+            $this->getFormatDate()
         );
-
-        if ($birthDayStamp === false) {
-            return null;
-        }
-
-        return $birthDayStamp;
     }
 
     /**

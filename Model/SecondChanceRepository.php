@@ -1025,7 +1025,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         $streakSeconds = $this->configProvider->getStreakMinutes($store) * 60;
-        $createdAt     = strtotime($item->getCreatedAt());
+        $createdAt     = strtotime((string)$item->getCreatedAt());
+
+        if ($createdAt === false) {
+            return false;
+        }
 
         // Find any other pending record from the same e-mail that is *newer* than
         // the current record and was created within the streak window.
