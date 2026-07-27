@@ -25,6 +25,8 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Recipient;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\Recipient\KlarnaDataBuilder;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -50,7 +52,9 @@ class KlarnaDataBuilderTest extends AbstractDataBuilderTest
     {
         parent::setUp();
 
-        $this->builder = new KlarnaDataBuilder();
+        $this->builder = new KlarnaDataBuilder(
+            new BirthDateFormatter($this->createMock(BuckarooLoggerInterface::class))
+        );
 
         $addressMock = $this->createMock(Address::class);
         $addressMock->method('getFirstname')->willReturn('Albina');

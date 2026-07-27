@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Resources\Constants\RecipientCategory;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\Store;
@@ -36,11 +37,15 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
 
     /**
      * @param ScopeConfigInterface $scopeConfig
+     * @param BirthDateFormatter   $birthDateFormatter
      * @param string               $addressType
      */
-    public function __construct(ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
-    {
-        parent::__construct($addressType);
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        BirthDateFormatter $birthDateFormatter,
+        string $addressType = 'billing'
+    ) {
+        parent::__construct($birthDateFormatter, $addressType);
         $this->scopeConfig = $scopeConfig;
     }
 
