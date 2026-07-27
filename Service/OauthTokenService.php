@@ -31,9 +31,9 @@ use Magento\Framework\HTTP\Client\Curl;
  * Fetches OAuth client-credentials access tokens from Buckaroo's auth API with a
  * server-side encrypted cache.
  *
- * Tokens are merchant-level (not bound to a shopper), so one cached token per
- * credential pair and scope can serve every checkout visitor until it expires.
- * Used by both Click to Pay and the Hosted Fields (credit cards) token proxies.
+ * Tokens are merchant-level (not bound to a shopper), so for scopes where the
+ * token is nothing more than a bearer credential (Click to Pay) one cached token
+ * per credential pair and scope can serve every checkout visitor until it expires.
  */
 class OauthTokenService
 {
@@ -100,16 +100,23 @@ class OauthTokenService
      * @param string $clientId
      * @param string $clientSecret
      * @param string $scope
+     * @param bool   $useCache Set to false to always mint a fresh token and leave the cache untouched
      *
      * @return array{access_token: string, expires_in: int}|null null when the token could not be obtained
      */
-    public function getToken(string $clientId, string $clientSecret, string $scope): ?array
-    {
+    public function getToken(
+        string $clientId,
+        string $clientSecret,
+        string $scope,
+        bool $useCache = true
+    ): ?array {
         $cacheKey = self::TOKEN_CACHE_ID . '_' . hash('sha256', $clientId . ':' . $clientSecret . ':' . $scope);
 
-        $cachedToken = $this->loadCachedToken($cacheKey);
-        if ($cachedToken !== null) {
-            return $cachedToken;
+        if ($useCache) {
+            $cachedToken = $this->loadCachedToken($cacheKey);
+            if ($cachedToken !== null) {
+                return $cachedToken;
+            }
         }
 
         $data = $this->requestToken($clientId, $clientSecret, $scope);
@@ -118,7 +125,9 @@ class OauthTokenService
         }
 
         $expiresIn = (int) ($data['expires_in'] ?? 0);
-        $this->saveCachedToken($cacheKey, (string) $data['access_token'], $expiresIn);
+        if ($useCache) {
+            $this->saveCachedToken($cacheKey, (string) $data['access_token'], $expiresIn);
+        }
 
         return [
             'access_token' => (string) $data['access_token'],
