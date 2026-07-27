@@ -181,6 +181,38 @@ class OauthTokenServiceTest extends BaseTest
     }
 
     /**
+     * With caching disabled the cache must be neither read nor written, and every
+     * call must mint a brand new token. Hosted Fields relies on this: the Buckaroo
+     * hosted-fields API derives one session from one access token, so a reused
+     * token hands the shopper an already-consumed session.
+     */
+    public function testGetTokenBypassesCacheWhenCachingDisabled(): void
+    {
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects($this->never())->method('load');
+        $cache->expects($this->never())->method('save');
+
+        $curl = $this->createMock(Curl::class);
+        $curl->expects($this->once())->method('post');
+        $curl->method('getBody')->willReturn(json_encode([
+            'access_token' => 'fresh-token',
+            'expires_in'   => 900,
+        ]));
+
+        $instance = $this->getInstance([
+            'curl'      => $curl,
+            'cache'     => $cache,
+            'encryptor' => $this->createMock(EncryptorInterface::class),
+            'logger'    => $this->createMock(BuckarooLoggerInterface::class),
+        ]);
+
+        $result = $instance->getToken('client-id', 'client-secret', 'hostedfields:save', false);
+
+        $this->assertSame('fresh-token', $result['access_token']);
+        $this->assertSame(840, $result['expires_in']);
+    }
+
+    /**
      * Different credential/scope combinations must not share a cache entry.
      */
     public function testGetTokenUsesScopeSpecificCacheKeys(): void

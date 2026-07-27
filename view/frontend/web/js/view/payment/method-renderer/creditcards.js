@@ -87,8 +87,14 @@ define(
 
             /**
              * Called from afterRender in the template, ensuring DOM is ready.
+             *
+             * The template binds this inside a `ko if` on the selected method, so it
+             * runs again every time the shopper switches away from credit cards and
+             * back. Drop any iframes left by a previous mount first, otherwise the
+             * new session's fields are appended next to the stale ones.
              */
             initCreditCardFields: function () {
+                this.removeHostedFieldIframes();
                 this.getOAuthToken();
             },
 

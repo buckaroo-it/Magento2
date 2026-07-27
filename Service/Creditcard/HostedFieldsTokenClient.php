@@ -26,13 +26,14 @@ use Buckaroo\Magento2\Service\OauthTokenService;
 /**
  * Fetches OAuth access tokens for Hosted Fields (credit card) from Buckaroo's auth API.
  *
- * Thin adapter around the shared OauthTokenService, which adds server-side
- * (encrypted) token caching and a request timeout. Kept as a separate class so
+ * Thin adapter around the shared OauthTokenService. Kept as a separate class so
  * existing integrations against this contract keep working.
  */
 class HostedFieldsTokenClient
 {
     private const SCOPE = 'hostedfields:save';
+
+    private const USE_CACHE = false;
 
     /**
      * @var OauthTokenService
@@ -48,11 +49,12 @@ class HostedFieldsTokenClient
     }
 
     /**
-     * Fetch an OAuth access token using the client-credentials grant.
+     * Fetch a fresh OAuth access token using the client-credentials grant.
      *
-     * Served from the shared server-side cache when a still-valid token exists;
-     * expires_in is the remaining lifetime, so the frontend refresh scheduling
-     * keeps working with cached tokens.
+     * Never served from cache (see self::USE_CACHE): each checkout needs its own
+     * token so it gets its own hosted-fields session. expires_in is the token
+     * lifetime minus a safety margin, so the frontend refresh scheduling can use
+     * it as-is.
      *
      * @param string $clientId
      * @param string $clientSecret
@@ -61,6 +63,6 @@ class HostedFieldsTokenClient
      */
     public function fetchToken(string $clientId, string $clientSecret): ?array
     {
-        return $this->tokenService->getToken($clientId, $clientSecret, self::SCOPE);
+        return $this->tokenService->getToken($clientId, $clientSecret, self::SCOPE, self::USE_CACHE);
     }
 }
