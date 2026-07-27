@@ -45,9 +45,10 @@ class OrderStatusHistoryCommentPlugin
     }
 
     /**
-     * Normalize Buckaroo refund notes.
+     * Normalize Buckaroo Plaza refund notes.
      *
      * Plaza refunds should always be shown as "online" and include the Plaza Transaction ID.
+     * Magento Admin offline refunds (no Plaza key) are left unchanged.
      *
      * @param Order $subject
      * @param string|\Magento\Framework\Phrase $comment
@@ -65,19 +66,18 @@ class OrderStatusHistoryCommentPlugin
             return [$comment, $status];
         }
 
-        $updatedComment = preg_replace('/\boffline\b/ui', 'online', $commentText, 1) ?: $commentText;
-
         $transactionId = $this->getRefundTransactionId($subject);
         if (empty($transactionId)) {
-            return [$updatedComment, $status];
+            return [$comment, $status];
         }
+
+        $updatedComment = preg_replace('/\boffline\b/ui', 'online', $commentText, 1) ?: $commentText;
 
         $hasTransactionId = preg_match('/Transaction\s*ID\s*:\s*"/ui', $updatedComment) === 1;
         if (!$hasTransactionId) {
             return [$this->appendTransactionId($updatedComment, $transactionId), $status];
         }
 
-        // If Transaction ID exists but differs, override it with the latest credit memo transaction id.
         $updatedComment = preg_replace(
             '/Transaction\s*ID\s*:\s*"[^"]*"/ui',
             'Transaction ID: "' . $this->buildTransactionIdLink($transactionId) . '"',
@@ -126,7 +126,6 @@ class OrderStatusHistoryCommentPlugin
      */
     private function buildTransactionIdLink(string $transactionId): string
     {
-        // Keep consistent with HtmlTransactionIdObserver's plaza link structure.
         $url = sprintf(
             'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s',
             $transactionId
