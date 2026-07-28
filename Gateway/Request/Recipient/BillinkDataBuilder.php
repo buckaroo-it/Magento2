@@ -80,8 +80,14 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             'initials'  => $this->getInitials(),
             'firstName' => $this->getFirstname(),
             'lastName'  => $this->getLastName(),
-            'birthDate' => $this->getBirthDate()
         ];
+
+        // Only include birthDate when Magento already has one (checkout no longer
+        // collects it). Omitting it lets Billink One request DOB on the hosted page.
+        $birthDate = $this->getBirthDate();
+        if ($birthDate !== null) {
+            $data['birthDate'] = $birthDate;
+        }
 
         if ($category == 'B2B') {
             $data['chamberOfCommerce'] = $this->getChamberOfCommerce();
@@ -91,11 +97,12 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
-     * Returns the birthdate of the customer, or null when none is usable.
+     * Returns the birthdate of the customer, or null when Magento has none.
      *
-     * Unlike the other recipients, Billink accepts a request without a
-     * birthDate - B2B orders have no natural one - so no placeholder is
-     * substituted here.
+     * Billink checkout no longer collects DOB. When Magento already has a
+     * customer date of birth (account / order), it is sent so Billink One
+     * does not ask again. When absent, birthDate is omitted and Billink One
+     * collects it on the hosted payment page.
      *
      * @return string|null
      */
