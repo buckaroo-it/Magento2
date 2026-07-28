@@ -23,61 +23,15 @@ define(
         'jquery',
         'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/quote',
-        'ko',
-        'buckaroo/checkout/datepicker-enhanced',
-        'Magento_Ui/js/lib/knockout/bindings/datepicker'
+        'ko'
     ],
     function (
         $,
         Component,
         quote,
-        ko,
-        datePicker
+        ko
     ) {
         'use strict';
-
-        $.validator.addMethod('validate-date-flexible', function (value) {
-            if (!value) return false;
-            var dateReg = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
-            if (value.match(dateReg)) {
-                var parts = value.split(/[\/\-\.]/);
-                var day = parseInt(parts[0], 10);
-                var month = parseInt(parts[1], 10);
-                var year = parseInt(parts[2], 10);
-                if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
-                    return false;
-                }
-                var date = new Date(year, month - 1, day);
-                return date.getDate() === day && date.getMonth() === (month - 1) && date.getFullYear() === year;
-            }
-            return false;
-        }, $.mage.__('Please use this date format: dd/mm/yyyy, dd-mm-yyyy or dd.mm.yyyy.'));
-
-        $.validator.addMethod('validateAge', function (value) {
-            if (value && (value.length > 0)) {
-                var dateReg = /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/;
-                if (value.match(dateReg)) {
-                    var parts = value.split(/[\/\-\.]/);
-                    var day = parseInt(parts[0], 10);
-                    var month = parseInt(parts[1], 10);
-                    var year = parseInt(parts[2], 10);
-
-                    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > new Date().getFullYear()) {
-                        return false;
-                    }
-
-                    var birthday = new Date(year, month - 1, day, 0, 0, 0);
-
-                    if (birthday.getDate() !== day || birthday.getMonth() !== (month - 1) || birthday.getFullYear() !== year) {
-                        return false;
-                    }
-
-                    return ~~((Date.now() - birthday) / (31557600000)) >= 18;
-                }
-            }
-            return false;
-        },
-        $.mage.__('You should be at least 18 years old.'));
 
         const validPhone = function (value) {
             if (quote.billingAddress() === null) {
@@ -140,25 +94,12 @@ define(
                     phone: '',
                     cocNumber:'',
                     vatNumber: '',
-                    dob:null,
                     showPhone: false,
                     showB2B: false,
                     showFrenchTosValue: null,
                     value: ""
                 },
                 redirectAfterPlaceOrder : true,
-                dp: datePicker,
-
-                filterDobInput: function (data, event) {
-                    var input = event.target;
-                    var filtered = input.value.replace(/[^\d\/\-\.]/g, '');
-                    if (input.value !== filtered) {
-                        var pos = input.selectionStart - (input.value.length - filtered.length);
-                        input.value = filtered;
-                        input.setSelectionRange(pos, pos);
-                    }
-                    return true;
-                },
 
                 initObservable: function () {
                     this._super().observe(
@@ -167,7 +108,6 @@ define(
                             'phone',
                             'cocNumber',
                             'vatNumber',
-                            'dob',
                             'showFrenchTosValue',
                             'value'
                         ]
@@ -232,10 +172,6 @@ define(
                     return this;
                 },
 
-                getDobPlaceholder: function () {
-                    return $.mage.__('DD-MM-YYYY or DD/MM/YYYY');
-                },
-
                 getData: function () {
                     let phone = this.phone();
                     if (!this.showPhone() && quote.billingAddress() !== null) {
@@ -252,8 +188,7 @@ define(
                             "customer_telephone" : phone,
                             "customer_gender" : customerGender,
                             "customer_chamberOfCommerce" : this.cocNumber(),
-                            "customer_VATNumber" : this.vatNumber(),
-                            "customer_DoB" : this.dob()
+                            "customer_VATNumber" : this.vatNumber()
                         }
                     };
                 },
