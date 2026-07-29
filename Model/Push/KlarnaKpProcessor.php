@@ -79,6 +79,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param GroupTransaction|null $groupTransactionResource
      * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -102,7 +103,8 @@ class KlarnaKpProcessor extends DefaultProcessor
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
         ?GroupTransaction                $groupTransactionResource = null,
         ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
-        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -124,7 +126,8 @@ class KlarnaKpProcessor extends DefaultProcessor
             $invoiceRepository,
             $groupTransactionResource,
             $transactionRepository,
-            $searchCriteriaBuilder
+            $searchCriteriaBuilder,
+            $orderManagement
         );
         $this->klarnakpConfig = $klarnakpConfig;
         $this->escaper = $escaper;
@@ -208,10 +211,14 @@ class KlarnaKpProcessor extends DefaultProcessor
             $methodInstanceClass::$requestOnVoid = false;
 
             try {
-                $this->order->cancel()->save();
+                $this->orderManagement->cancel((int)$this->order->getId());
             } finally {
                 $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
             }
+
+            // OrderManagement cancels and saves its own order instance; reload the
+            // shared one so updateOrderStatus below doesn't persist pre-cancellation state
+            $this->orderRequestService->loadOrder();
         }
 
         $cancelTrxId = $this->escaper->escapeHtml((string)$this->pushRequest->getDatarequest());

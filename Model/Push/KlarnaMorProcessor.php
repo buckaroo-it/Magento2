@@ -68,6 +68,7 @@ class KlarnaMorProcessor extends DefaultProcessor
      * @param GroupTransaction|null $groupTransactionResource
      * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -89,7 +90,8 @@ class KlarnaMorProcessor extends DefaultProcessor
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
         ?GroupTransaction                $groupTransactionResource = null,
         ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
-        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -111,7 +113,8 @@ class KlarnaMorProcessor extends DefaultProcessor
             $invoiceRepository,
             $groupTransactionResource,
             $transactionRepository,
-            $searchCriteriaBuilder
+            $searchCriteriaBuilder,
+            $orderManagement
         );
     }
 

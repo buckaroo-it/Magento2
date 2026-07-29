@@ -53,6 +53,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
@@ -204,6 +205,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected $searchCriteriaBuilder;
 
     /**
+     * @var OrderManagementInterface
+     */
+    protected $orderManagement;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -226,6 +232,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
      * @param TransactionRepositoryInterface|null $transactionRepository
      * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -248,7 +255,8 @@ class DefaultProcessor implements PushProcessorInterface
         ?InvoiceRepositoryInterface                              $invoiceRepository = null,
         ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null,
         ?TransactionRepositoryInterface                          $transactionRepository = null,
-        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null
+        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null,
+        ?OrderManagementInterface                                $orderManagement = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -277,6 +285,8 @@ class DefaultProcessor implements PushProcessorInterface
             ?: ObjectManager::getInstance()->get(TransactionRepositoryInterface::class);
         $this->searchCriteriaBuilder = $searchCriteriaBuilder
             ?: ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
+        $this->orderManagement = $orderManagement
+            ?: ObjectManager::getInstance()->get(OrderManagementInterface::class);
     }
 
     /**
@@ -1965,9 +1975,6 @@ class DefaultProcessor implements PushProcessorInterface
                 $message
             ));
 
-            // Add a clear cancellation message to order history before canceling
-            $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
-
             // setting parameter which will cause to stop the cancel process on
             $methods = [
                 'buckaroo_magento2_afterpay',
@@ -1994,13 +2001,30 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 try {
-                    $this->order->cancel()->save();
+                    if (!$this->orderManagement->cancel((int)$this->order->getId())) {
+                        $this->logger->addDebug(sprintf(
+                            '[%s:%s] - Order %s could not be canceled through OrderManagement',
+                            __METHOD__,
+                            __LINE__,
+                            $this->order->getIncrementId()
+                        ));
+                    }
                 } finally {
                     // Restore the original flag value to avoid side effects
                     if ($originalRequestOnVoid !== null) {
                         $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
                     }
                 }
+
+                // OrderManagement cancels and saves its own order instance; reload the
+                // shared one so the steps below don't persist pre-cancellation state
+                $this->orderRequestService->loadOrder();
+
+                // On the refreshed instance so it survives the reload; persisted by the
+                // updateOrderStatus save below
+                $this->order->addCommentToStatusHistory(
+                    'Payment failed. Canceling order due to payment failure: ' . $message
+                );
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
