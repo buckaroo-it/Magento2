@@ -95,7 +95,7 @@ class TransferProcessor extends DefaultProcessor
             }
 
             $this->order->setTotalDue($this->order->getTotalDue() - $amount);
-            $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
+            $this->order->setBaseTotalDue($this->order->getBaseTotalDue() - $amount);
 
             $totalPaid = $this->order->getTotalPaid() + $amount;
             $this->order->setTotalPaid(
@@ -109,15 +109,6 @@ class TransferProcessor extends DefaultProcessor
             );
 
             $this->orderRequestService->saveAndReloadOrder();
-
-            if (!$this->orderRequestService->updateTotalOnOrder($this->order)) {
-                $this->logger->addError(sprintf(
-                    '[TRANSFER] | [%s:%s] - Failed to update order totals in DB | order: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $this->order->getIncrementId()
-                ));
-            }
         }
 
         return $saveInvoice;
