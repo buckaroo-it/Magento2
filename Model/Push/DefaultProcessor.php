@@ -272,21 +272,34 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
-        $this->currencyFactory = $currencyFactory ?: ObjectManager::getInstance()->get(CurrencyFactory::class);
-        $this->orderRepository = $orderRepository
-            ?: ObjectManager::getInstance()->get(OrderRepositoryInterface::class);
-        $this->paymentRepository = $paymentRepository
-            ?: ObjectManager::getInstance()->get(OrderPaymentRepositoryInterface::class);
-        $this->invoiceRepository = $invoiceRepository
-            ?: ObjectManager::getInstance()->get(InvoiceRepositoryInterface::class);
-        $this->groupTransactionResource = $groupTransactionResource
-            ?: ObjectManager::getInstance()->get(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class);
-        $this->transactionRepository = $transactionRepository
-            ?: ObjectManager::getInstance()->get(TransactionRepositoryInterface::class);
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder
-            ?: ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
-        $this->orderManagement = $orderManagement
-            ?: ObjectManager::getInstance()->get(OrderManagementInterface::class);
+        $this->currencyFactory = $this->resolveDependency($currencyFactory, CurrencyFactory::class);
+        $this->orderRepository = $this->resolveDependency($orderRepository, OrderRepositoryInterface::class);
+        $this->paymentRepository = $this->resolveDependency($paymentRepository, OrderPaymentRepositoryInterface::class);
+        $this->invoiceRepository = $this->resolveDependency($invoiceRepository, InvoiceRepositoryInterface::class);
+        $this->groupTransactionResource = $this->resolveDependency(
+            $groupTransactionResource,
+            \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class
+        );
+        $this->transactionRepository = $this->resolveDependency(
+            $transactionRepository,
+            TransactionRepositoryInterface::class
+        );
+        $this->searchCriteriaBuilder = $this->resolveDependency($searchCriteriaBuilder, SearchCriteriaBuilder::class);
+        $this->orderManagement = $this->resolveDependency($orderManagement, OrderManagementInterface::class);
+    }
+
+    /**
+     * BC fallback for constructor deps added after the initial release; subclasses
+     * forward them positionally, so DI cannot fill parent-only params. Removed when
+     * the Phase 4.4 constructor cleanup makes them required.
+     *
+     * @param object|null $dependency
+     * @param class-string $class
+     * @return object
+     */
+    private function resolveDependency(?object $dependency, string $class): object
+    {
+        return $dependency ?: ObjectManager::getInstance()->get($class);
     }
 
     /**
