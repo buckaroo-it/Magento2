@@ -83,7 +83,8 @@ class AfterpayProcessor extends DefaultProcessor
         ?\Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository = null,
         ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null,
         ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
-        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -105,7 +106,8 @@ class AfterpayProcessor extends DefaultProcessor
             $invoiceRepository,
             $groupTransactionResource,
             $transactionRepository,
-            $searchCriteriaBuilder
+            $searchCriteriaBuilder,
+            $orderManagement
         );
         $this->afterpayConfig = $afterpayConfig;
     }
