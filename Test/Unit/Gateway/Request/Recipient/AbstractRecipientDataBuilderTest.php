@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Model\InfoInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -69,54 +70,62 @@ class AbstractRecipientDataBuilderTest extends AbstractDataBuilderTest
      * An order with no usable birthdate - the ?? fallback only caught null, so an
      * empty customer_dob reached strtotime() and came back false - must now build
      * a request instead of throwing.
-     *
-     * @dataProvider unusableBirthDateProvider
-     *
-     * @param string|null $customerDoB
-     * @param string|null $orderDob
      */
-    public function testBuildFallsBackToThePlaceholderInsteadOfThrowing(
-        ?string $customerDoB,
-        ?string $orderDob
-    ): void {
-        $this->orderMock->method('getCustomerDob')->willReturn($orderDob);
-        $this->paymentMock = $this->createMock(InfoInterface::class);
-        $this->paymentMock->method('getAdditionalInformation')
-            ->willReturnMap([
-                ['customer_gender', null],
-                ['customer_DoB', $customerDoB],
-            ]);
-
-        $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
-
-        $this->assertSame('01-01-1990', $result['recipient']['birthDate']);
-    }
-
-    /**
-     * @return array
-     */
-    public static function unusableBirthDateProvider(): array
+    public function testBuildFallsBackToThePlaceholderInsteadOfThrowing(): void
     {
-        return [
+        $cases = [
             'empty customer_dob (the reported crash)' => [null, ''],
             'whitespace customer_dob'                 => [null, '   '],
             'null customer_dob'                       => [null, null],
             'empty DoB field and empty order dob'     => ['', ''],
             'unparsable DoB field, no order dob'      => ['12/31/1990', null],
         ];
+
+        foreach ($cases as $label => [$customerDoB, $orderDob]) {
+            $result = $this->buildWith($customerDoB, $orderDob);
+
+            $this->assertSame('01-01-1990', $result['recipient']['birthDate'], $label);
+        }
     }
 
     /**
      * A usable birthdate must still come through untouched, in every separator
      * the checkout accepts.
-     *
-     * @dataProvider usableBirthDateProvider
-     *
-     * @param string $customerDoB
      */
-    public function testBuildKeepsAUsableBirthDate(string $customerDoB): void
+    public function testBuildKeepsAUsableBirthDate(): void
     {
-        $this->orderMock->method('getCustomerDob')->willReturn(null);
+        $cases = [
+            'slashes' => '31/12/1990',
+            'dashes'  => '31-12-1990',
+            'dots'    => '31.12.1990',
+        ];
+
+        foreach ($cases as $label => $customerDoB) {
+            $result = $this->buildWith($customerDoB, null);
+
+            $this->assertSame('31-12-1990', $result['recipient']['birthDate'], $label);
+        }
+    }
+
+    /**
+     * Build a recipient request for a given checkout DoB / order DoB pair, using
+     * fresh order and payment mocks so each case is isolated.
+     *
+     * @param string|null $customerDoB
+     * @param string|null $orderDob
+     *
+     * @return array
+     */
+    private function buildWith(?string $customerDoB, ?string $orderDob): array
+    {
+        $this->orderMock = $this->createMock(Order::class);
+        $this->orderMock->method('getCustomerDob')->willReturn($orderDob);
+
+        $addressMock = $this->createMock(Address::class);
+        $addressMock->method('getFirstname')->willReturn('Albina');
+        $addressMock->method('getLastname')->willReturn('Baraliu');
+        $this->orderMock->method('getBillingAddress')->willReturn($addressMock);
+
         $this->paymentMock = $this->createMock(InfoInterface::class);
         $this->paymentMock->method('getAdditionalInformation')
             ->willReturnMap([
@@ -124,21 +133,7 @@ class AbstractRecipientDataBuilderTest extends AbstractDataBuilderTest
                 ['customer_DoB', $customerDoB],
             ]);
 
-        $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
-
-        $this->assertSame('31-12-1990', $result['recipient']['birthDate']);
-    }
-
-    /**
-     * @return array
-     */
-    public static function usableBirthDateProvider(): array
-    {
-        return [
-            'slashes' => ['31/12/1990'],
-            'dashes'  => ['31-12-1990'],
-            'dots'    => ['31.12.1990'],
-        ];
+        return $this->builder->build(['payment' => $this->getPaymentDOMock()]);
     }
 
     /**

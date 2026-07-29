@@ -40,23 +40,10 @@ class BirthDateFormatterTest extends TestCase
     /**
      * Every separator the checkout accepts (and the datetime string Magento stores
      * on the order) must produce the same day-month-year output.
-     *
-     * @dataProvider parsableDateProvider
-     *
-     * @param string $raw
-     * @param string $expected
      */
-    public function testFormatParsesEverySeparatorTheCheckoutAccepts(string $raw, string $expected): void
+    public function testFormatParsesEverySeparatorTheCheckoutAccepts(): void
     {
-        $this->assertSame($expected, $this->getFormatter()->format($raw));
-    }
-
-    /**
-     * @return array
-     */
-    public static function parsableDateProvider(): array
-    {
-        return [
+        $cases = [
             'slashes (checkout default)'   => ['31/12/1990', '31-12-1990'],
             'dashes'                       => ['31-12-1990', '31-12-1990'],
             'dots (accepted since v2.5.1)' => ['31.12.1990', '31-12-1990'],
@@ -65,6 +52,10 @@ class BirthDateFormatterTest extends TestCase
             'order customer_dob datetime'  => ['1990-01-01 00:00:00', '01-01-1990'],
             'surrounding whitespace'       => ['  31/12/1990  ', '31-12-1990'],
         ];
+
+        foreach ($cases as $label => [$raw, $expected]) {
+            $this->assertSame($expected, $this->getFormatter()->format($raw), $label);
+        }
     }
 
     /**
@@ -78,29 +69,21 @@ class BirthDateFormatterTest extends TestCase
     /**
      * These are the inputs that used to reach date() as `false` and throw
      * "TypeError: date(): Argument #2 ($timestamp) must be of type ?int, false given".
-     *
-     * @dataProvider unusableDateProvider
-     *
-     * @param string|null $raw
      */
-    public function testFormatReturnsNullInsteadOfThrowingOnUnusableInput(?string $raw): void
+    public function testFormatReturnsNullInsteadOfThrowingOnUnusableInput(): void
     {
-        $this->assertNull($this->getFormatter()->format($raw));
-    }
-
-    /**
-     * @return array
-     */
-    public static function unusableDateProvider(): array
-    {
-        return [
-            'null'                     => [null],
-            'empty string'             => [''],
-            'whitespace only'          => ['   '],
-            'month out of range (US)'  => ['12/31/1990'],
-            'day out of range'         => ['32/01/1990'],
-            'not a date at all'        => ['DD-MM-YYYY'],
+        $cases = [
+            'null'                     => null,
+            'empty string'             => '',
+            'whitespace only'          => '   ',
+            'month out of range (US)'  => '12/31/1990',
+            'day out of range'         => '32/01/1990',
+            'not a date at all'        => 'DD-MM-YYYY',
         ];
+
+        foreach ($cases as $label => $raw) {
+            $this->assertNull($this->getFormatter()->format($raw), $label);
+        }
     }
 
     /**
