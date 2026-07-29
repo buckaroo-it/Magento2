@@ -69,6 +69,8 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'paymentRepository' => $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class),
             'invoiceRepository' => $this->createMock(\Magento\Sales\Api\InvoiceRepositoryInterface::class),
             'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
+            'transactionRepository' => $this->createMock(\Magento\Sales\Api\TransactionRepositoryInterface::class),
+            'searchCriteriaBuilder' => $this->createMock(\Magento\Framework\Api\SearchCriteriaBuilder::class),
         ] + $args);
     }
 

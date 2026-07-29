@@ -46,6 +46,7 @@ use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
@@ -54,6 +55,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
@@ -192,6 +194,16 @@ class DefaultProcessor implements PushProcessorInterface
     protected $groupTransactionResource;
 
     /**
+     * @var TransactionRepositoryInterface
+     */
+    protected $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -212,6 +224,8 @@ class DefaultProcessor implements PushProcessorInterface
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
+     * @param TransactionRepositoryInterface|null $transactionRepository
+     * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -232,7 +246,9 @@ class DefaultProcessor implements PushProcessorInterface
         ?OrderRepositoryInterface                                $orderRepository = null,
         ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
         ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
+        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null,
+        ?TransactionRepositoryInterface                          $transactionRepository = null,
+        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -257,6 +273,10 @@ class DefaultProcessor implements PushProcessorInterface
             ?: ObjectManager::getInstance()->get(InvoiceRepositoryInterface::class);
         $this->groupTransactionResource = $groupTransactionResource
             ?: ObjectManager::getInstance()->get(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class);
+        $this->transactionRepository = $transactionRepository
+            ?: ObjectManager::getInstance()->get(TransactionRepositoryInterface::class);
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder
+            ?: ObjectManager::getInstance()->get(SearchCriteriaBuilder::class);
     }
 
     /**
@@ -910,21 +930,22 @@ class DefaultProcessor implements PushProcessorInterface
         // 6. Delete ALL existing transactions to start fresh
         // This prevents circular references and stale transaction states
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $tableName = $this->resourceConnection->getTableName('sales_payment_transaction');
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('order_id', $this->order->getId())
+                ->create();
+            $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
-            $deleted = $connection->delete(
-                $tableName,
-                ['order_id = ?' => $this->order->getId()]
-            );
+            foreach ($transactions as $orderTransaction) {
+                $this->transactionRepository->delete($orderTransaction);
+            }
 
-            if ($deleted > 0) {
+            if (count($transactions) > 0) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - Order %s: Deleted %d transaction(s) to prevent circular references',
                     __METHOD__,
                     __LINE__,
                     $orderNumber,
-                    $deleted
+                    count($transactions)
                 ));
             }
 
