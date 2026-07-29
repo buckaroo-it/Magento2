@@ -1656,8 +1656,8 @@ class DefaultProcessor implements PushProcessorInterface
                 var_export($this->payment->getMethod(), true)
             ));
 
+            // Persisted by the updateOrderStatus save that follows in processSucceededPush
             $this->order->setState(Order::STATE_PROCESSING);
-            $this->order->save();
         }
     }
 

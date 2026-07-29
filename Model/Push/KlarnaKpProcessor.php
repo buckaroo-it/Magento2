@@ -453,8 +453,8 @@ class KlarnaKpProcessor extends DefaultProcessor
 
             // Only set to processing if not already canceled (the canUpdateOrderStatus will handle canceled->new transition)
             if ($this->order->getState() !== Order::STATE_CANCELED) {
+                // Persisted by the updateOrderStatus save that follows in processSucceededPush
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->orderRepository->save($this->order);
             }
         }
     }
