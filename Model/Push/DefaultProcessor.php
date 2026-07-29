@@ -1230,8 +1230,8 @@ class DefaultProcessor implements PushProcessorInterface
     protected function setOrderStatusMessage(): void
     {
         if (!empty($this->pushRequest->getStatusMessage())) {
-            // Refresh order state to get the most current state
-            $this->order = $this->order->load($this->order->getId());
+            // Refresh the shared order instance in place
+            $this->orderRequestService->loadOrder();
 
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
