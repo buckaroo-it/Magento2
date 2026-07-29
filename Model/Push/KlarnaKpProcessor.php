@@ -77,6 +77,8 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param GroupTransaction|null $groupTransactionResource
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -98,7 +100,9 @@ class KlarnaKpProcessor extends DefaultProcessor
         ?OrderRepositoryInterface        $orderRepository = null,
         ?OrderPaymentRepositoryInterface $paymentRepository = null,
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        ?GroupTransaction                $groupTransactionResource = null,
+        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -118,7 +122,9 @@ class KlarnaKpProcessor extends DefaultProcessor
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder
         );
         $this->klarnakpConfig = $klarnakpConfig;
         $this->escaper = $escaper;
