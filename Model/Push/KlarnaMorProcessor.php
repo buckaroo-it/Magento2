@@ -66,6 +66,9 @@ class KlarnaMorProcessor extends DefaultProcessor
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param GroupTransaction|null $groupTransactionResource
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -85,7 +88,10 @@ class KlarnaMorProcessor extends DefaultProcessor
         ?OrderRepositoryInterface        $orderRepository = null,
         ?OrderPaymentRepositoryInterface $paymentRepository = null,
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        ?GroupTransaction                $groupTransactionResource = null,
+        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -105,7 +111,10 @@ class KlarnaMorProcessor extends DefaultProcessor
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement
         );
     }
 
@@ -386,8 +395,8 @@ class KlarnaMorProcessor extends DefaultProcessor
             ));
 
             if ($this->order->getState() !== Order::STATE_CANCELED) {
+                // Persisted by the updateOrderStatus save that follows in processSucceededPush
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->orderRepository->save($this->order);
             }
         }
     }

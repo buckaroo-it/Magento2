@@ -46,14 +46,17 @@ use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
@@ -192,6 +195,21 @@ class DefaultProcessor implements PushProcessorInterface
     protected $groupTransactionResource;
 
     /**
+     * @var TransactionRepositoryInterface
+     */
+    protected $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var OrderManagementInterface
+     */
+    protected $orderManagement;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -212,6 +230,9 @@ class DefaultProcessor implements PushProcessorInterface
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
+     * @param TransactionRepositoryInterface|null $transactionRepository
+     * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -232,7 +253,10 @@ class DefaultProcessor implements PushProcessorInterface
         ?OrderRepositoryInterface                                $orderRepository = null,
         ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
         ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
+        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null,
+        ?TransactionRepositoryInterface                          $transactionRepository = null,
+        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null,
+        ?OrderManagementInterface                                $orderManagement = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -248,15 +272,34 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
-        $this->currencyFactory = $currencyFactory ?: ObjectManager::getInstance()->get(CurrencyFactory::class);
-        $this->orderRepository = $orderRepository
-            ?: ObjectManager::getInstance()->get(OrderRepositoryInterface::class);
-        $this->paymentRepository = $paymentRepository
-            ?: ObjectManager::getInstance()->get(OrderPaymentRepositoryInterface::class);
-        $this->invoiceRepository = $invoiceRepository
-            ?: ObjectManager::getInstance()->get(InvoiceRepositoryInterface::class);
-        $this->groupTransactionResource = $groupTransactionResource
-            ?: ObjectManager::getInstance()->get(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class);
+        $this->currencyFactory = $this->resolveDependency($currencyFactory, CurrencyFactory::class);
+        $this->orderRepository = $this->resolveDependency($orderRepository, OrderRepositoryInterface::class);
+        $this->paymentRepository = $this->resolveDependency($paymentRepository, OrderPaymentRepositoryInterface::class);
+        $this->invoiceRepository = $this->resolveDependency($invoiceRepository, InvoiceRepositoryInterface::class);
+        $this->groupTransactionResource = $this->resolveDependency(
+            $groupTransactionResource,
+            \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class
+        );
+        $this->transactionRepository = $this->resolveDependency(
+            $transactionRepository,
+            TransactionRepositoryInterface::class
+        );
+        $this->searchCriteriaBuilder = $this->resolveDependency($searchCriteriaBuilder, SearchCriteriaBuilder::class);
+        $this->orderManagement = $this->resolveDependency($orderManagement, OrderManagementInterface::class);
+    }
+
+    /**
+     * BC fallback for constructor deps added after the initial release; subclasses
+     * forward them positionally, so DI cannot fill parent-only params. Removed when
+     * the Phase 4.4 constructor cleanup makes them required.
+     *
+     * @param object|null $dependency
+     * @param class-string $class
+     * @return object
+     */
+    private function resolveDependency(?object $dependency, string $class): object
+    {
+        return $dependency ?: ObjectManager::getInstance()->get($class);
     }
 
     /**
@@ -910,21 +953,22 @@ class DefaultProcessor implements PushProcessorInterface
         // 6. Delete ALL existing transactions to start fresh
         // This prevents circular references and stale transaction states
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $tableName = $this->resourceConnection->getTableName('sales_payment_transaction');
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('order_id', $this->order->getId())
+                ->create();
+            $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
-            $deleted = $connection->delete(
-                $tableName,
-                ['order_id = ?' => $this->order->getId()]
-            );
+            foreach ($transactions as $orderTransaction) {
+                $this->transactionRepository->delete($orderTransaction);
+            }
 
-            if ($deleted > 0) {
+            if (count($transactions) > 0) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - Order %s: Deleted %d transaction(s) to prevent circular references',
                     __METHOD__,
                     __LINE__,
                     $orderNumber,
-                    $deleted
+                    count($transactions)
                 ));
             }
 
@@ -1186,8 +1230,8 @@ class DefaultProcessor implements PushProcessorInterface
     protected function setOrderStatusMessage(): void
     {
         if (!empty($this->pushRequest->getStatusMessage())) {
-            // Refresh order state to get the most current state
-            $this->order = $this->order->load($this->order->getId());
+            // Refresh the shared order instance in place
+            $this->orderRequestService->loadOrder();
 
             if ($this->order->getState() === Order::STATE_NEW
                 && empty($this->pushRequest->getRelatedtransactionPartialpayment())
@@ -1612,8 +1656,8 @@ class DefaultProcessor implements PushProcessorInterface
                 var_export($this->payment->getMethod(), true)
             ));
 
+            // Persisted by the updateOrderStatus save that follows in processSucceededPush
             $this->order->setState(Order::STATE_PROCESSING);
-            $this->order->save();
         }
     }
 
@@ -1944,9 +1988,6 @@ class DefaultProcessor implements PushProcessorInterface
                 $message
             ));
 
-            // Add a clear cancellation message to order history before canceling
-            $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
-
             // setting parameter which will cause to stop the cancel process on
             $methods = [
                 'buckaroo_magento2_afterpay',
@@ -1973,13 +2014,30 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 try {
-                    $this->order->cancel()->save();
+                    if (!$this->orderManagement->cancel((int)$this->order->getId())) {
+                        $this->logger->addDebug(sprintf(
+                            '[%s:%s] - Order %s could not be canceled through OrderManagement',
+                            __METHOD__,
+                            __LINE__,
+                            $this->order->getIncrementId()
+                        ));
+                    }
                 } finally {
                     // Restore the original flag value to avoid side effects
                     if ($originalRequestOnVoid !== null) {
                         $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
                     }
                 }
+
+                // OrderManagement cancels and saves its own order instance; reload the
+                // shared one so the steps below don't persist pre-cancellation state
+                $this->orderRequestService->loadOrder();
+
+                // On the refreshed instance so it survives the reload; persisted by the
+                // updateOrderStatus save below
+                $this->order->addCommentToStatusHistory(
+                    'Payment failed. Canceling order due to payment failure: ' . $message
+                );
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);

@@ -33,11 +33,14 @@ use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -89,7 +92,10 @@ class AfterpayProcessor extends DefaultProcessor
         ?OrderRepositoryInterface                                $orderRepository = null,
         ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
         ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?GroupTransaction $groupTransactionResource = null
+        ?GroupTransaction                                        $groupTransactionResource = null,
+        ?TransactionRepositoryInterface                          $transactionRepository = null,
+        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null,
+        ?OrderManagementInterface                                $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -109,7 +115,10 @@ class AfterpayProcessor extends DefaultProcessor
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement
         );
         $this->afterpayConfig = $afterpayConfig;
     }

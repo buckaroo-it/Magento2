@@ -42,6 +42,7 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $escaperMock;
     private $orderRepositoryMock;
     private $paymentRepositoryMock;
+    private $orderManagementMock;
 
     public function setUp(): void
     {
@@ -64,6 +65,7 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->escaperMock = $this->getFakeMock('Magento\Framework\Escaper')->getMock();
         $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
         $this->paymentRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class);
+        $this->orderManagementMock = $this->createMock(\Magento\Sales\Api\OrderManagementInterface::class);
 
         // The processor constructor does not receive a CurrencyFactory and falls back to
         // ObjectManager::getInstance(); provide one for the duration of the test.
@@ -106,6 +108,9 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'paymentRepository'     => $this->paymentRepositoryMock,
             'invoiceRepository'     => $this->createMock(\Magento\Sales\Api\InvoiceRepositoryInterface::class),
             'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
+            'transactionRepository' => $this->createMock(\Magento\Sales\Api\TransactionRepositoryInterface::class),
+            'searchCriteriaBuilder' => $this->createMock(\Magento\Framework\Api\SearchCriteriaBuilder::class),
+            'orderManagement'       => $this->orderManagementMock,
         ]);
     }
 
@@ -398,8 +403,10 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $orderMock = $this->preparePushAuthorization($instance, '190', Order::STATE_NEW);
         $orderMock->expects($this->once())->method('setState')->with(Order::STATE_PROCESSING)->willReturnSelf();
+        // No intermediate save: the state is persisted by the updateOrderStatus
+        // save that follows in processSucceededPush (BTI-1238 save consolidation)
         $orderMock->expects($this->never())->method('save');
-        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
+        $this->orderRepositoryMock->expects($this->never())->method('save');
 
         $this->invoke('processSucceededPushAuthorization', $instance);
     }
@@ -512,15 +519,20 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentMock->expects($this->never())->method('save');
         $this->paymentRepositoryMock->expects($this->once())->method('save')->with($paymentMock);
 
-        $orderMock->expects($this->once())
+        $orderMock->method('getId')->willReturn(906);
+        $orderMock->expects($this->never())->method('cancel');
+        $orderMock->expects($this->never())->method('save');
+        $this->orderManagementMock->expects($this->once())
             ->method('cancel')
-            ->willReturnCallback(function () use ($orderMock) {
+            ->with(906)
+            ->willReturnCallback(function () {
                 // The static void-request flag must be off while the order is cancelled,
                 // otherwise cancel() would trigger a void request back to Buckaroo.
                 $this->assertFalse(FakeKlarnaMethodInstance::$requestOnVoid);
-                return $orderMock;
+                return true;
             });
-        $orderMock->expects($this->once())->method('save')->willReturnSelf();
+        // After OrderManagement saved its own instance, the shared one must be refreshed
+        $this->orderRequestServiceMock->expects($this->once())->method('loadOrder');
 
         $this->orderStatusFactoryMock->method('get')->willReturn('buckaroo_cancelled');
         $this->escaperMock->method('escapeHtml')->willReturnArgument(0);

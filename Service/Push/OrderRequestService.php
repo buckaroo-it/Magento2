@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -58,11 +57,6 @@ class OrderRequestService
     private $orderEmailService;
 
     /**
-     * @var ResourceConnection
-     */
-    protected $resourceConnection;
-
-    /**
      * @var KlarnaKpOrderService
      */
     private $klarnaKpOrderService;
@@ -87,7 +81,6 @@ class OrderRequestService
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface $transaction
      * @param OrderEmailService $orderEmailService
-     * @param ResourceConnection $resourceConnection
      * @param KlarnaKpOrderService $klarnaKpOrderService
      * @param KlarnaMorOrderService $klarnaMorOrderService
      * @param OrderCommentHistoryService $orderCommentHistoryService
@@ -98,7 +91,6 @@ class OrderRequestService
         BuckarooLoggerInterface $logger,
         TransactionInterface $transaction,
         OrderEmailService $orderEmailService,
-        ResourceConnection $resourceConnection,
         KlarnaKpOrderService $klarnaKpOrderService,
         KlarnaMorOrderService $klarnaMorOrderService,
         OrderCommentHistoryService $orderCommentHistoryService,
@@ -108,7 +100,6 @@ class OrderRequestService
         $this->logger = $logger;
         $this->transaction = $transaction;
         $this->orderEmailService = $orderEmailService;
-        $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
         $this->klarnaMorOrderService = $klarnaMorOrderService;
         $this->orderCommentHistoryService = $orderCommentHistoryService;
@@ -409,35 +400,6 @@ class OrderRequestService
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
         return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
-    }
-
-    /**
-     * Update the persisted order totals directly in the sales_order table.
-     *
-     * @param Order $order
-     *
-     * @return bool
-     */
-    public function updateTotalOnOrder($order)
-    {
-
-        try {
-            $connection = $this->resourceConnection->getConnection();
-            $connection->update(
-                $connection->getTableName('sales_order'),
-                [
-                    'total_due'       => $order->getTotalDue(),
-                    'base_total_due'  => $order->getBaseTotalDue(),
-                    'total_paid'      => $order->getTotalPaid(),
-                    'base_total_paid' => $order->getBaseTotalPaid(),
-                ],
-                $connection->quoteInto('entity_id = ?', $order->getId())
-            );
-
-            return true;
-        } catch (\Exception $exception) {
-            return false;
-        }
     }
 
     /**

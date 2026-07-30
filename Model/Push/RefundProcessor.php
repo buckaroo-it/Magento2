@@ -71,6 +71,9 @@ class RefundProcessor extends DefaultProcessor
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param GroupTransaction|null $groupTransactionResource
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -91,7 +94,10 @@ class RefundProcessor extends DefaultProcessor
         ?OrderRepositoryInterface        $orderRepository = null,
         ?OrderPaymentRepositoryInterface $paymentRepository = null,
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        ?GroupTransaction                $groupTransactionResource = null,
+        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -111,7 +117,10 @@ class RefundProcessor extends DefaultProcessor
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement
         );
         $this->refundPush = $refundPush;
     }

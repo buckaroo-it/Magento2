@@ -77,6 +77,9 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
      * @param InvoiceRepositoryInterface|null $invoiceRepository
      * @param GroupTransaction|null $groupTransactionResource
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -98,7 +101,10 @@ class KlarnaKpProcessor extends DefaultProcessor
         ?OrderRepositoryInterface        $orderRepository = null,
         ?OrderPaymentRepositoryInterface $paymentRepository = null,
         ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        ?GroupTransaction                $groupTransactionResource = null,
+        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
+        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
+        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -118,7 +124,10 @@ class KlarnaKpProcessor extends DefaultProcessor
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement
         );
         $this->klarnakpConfig = $klarnakpConfig;
         $this->escaper = $escaper;
@@ -202,10 +211,14 @@ class KlarnaKpProcessor extends DefaultProcessor
             $methodInstanceClass::$requestOnVoid = false;
 
             try {
-                $this->order->cancel()->save();
+                $this->orderManagement->cancel((int)$this->order->getId());
             } finally {
                 $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
             }
+
+            // OrderManagement cancels and saves its own order instance; reload the
+            // shared one so updateOrderStatus below doesn't persist pre-cancellation state
+            $this->orderRequestService->loadOrder();
         }
 
         $cancelTrxId = $this->escaper->escapeHtml((string)$this->pushRequest->getDatarequest());
@@ -440,8 +453,8 @@ class KlarnaKpProcessor extends DefaultProcessor
 
             // Only set to processing if not already canceled (the canUpdateOrderStatus will handle canceled->new transition)
             if ($this->order->getState() !== Order::STATE_CANCELED) {
+                // Persisted by the updateOrderStatus save that follows in processSucceededPush
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->orderRepository->save($this->order);
             }
         }
     }
