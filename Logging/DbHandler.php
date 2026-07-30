@@ -22,32 +22,42 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Logging;
 
+use Buckaroo\Magento2\Model\ResourceModel\Log as LogResource;
 use Magento\Framework\Logger\Handler\Base;
 use Monolog\LogRecord;
-use Buckaroo\Magento2\Model\LogFactory;
 
 class DbHandler extends Base
 {
     /**
-     * @var LogFactory
+     * Bounds buffer memory on log-heavy requests; the rest flushes on close()
      */
-    private $logFactory;
+    private const FLUSH_THRESHOLD = 100;
+
+    /**
+     * @var LogResource
+     */
+    private $logResource;
+
+    /**
+     * @var array[]
+     */
+    private $buffer = [];
 
     /**
      * Constructor.
      *
-     * @param LogFactory $logFactory
+     * @param LogResource $logResource
      */
-    public function __construct(LogFactory $logFactory)
+    public function __construct(LogResource $logResource)
     {
-        $this->logFactory = $logFactory;
+        $this->logResource = $logResource;
     }
 
     /**
-     * Accepts either the Monolog 2 array or the Monolog 3 LogRecord object.
+     * Buffer the log record; rows are written in batch to avoid a full ORM
+     * model save per log line. Accepts the Monolog 2 array or Monolog 3 LogRecord.
      *
      * @param mixed $record
-     * @throws \Exception
      */
     public function write(mixed $record): void
     {
@@ -55,21 +65,54 @@ class DbHandler extends Base
             $record = $record->toArray();
         }
 
-        $levelValue = $record['level']   ?? null;
-        $logData    = $record['context'] ?? [];
-        $now        = new \DateTimeImmutable('now');
+        $logData = $record['context'] ?? [];
+        $now     = new \DateTimeImmutable('now');
 
-        $model = $this->logFactory->create();
-        $model->setData([
+        $this->buffer[] = [
             'channel'     => $record['channel'] ?? '',
-            'level'       => $levelValue,
+            'level'       => $record['level'] ?? null,
             'message'     => $record['message'] ?? '',
             'time'        => $now->format('Y-m-d H:i:s'),
             'session_id'  => $logData['sid'] ?? '',
             'customer_id' => $logData['cid'] ?? '',
             'quote_id'    => $logData['qid'] ?? '',
             'order_id'    => $logData['id'] ?? '',
-        ]);
-        $model->save();
+        ];
+
+        if (count($this->buffer) >= self::FLUSH_THRESHOLD) {
+            $this->flush();
+        }
+    }
+
+    /**
+     * Flush remaining buffered records; called by Monolog on shutdown.
+     */
+    public function close(): void
+    {
+        $this->flush();
+    }
+
+    /**
+     * Write buffered rows in a single insert. Logging must never break the
+     * request being logged, so failures fall back to the PHP system log.
+     */
+    private function flush(): void
+    {
+        if ($this->buffer === []) {
+            return;
+        }
+
+        $rows = $this->buffer;
+        $this->buffer = [];
+
+        try {
+            $this->logResource->getConnection()->insertMultiple(
+                $this->logResource->getMainTable(),
+                $rows
+            );
+        } catch (\Throwable $e) {
+            // phpcs:ignore Magento2.Functions.DiscouragedFunction
+            error_log('Buckaroo DbHandler: failed to persist ' . count($rows) . ' log rows: ' . $e->getMessage());
+        }
     }
 }
