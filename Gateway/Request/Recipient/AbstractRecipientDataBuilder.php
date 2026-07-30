@@ -151,8 +151,7 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     }
 
     /**
-     * Returns the birthdate as entered, preferring the checkout DoB field over
-     * the value stored on the order.
+     * Returns the birthdate as entered, preferring the checkout DoB field over the value stored on the order.
      *
      * @return string|null
      */

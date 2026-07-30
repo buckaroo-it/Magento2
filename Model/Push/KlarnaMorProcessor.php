@@ -290,7 +290,6 @@ class KlarnaMorProcessor extends DefaultProcessor
         return false;
     }
 
-
     /**
      * Secondary MOR data requests (extend/update) must not replace the original reservation key.
      *

@@ -34,7 +34,6 @@ class DefaultProcessorPlugin
      */
     protected $configProviderCreditcard;
 
-
     /**
      * @var OrderRepositoryInterface
      */
@@ -161,7 +160,6 @@ class DefaultProcessorPlugin
         do {
             if ($ref->hasProperty($name)) {
                 $prop = $ref->getProperty($name);
-                $prop->setAccessible(true);
                 return $prop->getValue($subject);
             }
             $ref = $ref->getParentClass();
