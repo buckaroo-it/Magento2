@@ -1103,10 +1103,10 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderRequestService->updateOrderStatus(
             Order::STATE_PROCESSING,
             $newStatus,
-            $description,
-            false,
-            $this->dontSaveOrderUponSuccessPush
+            $description
         );
+        // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }
@@ -1573,10 +1573,10 @@ class DefaultProcessor implements PushProcessorInterface
             $this->orderRequestService->updateOrderStatus(
                 Order::STATE_PROCESSING,
                 $newStatus,
-                $description,
-                false,
-                $this->dontSaveOrderUponSuccessPush
+                $description
             );
+            // updateOrderStatus persisted the order; skip the final save in processPush
+            $this->dontSaveOrderUponSuccessPush = true;
             $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_COMPLETE', __METHOD__, __LINE__));
             return true;
         }
@@ -1601,9 +1601,10 @@ class DefaultProcessor implements PushProcessorInterface
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
             $paymentDetails['description'],
-            $paymentDetails['forceState'],
-            $this->dontSaveOrderUponSuccessPush
+            $paymentDetails['forceState']
         );
+        // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }

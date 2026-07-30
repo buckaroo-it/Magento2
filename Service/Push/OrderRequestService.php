@@ -314,22 +314,22 @@ class OrderRequestService
     }
 
     /**
-     * Updates the order state and add a comment.
+     * Updates the order state and status, adds the comment and saves the order once.
      *
      * @param string $orderState
      * @param string $newStatus
      * @param string $description
      * @param bool   $force
-     * @param bool   $dontSaveOrderUponSuccessPush
      *
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function updateOrderStatus(
         string $orderState,
         string $newStatus,
         string $description,
-        bool $force = false,
-        bool $dontSaveOrderUponSuccessPush = false
+        bool $force = false
     ): void {
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
@@ -344,26 +344,8 @@ class OrderRequestService
 
         // Always set the order state - this is crucial for admin dropdown
         $this->order->setState($orderState);
-
-        if ($this->order->getState() == $orderState || $force) {
-            if ($dontSaveOrderUponSuccessPush) {
-                $this->order->setStatus($newStatus);
-                $this->order->addCommentToStatusHistory($description)
-                    ->setIsCustomerNotified(false)
-                    ->setStatus($newStatus);
-                $this->orderRepository->save($this->order);
-            } else {
-                $this->order->addCommentToStatusHistory($description, $newStatus);
-                $this->orderRepository->save($this->order);
-            }
-        } else {
-            if ($dontSaveOrderUponSuccessPush) {
-                $this->orderCommentHistoryService->add($this->order, $description);
-            } else {
-                $this->order->addCommentToStatusHistory($description);
-                $this->orderRepository->save($this->order);
-            }
-        }
+        $this->order->addCommentToStatusHistory($description, $newStatus);
+        $this->orderRepository->save($this->order);
 
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Order state and status updated successfully | finalState: %s | finalStatus: %s',
