@@ -50,24 +50,24 @@ class AfterpayProcessor extends DefaultProcessor
     private $afterpayConfig;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
-     * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param Afterpay20              $afterpayConfig
-     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderRequestService                  $orderRequestService
+     * @param PushTransactionType                  $pushTransactionType
+     * @param BuckarooLoggerInterface              $logger
+     * @param Data                                 $helper
+     * @param TransactionInterface                 $transaction
+     * @param PaymentGroupTransaction              $groupTransaction
+     * @param BuckarooStatusCode                   $buckarooStatusCode
+     * @param OrderStatusFactory                   $orderStatusFactory
+     * @param Account                              $configAccount
+     * @param GiftCardRefundService                $giftCardRefundService
+     * @param Uncancel                             $uncancelService
+     * @param ResourceConnection                   $resourceConnection
+     * @param GiftcardCollection                   $giftcardCollection
+     * @param Afterpay20                           $afterpayConfig
+     * @param OrderRepositoryInterface|null        $orderRepository
      * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param GroupTransaction|null $groupTransactionResource
+     * @param InvoiceRepositoryInterface|null      $invoiceRepository
+     * @param GroupTransaction|null                $groupTransactionResource
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
