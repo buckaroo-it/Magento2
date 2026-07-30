@@ -73,4 +73,3 @@ class GaTrackingInfo extends Field
         return $this->_toHtml();
     }
 }
-

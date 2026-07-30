@@ -107,8 +107,7 @@ class BirthDateFormatter
     }
 
     /**
-     * Format a birthdate, falling back to the placeholder date when the value is
-     * absent or unparsable.
+     * Format a birthdate, falling back to the placeholder date when the value is absent or unparsable.
      *
      * @param string|null $rawDate
      * @param string      $format

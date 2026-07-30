@@ -29,11 +29,15 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -60,6 +64,10 @@ class AfterpayProcessor extends DefaultProcessor
      * @param ResourceConnection      $resourceConnection
      * @param GiftcardCollection      $giftcardCollection
      * @param Afterpay20              $afterpayConfig
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -68,20 +76,20 @@ class AfterpayProcessor extends DefaultProcessor
         PushTransactionType     $pushTransactionType,
         BuckarooLoggerInterface $logger,
         Data                    $helper,
-        TransactionInterface    $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode      $buckarooStatusCode,
-        OrderStatusFactory      $orderStatusFactory,
-        Account                 $configAccount,
-        GiftCardRefundService   $giftCardRefundService,
-        Uncancel                $uncancelService,
-        ResourceConnection      $resourceConnection,
-        GiftcardCollection      $giftcardCollection,
-        Afterpay20              $afterpayConfig,
-        ?\Magento\Sales\Api\OrderRepositoryInterface $orderRepository = null,
-        ?\Magento\Sales\Api\OrderPaymentRepositoryInterface $paymentRepository = null,
-        ?\Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository = null,
-        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
+        TransactionInterface                                     $transaction,
+        PaymentGroupTransaction                                  $groupTransaction,
+        BuckarooStatusCode                                       $buckarooStatusCode,
+        OrderStatusFactory                                       $orderStatusFactory,
+        Account                                                  $configAccount,
+        GiftCardRefundService                                    $giftCardRefundService,
+        Uncancel                                                 $uncancelService,
+        ResourceConnection                                       $resourceConnection,
+        GiftcardCollection                                       $giftcardCollection,
+        Afterpay20                                               $afterpayConfig,
+        ?OrderRepositoryInterface                                $orderRepository = null,
+        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
+        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
+        ?GroupTransaction $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
