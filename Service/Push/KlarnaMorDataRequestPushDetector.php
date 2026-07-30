@@ -57,6 +57,8 @@ class KlarnaMorDataRequestPushDetector
     }
 
     /**
+     * Determine whether the push was initiated by Magento itself.
+     *
      * @param PushRequestInterface $pushRequest
      *
      * @return bool
@@ -75,6 +77,8 @@ class KlarnaMorDataRequestPushDetector
     }
 
     /**
+     * Determine whether the push originates from a Klarna payment method.
+     *
      * @param PushRequestInterface $pushRequest
      *
      * @return bool
@@ -97,6 +101,8 @@ class KlarnaMorDataRequestPushDetector
     }
 
     /**
+     * Retrieve a scalar value from the push request by property name.
+     *
      * @param PushRequestInterface $pushRequest
      * @param string               $property
      *

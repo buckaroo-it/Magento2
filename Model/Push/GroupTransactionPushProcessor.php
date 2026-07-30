@@ -92,7 +92,6 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     private $defaultProcessor;
 
-
     /**
      * @var OrderCommentHistoryService
      */

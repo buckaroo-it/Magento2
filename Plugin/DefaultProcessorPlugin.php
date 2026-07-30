@@ -34,7 +34,6 @@ class DefaultProcessorPlugin
      */
     protected $configProviderCreditcard;
 
-
     /**
      * @var OrderRepositoryInterface
      */
