@@ -567,7 +567,6 @@ class PayPerEmailProcessor extends DefaultProcessor
             $this->payment->registerCaptureNotification($amount);
             $this->order->setState('complete');
             $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
-            $this->orderRepository->save($this->order);
 
             if ($transactionKey = $this->getTransactionKey()) {
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
