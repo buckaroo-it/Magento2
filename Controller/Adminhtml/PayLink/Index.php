@@ -108,7 +108,6 @@ class Index extends Action implements HttpGetActionInterface
         $payment = $order->getPayment();
         $currentPayment = $payment->getMethod();
         $payment->setMethod('buckaroo_magento2_payperemail');
-        $payment->save();
         $order->save();
 
         try {
@@ -132,8 +131,7 @@ class Index extends Action implements HttpGetActionInterface
         } finally {
             $payment = $order->getPayment();
             $payment->setMethod($currentPayment);
-            $payment->save();
-            $order->save();
+            $this->orderRepository->save($order);
         }
 
         $redirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

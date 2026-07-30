@@ -43,7 +43,7 @@ class CreditManagmentProcessor extends DefaultProcessor
         $canInvoice = ($this->order->canInvoice() && !$this->order->hasInvoices());
 
         $amount = floatval($this->pushRequest->getAmountDebit());
-        $amount = $this->order->getBaseCurrency()->formatTxt($amount);
+        $amount = $this->formatCommentAmount($amount);
         $statusMessage = 'Payment push status : Creditmanagement invoice with a total amount of '
             . $amount . ' has been paid';
 

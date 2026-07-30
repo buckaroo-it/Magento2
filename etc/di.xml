@@ -345,6 +345,10 @@
                     <item name="type" xsi:type="string">googlepay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay</item>
                 </item>
+                <item name="clicktopay" xsi:type="array">
+                    <item name="type" xsi:type="string">clicktopay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay</item>
+                </item>
                 <item name="capayablein3" xsi:type="array">
                     <item name="type" xsi:type="string">capayablein3</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3</item>
@@ -801,6 +805,16 @@
     <virtualType name="AdditionalParametersCancelReservationDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
         <arguments>
             <argument name="action" xsi:type="string">cancelreservation</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AdditionalParametersExtendReservationDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">extendreservation</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="AdditionalParametersUpdateReservationDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
+        <arguments>
+            <argument name="action" xsi:type="string">updatereservation</argument>
         </arguments>
     </virtualType>
     <virtualType name="AdditionalParametersPayPerEmailDataBuilder" type="Buckaroo\Magento2\Gateway\Request\BasicParameter\AdditionalParametersDataBuilder">
@@ -1283,7 +1297,7 @@
         <arguments>
             <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal::CODE</argument>
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
-            <argument name="infoBlockType" xsi:type="string">IdealAdminInfo</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
             <argument name="valueHandlerPool" xsi:type="object">IdealValueHandlerPool</argument>
             <argument name="validatorPool" xsi:type="object">IdealValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">IdealCommandPool</argument>
@@ -1304,6 +1318,9 @@
             <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
         </arguments>
     </virtualType>
+    <!-- Deprecated: no longer used as iDEAL infoBlockType; all methods share
+         Buckaroo\Magento2\Block\Info. Kept for backward compatibility with
+         third-party references and scheduled for removal in a future release. -->
     <virtualType name="IdealAdminInfo" type="Buckaroo\Magento2\Block\AdminInfo">
         <arguments>
             <argument name="config" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal</argument>
@@ -1441,6 +1458,7 @@
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerKlarnaDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <!-- Override BuckarooOrderRequest's "pay" action so the redirect returns service_action_from_magento=reserve -->
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
             </argument>
@@ -1507,6 +1525,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
@@ -1516,6 +1535,7 @@
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DataRequestKeyDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1545,6 +1565,7 @@
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersCancelReservationDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\DataRequestKeyDataBuilder</item>
                 <item name="invoice" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\InvoiceDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1567,6 +1588,9 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\UpdateReservationDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersUpdateReservationDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1578,9 +1602,16 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaExtendReservationRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionExtendReserve</argument>
-            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="handler" xsi:type="object">KlarnaExtendReservationResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="KlarnaExtendReservationResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="extend_reservation_push_key" xsi:type="string">Buckaroo\Magento2\Gateway\Response\ExtendReservationPushKeyHandler</item>
+            </argument>
         </arguments>
     </virtualType>
     <virtualType name="KlarnaExtendReservationRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
@@ -1589,6 +1620,9 @@
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="datarequest_key" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ExtendReservationDataBuilder</item>
+                <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
+                <item name="additional_parameters" xsi:type="string">AdditionalParametersExtendReservationDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
             </argument>
         </arguments>
     </virtualType>
@@ -1737,6 +1771,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
+                <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
                 <item name="description" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\DescriptionDataBuilder</item>
                 <item name="client_ip" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder</item>
                 <item name="return_url" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder</item>
@@ -2640,7 +2675,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\BillingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\AfterpayBillingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\PhoneLandlineDataBuilder</item>
                 <item name="email" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\EmailAddressDataBuilder</item>
             </argument>
@@ -2651,7 +2686,7 @@
         <arguments>
             <argument name="builders" xsi:type="array">
                 <item name="recipient" xsi:type="string">AfterpayShippingRecipientDataBuilder</item>
-                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\ShippingAddressDataBuilder</item>
+                <item name="address" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Address\AfterpayShippingAddressDataBuilder</item>
                 <item name="phone" xsi:type="string">PhoneLandlineShippingDataBuilder</item>
                 <item name="email" xsi:type="string">EmailAddressShippingDataBuilder</item>
             </argument>
@@ -2975,6 +3010,68 @@
     <!-- END Apple Pay Order Command -->
     <!-- END Apple Pay Commands infrastructure -->
     <!-- END Payment Method: Apple Pay -->
+
+    <!-- Payment Method: Click to Pay -->
+    <virtualType name="ClicktopayFacade" type="Buckaroo\Magento2\Model\Method\BuckarooAdapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">ClicktopayValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">BuckarooValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">ClicktopayGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <!-- Click to Pay Value handlers infrastructure -->
+    <virtualType name="ClicktopayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">ClicktopayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Configuration reader -->
+    <virtualType name="ClicktopayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay</argument>
+        </arguments>
+    </virtualType>
+    <!-- END Click to Pay Value handlers infrastructure -->
+
+    <!-- Click to Pay Commands infrastructure -->
+    <virtualType name="ClicktopayGatewayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="order" xsi:type="string">ClicktopayOrderCommand</item>
+                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Click to Pay Order Command -->
+    <virtualType name="ClicktopayOrderCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">ClicktopayOrderRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
+            <argument name="client" xsi:type="object">TransactionPay</argument>
+            <argument name="handler" xsi:type="object">OrderResponseHandler</argument>
+            <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Click to Pay Order Command - Request Builder -->
+    <virtualType name="ClicktopayOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
+                <item name="clicktopay" xsi:type="string">Buckaroo\Magento2\Gateway\Request\AdditionalInformation\ClicktopayDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Click to Pay Order Command -->
+    <!-- END Click to Pay Commands infrastructure -->
+    <!-- END Payment Method: Click to Pay -->
 
     <!-- Payment Method: Google Pay-->
     <!-- Googlepay Payment Method Facade configuration -->
@@ -4305,6 +4402,10 @@
                 <item name="googlepay" xsi:type="array">
                     <item name="type" xsi:type="string">googlepay</item>
                     <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay</item>
+                </item>
+                <item name="clicktopay" xsi:type="array">
+                    <item name="type" xsi:type="string">clicktopay</item>
+                    <item name="model" xsi:type="string">Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay</item>
                 </item>
                 <item name="capayablein3" xsi:type="array">
                     <item name="type" xsi:type="string">capayablein3</item>

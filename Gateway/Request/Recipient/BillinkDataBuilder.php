@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Config\Source\BillinkCustomerType;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote\AddressFactory;
@@ -49,11 +50,17 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
      * @param Data                 $helper
      * @param ScopeConfigInterface $scopeConfig
      * @param AddressFactory       $addressFactory
+     * @param BirthDateFormatter   $birthDateFormatter
      * @param string               $addressType
      */
-    public function __construct(Data $helper, ScopeConfigInterface $scopeConfig, AddressFactory $addressFactory, string $addressType = 'billing')
-    {
-        parent::__construct($addressType);
+    public function __construct(
+        Data $helper,
+        ScopeConfigInterface $scopeConfig,
+        AddressFactory $addressFactory,
+        BirthDateFormatter $birthDateFormatter,
+        string $addressType = 'billing'
+    ) {
+        parent::__construct($birthDateFormatter, $addressType);
         $this->scopeConfig = $scopeConfig;
         $this->helper = $helper;
         $this->addressFactory = $addressFactory;
@@ -73,8 +80,14 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
             'initials'  => $this->getInitials(),
             'firstName' => $this->getFirstname(),
             'lastName'  => $this->getLastName(),
-            'birthDate' => $this->getBirthDate()
         ];
+
+        // Only include birthDate when Magento already has one (checkout no longer
+        // collects it). Omitting it lets Billink One request DOB on the hosted page.
+        $birthDate = $this->getBirthDate();
+        if ($birthDate !== null) {
+            $data['birthDate'] = $birthDate;
+        }
 
         if ($category == 'B2B') {
             $data['chamberOfCommerce'] = $this->getChamberOfCommerce();
@@ -84,31 +97,21 @@ class BillinkDataBuilder extends AbstractRecipientDataBuilder
     }
 
     /**
-     * Returns the birthdate of the customer
+     * Returns the birthdate of the customer, or null when Magento has none.
      *
-     * @return false|string
+     * Billink checkout no longer collects DOB. When Magento already has a
+     * customer date of birth (account / order), it is sent so Billink One
+     * does not ask again. When absent, birthDate is omitted and Billink One
+     * collects it on the hosted payment page.
+     *
+     * @return string|null
      */
-    protected function getBirthDate()
+    protected function getBirthDate(): ?string
     {
-        $customerDoB = (string)$this->payment->getAdditionalInformation('customer_DoB');
-        if (empty($customerDoB)) {
-            $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
-        }
-
-        if (!is_string($customerDoB) || strlen(trim($customerDoB)) === 0) {
-            return null;
-        }
-
-        $birthDayStamp = date(
-            $this->getFormatDate(),
-            strtotime(str_replace('/', '-', $customerDoB))
+        return $this->birthDateFormatter->format(
+            $this->getRawBirthDate(),
+            $this->getFormatDate()
         );
-
-        if ($birthDayStamp === false) {
-            return null;
-        }
-
-        return $birthDayStamp;
     }
 
     /**

@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * Handles saving the DataRequest key from the Klarna MOR Reserve response.
@@ -40,11 +41,18 @@ class DataRequestKeyHandler implements HandlerInterface
     private BuckarooLoggerInterface $logger;
 
     /**
-     * @param BuckarooLoggerInterface $logger
+     * @var OrderRepositoryInterface
      */
-    public function __construct(BuckarooLoggerInterface $logger)
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @param BuckarooLoggerInterface  $logger
+     * @param OrderRepositoryInterface $orderRepository
+     */
+    public function __construct(BuckarooLoggerInterface $logger, OrderRepositoryInterface $orderRepository)
     {
         $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -98,7 +106,7 @@ class DataRequestKeyHandler implements HandlerInterface
             $dataRequestKey = $serviceParameters['klarna_datarequestkey'];
             $order->setBuckarooDatarequestKey($dataRequestKey);
             $payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
-            $order->save();
+            $this->orderRepository->save($order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_MOR] | [%s:%s] - Successfully saved DataRequest key for order %s: %s',

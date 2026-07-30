@@ -51,6 +51,9 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -148,22 +151,39 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected $spamLimitService;
 
     /**
-     * @param Context                     $context
-     * @param BuckarooLoggerInterface     $logger
-     * @param Quote                       $quote
-     * @param AccountConfig               $accountConfig
-     * @param OrderRequestService         $orderRequestService
-     * @param OrderStatusFactory          $orderStatusFactory
-     * @param CheckoutSession             $checkoutSession
-     * @param CustomerSession             $customerSession
+     * @var OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $cartRepository;
+
+    /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    protected $paymentRepository;
+
+    /**
+     * @param Context $context
+     * @param BuckarooLoggerInterface $logger
+     * @param Quote $quote
+     * @param AccountConfig $accountConfig
+     * @param OrderRequestService $orderRequestService
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param CheckoutSession $checkoutSession
+     * @param CustomerSession $customerSession
      * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderService                $orderService
-     * @param ManagerInterface            $eventManager
-     * @param Recreate                    $quoteRecreate
-     * @param RequestPushFactory          $requestPushFactory
-     * @param LockManagerWrapper          $lockManager
-     * @param SpamLimitService            $spamLimitService
-     *
+     * @param OrderService $orderService
+     * @param ManagerInterface $eventManager
+     * @param Recreate $quoteRecreate
+     * @param RequestPushFactory $requestPushFactory
+     * @param LockManagerWrapper $lockManager
+     * @param SpamLimitService $spamLimitService
+     * @param OrderRepositoryInterface $orderRepository
+     * @param CartRepositoryInterface $cartRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -181,9 +201,15 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         Recreate $quoteRecreate,
         RequestPushFactory $requestPushFactory,
         LockManagerWrapper $lockManager,
-        SpamLimitService $spamLimitService
+        SpamLimitService $spamLimitService,
+        OrderRepositoryInterface $orderRepository,
+        CartRepositoryInterface $cartRepository,
+        OrderPaymentRepositoryInterface $paymentRepository
     ) {
         parent::__construct($context);
+        $this->orderRepository = $orderRepository;
+        $this->cartRepository = $cartRepository;
+        $this->paymentRepository = $paymentRepository;
         $this->logger = $logger;
         $this->orderRequestService = $orderRequestService;
         $this->orderStatusFactory = $orderStatusFactory;
@@ -492,7 +518,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         ) {
             $this->order->setBuckarooDatarequestKey($klarnaMorDataRequestKey);
             $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $klarnaMorDataRequestKey);
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_MOR] | [REDIRECT] | [%s:%s] - Saved DataRequest key for order %s: %s',
@@ -510,7 +536,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         if (empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve) {
             $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
             $this->order->setBuckarooReservationNumber($reservationNumber);
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',
@@ -678,7 +704,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                     var_export($pendingStatus, true),
                 ));
                 $this->order->setStatus($pendingStatus);
-                $this->order->save();
+                $this->orderRepository->save($this->order);
             }
         }
 
@@ -888,7 +914,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 false,
                 false
             );
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
         } else {
             // For actual failures OR if config says to cancel on browser back, cancel the order as before
@@ -1155,7 +1181,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         try {
             $quote->setIsActive(true);
             $quote->collectTotals();
-            $quote->save();
+            $this->cartRepository->save($quote);
 
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());

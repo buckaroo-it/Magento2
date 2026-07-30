@@ -317,18 +317,15 @@ class KlarnaKpHandlerTest extends TestCase
 
         // Quote mock — getGiftCardsAmount / getRewardCurrencyAmount are Adobe Commerce methods
         // absent on CE, so they must be added via addMethods().
-        $quote = $this->getMockBuilder(Quote::class)
+        $quote = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->addMethods(['getGiftCardsAmount', 'getRewardCurrencyAmount'])
-            ->getMock();
+            ->onlyMethods(['getGiftCardsAmount', 'getRewardCurrencyAmount'])->getMock();
         $quote->method('getGiftCardsAmount')->willReturn($giftCardAmount);
         $quote->method('getRewardCurrencyAmount')->willReturn(0.0);
 
-        $quoteProxy = $this->getMockBuilder(Quote::class)
+        $quoteProxy = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['load'])
-            ->addMethods(['getGiftCardsAmount', 'getRewardCurrencyAmount'])
-            ->getMock();
+            ->onlyMethods(['load', 'getGiftCardsAmount', 'getRewardCurrencyAmount'])->getMock();
         $quoteProxy->method('load')->willReturn($quote);
         $quoteProxy->method('getGiftCardsAmount')->willReturn($giftCardAmount);
         $quoteProxy->method('getRewardCurrencyAmount')->willReturn(0.0);
@@ -339,8 +336,7 @@ class KlarnaKpHandlerTest extends TestCase
         $this->scopeConfig->method('getValue')->willReturn(false);
 
         // Tax / shipping (shipping = 0 in these tests so shipping line is skipped).
-        $rateRequest = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['setProductClassId'])
+        $rateRequest = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\StdObjectStub::class)
             ->getMock();
         $rateRequest->method('setProductClassId')->willReturnSelf();
         $this->taxCalculation->method('getRateRequest')->willReturn($rateRequest);
@@ -361,7 +357,8 @@ class KlarnaKpHandlerTest extends TestCase
             $this->buckarooFee,
             $this->softwareData,
             $this->configProviderFactory,
-            $this->payReminderService
+            $this->payReminderService,
+            $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class)
         );
     }
 
@@ -369,11 +366,9 @@ class KlarnaKpHandlerTest extends TestCase
     {
         // getBuckarooFeeInclTax / getBuckarooFee are Buckaroo extension attributes absent
         // from the base Invoice class, so they must be added via addMethods().
-        $invoice = $this->getMockBuilder(Invoice::class)
+        $invoice = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getAllItems', 'getGrandTotal', 'getTaxAmount', 'getShippingInclTax'])
-            ->addMethods(['getBuckarooFeeInclTax', 'getBuckarooFee'])
-            ->getMock();
+            ->onlyMethods(['getAllItems', 'getGrandTotal', 'getTaxAmount', 'getShippingInclTax', 'getBuckarooFeeInclTax', 'getBuckarooFee'])->getMock();
         $invoice->method('getAllItems')->willReturn($this->stagedItems);
         $invoice->method('getGrandTotal')->willReturn($this->stagedGrandTotal);
         $invoice->method('getTaxAmount')->willReturn(0.0);
@@ -399,10 +394,9 @@ class KlarnaKpHandlerTest extends TestCase
         $orderItem = $this->createMock(Order\Item::class);
         $orderItem->method('getTaxPercent')->willReturn(0.0);
 
-        $item = $this->getMockBuilder(Invoice\Item::class)
+        $item = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceItemStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getRowTotalInclTax', 'getOrderItem', 'getName', 'getSku', 'getQty', 'getDiscountAmount', 'getPriceInclTax', 'getPrice', 'getTaxAmount'])
-            ->addMethods(['hasParentItemId', 'getWeeeTaxAppliedAmount'])
+            ->onlyMethods(['getRowTotalInclTax', 'getOrderItem', 'getName', 'getSku', 'getQty', 'getDiscountAmount', 'getPriceInclTax', 'getPrice', 'getTaxAmount', 'hasParentItemId', 'getWeeeTaxAppliedAmount'])
             ->getMock();
 
         $item->method('getRowTotalInclTax')->willReturn($price);

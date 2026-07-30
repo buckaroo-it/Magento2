@@ -38,9 +38,9 @@ class FactoryTest extends BaseTest
         $model = 'model1';
         $providers = [['type' => 'model1', 'model' => 'model1']];
 
-        $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)->getMockForAbstractClass();
+        $configProviderMock = $this->getFakeMock(ConfigProviderInterface::class)->getMock();
 
-        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->onlyMethods(['get'])->getMockForAbstractClass();
+        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->getMock();
         $objectManagerMock->method('get')->with($model)->willReturn($configProviderMock);
 
         $instance = $this->getInstance(['configProviders' => $providers, 'objectManager' => $objectManagerMock]);
@@ -75,7 +75,7 @@ class FactoryTest extends BaseTest
         // Mock an object that doesn't implement the expected BuckarooConfigProviderInterface
         $invalidConfigProvider = new \stdClass(); // This won't implement BuckarooConfigProviderInterface
 
-        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->onlyMethods(['get'])->getMockForAbstractClass();
+        $objectManagerMock = $this->getFakeMock(ObjectManagerInterface::class)->getMock();
         $objectManagerMock->method('get')->with('InvalidTestClass')->willReturn($invalidConfigProvider);
 
         $instance = $this->getInstance(['configProviders' => $providers, 'objectManager' => $objectManagerMock]);

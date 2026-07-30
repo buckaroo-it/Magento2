@@ -45,16 +45,20 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Buckaroo\Magento2\Model\Transaction\Status\Response;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -70,6 +74,11 @@ class DefaultProcessor implements PushProcessorInterface
      * @var Account
      */
     public $configAccount;
+
+    /**
+     * @var CurrencyFactory
+     */
+    private $currencyFactory;
 
     /**
      * @var PushRequestInterface
@@ -163,6 +172,26 @@ class DefaultProcessor implements PushProcessorInterface
     private $pendingSingleGiftcardInfo = null;
 
     /**
+     * @var OrderRepositoryInterface
+     */
+    protected $orderRepository;
+
+    /**
+     * @var OrderPaymentRepositoryInterface
+     */
+    protected $paymentRepository;
+
+    /**
+     * @var InvoiceRepositoryInterface
+     */
+    protected $invoiceRepository;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
+     */
+    protected $groupTransactionResource;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -178,6 +207,11 @@ class DefaultProcessor implements PushProcessorInterface
      * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
+     * @param CurrencyFactory|null $currencyFactory
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -185,15 +219,20 @@ class DefaultProcessor implements PushProcessorInterface
         PushTransactionType       $pushTransactionType,
         BuckarooLoggerInterface   $logger,
         Data                      $helper,
-        TransactionInterface      $transaction,
-        PaymentGroupTransaction   $groupTransaction,
-        BuckarooStatusCode        $buckarooStatusCode,
-        OrderStatusFactory        $orderStatusFactory,
-        Account                   $configAccount,
-        GiftCardRefundService     $giftCardRefundService,
-        Uncancel                  $uncancelService,
-        ResourceConnection        $resourceConnection,
-        GiftcardCollection        $giftcardCollection
+        TransactionInterface                                     $transaction,
+        PaymentGroupTransaction                                  $groupTransaction,
+        BuckarooStatusCode                                       $buckarooStatusCode,
+        OrderStatusFactory                                       $orderStatusFactory,
+        Account                                                  $configAccount,
+        GiftCardRefundService                                    $giftCardRefundService,
+        Uncancel                                                 $uncancelService,
+        ResourceConnection                                       $resourceConnection,
+        GiftcardCollection                                       $giftcardCollection,
+        ?CurrencyFactory                                         $currencyFactory = null,
+        ?OrderRepositoryInterface                                $orderRepository = null,
+        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
+        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
+        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -209,6 +248,15 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
+        $this->currencyFactory = $currencyFactory ?: ObjectManager::getInstance()->get(CurrencyFactory::class);
+        $this->orderRepository = $orderRepository
+            ?: ObjectManager::getInstance()->get(OrderRepositoryInterface::class);
+        $this->paymentRepository = $paymentRepository
+            ?: ObjectManager::getInstance()->get(OrderPaymentRepositoryInterface::class);
+        $this->invoiceRepository = $invoiceRepository
+            ?: ObjectManager::getInstance()->get(InvoiceRepositoryInterface::class);
+        $this->groupTransactionResource = $groupTransactionResource
+            ?: ObjectManager::getInstance()->get(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class);
     }
 
     /**
@@ -263,7 +311,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->applyAndSavePendingSingleGiftcardInfo('inline');
 
         if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
 
         return true;
@@ -369,7 +417,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function skipSpecificTypesOfRequsts(): bool
     {
-        $types = ['capture', 'cancelauthorize', 'cancelreservation'];
+        $types = ['capture', 'cancelauthorize', 'cancelreservation', 'extendreservation', 'updatereservation'];
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $types)
             && empty($this->pushRequest->getRelatedtransactionRefund())
@@ -407,7 +455,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if ($skipFirstPush > 0) {
             $this->payment->setAdditionalInformation('skip_push', (int)$skipFirstPush - 1);
-            $this->payment->save();
+            $this->paymentRepository->save($this->payment);
             return true;
         }
 
@@ -468,7 +516,7 @@ class DefaultProcessor implements PushProcessorInterface
             }
             if ($save) {
                 $this->setReceivedTransactionStatuses();
-                $this->payment->save();
+                $this->paymentRepository->save($this->payment);
             }
         }
 
@@ -895,8 +943,7 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        // 7. Save payment and order changes
-        $this->payment->save();
+        // 7. Save order changes (payment is persisted by the order save cascade)
         $this->order->save();
 
         $this->logger->addDebug(sprintf(
@@ -979,11 +1026,16 @@ class DefaultProcessor implements PushProcessorInterface
      * @param float $amount
      * @param string $message
      * @param string $newStatus
+     * @param string|null $amountCurrency
      * @return bool
      * @throws LocalizedException
      */
-    private function handleCaptureWithDeferredInvoicing(float $amount, string $message, string $newStatus): bool
-    {
+    private function handleCaptureWithDeferredInvoicing(
+        float $amount,
+        string $message,
+        string $newStatus,
+        ?string $amountCurrency = null
+    ): bool {
         $this->logger->addDebug(sprintf(
             '[%s:%s] - CAPTURE detected but invoice handling is SHIPMENT mode - skipping invoice creation',
             __METHOD__,
@@ -995,12 +1047,13 @@ class DefaultProcessor implements PushProcessorInterface
         $captureAmount = $amount;
         if (!empty($this->pushRequest->getAmount())) {
             $captureAmount = (float)$this->pushRequest->getAmount();
+            $amountCurrency = $amountCurrency ?: $this->getPaymentCurrencyCode();
         }
 
         $this->recordCaptureWithoutInvoice($payment, $captureAmount);
 
         $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-            . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
             . ' has been captured. Invoice will be created on shipment.';
 
         $this->orderRequestService->updateOrderStatus(
@@ -1083,7 +1136,7 @@ class DefaultProcessor implements PushProcessorInterface
             InvoiceHandlingOptions::SHIPMENT
         );
 
-        $payment->save();
+        $this->paymentRepository->save($payment);
     }
 
     /**
@@ -1198,7 +1251,7 @@ class DefaultProcessor implements PushProcessorInterface
         // Only update if transaction exists and has an entity_id (not empty)
         if ($groupTransaction instanceof GroupTransaction && $groupTransaction->getEntityId()) {
             $groupTransaction->setData('status', $this->pushRequest->getStatusCode());
-            $groupTransaction->save();
+            $this->groupTransactionResource->save($groupTransaction);
 
             $this->logger->addDebug(sprintf(
                 '[GROUP_TRANSACTION] | [Push] | [%s:%s] - Updated group transaction status | Key: %s | Status: %s',
@@ -1444,8 +1497,10 @@ class DefaultProcessor implements PushProcessorInterface
         if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             if (!empty($this->pushRequest->getAmount())) {
                 $amount = (float)$this->pushRequest->getAmount();
+                $amountCurrency = $this->getPaymentCurrencyCode();
             }
 
             // Check if invoice should be created on shipment instead
@@ -1459,11 +1514,12 @@ class DefaultProcessor implements PushProcessorInterface
             }
 
             if ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT) {
-                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus);
+                return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus, $amountCurrency);
             }
 
             $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                . 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount) . ' has been captured.';
+                . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
+                . ' has been captured.';
 
             if (!$this->saveInvoice()) {
                 $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_INVOICE_FAILED', __METHOD__, __LINE__));
@@ -1513,7 +1569,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @throws Exception
      */
-    private function processSucceededPushAuthorization(): void
+    protected function processSucceededPushAuthorization(): void
     {
         $authPpaymentMethods = [
             Afterpay::CODE,
@@ -1639,10 +1695,17 @@ class DefaultProcessor implements PushProcessorInterface
     protected function canPushInvoice(): bool
     {
         if ($this->payment->getMethodInstance()->getConfigData('payment_action') == 'authorize') {
-            // For authorize payments with shipment-based invoicing, allow processing to set the flag
+            // For authorize payments with shipment-based invoicing, allow processing to set the flag.
+            // Fall back to config when the payment additional_information flag is not set yet
+            // (otherwise saveInvoice() never runs and the flag is never persisted).
             $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
                 InvoiceHandlingOptions::INVOICE_HANDLING
             );
+
+            if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+                $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+            }
+
             return ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
         }
 
@@ -1681,7 +1744,7 @@ class DefaultProcessor implements PushProcessorInterface
                 InvoiceHandlingOptions::INVOICE_HANDLING,
                 InvoiceHandlingOptions::SHIPMENT
             );
-            $this->payment->save();
+            $this->paymentRepository->save($this->payment);
             return true;
         }
 
@@ -1690,7 +1753,7 @@ class DefaultProcessor implements PushProcessorInterface
             && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
             $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
         $this->payment->registerCaptureNotification($amount);
-        $this->payment->save();
+        $this->paymentRepository->save($this->payment);
 
         $transactionKey = $this->getTransactionKey();
 
@@ -1698,15 +1761,17 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        if ($this->payment->getMethod() === 'buckaroo_magento2_klarnakp') {
+        $klarnaPaymentMethods = ['buckaroo_magento2_klarnakp', 'buckaroo_magento2_klarna'];
+        if (in_array($this->payment->getMethod(), $klarnaPaymentMethods)) {
             $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
             $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
-            $this->payment->save();
+            $this->paymentRepository->save($this->payment);
         }
 
         /** @var Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey)->save();
+            $invoice->setTransactionId($transactionKey);
+            $this->invoiceRepository->save($invoice);
 
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
@@ -1723,7 +1788,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         $this->order->setIsInProcess(true);
-        $this->order->save();
+        $this->orderRepository->save($this->order);
 
         $this->dontSaveOrderUponSuccessPush = true;
 
@@ -1988,11 +2053,9 @@ class DefaultProcessor implements PushProcessorInterface
         $orderIsCanceledOrWillBeCanceled = $this->order->isCanceled() || $this->order->getState() === Order::STATE_CANCELED;
 
         $statusCode = $this->pushRequest->getStatusCode();
-        $statusCodeInt = $statusCode !== null ? (int)$statusCode : 0;
-        $isSuccessfulPayment = $this->isSuccessfulPaymentStatus($statusCodeInt);
 
-        if ($this->shouldSendPendingPaymentEmail($isSuccessfulPayment, $store, $paymentMethod)) {
-            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Success Status: ' . $statusCode . ')');
+        if ($this->shouldSendPendingPaymentEmail($orderIsCanceledOrWillBeCanceled, $store, $paymentMethod)) {
+            $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SEND EMAIL (Pending Status: ' . $statusCode . ')');
             $this->orderRequestService->sendOrderEmail($this->order);
         } else {
             $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Process Pending Push - SKIP EMAIL (Status: ' . $statusCode . ', EmailSent: ' . ($this->order->getEmailSent() ? 'Yes' : 'No') . ', OrderCanceled: ' . ($orderIsCanceledOrWillBeCanceled ? 'Yes' : 'No') . ')');
@@ -2000,18 +2063,23 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Check if pending payment email should be sent
+     * Check if a pending payment email should be sent
      *
-     * @param bool  $isSuccessfulPayment
+     * This path is only reachable for methods where canProcessPendingPush() is true
+     * (Transfer, SEPA Direct Debit, PayPerEmail); for those a pending status
+     * (790/791/792) is the expected "order placed" signal, so the confirmation
+     * email must be sent unless the order is canceled.
+     *
+     * @param bool  $orderIsCanceledOrWillBeCanceled
      * @param mixed $store
      * @param mixed $paymentMethod
      *
      * @return bool
      */
-    private function shouldSendPendingPaymentEmail(bool $isSuccessfulPayment, $store, $paymentMethod): bool
+    private function shouldSendPendingPaymentEmail(bool $orderIsCanceledOrWillBeCanceled, $store, $paymentMethod): bool
     {
         return !$this->order->getEmailSent()
-            && $isSuccessfulPayment
+            && !$orderIsCanceledOrWillBeCanceled
             && (
                 $this->configAccount->getOrderConfirmationEmail($store)
                 || $paymentMethod->getConfigData('order_email', $store)
@@ -2075,8 +2143,10 @@ class DefaultProcessor implements PushProcessorInterface
     {
         // Set amount
         $amount = $this->order->getTotalDue();
+        $amountCurrency = $this->order->getOrderCurrencyCode();
         if (!empty($this->pushRequest->getAmount())) {
             $amount = floatval($this->pushRequest->getAmount());
+            $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
         /**
@@ -2090,20 +2160,24 @@ class DefaultProcessor implements PushProcessorInterface
         $invoiceHandlingMode = $this->order->getPayment()->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
         );
+        if ($invoiceHandlingMode === null || $invoiceHandlingMode === '') {
+            $invoiceHandlingMode = $this->detectInvoiceHandlingMode();
+        }
         $isShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($this->canPushInvoice() && !$isShipmentMode) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             $description .= 'Total amount of ' .
-                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             if ($isShipmentMode) {
-                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Payment will be captured when order is shipped.';
             } else {
-                $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Please create an invoice to capture the authorized amount.';
             }
             $forceState = true;
@@ -2184,18 +2258,6 @@ class DefaultProcessor implements PushProcessorInterface
         $words = explode('_', $field);
         $transformedWords = array_map('ucfirst', $words);
         return __(implode(' ', $transformedWords));
-    }
-
-    /**
-     * Checks if a given status code is a successful payment status.
-     *
-     * @param int $statusCode
-     *
-     * @return bool
-     */
-    private function isSuccessfulPaymentStatus(int $statusCode): bool
-    {
-        return $statusCode === Response::STATUSCODE_SUCCESS;
     }
 
     /**
@@ -2309,7 +2371,7 @@ class DefaultProcessor implements PushProcessorInterface
             $this->payment->setAdditionalInformation('single_giftcard_currency', $this->pendingSingleGiftcardInfo['currency']);
 
             // Save payment directly to ensure additional_information is persisted to database
-            $this->payment->save();
+            $this->paymentRepository->save($this->payment);
 
             $this->logger->addDebug(sprintf(
                 '[SINGLE_GIFTCARD] | [%s:%s] - Applied and saved single giftcard info [%s] | Service: %s | Amount: %s',
@@ -2433,7 +2495,53 @@ class DefaultProcessor implements PushProcessorInterface
             ));
         }
 
-        $this->order->save();
+        $this->orderRepository->save($this->order);
         return true;
+    }
+
+    /**
+     * Format an amount for order comments using the currency that matches the amount.
+     *
+     * When the amount comes from a Buckaroo push, use the push/payment currency. When the
+     * amount is taken from Magento base totals, pass the base currency code explicitly.
+     *
+     * @param float|string $amount
+     * @param string|null $currencyCode
+     * @return string
+     */
+    protected function formatCommentAmount($amount, ?string $currencyCode = null): string
+    {
+        $currencyCode = $currencyCode ?: $this->getPaymentCurrencyCode();
+
+        if ($currencyCode === $this->order->getOrderCurrencyCode()) {
+            return $this->order->getOrderCurrency()->formatTxt($amount);
+        }
+
+        if ($currencyCode === $this->order->getBaseCurrencyCode()) {
+            return $this->order->getBaseCurrency()->formatTxt($amount);
+        }
+
+        return $this->currencyFactory->create()->load($currencyCode)->formatTxt($amount);
+    }
+
+    /**
+     * Currency used for the Buckaroo payment / push amount.
+     *
+     * Prefer the currency from the current push; fall back to order currency, then base.
+     *
+     * @return string
+     */
+    protected function getPaymentCurrencyCode(): string
+    {
+        $currency = $this->pushRequest ? $this->pushRequest->getCurrency() : null;
+
+        if (!empty($currency)) {
+            return (string)$currency;
+        }
+
+        return (string)(
+            $this->order->getOrderCurrencyCode()
+            ?: $this->order->getBaseCurrencyCode()
+        );
     }
 }

@@ -29,7 +29,13 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 
 class TestNotificationHandler implements HandlerInterface
 {
-
+    /**
+     * Add a test mode message on the payment when the transaction ran in test mode.
+     *
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);

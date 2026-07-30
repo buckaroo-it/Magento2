@@ -120,6 +120,8 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
+     * Get the list of pages where the Apple Pay button is available
+     *
      * @return array
      */
     public function getAvailableButtons(): array
@@ -160,6 +162,8 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
+     * Get the base list of currencies allowed for Apple Pay
+     *
      * @return array
      */
     public function getBaseAllowedCurrencies(): array
@@ -232,6 +236,8 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
+     * Check whether Apple Pay is enabled for the current store
+     *
      * @throws NoSuchEntityException
      */
     public function isApplePayEnabled()

@@ -36,33 +36,12 @@
             <!--/ko-->
         </div>
 
-        <div class="payment-method-second-col billing-address-form">
-            <form data-bind="mageInit: { 'validation': [] },
-                  attr: {'data-hasrequired': $t('* Required Fields')}">
-                <fieldset class="fieldset">
-                    <legend class="hidden-fieldset-legend">Payment Details</legend>
-                    <div class="field required">
-                        <label class="label" data-bind="attr:{ 'for': getCode()+'_genderSelect' }"> <span data-bind="i18n: 'Salutation:'"> </span> </label>
-                        <div class="control addon">
-                            <select name="payment[buckaroo_magento2_klarna][customer_gender]" class="select"
-                            data-bind="options: buckaroo.genderList, attr: {'id': getCode()+'_genderSelect'},
-                            optionsText: $t('genderTitle'),
-                            optionsValue: 'genderType',
-                            optionsCaption: $t('-- Please Select Your Gender--'),
-                            value: selectedGender,
-                            event: { change: validateField }"
-                            data-validate="{required:true}">
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- ko if: showFinancialWarning  -->
-                    <span data-bind="html: getMessageText()"></span>
-                    <!-- /ko -->
-                </fieldset>
-            </form>
+        <!-- ko if: showFinancialWarning  -->
+        <div class="payment-method-second-col">
+            <span data-bind="html: getMessageText()"></span>
         </div>
-        
+        <!-- /ko -->
+
         <div class="actions-toolbar">
             <div class="primary">
                 <button class="action primary checkout"

@@ -50,6 +50,8 @@ class ArticlesHandlerFactory
     }
 
     /**
+     * Create an article handler instance for the given payment method.
+     *
      * @param mixed $payment
      *
      * @throws Exception

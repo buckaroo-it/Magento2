@@ -66,8 +66,7 @@ class MyParcelNLBuckarooPlugin
     }
 
     /**
-     * Saves the MyParcelNL delivery options data to the checkout session
-     * before executing the getFromDeliveryOptions method.
+     * Saves the MyParcelNL delivery options data to the checkout session before getFromDeliveryOptions runs.
      */
     public function beforeGetFromDeliveryOptions()
     {

@@ -7,18 +7,30 @@ use Buckaroo\Magento2\Service\CookieParamService;
 
 class AbstractTransactionBuilderAfterGetUrl
 {
+    /**
+     * @var CookieParamService
+     */
     private $cookieParamService;
 
+    /**
+     * Constructor.
+     *
+     * @param CookieParamService $cookieParamService
+     */
     public function __construct(
         CookieParamService $cookieParamService
     ) {
         $this->cookieParamService = $cookieParamService;
     }
+
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * Append cookie-based url parameters to the transaction return url.
      *
      * @param mixed $subject
      * @param mixed $result
+     * @return mixed
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetReturnUrl(
         $subject,

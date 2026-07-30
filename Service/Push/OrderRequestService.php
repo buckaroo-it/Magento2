@@ -24,12 +24,17 @@ namespace Buckaroo\Magento2\Service\Push;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderRequestService
 {
     /**
@@ -63,12 +68,30 @@ class OrderRequestService
     private $klarnaKpOrderService;
 
     /**
-     * @param Order                   $order
+     * @var KlarnaMorOrderService
+     */
+    private KlarnaMorOrderService $klarnaMorOrderService;
+
+    /**
+     * @var OrderCommentHistoryService
+     */
+    private OrderCommentHistoryService $orderCommentHistoryService;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private OrderRepositoryInterface $orderRepository;
+
+    /**
+     * @param Order $order
      * @param BuckarooLoggerInterface $logger
-     * @param TransactionInterface    $transaction
-     * @param OrderEmailService       $orderEmailService
-     * @param ResourceConnection      $resourceConnection
-     * @param KlarnaKpOrderService    $klarnaKpOrderService
+     * @param TransactionInterface $transaction
+     * @param OrderEmailService $orderEmailService
+     * @param ResourceConnection $resourceConnection
+     * @param KlarnaKpOrderService $klarnaKpOrderService
+     * @param KlarnaMorOrderService $klarnaMorOrderService
+     * @param OrderCommentHistoryService $orderCommentHistoryService
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         Order $order,
@@ -76,7 +99,10 @@ class OrderRequestService
         TransactionInterface $transaction,
         OrderEmailService $orderEmailService,
         ResourceConnection $resourceConnection,
-        KlarnaKpOrderService $klarnaKpOrderService
+        KlarnaKpOrderService $klarnaKpOrderService,
+        KlarnaMorOrderService $klarnaMorOrderService,
+        OrderCommentHistoryService $orderCommentHistoryService,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->order = $order;
         $this->logger = $logger;
@@ -84,6 +110,9 @@ class OrderRequestService
         $this->orderEmailService = $orderEmailService;
         $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
+        $this->klarnaMorOrderService = $klarnaMorOrderService;
+        $this->orderCommentHistoryService = $orderCommentHistoryService;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -121,7 +150,7 @@ class OrderRequestService
     /**
      * Get the order increment ID based on the invoice number or order number.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return string|null
      */
@@ -141,10 +170,9 @@ class OrderRequestService
     }
 
     /**
-     * Sometimes the push does not contain the order id, when that's the case try to get the order by his payment,
-     * by using its own transaction key.
+     * Get the order by its payment transaction key when the push omits the order id.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @throws \Exception
      *
@@ -162,6 +190,10 @@ class OrderRequestService
         }
 
         if (!$order || !$order->getId()) {
+            $order = $this->getOrderByKlarnaMorDataRequestKey($pushRequest);
+        }
+
+        if (!$order || !$order->getId()) {
             throw new BuckarooException(__('There was no order found by transaction Id'));
         }
 
@@ -173,7 +205,7 @@ class OrderRequestService
      * This covers cancel pushes sent directly from Buckaroo plaza where brq_transactions is absent
      * but brq_SERVICE_klarnakp_ReservationNumber is present.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return Order|null
      */
@@ -195,9 +227,59 @@ class OrderRequestService
     }
 
     /**
+     * Try to find the order by the Klarna MOR DataRequest key or a pending ExtendReservation push key.
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return Order|null
+     */
+    protected function getOrderByKlarnaMorDataRequestKey($pushRequest): ?Order
+    {
+        foreach ($this->getKlarnaMorDataRequestLookupKeys($pushRequest) as $dataRequestKey) {
+            $order = $this->klarnaMorOrderService->getOrderByDataRequestKey($dataRequestKey);
+
+            if ($order === null) {
+                $order = $this->klarnaMorOrderService->getOrderByPendingDataRequestPushKey($dataRequestKey);
+            }
+
+            if ($order !== null) {
+                $this->order = $order;
+                return $order;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Collect candidate Klarna MOR data request keys from the push payload.
+     *
+     * @param PushRequestInterface $pushRequest
+     *
+     * @return string[]
+     */
+    protected function getKlarnaMorDataRequestLookupKeys($pushRequest): array
+    {
+        $keys = [];
+
+        if (!empty($pushRequest->getDatarequest())) {
+            $keys[] = $pushRequest->getDatarequest();
+        }
+
+        if (method_exists($pushRequest, 'getRelatedDatarequest')) {
+            $relatedKey = $pushRequest->getRelatedDatarequest();
+            if (!empty($relatedKey)) {
+                $keys[] = $relatedKey;
+            }
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    /**
      * Retrieves the transaction key from the push request.
      *
-     * @param $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
      * @return string
      */
@@ -229,8 +311,7 @@ class OrderRequestService
     {
         $note = 'Buckaroo attempted to update this order, but failed: ' . $message;
         try {
-            $this->order->addCommentToStatusHistory($note, $this->order->getStatus());
-            $this->order->save();
+            $this->orderCommentHistoryService->add($this->order, $note);
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(
                 '[ORDER] | [Service] | [%s:%s] - Set Order Notification Note Failed | [ERROR]: %s',
@@ -278,23 +359,18 @@ class OrderRequestService
                 $this->order->setStatus($newStatus);
                 $this->order->addCommentToStatusHistory($description)
                     ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
-                    ->setStatus($newStatus)
-                    ->save();
-                $this->order->save();
+                    ->setStatus($newStatus);
+                $this->orderRepository->save($this->order);
             } else {
                 $this->order->addCommentToStatusHistory($description, $newStatus);
-                $this->order->save(); // Save the order to persist state and status changes
+                $this->orderRepository->save($this->order);
             }
         } else {
             if ($dontSaveOrderUponSuccessPush) {
-                $this->order->addCommentToStatusHistory($description)
-                    ->setIsCustomerNotified(false)
-                    ->setEntityName('invoice')
-                    ->save();
+                $this->orderCommentHistoryService->add($this->order, $description);
             } else {
                 $this->order->addCommentToStatusHistory($description);
-                $this->order->save(); // Save the order to persist changes
+                $this->orderRepository->save($this->order);
             }
         }
 
@@ -335,6 +411,13 @@ class OrderRequestService
         return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
     }
 
+    /**
+     * Update the persisted order totals directly in the sales_order table.
+     *
+     * @param Order $order
+     *
+     * @return bool
+     */
     public function updateTotalOnOrder($order)
     {
 
@@ -364,7 +447,7 @@ class OrderRequestService
      */
     public function saveAndReloadOrder()
     {
-        $this->order->save();
+        $this->orderRepository->save($this->order);
         $this->loadOrder();
     }
 

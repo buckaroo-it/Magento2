@@ -22,7 +22,8 @@
 <!--@vars {
 "var order.increment_id":"Order Id",
 "var checkout_url":"Checkout URL",
-"var customer_name":"Customer Name"
+"var customer_name":"Customer Name",
+"var store.getFrontendName()":"Store Frontend Name"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -35,7 +36,7 @@
             <p class="text"><strong>Let op:</strong> heb je ondertussen zelf een nieuwe bestelling geplaatst of de betaling van je bestelling
             met ordernummer <strong>{{var order.increment_id}}</strong> al voldaan? Dan kun je deze email als niet verzonden beschouwen. In verband met de verwerkingstijd van betalingen kan het zijn dat deze e-mail en je betaling elkaar kruisen.</p>
             <p class="text">Reken veilig en snel af via onderstaande button. Indien wij geen betaling ontvangen, wordt je bestelling definitief geannuleerd.</p>
-            <br />
+            <br>
             <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
                     <td>
@@ -49,12 +50,12 @@
                     </td>
                 </tr>
             </table>
-            <br />
+            <br>
             <p class="text"><strong>Heb je de betaling al afgerond?</strong> Dan kan de verwerking even duren. Je ontvangt de orderbevestiging zodra we de betaling hebben ontvangen. Je kunt de betaalherinnering dan negeren.</p>
         </td>
     </tr>
 </table>
-<br />
-<p class="text">Met vriendelijke groet,<br /><br />Team Klantenservice<br /><a href="{{config path="web/secure/base_url"}}?utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=payment-reminder-2">{{config path="general/store_information/name"}}</a></p>
+<br>
+<p class="text">Met vriendelijke groet,<br><br>Team Klantenservice<br><a href="{{config path="web/secure/base_url"}}?utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=payment-reminder-2">{{config path="general/store_information/name"}}</a></p>
 
 {{template config_path="design/email/footer_template"}}

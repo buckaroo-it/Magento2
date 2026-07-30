@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source\Display;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\Display\Type;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -49,8 +51,8 @@ class TypeTest extends BaseTest
     /**
      * @param $paymentOption
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();

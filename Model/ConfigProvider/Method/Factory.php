@@ -89,7 +89,9 @@ class Factory
     }
 
     /**
-     * @param $providerType
+     * Check if a config provider exists for the given provider type.
+     *
+     * @param string $providerType
      *
      * @throws \LogicException
      *

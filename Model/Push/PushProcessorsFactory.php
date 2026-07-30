@@ -104,10 +104,14 @@ class PushProcessorsFactory
     private function getPushProcessorClass(?PushTransactionType $pushTransactionType)
     {
         // Set Default Push Processor
-        $pushProcessorClass = $this->pushProcessors['default'];
+        $pushProcessorClass = $this->pushProcessors['default'] ?? null;
+
+        if ($pushTransactionType === null) {
+            return $pushProcessorClass;
+        }
 
         // Set Push Processor by Payment Method
-        $paymentMethod = strtolower($pushTransactionType->getPaymentMethod());
+        $paymentMethod = strtolower((string)$pushTransactionType->getPaymentMethod());
         $pushProcessorClass = $this->pushProcessors[$paymentMethod] ?? $pushProcessorClass;
 
         if ($pushTransactionType->isFromPayPerEmail()

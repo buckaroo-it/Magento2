@@ -45,6 +45,7 @@ class PpeCustomerDetails implements ArgumentInterface
         $this->logger = $logger;
         $this->request = $request;
     }
+
     /**
      * Try to fetch customer details for PPE method in admin area
      *

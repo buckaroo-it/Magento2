@@ -51,10 +51,8 @@ class PaypalProcessorPlugin
     /**
      * Append Seller Protection info after success processing
      *
-     * @param DefaultProcessor|PaypalProcessor $subject
-     * @param bool                             $result
-     * @param string                           $newStatus
-     * @param string                           $message
+     * @param DefaultProcessor $subject
+     * @param bool $result
      *
      * @return bool
      */
@@ -92,6 +90,8 @@ class PaypalProcessorPlugin
     }
 
     /**
+     * Normalize eligibility types to an array and handle each one for the order.
+     *
      * @param string|string[] $eligibilityTypes
      * @param Order           $order
      */
@@ -107,6 +107,8 @@ class PaypalProcessorPlugin
     }
 
     /**
+     * Add a Seller Protection comment and status to the order for a single eligibility type.
+     *
      * @param string $eligibilityType
      * @param Order  $order
      */
@@ -144,6 +146,8 @@ class PaypalProcessorPlugin
     }
 
     /**
+     * Read a protected or private property value from an object via reflection.
+     *
      * @param object $subject
      * @param string $name
      *

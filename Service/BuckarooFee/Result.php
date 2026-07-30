@@ -33,6 +33,8 @@ class Result
     private $taxAmount = 0;
 
     /**
+     * Get the Buckaroo fee amount.
+     *
      * @return float
      */
     public function getAmount()
@@ -41,6 +43,8 @@ class Result
     }
 
     /**
+     * Get the Buckaroo fee amount rounded to two decimals.
+     *
      * @return float
      */
     public function getRoundedAmount()
@@ -49,6 +53,8 @@ class Result
     }
 
     /**
+     * Set the Buckaroo fee amount.
+     *
      * @param float $amount
      */
     public function setAmount($amount)
@@ -57,6 +63,8 @@ class Result
     }
 
     /**
+     * Get the Buckaroo fee tax amount.
+     *
      * @return float
      */
     public function getTaxAmount()
@@ -65,6 +73,8 @@ class Result
     }
 
     /**
+     * Get the Buckaroo fee tax amount rounded to two decimals.
+     *
      * @return float
      */
     public function getRoundedTaxAmount()
@@ -73,6 +83,8 @@ class Result
     }
 
     /**
+     * Set the Buckaroo fee tax amount.
+     *
      * @param float $taxAmount
      */
     public function setTaxAmount(float $taxAmount)
@@ -81,6 +93,8 @@ class Result
     }
 
     /**
+     * Get the Buckaroo fee amount including tax.
+     *
      * @return float
      */
     public function getAmountIncludingTax()

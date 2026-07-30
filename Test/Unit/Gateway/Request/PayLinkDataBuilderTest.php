@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\PayLinkDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
@@ -57,12 +59,12 @@ class PayLinkDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * @dataProvider buildDataProvider
      *
      * @param string      $configuredMethods
      * @param string|null $activeGiftcards
      * @param string      $expectedMethods
      */
+    #[DataProvider('buildDataProvider')]
     public function testBuild(
         string $configuredMethods,
         ?string $activeGiftcards,

@@ -340,6 +340,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
     {
         return $this->getMethodConfigValue(static::TITLE, $store);
     }
+
     /**
      * Get Active Config Value
      *
@@ -609,6 +610,9 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         return $this->getMethodConfigValue(static::CUSTOMER_ADDITIONAL_INFO, $store);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function isVisibleForAreaCode(string $areaCode): bool
     {
         return true;

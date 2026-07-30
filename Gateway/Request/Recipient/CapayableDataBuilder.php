@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Service\Formatter\AddressFormatter;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 
 class CapayableDataBuilder extends AbstractRecipientDataBuilder
 {
@@ -32,14 +33,16 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
     private $addressFormatter;
 
     /**
-     * @param AddressFormatter $addressFormatter
-     * @param string           $addressType
+     * @param AddressFormatter   $addressFormatter
+     * @param BirthDateFormatter $birthDateFormatter
+     * @param string             $addressType
      */
     public function __construct(
         AddressFormatter $addressFormatter,
+        BirthDateFormatter $birthDateFormatter,
         string $addressType = 'billing'
     ) {
-        parent::__construct($addressType);
+        parent::__construct($birthDateFormatter, $addressType);
         $this->addressFormatter = $addressFormatter;
     }
 
@@ -82,6 +85,11 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
         return 'B2B';
     }
 
+    /**
+     * Get the customer number for the order, falling back to "guest" when no customer is set.
+     *
+     * @return string|int
+     */
     protected function getCustomerNumber()
     {
         $customerNumber = "guest";

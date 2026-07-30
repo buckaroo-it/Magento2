@@ -28,6 +28,7 @@ use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderStatusHistoryRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
@@ -96,16 +97,22 @@ class CreateInvoice
     private $orderStatusHistoryRepository;
 
     /**
-     * @param Account                 $configAccount
-     * @param Log                     $logger
+     * @var InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
+     * @param Account $configAccount
+     * @param Log $logger
      * @param PaymentGroupTransaction $groupTransaction
-     * @param InvoiceSender           $invoiceSender
-     * @param InvoiceService          $invoiceService
-     * @param TransactionFactory      $transactionFactory
-     * @param Registry                $registry
-     * @param Data                    $helper
-     * @param Json|null                                  $jsonSerializer
+     * @param InvoiceSender $invoiceSender
+     * @param InvoiceService $invoiceService
+     * @param TransactionFactory $transactionFactory
+     * @param Registry $registry
+     * @param Data $helper
+     * @param Json|null $jsonSerializer
      * @param OrderStatusHistoryRepositoryInterface|null $orderStatusHistoryRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
      */
     public function __construct(
         Account $configAccount,
@@ -117,8 +124,12 @@ class CreateInvoice
         Registry $registry,
         Data $helper,
         ?Json $jsonSerializer = null,
-        ?OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository = null
+        ?OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository = null,
+        ?InvoiceRepositoryInterface $invoiceRepository = null
     ) {
+        $this->invoiceRepository = $invoiceRepository
+            ?? \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(InvoiceRepositoryInterface::class);
         $this->logger = $logger;
         $this->groupTransaction = $groupTransaction;
         $this->invoiceSender = $invoiceSender;
@@ -196,7 +207,8 @@ class CreateInvoice
 
         /** @var Invoice $invoice */
         foreach ($order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey)->save();
+            $invoice->setTransactionId($transactionKey);
+            $this->invoiceRepository->save($invoice);
 
             if ($this->groupTransaction->isGroupTransaction($order->getIncrementId())) {
                 $this->logger->addDebug(__METHOD__ . '|3| - Set invoice state PAID group transaction');
@@ -233,11 +245,13 @@ class CreateInvoice
     }
 
     /**
+     * Add transaction data to the payment for the given transaction key.
+     *
      * @param mixed $payment
      * @param mixed $transactionKey
      * @param mixed $datas
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      *
      * @return Order\Payment
      */
@@ -340,6 +354,13 @@ class CreateInvoice
         return $qtys;
     }
 
+    /**
+     * Prepare the invoice item qtys, falling back to all invoiceable items when none are given.
+     *
+     * @param Order $order
+     * @param array $invoiceItems
+     * @return array
+     */
     private function prepareInvoiceItems(Order $order, array $invoiceItems): array
     {
         if (empty($invoiceItems)) {

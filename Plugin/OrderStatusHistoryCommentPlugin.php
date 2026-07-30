@@ -34,15 +34,21 @@ class OrderStatusHistoryCommentPlugin
      */
     private $checkPaymentType;
 
+    /**
+     * Constructor.
+     *
+     * @param CheckPaymentType $checkPaymentType
+     */
     public function __construct(CheckPaymentType $checkPaymentType)
     {
         $this->checkPaymentType = $checkPaymentType;
     }
 
     /**
-     * Normalize Buckaroo refund notes.
+     * Normalize Buckaroo Plaza refund notes.
      *
      * Plaza refunds should always be shown as "online" and include the Plaza Transaction ID.
+     * Magento Admin offline refunds (no Plaza key) are left unchanged.
      *
      * @param Order $subject
      * @param string|\Magento\Framework\Phrase $comment
@@ -60,19 +66,18 @@ class OrderStatusHistoryCommentPlugin
             return [$comment, $status];
         }
 
-        $updatedComment = preg_replace('/\boffline\b/ui', 'online', $commentText, 1) ?: $commentText;
-
         $transactionId = $this->getRefundTransactionId($subject);
         if (empty($transactionId)) {
-            return [$updatedComment, $status];
+            return [$comment, $status];
         }
+
+        $updatedComment = preg_replace('/\boffline\b/ui', 'online', $commentText, 1) ?: $commentText;
 
         $hasTransactionId = preg_match('/Transaction\s*ID\s*:\s*"/ui', $updatedComment) === 1;
         if (!$hasTransactionId) {
             return [$this->appendTransactionId($updatedComment, $transactionId), $status];
         }
 
-        // If Transaction ID exists but differs, override it with the latest credit memo transaction id.
         $updatedComment = preg_replace(
             '/Transaction\s*ID\s*:\s*"[^"]*"/ui',
             'Transaction ID: "' . $this->buildTransactionIdLink($transactionId) . '"',
@@ -83,6 +88,12 @@ class OrderStatusHistoryCommentPlugin
         return [$updatedComment, $status];
     }
 
+    /**
+     * Get the Buckaroo refund transaction key stored on the order payment.
+     *
+     * @param Order $order
+     * @return string|null
+     */
     private function getRefundTransactionId(Order $order): ?string
     {
         $payment = $order->getPayment();
@@ -95,14 +106,26 @@ class OrderStatusHistoryCommentPlugin
         return null;
     }
 
+    /**
+     * Append the transaction id link to the comment text.
+     *
+     * @param string $commentText
+     * @param string $transactionId
+     * @return string
+     */
     private function appendTransactionId(string $commentText, string $transactionId): string
     {
         return rtrim($commentText) . ' Transaction ID: "' . $this->buildTransactionIdLink($transactionId) . '"';
     }
 
+    /**
+     * Build the Buckaroo Plaza transaction details link for the given transaction id.
+     *
+     * @param string $transactionId
+     * @return string
+     */
     private function buildTransactionIdLink(string $transactionId): string
     {
-        // Keep consistent with HtmlTransactionIdObserver's plaza link structure.
         $url = sprintf(
             'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s',
             $transactionId

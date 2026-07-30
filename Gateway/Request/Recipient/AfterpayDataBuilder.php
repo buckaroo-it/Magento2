@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Resources\Constants\RecipientCategory;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\Store;
@@ -36,11 +37,15 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
 
     /**
      * @param ScopeConfigInterface $scopeConfig
+     * @param BirthDateFormatter   $birthDateFormatter
      * @param string               $addressType
      */
-    public function __construct(ScopeConfigInterface $scopeConfig, string $addressType = 'billing')
-    {
-        parent::__construct($addressType);
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        BirthDateFormatter $birthDateFormatter,
+        string $addressType = 'billing'
+    ) {
+        parent::__construct($birthDateFormatter, $addressType);
         $this->scopeConfig = $scopeConfig;
     }
 
@@ -69,6 +74,11 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         } else {
             $data['companyName'] = $billingAddress->getCompany();
             $data['identificationNumber'] = $this->getIdentificationNumber();
+        }
+
+        $careOf = $this->resolveCareOf();
+        if ($careOf !== null) {
+            $data['careOf'] = $careOf;
         }
 
         return $data;
@@ -165,5 +175,37 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     protected function getIdentificationNumber()
     {
         return $this->getPayment()->getAdditionalInformation('customer_identificationNumber');
+    }
+
+    private const DACH_COUNTRY_IDS = ['DE', 'AT', 'CH'];
+    private const CARE_OF_MAX_LENGTH = 50;
+
+    /**
+     * Resolve the care-of value from the second street line for DACH countries.
+     *
+     * @return string|null
+     */
+    private function resolveCareOf(): ?string
+    {
+        $address = $this->getAddress();
+
+        if (!in_array($address->getCountryId(), self::DACH_COUNTRY_IDS, true)) {
+            return null;
+        }
+
+        $street = $address->getStreet();
+        $careOf = $street[1] ?? null;
+
+        if ($careOf === null) {
+            return null;
+        }
+
+        $careOf = trim($careOf);
+
+        if ($careOf === '') {
+            return null;
+        }
+
+        return mb_substr($careOf, 0, self::CARE_OF_MAX_LENGTH);
     }
 }

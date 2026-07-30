@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -113,8 +115,8 @@ class CapayableIn3Test extends BaseTest
      * @param $fee
      * @param $expected
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($fee, $expected)
     {
         $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();

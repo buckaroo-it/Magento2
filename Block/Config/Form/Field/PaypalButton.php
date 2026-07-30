@@ -34,6 +34,11 @@ class PaypalButton extends Field
      */
     protected $shapeElement;
 
+    /**
+     * Set the PayPal button preview template.
+     *
+     * @return void
+     */
     protected function _construct()
     {
         parent::_construct();
@@ -41,7 +46,7 @@ class PaypalButton extends Field
     }
 
     /**
-     * Return element html
+     * Return element HTML
      *
      * @param AbstractElement $element
      *
@@ -57,20 +62,41 @@ class PaypalButton extends Field
         return $this->_toHtml();
     }
 
+    /**
+     * Get the configured PayPal button color.
+     *
+     * @return string
+     */
     public function getButtonColor(): string
     {
         return $this->colorElement->getDataByKey('value') ?? PaypalButtonStyle::COLOR_DEFAULT;
     }
 
+    /**
+     * Get the configured PayPal button shape.
+     *
+     * @return string
+     */
     public function getButtonShape(): string
     {
         return $this->shapeElement->getDataByKey('value') ?? "0";
     }
+
+    /**
+     * Get the id of the button color form element.
+     *
+     * @return string
+     */
     public function getButtonColorElement():string
     {
         return $this->colorElement->getId();
     }
 
+    /**
+     * Get the id of the button shape form element.
+     *
+     * @return string
+     */
     public function getButtonShapeElement():string
     {
         return $this->shapeElement->getId();

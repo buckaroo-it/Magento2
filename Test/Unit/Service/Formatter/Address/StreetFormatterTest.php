@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Formatter\Address;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Service\Formatter\Address\StreetFormatter;
 use Buckaroo\Magento2\Test\BaseTest;
 
@@ -73,8 +75,8 @@ class StreetFormatterTest extends BaseTest
      * @param $street
      * @param $expected
      *
-     * @dataProvider formatProvider
      */
+    #[DataProvider('formatProvider')]
     public function testFormat($street, $expected)
     {
         $instance = $this->getInstance();

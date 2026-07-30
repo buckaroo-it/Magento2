@@ -113,11 +113,23 @@ class LogoService
         return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");
     }
 
+    /**
+     * Get logo URL for a module asset path.
+     *
+     * @param string $path
+     * @return string
+     */
     public function getLogoUrl(string $path): string
     {
         return $this->assetRepo->getUrl("Buckaroo_Magento2::{$path}");
     }
 
+    /**
+     * Get gift card logo URL, falling back to the default logo by code.
+     *
+     * @param array $giftcard
+     * @return string
+     */
     public function getGiftcardLogo(array $giftcard): string
     {
         if (isset($giftcard['logo']) &&
@@ -191,6 +203,12 @@ class LogoService
         return $this->assetRepo->getUrl("Buckaroo_Magento2::images/creditcards/{$code}.svg");
     }
 
+    /**
+     * Get URL for an arbitrary asset path.
+     *
+     * @param string $path
+     * @return string
+     */
     public function getAssetUrl(string $path): string
     {
         return $this->assetRepo->getUrl($path);

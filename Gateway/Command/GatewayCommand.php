@@ -285,6 +285,7 @@ class GatewayCommand implements CommandInterface
 
     /**
      * Tries to map error messages from validation result and logs processed message.
+     *
      * Throws an exception with mapped message or default error.
      *
      * @param ResultInterface $result
@@ -310,7 +311,7 @@ class GatewayCommand implements CommandInterface
                 $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
             }
         } else {
-            $messages[] = (string)$result->getFailsDescription()[0] ?? '';
+            $messages[] = (string)($result->getFailsDescription()[0] ?? '');
         }
 
         $errorMessage = '';

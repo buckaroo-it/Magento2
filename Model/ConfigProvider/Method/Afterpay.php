@@ -186,6 +186,8 @@ class Afterpay extends AbstractConfigProvider
     }
 
     /**
+     * Get the configured Afterpay payment fee for the given store.
+     *
      * @param null|int $storeId
      *
      * @return float

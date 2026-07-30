@@ -24,6 +24,9 @@ namespace Buckaroo\Magento2\Model\Method;
 
 class DefaultTitles
 {
+    /**
+     * @var array
+     */
     protected static $labels = [
         'afterpay'         => 'Riverty',
         'afterpay2'        => 'Riverty',
@@ -57,6 +60,13 @@ class DefaultTitles
         'wero'             => 'Wero'
     ];
 
+    /**
+     * Get the default title for the given payment method code.
+     *
+     * @param string $paymentCode
+     * @return string
+     */
+    // phpcs:ignore Magento2.Functions.StaticFunction -- stateless constant map lookup, interception has no value
     public static function get(string $paymentCode): string
     {
         if (isset(self::$labels[$paymentCode])) {

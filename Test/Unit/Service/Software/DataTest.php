@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Software;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
 use Buckaroo\Magento2\Service\Software\Data;
@@ -72,8 +74,8 @@ class DataTest extends BaseTest
      * @param $module
      * @param $expected
      *
-     * @dataProvider getProvider
      */
+    #[DataProvider('getProvider')]
     public function testGet($name, $edition, $version, $module, $expected)
     {
         $productMetadataMock = $this->getFakeMock(ProductMetadataInterface::class)->getMock();

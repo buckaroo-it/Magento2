@@ -55,6 +55,8 @@ class CapayablePostpay extends AbstractConfigProvider
     }
 
     /**
+     * Get the payment fee configured for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

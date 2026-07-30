@@ -66,6 +66,9 @@ class Creditcards extends AbstractConfigProvider
      */
     private $storeManager;
 
+    /**
+     * @var array
+     */
     protected $issuers = [
         [
             'name' => 'American Express',
@@ -143,6 +146,11 @@ class Creditcards extends AbstractConfigProvider
         ]);
     }
 
+    /**
+     * Get the list of configured creditcard issuers.
+     *
+     * @return array
+     */
     public function getIssuers(): array
     {
         return $this->issuers;
@@ -218,6 +226,8 @@ class Creditcards extends AbstractConfigProvider
     }
 
     /**
+     * Get the configured payment fee for creditcards.
+     *
      * @param null|int $storeId
      *
      * @return float
@@ -233,6 +243,11 @@ class Creditcards extends AbstractConfigProvider
         return $paymentFee ?: 0;
     }
 
+    /**
+     * Get the hosted fields client id from configuration.
+     *
+     * @return mixed
+     */
     public function getHostedFieldsClientId()
     {
         return $this->scopeConfig->getValue(
@@ -241,6 +256,11 @@ class Creditcards extends AbstractConfigProvider
         );
     }
 
+    /**
+     * Get the hosted fields client secret from configuration.
+     *
+     * @return mixed
+     */
     public function getHostedFieldsClientSecret()
     {
         return $this->scopeConfig->getValue(
@@ -338,11 +358,17 @@ class Creditcards extends AbstractConfigProvider
      */
     public function getFieldBackgroundColor($storeId = null): string
     {
-        return $this->scopeConfig->getValue(
+        $value = (string)$this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_FIELD_BACKGROUND_COLOR,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        ) ?: '#fefefe';
+        );
+
+        if ($value === '__EMPTY__') {
+            return 'transparent';
+        }
+
+        return $value !== '' ? $value : '#fefefe';
     }
 
     /**
@@ -427,6 +453,11 @@ class Creditcards extends AbstractConfigProvider
         ) ?: '5px';
     }
 
+    /**
+     * Get the codes of all active creditcard issuers.
+     *
+     * @return array
+     */
     public function getSupportedServices(): array
     {
         $issuers = $this->formatIssuers();
@@ -444,7 +475,7 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get Sorted Issuers
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed|null
      */
@@ -465,12 +496,14 @@ class Creditcards extends AbstractConfigProvider
     }
 
     /**
-     * Get all available credit card issuers for the SortIssuers block
+     * Get all available credit card issuers for the SortIssuers block.
+     *
      * Only returns credit cards that are selected in "Allowed credit and debit cards"
      *
      * @param null|int|string $storeId
      *
      * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getAllIssuers($storeId = null): array
     {

@@ -37,7 +37,6 @@ define(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_klarna',
-                    selectedGender: null,
                 },
 
                 getMessageText: function () {
@@ -51,7 +50,7 @@ define(
                 },
 
                 initObservable: function () {
-                    this._super().observe(['selectedGender']);
+                    this._super();
 
                     this.showFinancialWarning = ko.computed(
                         function () {
@@ -69,9 +68,7 @@ define(
                     return {
                         "method": this.item.method,
                         "po_number": null,
-                        "additional_data": {
-                            "customer_gender" : this.selectedGender()
-                        }
+                        "additional_data": {}
                     };
                 }
             }

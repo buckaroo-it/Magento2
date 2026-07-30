@@ -43,6 +43,7 @@ class PreventEmailOnOrderPlace implements ObserverInterface
 
     /**
      * Prevent email from being sent immediately for Buckaroo redirect payments
+     *
      * Email will be sent after successful payment confirmation via push
      *
      * @param Observer $observer

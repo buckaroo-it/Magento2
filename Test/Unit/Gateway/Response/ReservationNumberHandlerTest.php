@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Response\ReservationNumberHandler;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Transaction\Response\TransactionResponse;
@@ -34,16 +36,21 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
      */
     protected $reservationNumberHandler;
 
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $orderRepositoryMock;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $loggerMock = $this->createMock(BuckarooLoggerInterface::class);
-        $this->reservationNumberHandler = new ReservationNumberHandler($loggerMock);
+        $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
+        $this->reservationNumberHandler = new ReservationNumberHandler($loggerMock, $this->orderRepositoryMock);
     }
 
     /**
-     * @dataProvider reservationNumberDataProvider
      *
      * @param string     $paymentMethod
      * @param bool       $hasReservationNumber
@@ -51,6 +58,7 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
      *
      * @throws \Exception
      */
+    #[DataProvider('reservationNumberDataProvider')]
     public function testHandle(
         string $paymentMethod,
         bool $hasReservationNumber,
@@ -61,11 +69,9 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
             ->willReturn($paymentMethod);
 
         if ($paymentMethod == 'buckaroo_magento2_klarnakp') {
-            $orderMock = $this->getMockBuilder(Order::class)
+            $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
                 ->disableOriginalConstructor()
-                ->addMethods(['getBuckarooReservationNumber', 'setBuckarooReservationNumber'])
-                ->onlyMethods(['save'])
-                ->getMock();
+                ->onlyMethods(['save', 'getBuckarooReservationNumber', 'setBuckarooReservationNumber'])->getMock();
 
             $orderMock
                 ->method('getBuckarooReservationNumber')
@@ -83,9 +89,9 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
             }
 
             if ($hasReservationNumber) {
-                $orderMock->expects($this->never())->method('save');
+                $this->orderRepositoryMock->expects($this->never())->method('save');
             } else {
-                $orderMock->expects($this->once())->method('save')->willReturnSelf();
+                $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
             }
 
             $this->orderPaymentMock

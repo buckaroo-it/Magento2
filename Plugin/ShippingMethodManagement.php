@@ -106,17 +106,6 @@ class ShippingMethodManagement
                 if ($quote && $quote->getId()) {
                     $quote = $this->quoteRepository->getActive((int)$quote->getId());
                     if ($shippingAddress = $quote->getShippingAddress()) {
-                        if (!$shippingAddress->getShippingMethod()) {
-                            $this->logger->addDebug(sprintf(
-                                '[SET_SHIPPING] | [Plugin] | [%s:%s] - SET SHIPPING ADDRESS - Ensures that '
-                                . 'the shipping address is loaded. | lastRealOrder: %s | shippingAddressId: %s',
-                                __METHOD__,
-                                __LINE__,
-                                $lastRealOrder->getIncrementId(),
-                                $shippingAddress->getAddressId()
-                            ));
-                            $shippingAddress->load($shippingAddress->getAddressId());
-                        }
                         $shippingAddress->setCollectShippingRates(true);
                     }
                 }

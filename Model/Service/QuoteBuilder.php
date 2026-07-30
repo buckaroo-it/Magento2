@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Laminas\Stdlib\Parameters;
+
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Type\Onepage;
@@ -32,6 +34,9 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Quote\Model\QuoteFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class QuoteBuilder implements QuoteBuilderInterface
 {
     /**
@@ -151,8 +156,9 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $formData)
     {
-        $data = [];
-        parse_str($formData, $data);
+        $parameters = new Parameters();
+        $parameters->fromString($formData);
+        $data = $parameters->toArray();
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);

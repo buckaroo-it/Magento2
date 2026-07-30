@@ -28,8 +28,16 @@ use Buckaroo\Magento2\Model\LogFactory;
 
 class DbHandler extends Base
 {
+    /**
+     * @var LogFactory
+     */
     private $logFactory;
 
+    /**
+     * Constructor.
+     *
+     * @param LogFactory $logFactory
+     */
     public function __construct(LogFactory $logFactory)
     {
         $this->logFactory = $logFactory;
@@ -39,6 +47,7 @@ class DbHandler extends Base
      * Accepts either the Monolog 2 array or the Monolog 3 LogRecord object.
      *
      * @param mixed $record
+     * @throws \Exception
      */
     public function write(mixed $record): void
     {

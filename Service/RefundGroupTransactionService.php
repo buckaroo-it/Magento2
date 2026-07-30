@@ -102,14 +102,20 @@ class RefundGroupTransactionService
     private $giftcardCollection;
 
     /**
-     * @param PaymentGroupTransaction  $paymentGroupTransaction
-     * @param BuckarooLog              $buckarooLog
-     * @param RequestInterface         $request
-     * @param BuilderInterface         $requestDataBuilder
+     * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
+     */
+    private $groupTransactionResource;
+
+    /**
+     * @param PaymentGroupTransaction $paymentGroupTransaction
+     * @param BuckarooLog $buckarooLog
+     * @param RequestInterface $request
+     * @param BuilderInterface $requestDataBuilder
      * @param TransferFactoryInterface $transferFactory
-     * @param ClientInterface          $clientInterface
-     * @param GiftcardCollection       $giftcardCollection
-     * @param HandlerInterface|null    $handler
+     * @param ClientInterface $clientInterface
+     * @param GiftcardCollection $giftcardCollection
+     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource
+     * @param HandlerInterface|null $handler
      */
     public function __construct(
         PaymentGroupTransaction $paymentGroupTransaction,
@@ -119,8 +125,10 @@ class RefundGroupTransactionService
         TransferFactoryInterface $transferFactory,
         ClientInterface $clientInterface,
         GiftcardCollection $giftcardCollection,
+        \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource,
         ?HandlerInterface $handler = null
     ) {
+        $this->groupTransactionResource = $groupTransactionResource;
         $this->requestDataBuilder = $requestDataBuilder;
         $this->transferFactory = $transferFactory;
         $this->clientInterface = $clientInterface;
@@ -242,7 +250,7 @@ class RefundGroupTransactionService
                     $refundAmount,
                     $response['object']->getStatusCode()
                 ));
-                
+
                 // Update amount left to refund ONLY on success
                 $this->amountLeftToRefund -= $refundAmount;
 
@@ -432,7 +440,7 @@ class RefundGroupTransactionService
                         $newRefundAmount += $prevRefundAmount;
                     }
                     $item->setData('refunded_amount', $newRefundAmount);
-                    $item->save();
+                    $this->groupTransactionResource->save($item);
                 }
             } else {
                 // Refund FAILED - throw exception to prevent credit memo creation
@@ -710,5 +718,4 @@ class RefundGroupTransactionService
             $order->getIncrementId()
         ));
     }
-
 }

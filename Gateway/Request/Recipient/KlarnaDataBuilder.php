@@ -24,6 +24,14 @@ namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 class KlarnaDataBuilder extends AbstractRecipientDataBuilder
 {
     /**
+     * Gender value sent when no gender is collected from the customer.
+     *
+     * Klarna (MoR) no longer asks the shopper to select a gender, but the
+     * parameter is mandatory for Buckaroo. We therefore always send "unknown".
+     */
+    private const GENDER_UNKNOWN = 'unknown';
+
+    /**
      * @inheritdoc
      */
     protected function buildData(): array
@@ -36,6 +44,19 @@ class KlarnaDataBuilder extends AbstractRecipientDataBuilder
                 'birthDate' => $this->getBirthDate(),
             ],
         ];
+    }
+
+    /**
+     * Klarna (MoR) does not collect a gender from the shopper.
+     *
+     * The gender parameter is mandatory for Buckaroo, so we always send the
+     * neutral value "unknown" instead of showing an extra selection step.
+     *
+     * @return string
+     */
+    protected function getGender(): string
+    {
+        return self::GENDER_UNKNOWN;
     }
 
     /**

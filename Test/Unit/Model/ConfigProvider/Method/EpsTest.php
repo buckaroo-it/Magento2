@@ -18,6 +18,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Helper\PaymentFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Eps;
@@ -59,16 +61,15 @@ class EpsTest extends BaseTest
      * @param bool  $active
      * @param array $expected
      *
-     * @dataProvider getConfigProvider
      */
+    #[DataProvider('getConfigProvider')]
     public function testGetConfig($active, $expected): void
     {
         // $expected parameter is from data provider but not used in this test implementation
         unset($expected);
 
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $scopeConfigMock->method('getValue')
             ->willReturnCallback(function ($path, $scope = null, $storeId = null) use ($active) {
@@ -144,13 +145,12 @@ class EpsTest extends BaseTest
      * @param mixed $value
      * @param mixed $expected
      *
-     * @dataProvider getPaymentFeeProvider
      */
+    #[DataProvider('getPaymentFeeProvider')]
     public function testGetPaymentFee($value, $expected): void
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $scopeConfigMock->method('getValue')
             ->with(

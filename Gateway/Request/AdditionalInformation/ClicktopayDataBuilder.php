@@ -17,15 +17,15 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+
 declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Gateway\Request\BillingAddress;
+namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Api\Data\OrderAddressInterface;
 
-class NameDataBuilder implements BuilderInterface
+class ClicktopayDataBuilder implements BuilderInterface
 {
     /**
      * @inheritdoc
@@ -33,13 +33,18 @@ class NameDataBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $order = $paymentDO->getOrder()->getOrder();
+        $payment   = $paymentDO->getPayment();
 
-        /**
-         * @var OrderAddressInterface $billingAddress
-         */
-        $billingAddress = $order->getBillingAddress();
+        $transientToken = $payment->getAdditionalInformation('transient_token');
+        $identifier     = $payment->getAdditionalInformation('identifier');
 
-        return ['customer' => ['name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastName()]];
+        if (empty($transientToken)) {
+            throw new \InvalidArgumentException('Click to Pay transient token is missing from payment data.');
+        }
+
+        return [
+            'transientToken' => $transientToken,
+            'identifier'     => (string) $identifier,
+        ];
     }
 }

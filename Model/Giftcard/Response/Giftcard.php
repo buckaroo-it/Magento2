@@ -21,6 +21,8 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
 use Buckaroo\Magento2\Model\Data\BuckarooResponseData;
+use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderManagementInterface;
@@ -91,6 +93,31 @@ class Giftcard
      */
     private $orderRepository;
 
+    /**
+     * @var OrderCommentHistoryService
+     */
+    private $orderCommentHistoryService;
+
+    /**
+     * @var \Magento\Quote\Api\CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
+     * Giftcard response constructor
+     *
+     * @param PriceCurrencyInterface $priceCurrency
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param QuoteManagement $quoteManagement
+     * @param OrderManagementInterface $orderManagement
+     * @param OrderRepositoryInterface $orderRepository
+     * @param GiftcardRemove $giftcardRemoveService
+     * @param BuckarooLoggerInterface $logger
+     * @param BuckarooResponseData $buckarooResponseData
+     * @param OrderCommentHistoryService $orderCommentHistoryService
+     * @param CartRepositoryInterface $cartRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         PriceCurrencyInterface $priceCurrency,
         PaymentGroupTransaction $groupTransaction,
@@ -99,8 +126,11 @@ class Giftcard
         OrderRepositoryInterface $orderRepository,
         GiftcardRemove $giftcardRemoveService,
         BuckarooLoggerInterface $logger,
-        BuckarooResponseData $buckarooResponseData
+        BuckarooResponseData $buckarooResponseData,
+        OrderCommentHistoryService $orderCommentHistoryService,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository
     ) {
+        $this->cartRepository = $cartRepository;
         $this->priceCurrency = $priceCurrency;
         $this->groupTransaction = $groupTransaction;
         $this->quoteManagement = $quoteManagement;
@@ -109,6 +139,7 @@ class Giftcard
         $this->giftcardRemoveService = $giftcardRemoveService;
         $this->logger = $logger;
         $this->buckarooResponseData = $buckarooResponseData;
+        $this->orderCommentHistoryService = $orderCommentHistoryService;
     }
 
     /**
@@ -178,7 +209,7 @@ class Giftcard
         // Keep quote active only if order was created
         if ($order && $order->getEntityId()) {
             $this->quote->setIsActive(true);
-            $this->quote->save();
+            $this->cartRepository->save($this->quote);
         }
 
         return $order;
@@ -326,10 +357,7 @@ class Giftcard
             $order->getEntityId() !== null
         ) {
             $this->orderManagement->cancel($order->getEntityId());
-            $order->addCommentToStatusHistory($this->getErrorMessage())
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
+            $this->orderCommentHistoryService->add($order, (string)$this->getErrorMessage());
             $this->rollbackAllPartialPayments($order);
         }
     }
@@ -357,6 +385,12 @@ class Giftcard
         return '';
     }
 
+    /**
+     * Roll back all partial group transaction payments made on the given order.
+     *
+     * @param \Magento\Sales\Api\Data\OrderInterface $order
+     * @return void
+     */
     public function rollbackAllPartialPayments($order)
     {
         try {

@@ -29,6 +29,12 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
  */
 class IssuerDataBuilder implements BuilderInterface
 {
+    /**
+     * Build the issuer request data from the payment additional information.
+     *
+     * @param array $buildSubject
+     * @return array
+     */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);

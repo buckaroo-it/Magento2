@@ -37,8 +37,7 @@ class IdealTest extends BaseTest
     public function testInactive()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ACTIVE),
@@ -58,8 +57,7 @@ class IdealTest extends BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')->willReturnMap([
             // Make the ideal method active
             [
@@ -110,8 +108,7 @@ class IdealTest extends BaseTest
     public function testGetPaymentFee()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::PAYMENT_FEE),
@@ -131,8 +128,7 @@ class IdealTest extends BaseTest
     public function testGetPaymentFeeReturnNumber()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::PAYMENT_FEE),
@@ -152,8 +148,7 @@ class IdealTest extends BaseTest
     public function testGetActive()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')
             ->with(
                 $this->getPaymentMethodConfigPath(Ideal::CODE, AbstractConfigProvider::ACTIVE),

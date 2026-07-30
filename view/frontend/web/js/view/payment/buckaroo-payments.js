@@ -167,6 +167,11 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay}
             },
             {
+                type: 'buckaroo_magento2_clicktopay',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/clicktopay',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_clicktopay}
+            },
+            {
                 type: 'buckaroo_magento2_capayablein3',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/capayablein3',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_capayablein3}

@@ -27,6 +27,8 @@ class Multibanco extends AbstractConfigProvider
     public const XPATH_MULTIBANCO_PAYMENT_FEE           = 'payment/buckaroo_magento2_multibanco/payment_fee';
 
     /**
+     * Get the configured payment fee for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

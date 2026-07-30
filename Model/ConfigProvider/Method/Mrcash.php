@@ -108,6 +108,8 @@ class Mrcash extends AbstractConfigProvider
     }
 
     /**
+     * Get the configured payment fee for this payment method.
+     *
      * @param null|int $storeId
      *
      * @return float

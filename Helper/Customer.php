@@ -47,6 +47,16 @@ class Customer extends AbstractHelper
      */
     public $checkPaymentType;
 
+    /**
+     * Constructor
+     *
+     * @param Context $context
+     * @param Factory $configProviderMethodFactory
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param State $state
+     * @param CustomerSession $customerSession
+     * @param CheckPaymentType $checkPaymentType
+     */
     public function __construct(
         Context $context,
         Factory $configProviderMethodFactory,

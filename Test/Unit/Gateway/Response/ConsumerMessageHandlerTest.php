@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Response\CancelHandler;
 use Buckaroo\Magento2\Gateway\Response\ConsumerMessageHandler;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
@@ -48,11 +50,11 @@ class ConsumerMessageHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
-     * @dataProvider messageDataProvider
      *
      * @param array $consumerMessage
      * @param int   $expectedMessageCalls
      */
+    #[DataProvider('messageDataProvider')]
     public function testHandle(array $consumerMessage, int $expectedMessageCalls): void
     {
         $this->transactionResponse

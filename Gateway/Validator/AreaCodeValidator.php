@@ -31,9 +31,23 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 
 class AreaCodeValidator extends AbstractValidator
 {
+    /**
+     * @var State
+     */
     private State $state;
+
+    /**
+     * @var MethodConfigProviderFactory
+     */
     private MethodConfigProviderFactory $methodConfigProviderFactory;
 
+    /**
+     * Constructor
+     *
+     * @param ResultInterfaceFactory $resultFactory
+     * @param State $state
+     * @param MethodConfigProviderFactory $methodConfigProviderFactory
+     */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
         State $state,
@@ -44,6 +58,13 @@ class AreaCodeValidator extends AbstractValidator
         parent::__construct($resultFactory);
     }
 
+    /**
+     * Validate that the payment method is allowed for the current area code.
+     *
+     * @param array $validationSubject
+     * @return ResultInterface
+     * @throws \Buckaroo\Magento2\Exception
+     */
     public function validate(array $validationSubject): ResultInterface
     {
         $isValid = true;

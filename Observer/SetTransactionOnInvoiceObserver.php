@@ -56,6 +56,12 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
      */
     private $createInvoiceService;
 
+    /**
+     * @param CommandInterface $stateCommand
+     * @param Account $configAccount
+     * @param CheckPaymentType $checkPaymentType
+     * @param CreateInvoice $createInvoiceService
+     */
     public function __construct(
         CommandInterface $stateCommand,
         Account $configAccount,
@@ -118,8 +124,18 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
      */
     private function isInvoiceCreatedAfterShipment(OrderPaymentInterface $payment): bool
     {
-        return $payment->getAdditionalInformation(
+        $invoiceHandling = $payment->getAdditionalInformation(
             InvoiceHandlingOptions::INVOICE_HANDLING
-        ) == InvoiceHandlingOptions::SHIPMENT;
+        );
+
+        if ($invoiceHandling == InvoiceHandlingOptions::SHIPMENT) {
+            return true;
+        }
+
+        if ($invoiceHandling !== null && $invoiceHandling !== '') {
+            return false;
+        }
+
+        return $this->configAccount->getInvoiceHandling() == InvoiceHandlingOptions::SHIPMENT;
     }
 }

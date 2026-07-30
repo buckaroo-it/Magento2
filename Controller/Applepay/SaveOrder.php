@@ -35,6 +35,14 @@ class SaveOrder extends AbstractApplepay
      */
     private $processor;
 
+    /**
+     * SaveOrder controller constructor.
+     *
+     * @param JsonFactory $resultJsonFactory
+     * @param RequestInterface $request
+     * @param BuckarooLoggerInterface $logger
+     * @param SaveOrderProcessor $processor
+     */
     public function __construct(
         JsonFactory            $resultJsonFactory,
         RequestInterface       $request,
@@ -46,6 +54,9 @@ class SaveOrder extends AbstractApplepay
     }
 
     /**
+     * Place the Apple Pay order from the request payload.
+     *
+     * @return Json
      * @throws ExpressMethodsException
      * @throws LocalizedException
      */

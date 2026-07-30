@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Source;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Source\FeePercentageMode;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\Phrase;
@@ -47,8 +49,8 @@ class FeePercentageModeTest extends BaseTest
     /**
      * @param $paymentOption
      *
-     * @dataProvider toOptionArrayProvider
      */
+    #[DataProvider('toOptionArrayProvider')]
     public function testToOptionArray($paymentOption)
     {
         $instance = $this->getInstance();

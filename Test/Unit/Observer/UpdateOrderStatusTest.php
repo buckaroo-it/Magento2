@@ -21,61 +21,157 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
-use Magento\Framework\Event\Observer;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Observer\UpdateOrderStatus;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 class UpdateOrderStatusTest extends BaseTest
 {
     protected $instanceClass = UpdateOrderStatus::class;
 
     /**
-     * Test what happens when this function is called but the payment method is not Buckaroo.
+     * A non-Buckaroo payment method must cause an early return: the order is
+     * never loaded and the account configuration is never consulted.
      */
-    public function testExecuteNotBuckaroo()
+    public function testExecuteNotBuckarooDoesNothing()
     {
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->onlyMethods(['getEvent'])
-            ->addMethods(['getPayment', 'getMethod'])
+        $paymentMock = $this->getFakeMock(Payment::class)
+            ->onlyMethods(['getMethod', 'getOrder'])
             ->getMock();
-        $observerMock->method('getPayment')->willReturnSelf();
-        $observerMock->method('getMethod')->willReturn('other_payment_method');
+        $paymentMock->method('getMethod')->willReturn('other_payment_method');
+        $paymentMock->expects($this->never())->method('getOrder');
 
-        $instance = $this->getInstance();
-        $result = $instance->execute($observerMock);
-
-        // Add assertion to verify method execution for non-Buckaroo payments
-        $this->assertNull($result, 'Execute should return null for non-Buckaroo payment methods');
-    }
-
-    /**
-     * Test what happens when the payment method is Buckaroo.
-     */
-    public function testExecuteIsBuckaroo()
-    {
-        $observerMock = $this->getMockBuilder(Observer::class)
-            ->onlyMethods(['getEvent'])
-            ->addMethods(['getPayment', 'getMethod', 'getOrder', 'getStore', 'setStatus'])
+        $observerMock = $this->getFakeMock(ObserverStub::class)
+            ->onlyMethods(['getPayment'])
             ->getMock();
-        $observerMock->method('getPayment')->willReturnSelf();
-        $observerMock->method('getMethod')->willReturn('buckaroo_magento2');
-        $observerMock->method('getOrder')->willReturnSelf();
-        $observerMock->method('getStore')->willReturnSelf();
-        $observerMock->method('setStatus')->willReturn('buckaroo_magento2_pending_paymen');
+        $observerMock->method('getPayment')->willReturn($paymentMock);
 
         $accountMock = $this->getFakeMock(Account::class)
             ->onlyMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
             ->getMock();
-        $accountMock
-            ->method('getOrderStatusNew')
-            ->willReturn('buckaroo_magento2_pending_paymen');
-        $accountMock->method('getCreateOrderBeforeTransaction')->willReturn(0);
+        $accountMock->expects($this->never())->method('getOrderStatusNew');
+        $accountMock->expects($this->never())->method('getCreateOrderBeforeTransaction');
 
-        $instance = $this->getInstance(['accountConfig' => $accountMock]);
-        $result = $instance->execute($observerMock);
+        $instance = $this->getInstance(['account' => $accountMock]);
+        $instance->execute($observerMock);
+    }
 
-        // Add assertion to verify method execution for Buckaroo payments
-        $this->assertNull($result, 'Execute should handle Buckaroo payment method and update order status');
+    /**
+     * When the configured new status is one of the allowed statuses and the
+     * order is still 'pending', the observer must set that status on the
+     * order and add the matching status history comment.
+     */
+    public function testExecuteSetsAllowedConfiguredStatusOnPendingOrder()
+    {
+        $newStatus = 'pending_payment';
+
+        $orderMock = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getStore', 'getStatus', 'setStatus', 'addCommentToStatusHistory'])
+            ->getMock();
+        $orderMock->method('getStatus')->willReturn('pending');
+        $orderMock->expects($this->once())
+            ->method('setStatus')
+            ->with($newStatus)
+            ->willReturnSelf();
+        $orderMock->expects($this->once())
+            ->method('addCommentToStatusHistory')
+            ->with(
+                'Order status updated by Buckaroo payment placement to: ' . $newStatus,
+                $newStatus
+            );
+
+        $observerMock = $this->createObserverForBuckarooPayment($orderMock);
+        $accountMock = $this->createAccountMock($newStatus, false);
+
+        $instance = $this->getInstance(['account' => $accountMock]);
+        $instance->execute($observerMock);
+    }
+
+    /**
+     * When the configured new status is processor-managed (e.g. 'processing'),
+     * the observer must NOT change the order status and only add an
+     * informational history comment.
+     */
+    public function testExecuteProcessorManagedStatusOnlyAddsComment()
+    {
+        $orderMock = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getStore', 'getStatus', 'setStatus', 'addCommentToStatusHistory'])
+            ->getMock();
+        $orderMock->method('getStatus')->willReturn('pending');
+        $orderMock->expects($this->never())->method('setStatus');
+        $orderMock->expects($this->once())
+            ->method('addCommentToStatusHistory')
+            ->with('Buckaroo payment placed. Status will be updated by payment processor response.');
+
+        $observerMock = $this->createObserverForBuckarooPayment($orderMock);
+        $accountMock = $this->createAccountMock('processing', false);
+
+        $instance = $this->getInstance(['account' => $accountMock]);
+        $instance->execute($observerMock);
+    }
+
+    /**
+     * When "create order before transaction" is enabled, the observer must
+     * leave the order untouched even for a Buckaroo payment.
+     */
+    public function testExecuteCreateOrderBeforeTransactionLeavesOrderUntouched()
+    {
+        $orderMock = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getStore', 'getStatus', 'setStatus', 'addCommentToStatusHistory'])
+            ->getMock();
+        $orderMock->method('getStatus')->willReturn('pending');
+        $orderMock->expects($this->never())->method('setStatus');
+        $orderMock->expects($this->never())->method('addCommentToStatusHistory');
+
+        $observerMock = $this->createObserverForBuckarooPayment($orderMock);
+        $accountMock = $this->createAccountMock('pending_payment', true);
+
+        $instance = $this->getInstance(['account' => $accountMock]);
+        $instance->execute($observerMock);
+    }
+
+    /**
+     * Build an observer mock exposing a Buckaroo payment for the given order.
+     *
+     * @param \PHPUnit\Framework\MockObject\MockObject $orderMock
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createObserverForBuckarooPayment($orderMock)
+    {
+        $paymentMock = $this->getFakeMock(Payment::class)
+            ->onlyMethods(['getMethod', 'getOrder'])
+            ->getMock();
+        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_ideal');
+        $paymentMock->method('getOrder')->willReturn($orderMock);
+
+        $observerMock = $this->getFakeMock(ObserverStub::class)
+            ->onlyMethods(['getPayment'])
+            ->getMock();
+        $observerMock->method('getPayment')->willReturn($paymentMock);
+
+        return $observerMock;
+    }
+
+    /**
+     * Build an Account config mock with the given new-status configuration.
+     *
+     * @param string $newStatus
+     * @param bool   $createOrderBeforeTransaction
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createAccountMock(string $newStatus, bool $createOrderBeforeTransaction)
+    {
+        $accountMock = $this->getFakeMock(Account::class)
+            ->onlyMethods(['getOrderStatusNew', 'getCreateOrderBeforeTransaction'])
+            ->getMock();
+        $accountMock->method('getOrderStatusNew')->willReturn($newStatus);
+        $accountMock->method('getCreateOrderBeforeTransaction')->willReturn($createOrderBeforeTransaction);
+
+        return $accountMock;
     }
 }

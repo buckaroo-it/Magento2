@@ -31,11 +31,16 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -48,21 +53,24 @@ class RefundProcessor extends DefaultProcessor
     private $refundPush;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param RefundPush              $refundPush
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param RefundPush $refundPush
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -70,16 +78,20 @@ class RefundProcessor extends DefaultProcessor
         PushTransactionType $pushTransactionType,
         BuckarooLoggerInterface $logger,
         Data $helper,
-        TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Uncancel $uncancelService,
-        ResourceConnection $resourceConnection,
-        GiftcardCollection $giftcardCollection,
-        RefundPush $refundPush
+        TransactionInterface             $transaction,
+        PaymentGroupTransaction          $groupTransaction,
+        BuckarooStatusCode               $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        RefundPush                       $refundPush,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -94,12 +106,19 @@ class RefundProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            null,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
         $this->refundPush = $refundPush;
     }
 
     /**
+     * Process a refund push request received from Buckaroo.
+     *
      * @param PushRequestInterface $pushRequest
      *
      * @return bool
@@ -142,9 +161,9 @@ class RefundProcessor extends DefaultProcessor
     /**
      * Skip Pending Refund Push
      *
-     * @param \Buckaroo\Magento2\Api\Data\PushRequestInterface $pushRequest
+     * @param PushRequestInterface $pushRequest
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */

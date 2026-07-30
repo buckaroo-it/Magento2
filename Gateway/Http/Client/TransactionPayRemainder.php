@@ -33,7 +33,15 @@ class TransactionPayRemainder extends DefaultTransaction
      * @var PayReminderService
      */
     private $payReminderService;
+
+    /**
+     * @var string
+     */
     private $serviceAction;
+
+    /**
+     * @var string
+     */
     private $newServiceAction;
 
     /**

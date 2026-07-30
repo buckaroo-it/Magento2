@@ -32,13 +32,18 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -64,21 +69,25 @@ class PayPerEmailProcessor extends DefaultProcessor
     private $isPayPerEmailB2BModePush = null;
 
     /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param PayPerEmail             $configPayPerEmail
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param PayPerEmail $configPayPerEmail
+     * @param CurrencyFactory|null $currencyFactory
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -87,15 +96,20 @@ class PayPerEmailProcessor extends DefaultProcessor
         BuckarooLoggerInterface $logger,
         Data                    $helper,
         TransactionInterface    $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode      $buckarooStatusCode,
-        OrderStatusFactory      $orderStatusFactory,
-        Account                 $configAccount,
-        GiftCardRefundService   $giftCardRefundService,
-        Uncancel                $uncancelService,
-        ResourceConnection      $resourceConnection,
-        GiftcardCollection      $giftcardCollection,
-        PayPerEmail             $configPayPerEmail
+        PaymentGroupTransaction                                  $groupTransaction,
+        BuckarooStatusCode                                       $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        PayPerEmail                      $configPayPerEmail,
+        ?CurrencyFactory                 $currencyFactory = null,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -110,12 +124,19 @@ class PayPerEmailProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            $currencyFactory,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
 
     /**
+     * Process the PayPerEmail push notification and update the order state accordingly.
+     *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      *
@@ -123,6 +144,8 @@ class PayPerEmailProcessor extends DefaultProcessor
      *
      * @throws FileSystemException
      * @throws \Exception
+     *
+     * @return bool
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
@@ -155,7 +178,7 @@ class PayPerEmailProcessor extends DefaultProcessor
                 ));
                 if ($this->order->getState() === Order::STATE_COMPLETE) {
                     $this->order->setState(Order::STATE_PROCESSING);
-                    $this->order->save();
+                    $this->orderRepository->save($this->order);
                 }
                 return true;
             }
@@ -200,7 +223,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         $this->processPushByStatus();
 
         if (!$this->dontSaveOrderUponSuccessPush) {
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
 
         return true;
@@ -218,8 +241,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
             $this->payment->setMethod('buckaroo_magento2_payperemail');
-            $this->payment->save();
-            $this->order->save();
+            $this->orderRepository->save($this->order);
         }
     }
 
@@ -304,6 +326,15 @@ class PayPerEmailProcessor extends DefaultProcessor
         return false;
     }
 
+    /**
+     * Persist the actual payment method and transaction key on the payment for later refunds.
+     *
+     * @param string $transactionKey
+     * @param string $transactionMethod
+     *
+     * @return void
+     * @throws LocalizedException
+     */
     private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): void
     {
         $this->payment->setAdditionalInformation(
@@ -315,10 +346,14 @@ class PayPerEmailProcessor extends DefaultProcessor
             $transactionKey
         );
         $this->payment->setMethod('buckaroo_magento2_' . $transactionMethod);
-        $this->payment->save();
-        $this->order->save();
+        $this->orderRepository->save($this->order);
     }
 
+    /**
+     * Derive the actual payment method used from the push request data.
+     *
+     * @return string|null
+     */
     private function deriveActualPaymentMethodFromPush(): ?string
     {
         if (method_exists($this->pushRequest, 'getPrimaryService')) {
@@ -331,6 +366,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         return $this->findServiceInPushData();
     }
 
+    /**
+     * Scan the raw push data for a service key that identifies the actual payment method.
+     *
+     * @return string|null
+     */
     private function findServiceInPushData(): ?string
     {
         if (!method_exists($this->pushRequest, 'getData')) {
@@ -356,6 +396,9 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Add the push status message to the order status history and update its state when new.
+     *
+     * @return void
      */
     protected function setOrderStatusMessage(): void
     {
@@ -415,6 +458,8 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine the new order status for the current push, handling B2B initial pushes.
+     *
      * @throws BuckarooException
      * @throws LocalizedException
      *
@@ -445,12 +490,22 @@ class PayPerEmailProcessor extends DefaultProcessor
         return $newStatus;
     }
 
+    /**
+     * Build the payment amount, description and force-state flags for the push.
+     *
+     * @param string $message
+     *
+     * @return array
+     * @throws LocalizedException
+     */
     protected function getPaymentDetails($message)
     {
         // Set amount
         $amount = $this->order->getTotalDue();
+        $amountCurrency = $this->order->getOrderCurrencyCode();
         if (!empty($this->pushRequest->getAmount())) {
             $amount = floatval($this->pushRequest->getAmount());
+            $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
         /**
@@ -463,11 +518,12 @@ class PayPerEmailProcessor extends DefaultProcessor
         if ($this->canPushInvoice()) {
             $description = 'Payment status : <strong>' . $message . "</strong><br/>";
             $amount = $this->order->getBaseTotalDue();
+            $amountCurrency = $this->order->getBaseCurrencyCode();
             $description .= 'Total amount of ' .
-                $this->order->getBaseCurrency()->formatTxt($amount) . ' has been paid';
+                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
         } else {
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->order->getBaseCurrency()->formatTxt($amount)
+            $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
             $forceState = true;
         }
@@ -484,6 +540,8 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Determine whether an invoice should be saved, handling B2B capture registration.
+     *
      * @param array $paymentDetails
      *
      * @throws \Exception
@@ -498,14 +556,14 @@ class PayPerEmailProcessor extends DefaultProcessor
                 ? $this->order->getGrandTotal()
                 : $this->order->getBaseTotalDue();
             $this->payment->registerCaptureNotification($amount);
-            $this->payment->save();
             $this->order->setState('complete');
             $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             if ($transactionKey = $this->getTransactionKey()) {
                 foreach ($this->order->getInvoiceCollection() as $invoice) {
-                    $invoice->setTransactionId($transactionKey)->save();
+                    $invoice->setTransactionId($transactionKey);
+                    $this->invoiceRepository->save($invoice);
                 }
             }
             return false;
@@ -534,6 +592,11 @@ class PayPerEmailProcessor extends DefaultProcessor
         return true;
     }
 
+    /**
+     * Check whether the PayPerEmail order has already been finalized.
+     *
+     * @return bool
+     */
     private function isAlreadyFinalizedPayPerEmailOrder(): bool
     {
         return in_array($this->order->getState(), [

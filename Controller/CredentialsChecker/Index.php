@@ -31,7 +31,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
 use Magento\Framework\Encryption\Encryptor;
 
 class Index extends Action implements HttpPostActionInterface
@@ -57,11 +56,6 @@ class Index extends Action implements HttpPostActionInterface
     private $client;
 
     /**
-     * @var FormKeyValidator
-     */
-    private $formKeyValidator;
-
-    /**
      * Check Credentials in Admin
      *
      * @param Context          $context
@@ -69,7 +63,6 @@ class Index extends Action implements HttpPostActionInterface
      * @param Encryptor        $encryptor
      * @param Account          $configProviderAccount
      * @param BuckarooAdapter  $client
-     * @param FormKeyValidator $formKeyValidator
      *
      * @throws BuckarooException
      */
@@ -78,15 +71,13 @@ class Index extends Action implements HttpPostActionInterface
         Factory $configProviderFactory,
         Encryptor $encryptor,
         Account $configProviderAccount,
-        BuckarooAdapter $client,
-        FormKeyValidator $formKeyValidator
+        BuckarooAdapter $client
     ) {
         parent::__construct($context);
         $this->accountConfig = $configProviderFactory->get('account');
         $this->encryptor = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
         $this->client = $client;
-        $this->formKeyValidator = $formKeyValidator;
     }
 
     /**
@@ -98,12 +89,6 @@ class Index extends Action implements HttpPostActionInterface
      */
     public function execute(): Json
     {
-        if (!$this->formKeyValidator->validate($this->getRequest())) {
-            return $this->doResponse([
-                'success' => false,
-                'error_message' => __('Invalid form key. Please refresh the page and try again.')
-            ]);
-        }
 
         $params = $this->getRequest()->getParams();
         if (empty($params) || empty($params['secretKey']) || empty($params['merchantKey'])) {

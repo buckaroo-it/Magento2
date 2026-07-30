@@ -7,6 +7,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Observer\CreateSecondChanceRecord;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as ConfigProvider;
@@ -71,7 +73,6 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @dataProvider executeDataProvider
      *
      * @param int    $orderId
      * @param string $state
@@ -81,6 +82,7 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param int    $expectedCreateCalls
      * @param int    $expectedDebugCalls
      */
+    #[DataProvider('executeDataProvider')]
     public function testExecute(
         int $orderId,
         string $state,

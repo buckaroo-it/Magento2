@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Giftcard;
 
 class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -52,8 +54,8 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param $servicecode
      * @param $expected
      *
-     * @dataProvider servicecodeProvider
      */
+    #[DataProvider('servicecodeProvider')]
     public function testShouldBeAbleToSetAndGetServicecode($servicecode, $expected)
     {
         $instance = $this->getInstance();
@@ -87,8 +89,8 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param $label
      * @param $expected
      *
-     * @dataProvider labelProvider
      */
+    #[DataProvider('labelProvider')]
     public function testShouldBeAbleToSetAndGetLabel($label, $expected)
     {
         $instance = $this->getInstance();

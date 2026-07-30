@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLogger;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
@@ -92,14 +93,20 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     private $defaultProcessor;
 
     /**
-     * @param PaymentGroupTransaction  $groupTransaction
-     * @param BuckarooLogger           $logger
-     * @param OrderRequestService      $orderRequestService
+     * @var OrderCommentHistoryService
+     */
+    private $orderCommentHistoryService;
+
+    /**
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooLogger $logger
+     * @param OrderRequestService $orderRequestService
      * @param OrderManagementInterface $orderManagement
-     * @param QuoteManagement          $quoteManagement
-     * @param QuoteFactory             $quoteFactory
-     * @param ResourceQuote            $quoteResource
-     * @param DefaultProcessor         $defaultProcessor
+     * @param QuoteManagement $quoteManagement
+     * @param QuoteFactory $quoteFactory
+     * @param ResourceQuote $quoteResource
+     * @param DefaultProcessor $defaultProcessor
+     * @param OrderCommentHistoryService $orderCommentHistoryService
      */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
@@ -109,7 +116,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         QuoteManagement $quoteManagement,
         QuoteFactory $quoteFactory,
         ResourceQuote $quoteResource,
-        DefaultProcessor $defaultProcessor
+        DefaultProcessor $defaultProcessor,
+        OrderCommentHistoryService $orderCommentHistoryService
     ) {
         $this->groupTransaction = $groupTransaction;
         $this->logger = $logger;
@@ -119,6 +127,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         $this->quoteFactory = $quoteFactory;
         $this->quoteResource = $quoteResource;
         $this->defaultProcessor = $defaultProcessor;
+        $this->orderCommentHistoryService = $orderCommentHistoryService;
     }
 
     /**
@@ -269,10 +278,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         ) {
             $this->orderManagement->cancel($order->getEntityId());
 
-            $order->addCommentToStatusHistory(__($historyComment))
-                ->setIsCustomerNotified(false)
-                ->setEntityName('invoice')
-                ->save();
+            $this->orderCommentHistoryService->add($order, __($historyComment));
         }
     }
 
@@ -306,7 +312,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
         $quote->setIsActive(true);
         $quote->setOrigOrderId(0);
         $quote->setReservedOrderId(null);
-        $quote->save();
+        $this->quoteResource->save($quote);
         return $order;
     }
 

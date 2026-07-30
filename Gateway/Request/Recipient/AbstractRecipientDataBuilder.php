@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class AbstractRecipientDataBuilder extends AbstractDataBuilder
@@ -32,10 +33,17 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     private $addressType;
 
     /**
-     * @param string $addressType
+     * @var BirthDateFormatter
      */
-    public function __construct(string $addressType = 'billing')
+    protected BirthDateFormatter $birthDateFormatter;
+
+    /**
+     * @param BirthDateFormatter $birthDateFormatter
+     * @param string             $addressType
+     */
+    public function __construct(BirthDateFormatter $birthDateFormatter, string $addressType = 'billing')
     {
+        $this->birthDateFormatter = $birthDateFormatter;
         $this->addressType = $addressType;
     }
 
@@ -124,21 +132,38 @@ class AbstractRecipientDataBuilder extends AbstractDataBuilder
     }
 
     /**
-     * Returns the birthdate of the customer
+     * Returns the birthdate of the customer.
      *
-     * @return false|string
+     * Falls back to the placeholder date when the order carries no usable
+     * birthdate, because the services built on this builder reject a missing
+     * birthDate. Never returns null here; the type is nullable only so that
+     * BillinkDataBuilder - whose service does accept a missing birthDate - can
+     * narrow it.
+     *
+     * @return string|null
      */
-    protected function getBirthDate()
+    protected function getBirthDate(): ?string
     {
-        $customerDoB = (string)$this->payment->getAdditionalInformation('customer_DoB');
-        if (empty($customerDoB)) {
-            $customerDoB = $this->getOrder()->getCustomerDob() ?? '1990-01-01';
+        return $this->birthDateFormatter->formatOrDefault(
+            $this->getRawBirthDate(),
+            $this->getFormatDate()
+        );
+    }
+
+    /**
+     * Returns the birthdate as entered, preferring the checkout DoB field over the value stored on the order.
+     *
+     * @return string|null
+     */
+    protected function getRawBirthDate(): ?string
+    {
+        $customerDoB = trim((string)$this->payment->getAdditionalInformation('customer_DoB'));
+
+        if ($customerDoB !== '') {
+            return $customerDoB;
         }
 
-        return date(
-            $this->getFormatDate(),
-            strtotime(str_replace('/', '-', $customerDoB))
-        );
+        return $this->getOrder()->getCustomerDob();
     }
 
     /**

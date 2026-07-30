@@ -50,7 +50,7 @@ class Pospayment extends AbstractConfigProvider
     /**
      * Get Other payment methods for POS
      *
-     * @param $store
+     * @param null|int|string $store
      *
      * @return mixed|null
      */
@@ -60,6 +60,8 @@ class Pospayment extends AbstractConfigProvider
     }
 
     /**
+     * Get the payment fee configured for POS payment.
+     *
      * @param null|int $storeId
      *
      * @return float

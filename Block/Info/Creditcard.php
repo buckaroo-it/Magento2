@@ -123,15 +123,4 @@ class Creditcard extends Info
         }
         return $this->cardType;
     }
-
-    /**
-     * Render as PDF
-     *
-     * @return string
-     */
-    public function toPdf()
-    {
-        $this->setTemplate('Magento_OfflinePayments::info/pdf/checkmo.phtml');
-        return $this->toHtml();
-    }
 }

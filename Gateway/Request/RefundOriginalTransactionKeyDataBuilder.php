@@ -95,7 +95,8 @@ class RefundOriginalTransactionKeyDataBuilder implements BuilderInterface
      */
     private function getKlarnaKpCaptureKey(InfoInterface $payment): ?string
     {
-        if ($payment->getMethod() !== 'buckaroo_magento2_klarnakp') {
+        $method = $payment->getMethod();
+        if ($method !== 'buckaroo_magento2_klarnakp' && $method !== 'buckaroo_magento2_klarna') {
             return null;
         }
 

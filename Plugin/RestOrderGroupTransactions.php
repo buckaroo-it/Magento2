@@ -39,6 +39,8 @@ class RestOrderGroupTransactions
     }
 
     /**
+     * Add Buckaroo group transaction data to the order extension attributes.
+     *
      * @param OrderRepositoryInterface $subject
      * @param OrderInterface           $entity
      *
@@ -62,6 +64,13 @@ class RestOrderGroupTransactions
 
         return $entity;
     }
+
+    /**
+     * Check whether the order was paid with a Buckaroo payment method.
+     *
+     * @param OrderInterface $entity
+     * @return bool
+     */
     private function isBuckaroo(OrderInterface $entity)
     {
         return strpos($entity->getPayment()->getMethod(), "buckaroo_magento2_") !== false;

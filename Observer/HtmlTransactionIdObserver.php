@@ -94,7 +94,12 @@ class HtmlTransactionIdObserver implements ObserverInterface
      */
     private function shouldProcessTransaction(Transaction $transaction, $order): bool
     {
-        $txnIdArray = explode("-", $transaction->getTxnId());
+        $rawTxnId = $transaction->getTxnId();
+        if ($rawTxnId === null) {
+            return false;
+        }
+
+        $txnIdArray = explode("-", $rawTxnId);
         $txnId = reset($txnIdArray);
 
         return $this->checkPaymentType->isBuckarooPayment($order->getPayment()) && $txnId !== false;

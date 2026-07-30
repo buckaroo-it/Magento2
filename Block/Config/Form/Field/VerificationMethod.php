@@ -87,8 +87,9 @@ class VerificationMethod extends MagentoFieldset
     }
 
     /**
-     * @param AbstractElement $element
+     * Build the tab legend HTML containing the payment method logo.
      *
+     * @param AbstractElement $element
      * @return string
      */
     private function getTabImgAndLink($element)

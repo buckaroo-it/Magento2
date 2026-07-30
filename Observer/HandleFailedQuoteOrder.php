@@ -28,6 +28,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Module\Manager;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 class HandleFailedQuoteOrder implements ObserverInterface
@@ -53,21 +54,29 @@ class HandleFailedQuoteOrder implements ObserverInterface
     protected $orderManagement;
 
     /**
-     * @param BuckarooSession          $buckarooSession
-     * @param BuckarooLoggerInterface  $logger
-     * @param Manager                  $moduleManager
+     * @var OrderPaymentRepositoryInterface
+     */
+    private $paymentRepository;
+
+    /**
+     * @param BuckarooSession $buckarooSession
+     * @param BuckarooLoggerInterface $logger
+     * @param Manager $moduleManager
      * @param OrderManagementInterface $orderManagement
+     * @param OrderPaymentRepositoryInterface $paymentRepository
      */
     public function __construct(
         BuckarooSession $buckarooSession,
         BuckarooLoggerInterface $logger,
         Manager $moduleManager,
-        OrderManagementInterface $orderManagement
+        OrderManagementInterface $orderManagement,
+        OrderPaymentRepositoryInterface $paymentRepository
     ) {
         $this->buckarooSession = $buckarooSession;
         $this->logger = $logger;
         $this->moduleManager = $moduleManager;
         $this->orderManagement = $orderManagement;
+        $this->paymentRepository = $paymentRepository;
     }
 
     /**
@@ -100,7 +109,7 @@ class HandleFailedQuoteOrder implements ObserverInterface
                 try {
                     $order->addCommentToStatusHistory('Buckaroo: failed to authorize an order');
                     $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                    $payment->save();
+                    $this->paymentRepository->save($payment);
                 } catch (\Exception $e) {
                     $this->logger->addError(sprintf(
                         '[CANCEL_ORDER] | [Observer] | [%s:%s] - Error when adding order comment | [ERROR]: %s',

@@ -338,7 +338,7 @@ class Data extends AbstractHelper
             ['value' => 'creditcards',       'label' => __('Credit and debit cards (Hosted Fields)')],
             ['value' => 'eps',       'label' => __('EPS')],
             ['value' => 'giftcards',       'label' => __('Giftcards')],
-            ['value' => 'ideal',       'label' => __('iDEAL')],
+            ['value' => 'ideal',       'label' => __('iDEAL | Wero')],
             ['value' => 'kbc',       'label' => __('KBC')],
             ['value' => 'klarna',       'label' => __('Klarna')],
             ['value' => 'klarnakp',       'label' => __('Klarna Pay later (authorize/capture)')],
@@ -360,10 +360,11 @@ class Data extends AbstractHelper
     /**
      * Get order status by state
      *
-     * @param $order
-     * @param $orderState
+     * @param \Magento\Sales\Model\Order $order
+     * @param string $orderState
      *
      * @return mixed
+     * @throws LocalizedException
      */
     public function getOrderStatusByState($order, $orderState)
     {

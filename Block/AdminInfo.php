@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Block;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\DataObject;
@@ -30,6 +31,14 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Block\ConfigurableInfo;
 use Magento\Payment\Gateway\ConfigInterface;
 
+/**
+ * @deprecated No longer wired to any payment method; all Buckaroo methods share
+ *             the same payment info block. Scheduled for removal in a future release.
+ *             When removing, also delete:
+ *             - the IdealAdminInfo virtual type in etc/di.xml
+ *             - Test/Unit/Block/AdminInfoTest.php
+ * @see \Buckaroo\Magento2\Block\Info
+ */
 class AdminInfo extends ConfigurableInfo
 {
     /**
@@ -76,6 +85,50 @@ class AdminInfo extends ConfigurableInfo
     {
         parent::_construct();
         $this->setTemplate('Buckaroo_Magento2::info/payment_method.phtml');
+    }
+
+    /**
+     * Get the Buckaroo transaction key to display as a plain payment reference
+     *
+     * @throws LocalizedException
+     *
+     * @return string|null
+     */
+    public function getPaymentTransactionReference(): ?string
+    {
+        $transactionKey = $this->getInfo()
+            ->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY);
+
+        if (!is_string($transactionKey) || trim($transactionKey) === '') {
+            return null;
+        }
+
+        return $transactionKey;
+    }
+
+    /**
+     * Render as PDF using the consumer-facing Buckaroo payment info template
+     *
+     * @return string
+     */
+    public function toPdf()
+    {
+        $title = $this->getMethod()->getTitle();
+        $title = preg_replace('/\s*\+\s*(%?\S.*|[€$£].*|\d.*)$/u', '', $title) ?: $title;
+        $rows = [$this->escapeHtml($title)];
+
+        if ($transactionReference = $this->getPaymentTransactionReference()) {
+            // Zero-width space: survives Magento PDF empty-row / whitespace filtering
+            $rows[] = "\u{200B}";
+            $rows[] = '(' . $this->escapeHtml($transactionReference) . ')';
+        }
+
+        foreach ($this->getSpecificInformation() as $label => $value) {
+            $rows[] = $this->escapeHtml((string)$label) . ': '
+                . $this->escapeHtml(implode(' ', $this->getValueAsArray($value)));
+        }
+
+        return implode('{{pdf_row_separator}}', $rows) . '{{pdf_row_separator}}';
     }
 
     /**
@@ -202,6 +255,7 @@ class AdminInfo extends ConfigurableInfo
 
     /**
      * Get all payment methods from group transactions (for mixed payments)
+     *
      * This includes both giftcards and other payment methods (ideal, alipay, etc)
      *
      * @throws LocalizedException
@@ -260,7 +314,8 @@ class AdminInfo extends ConfigurableInfo
 
     /**
      * Get the actual payment method used from raw transaction details
-     * Useful when payment method is "giftcards" but no giftcards were actually used
+     *
+     * Useful when the payment method is "giftcards" but no giftcards were actually used
      *
      * @return array|null ['code' => 'ideal', 'label' => 'Ideal']
      * @throws LocalizedException
@@ -435,6 +490,12 @@ class AdminInfo extends ConfigurableInfo
         $field,
         $value
     ) {
+        if ($field === BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY) {
+            // Shown as a plain payment reference via getPaymentTransactionReference(),
+            // never as a labeled "Buckaroo Original Transaction Key" row.
+            return;
+        }
+
         if (is_array($value)) {
             foreach ($value as $key => $val) {
                 $transport->setData(

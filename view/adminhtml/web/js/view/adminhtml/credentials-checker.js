@@ -97,7 +97,7 @@ define([
                     mode: mode,
                     secretKey: secretKey,
                     merchantKey: merchantKey,
-                    form_key: window.FORM_KEY || $('input[name="form_key"]').val()
+                    form_key: $('#config-edit-form input[name="form_key"]').val() || window.FORM_KEY
                 }
             }).done(function (response) {
                 if (response && response.success) {

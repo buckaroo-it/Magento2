@@ -2,10 +2,12 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCurrencyValidator;
+use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Quote\Model\Currency;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +19,11 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
     private $resultFactoryMock;
 
     /**
+     * @var TransactionCurrencyResolver|MockObject
+     */
+    private $transactionCurrencyResolverMock;
+
+    /**
      * @var AvailableBasedOnCurrencyValidator
      */
     private $validator;
@@ -24,25 +31,32 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->resultFactoryMock = $this->createMock(ResultInterfaceFactory::class);
+        $this->transactionCurrencyResolverMock = $this->createMock(TransactionCurrencyResolver::class);
 
-        $this->validator = new AvailableBasedOnCurrencyValidator($this->resultFactoryMock);
+        $this->validator = new AvailableBasedOnCurrencyValidator(
+            $this->resultFactoryMock,
+            $this->transactionCurrencyResolverMock
+        );
     }
 
     /**
-     * @dataProvider dataProviderTestValidate
      *
-     * @param mixed $allowedCurrenciesRaw
-     * @param mixed $currentCurrency
-     * @param mixed $expectedResult
+     * @param string $quoteCurrency
+     * @param bool   $currencyAllowed
+     * @param bool   $expectedResult
      */
-    public function testValidate($allowedCurrenciesRaw, $currentCurrency, $expectedResult)
-    {
+    #[DataProvider('dataProviderTestValidate')]
+    public function testValidate(
+        string $quoteCurrency,
+        bool $currencyAllowed,
+        bool $expectedResult
+    ) {
         $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
 
         $currencyMock = $this->createMock(\Magento\Quote\Api\Data\CurrencyInterface::class);
 
         $currencyMock->method('getQuoteCurrencyCode')
-            ->willReturn($currentCurrency);
+            ->willReturn($quoteCurrency);
 
         $quoteMock->method('getCurrency')
             ->willReturn($currencyMock);
@@ -50,8 +64,9 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
         $paymentMethodInstanceMock = $this->getMockBuilder(\Magento\Payment\Model\MethodInterface::class)
             ->getMock();
 
-        $paymentMethodInstanceMock->method('getConfigData')
-            ->willReturn($allowedCurrenciesRaw);
+        $this->transactionCurrencyResolverMock->method('isCurrencyAllowed')
+            ->with($quoteCurrency, $paymentMethodInstanceMock)
+            ->willReturn($currencyAllowed);
 
         $validationSubject = [
             'paymentMethodInstance' => $paymentMethodInstanceMock,
@@ -72,9 +87,8 @@ class AvailableBasedOnCurrencyValidatorTest extends TestCase
     public static function dataProviderTestValidate(): array
     {
         return [
-            ['USD,EUR', 'USD', true],
-            ['USD,EUR', 'GBP', false],
-            [null, 'USD', true]
+            'quote currency supported by method'     => ['PLN', true, true],
+            'quote currency not supported by method' => ['CZK', false, false],
         ];
     }
 }

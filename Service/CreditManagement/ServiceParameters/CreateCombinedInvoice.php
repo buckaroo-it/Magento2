@@ -145,7 +145,7 @@ class CreateCombinedInvoice
                 'Name' => 'InvoiceDate',
             ],
             [
-                '_'    => date('Y-m-d', strtotime('+' . $this->configProvider->getCm3DueDate() . ' day', time())),
+                '_'    => $this->getDueDate(),
                 'Name' => 'DueDate',
             ],
             [
@@ -170,6 +170,23 @@ class CreateCombinedInvoice
         }
 
         return $ungroupedParameters;
+    }
+
+    /**
+     * Get the invoice due date, offset from today by the configured number of days.
+     *
+     * The configured value is raw config, so it can be empty or non-numeric.
+     * Casting it keeps the relative expression parsable - an unconfigured due
+     * date simply means "due today" instead of handing strtotime()'s false to
+     * date().
+     *
+     * @return string
+     */
+    private function getDueDate(): string
+    {
+        $dueDays = max(0, (int)$this->configProvider->getCm3DueDate());
+
+        return date('Y-m-d', (int)strtotime(sprintf('+%d day', $dueDays), time()));
     }
 
     /**
@@ -327,7 +344,7 @@ class CreateCombinedInvoice
     /**
      * Get CM Address
      *
-     * @param $street
+     * @param string|array $street
      *
      * @return array
      *

@@ -4,7 +4,6 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
-use Buckaroo\Magento2\Service\DataBuilderService;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
@@ -17,74 +16,42 @@ class AmountDebitDataBuilder implements BuilderInterface
     public const AMOUNT_DEBIT = 'amountDebit';
 
     /**
-     * @var float|null
-     */
-    private $amount;
-
-    /**
-     * @var DataBuilderService
-     */
-    private $dataBuilderService;
-
-    /**
-     * Constructor
-     *
-     * @param DataBuilderService $dataBuilderService
-     */
-    public function __construct(
-        DataBuilderService $dataBuilderService
-    ) {
-        $this->dataBuilderService = $dataBuilderService;
-    }
-
-    /**
      * @inheritdoc
+     *
+     * @throws BuckarooException
      */
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
 
-        if ($this->getAmount($order)) {
-            return [
-                self::AMOUNT_DEBIT => $this->getAmount($order)
-            ];
-        } else {
+        $amount = $this->getAmount($order);
+
+        if (!$amount) {
             throw new BuckarooException(__('Total of the order can not be empty.'));
         }
+
+        return [
+            self::AMOUNT_DEBIT => $amount
+        ];
     }
 
     /**
-     * Get Amount
+     * Get the order total in the order currency.
      *
-     * @param Order|null $order
-     *
-     * @return float|null
-     */
-    public function getAmount(?Order $order = null): ?float
-    {
-        if (empty($this->amount)) {
-            $this->setAmount($order);
-        }
-
-        return $this->amount;
-    }
-
-    /**
-     * Set Amount
+     * Transactions are always sent in the order currency (the CurrencyDataBuilder
+     * rejects the request when the payment method does not support it, and the
+     * AvailableBasedOnCurrencyValidator hides the method up front), so the amount
+     * is always the order-currency grand total.
      *
      * @param Order $order
      *
-     * @return $this
+     * @return float|null
      */
-    public function setAmount(Order $order): AmountDebitDataBuilder
+    public function getAmount(Order $order): ?float
     {
-        if ($this->dataBuilderService->getElement('currency') == $order->getOrderCurrencyCode()) {
-            $this->amount = $order->getGrandTotal();
-        } else {
-            $this->amount = $order->getBaseGrandTotal();
-        }
+        $total = $order->getGrandTotal();
 
-        return $this;
+        return $total === null ? null : (float)$total;
     }
 }

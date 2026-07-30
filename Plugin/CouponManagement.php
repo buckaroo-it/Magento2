@@ -40,6 +40,12 @@ class CouponManagement
      */
     protected $groupTransaction;
 
+    /**
+     * Constructor.
+     *
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param CartRepositoryInterface $quoteRepository
+     */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,
         CartRepositoryInterface $quoteRepository
@@ -49,6 +55,8 @@ class CouponManagement
     }
 
     /**
+     * Block setting a coupon while a group transaction is in progress.
+     *
      * @param CouponManagementInterface $subject
      * @param int                       $cartId
      * @param string                    $couponCode
@@ -70,6 +78,8 @@ class CouponManagement
     }
 
     /**
+     * Block removing a coupon while a group transaction is in progress.
+     *
      * @param CouponManagementInterface $subject
      * @param int                       $cartId
      *
@@ -89,6 +99,14 @@ class CouponManagement
         return [$cartId];
     }
 
+    /**
+     * Determine whether the active quote has an already paid group transaction.
+     *
+     * @param int $cartId
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     private function isGroupTransaction($cartId): bool
     {
          /** @var  \Magento\Quote\Model\Quote $quote */

@@ -37,13 +37,13 @@ class Delete extends Index implements HttpPostActionInterface
 
         if ($giftcardId) {
             $giftcardModel = $this->giftcardFactory->create();
-            $giftcardModel->load($giftcardId);
+            $this->giftcardResource->load($giftcardModel, $giftcardId);
 
             if (!$giftcardModel->getId()) {
                 $this->messageManager->addErrorMessage(__('This giftcard no longer exists.'));
             } else {
                 try {
-                    $giftcardModel->delete();
+                    $this->giftcardResource->delete($giftcardModel);
                     $this->messageManager->addSuccessMessage(__('The giftcard has been deleted.'));
 
                     return $this->_redirect('*/*/');

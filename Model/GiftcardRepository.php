@@ -198,7 +198,7 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     public function getById($giftcardId)
     {
         $giftcard = $this->giftcardFactory->create();
-        $giftcard->load($giftcardId);
+        $this->resource->load($giftcard, $giftcardId);
 
         if (!$giftcard->getId()) {
             throw new NoSuchEntityException(__('Giftcard with id "%1" does not exist.', $giftcardId));
@@ -222,6 +222,8 @@ class GiftcardRepository implements GiftcardRepositoryInterface
     }
 
     /**
+     * Retrieve a giftcard by its service code.
+     *
      * @param string $serviceCode
      *
      * @return GiftcardInterface

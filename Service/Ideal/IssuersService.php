@@ -165,6 +165,13 @@ class IssuersService
         );
     }
 
+    /**
+     * Get the logo image url for the given issuer id.
+     *
+     * @param string|null $issuerId
+     *
+     * @return string|null
+     */
     public function getImageUrlByIssuerId(?string $issuerId): ?string
     {
         if (isset(self::ISSUERS_IMAGES[$issuerId])) {

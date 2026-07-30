@@ -57,7 +57,7 @@ class Pos implements OptionSourceInterface
     public function toOptionArray(): array
     {
         $options = [
-            ['value' => '', 'label' => __('hide all methods')],
+            ['value' => '', 'label' => __('Hide all methods')],
         ];
 
         $paymentMethodsList = $this->helper->getPaymentMethodsList();

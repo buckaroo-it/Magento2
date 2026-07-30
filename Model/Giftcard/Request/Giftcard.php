@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
 use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -36,6 +37,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\ConverterException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Api\Data\StoreInterface;
@@ -134,20 +136,24 @@ class Giftcard implements GiftcardInterface
     private $giftcardRepository;
 
     /**
-     * @param ScopeConfigInterface        $scopeConfig
-     * @param Account                     $configProviderAccount
-     * @param UrlInterface                $urlBuilder
-     * @param FormKey                     $formKey
-     * @param Encryptor                   $encryptor
-     * @param StoreManagerInterface       $storeManager
-     * @param SDKTransferFactory          $transferFactory
-     * @param ClientInterface             $clientInterface
-     * @param RequestInterface            $httpRequest
-     * @param PaymentGroupTransaction     $groupTransaction
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Account $configProviderAccount
+     * @param UrlInterface $urlBuilder
+     * @param FormKey $formKey
+     * @param Encryptor $encryptor
+     * @param StoreManagerInterface $storeManager
+     * @param SDKTransferFactory $transferFactory
+     * @param ClientInterface $clientInterface
+     * @param RequestInterface $httpRequest
+     * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardRepositoryInterface $giftcardRepository
-     *
+     * @param CartRepositoryInterface $cartRepository
      * @throws NoSuchEntityException
-     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -161,8 +167,10 @@ class Giftcard implements GiftcardInterface
         ClientInterface $clientInterface,
         RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction,
-        GiftcardRepositoryInterface $giftcardRepository
+        GiftcardRepositoryInterface $giftcardRepository,
+        CartRepositoryInterface $cartRepository
     ) {
+        $this->cartRepository = $cartRepository;
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -270,7 +278,8 @@ class Giftcard implements GiftcardInterface
         if ($quote->getReservedOrderId() !== null) {
             return $quote->getReservedOrderId();
         }
-        $quote->reserveOrderId()->save();
+        $quote->reserveOrderId();
+        $this->cartRepository->save($quote);
         return $quote->getReservedOrderId();
     }
 
@@ -279,15 +288,15 @@ class Giftcard implements GiftcardInterface
      *
      * @param null|int|string $store
      *
-     * @throws \Exception
+     * @throws BuckarooException
      *
      * @return false|string
      */
     protected function getIp($store)
     {
         if (!$this->httpRequest instanceof RequestInterface) {
-            throw new \Exception(
-                "Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface"
+            throw new BuckarooException(
+                __("Required parameter `httpRequest` must be instance of Magento\Framework\App\RequestInterface")
             );
         }
 
@@ -527,6 +536,11 @@ class Giftcard implements GiftcardInterface
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
 
+    /**
+     * Get the acquirer configured for the current giftcard service code.
+     *
+     * @return mixed
+     */
     private function getAcquirer()
     {
         return $this->giftcardRepository

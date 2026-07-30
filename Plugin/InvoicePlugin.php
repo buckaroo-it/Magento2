@@ -26,9 +26,10 @@ use Magento\Sales\Model\Order\Pdf\Invoice;
 class InvoicePlugin
 {
     /**
-     * @param Invoice $subject
-     * @param         $invoices
+     * Copy Buckaroo transfer details onto each invoice before the PDF is generated.
      *
+     * @param Invoice $subject
+     * @param array $invoices
      * @return array
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)

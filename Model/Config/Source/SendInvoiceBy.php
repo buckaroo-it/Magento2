@@ -29,6 +29,8 @@ class SendInvoiceBy implements OptionSourceInterface
     public const ACTION_MAIL = 'mail';
 
     /**
+     * Return the available "send invoice by" options as an option array.
+     *
      * @return array
      */
     public function toOptionArray(): array

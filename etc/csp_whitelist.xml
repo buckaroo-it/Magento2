@@ -13,6 +13,10 @@
                 <value id="googlepay" type="host">https://pay.google.com</value>
                 <value id="buckaroo-hostedfields-alpha" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
+                <value id="clicktopay-up" type="host">https://up.cybersource.com</value>
+                <value id="clicktopay-flex" type="host">https://flex.cybersource.com</value>
+                <value id="clicktopay-visa" type="host">https://assets.secure.checkout.visa.com</value>
+                <value id="clicktopay-mastercard" type="host">https://src.mastercard.com</value>
             </values>
         </policy>
         <policy id="style-src">
@@ -38,6 +42,9 @@
                 <value id="googlepay-img" type="host">https://pay.google.com</value>
                 <value id="googlepay-developers-img" type="host">https://developers.google.com</value>
                 <value id="applepay-img" type="host">https://applepay.cdn-apple.com</value>
+                <value id="clicktopay-up-img" type="host">https://up.cybersource.com</value>
+                <value id="clicktopay-visa-img" type="host">https://assets.secure.checkout.visa.com</value>
+                <value id="clicktopay-mastercard-img" type="host">https://src.mastercard.com</value>
             </values>
         </policy>
         <policy id="font-src">
@@ -58,12 +65,21 @@
                 <value id="paypal" type="host">https://www.paypal.com</value>
                 <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
                 <value id="googlepay-connect" type="host">https://pay.google.com</value>
+                <value id="clicktopay-auth" type="host">https://auth.buckaroo.io</value>
+                <value id="clicktopay-api" type="host">https://clicktopay-externalapi.prod-pci.buckaroo.io</value>
+                <value id="clicktopay-up-connect" type="host">https://up.cybersource.com</value>
+                <value id="clicktopay-flex-connect" type="host">https://flex.cybersource.com</value>
+                <value id="clicktopay-visa-connect" type="host">https://assets.secure.checkout.visa.com</value>
+                <value id="clicktopay-mastercard-connect" type="host">https://src.mastercard.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="buckaroo-hostedfields-alpha-frame" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields-frame" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
+                <value id="clicktopay-up-frame" type="host">https://up.cybersource.com</value>
+                <value id="clicktopay-visa-frame" type="host">https://assets.secure.checkout.visa.com</value>
+                <value id="clicktopay-mastercard-frame" type="host">https://src.mastercard.com</value>
             </values>
         </policy>
     </policies>

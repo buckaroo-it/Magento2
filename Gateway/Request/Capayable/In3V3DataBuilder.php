@@ -40,6 +40,7 @@ class In3V3DataBuilder implements BuilderInterface
     ) {
         $this->capayableIn3Config = $capayableIn3Config;
     }
+
     /**
      * @inheritdoc
      *

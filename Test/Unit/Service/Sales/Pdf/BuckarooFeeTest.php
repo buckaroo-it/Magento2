@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Pdf;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order;
 use Buckaroo\Magento2\Helper\PaymentFee;
@@ -88,11 +90,11 @@ class BuckarooFeeTest extends BaseTest
      * @param $displayType
      * @param $expected
      *
-     * @dataProvider getTotalsForDisplayProvider
      */
+    #[DataProvider('getTotalsForDisplayProvider')]
     public function testGetTotalsForDisplay($amountExclTax, $amountInclTax, $label, $displayType, $expected)
     {
-        $scopeInterfaceMock = $this->getMockForAbstractClass(ScopeConfigInterface::class);
+        $scopeInterfaceMock = $this->createMock(ScopeConfigInterface::class);
         $scopeInterfaceMock->method('getValue')->willReturn($displayType);
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();

@@ -40,7 +40,7 @@ use Magento\Tax\Model\Config;
 class AfterpayHandler extends AbstractArticlesHandler
 {
     /**
-     * @param Image $imageHelper
+     * @var Image
      */
     protected $imageHelper;
 

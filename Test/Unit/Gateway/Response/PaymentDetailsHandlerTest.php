@@ -54,18 +54,28 @@ class PaymentDetailsHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(): void
     {
         $arrayResponse = ['some_key' => 'some_value'];
-        $this->transactionResponse->method('toArray')
+        $rawInfo = ['normalized_key' => 'normalized_value'];
+
+        $this->transactionResponse->expects($this->once())
+            ->method('toArray')
             ->willReturn($arrayResponse);
 
-        $this->helper->method('getTransactionAdditionalInfo')
+        $this->helper->expects($this->once())
+            ->method('getTransactionAdditionalInfo')
             ->with($arrayResponse)
-            ->willReturn($arrayResponse);
+            ->willReturn($rawInfo);
 
-        $this->orderPaymentMock->method('setTransactionAdditionalInfo')
+        $this->orderPaymentMock->expects($this->once())
+            ->method('setTransactionAdditionalInfo')
             ->with(
                 \Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS,
-                json_encode($arrayResponse)
+                json_encode($rawInfo)
             );
+
+        // The handler must register the raw transaction response for later use.
+        $this->registry->expects($this->once())
+            ->method('setResponse')
+            ->with($this->transactionResponse);
 
         $this->paymentDetailsHandler->handle(['payment' => $this->getPaymentDOMock()], $this->getTransactionResponse());
     }
@@ -73,18 +83,34 @@ class PaymentDetailsHandlerTest extends AbstractResponseHandlerTest
     public function testGetTransactionAdditionalInfo(): void
     {
         $array = ['some_key' => 'some_value'];
-        $this->helper->method('getTransactionAdditionalInfo')
+        $normalized = ['normalized_key' => 'normalized_value'];
+
+        $this->helper->expects($this->once())
+            ->method('getTransactionAdditionalInfo')
             ->with($array)
-            ->willReturn($array);
+            ->willReturn($normalized);
 
         $result = $this->paymentDetailsHandler->getTransactionAdditionalInfo($array);
-        $this->assertEquals($array, $result);
+
+        // Must return exactly what the helper produced, proving delegation (not an echo of the input).
+        $this->assertSame($normalized, $result);
     }
 
-    public function testAddToRegistry(): void
+    public function testHandleSkipsWhenGroupTransactionRefundComplete(): void
     {
-        // Test method may not exist - skip reflection test since the interface
-        // doesn't have a register method
-        $this->assertTrue(true); // Basic assertion to complete test
+        // When a group transaction refund has already completed, the handler must be a no-op:
+        // it must not touch the payment or register a response.
+        $this->transactionResponse->expects($this->never())->method('toArray');
+        $this->helper->expects($this->never())->method('getTransactionAdditionalInfo');
+        $this->orderPaymentMock->expects($this->never())->method('setTransactionAdditionalInfo');
+        $this->registry->expects($this->never())->method('setResponse');
+
+        $response = $this->getTransactionResponse();
+        $response['group_transaction_refund_complete'] = true;
+
+        $this->paymentDetailsHandler->handle(
+            ['payment' => $this->getPaymentDOMock()],
+            $response
+        );
     }
 }

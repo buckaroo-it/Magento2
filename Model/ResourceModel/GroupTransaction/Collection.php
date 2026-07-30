@@ -28,14 +28,14 @@ class Collection extends \Magento\Sales\Model\ResourceModel\Collection\AbstractC
     protected $_idFieldName = 'entity_id';
 
     /**
-     * Event prefix
+     * Prefix used for the events dispatched by this collection
      *
      * @var string
      */
     protected $_eventPrefix = 'buckaroo_magento2_group_transaction_collection';
 
     /**
-     * Event object
+     * Name of the parameter passed to dispatched events
      *
      * @var string
      */

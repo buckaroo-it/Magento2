@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Total\Creditmemo\Tax;
 
+
+use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
@@ -68,17 +70,12 @@ class BuckarooFeeTest extends BaseTest
      * @param $expectedGrandTotal
      * @param $expectedTotalRefunded
      *
-     * @dataProvider collectProvider
      */
+    #[DataProvider('collectProvider')]
     public function testCollect($tax, $taxinvoiced, $taxrefunded, $expectedGrandTotal, $expectedTotalRefunded)
     {
-        $orderMock = $this->getFakeMock(Order::class)
-            ->addMethods([
-                'getBuckarooFeeBaseTaxAmountInvoiced',
-                'getBuckarooFeeBaseTaxAmountRefunded',
-                'setBuckarooFeeBaseTaxAmountRefunded'
-            ])
-            ->getMock();
+        $orderMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
+            ->onlyMethods(['getBuckarooFeeBaseTaxAmountInvoiced', 'getBuckarooFeeBaseTaxAmountRefunded', 'setBuckarooFeeBaseTaxAmountRefunded'])->getMock();
         $orderMock->setBuckarooFeeBaseTaxAmountInvoiced($taxinvoiced);
         $orderMock->setBuckarooFeeBaseTaxAmountRefunded($taxrefunded);
         $orderMock->setBuckarooFeeTaxAmountRefunded($taxrefunded);
@@ -97,12 +94,8 @@ class BuckarooFeeTest extends BaseTest
             $initialRefunded = $value;
         });
 
-        $invoiceMock = $this->getFakeMock(Invoice::class)
-            ->addMethods([
-                'getBuckarooFeeBaseTaxAmount',
-                'getBuckarooFeeTaxAmount'
-            ])
-            ->getMock();
+        $invoiceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub::class)
+            ->onlyMethods(['getBuckarooFeeBaseTaxAmount', 'getBuckarooFeeTaxAmount'])->getMock();
         $invoiceMock->setBuckarooFeeBaseTaxAmount($tax);
         $invoiceMock->setBuckarooFeeTaxAmount($tax);
 

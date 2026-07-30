@@ -70,7 +70,8 @@ class Factory
 
     /**
      * Map payment method code to ConfigProvider type
-     * e.g., vvvgiftcard -> giftcard -> giftcards
+     *
+     * E.g., vvvgiftcard -> giftcard -> giftcards
      *
      * @param string $providerType
      *

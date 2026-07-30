@@ -1,0 +1,63 @@
+<?php
+/**
+ * @var \Buckaroo\Magento2\Block\Config\Form\Field\OptionalBackgroundColorPicker $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$fieldId = $block->getFieldId();
+$fieldName = $block->getFieldName();
+$fieldValue = $block->getFieldValue();
+$pickerValue = $block->getPickerValue();
+$emptyMarker = $block->getEmptyMarker();
+?>
+<div class="buckaroo-optional-color-picker" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <input
+        type="hidden"
+        id="<?= $escaper->escapeHtmlAttr($fieldId) ?>"
+        name="<?= $escaper->escapeHtmlAttr($fieldName) ?>"
+        value="<?= $escaper->escapeHtmlAttr($fieldValue) ?>"
+    />
+    <input
+        type="color"
+        id="<?= $escaper->escapeHtmlAttr($fieldId) ?>_picker"
+        value="<?= $escaper->escapeHtmlAttr($pickerValue) ?>"
+    />
+    <label for="<?= $escaper->escapeHtmlAttr($fieldId) ?>_empty" style="display:inline-flex;align-items:center;gap:6px;">
+        <input
+            type="checkbox"
+            id="<?= $escaper->escapeHtmlAttr($fieldId) ?>_empty"
+            <?= $block->isEmptyValue() ? 'checked="checked"' : '' ?>
+        />
+        <span><?= $escaper->escapeHtml(__('Use no color')) ?></span>
+    </label>
+</div>
+<script>
+require([], function () {
+    var valueInput = document.getElementById('<?= $escaper->escapeJs($fieldId) ?>');
+    var colorInput = document.getElementById('<?= $escaper->escapeJs($fieldId) ?>_picker');
+    var emptyInput = document.getElementById('<?= $escaper->escapeJs($fieldId) ?>_empty');
+
+    if (!valueInput || !colorInput || !emptyInput) {
+        return;
+    }
+
+    var syncState = function () {
+        if (emptyInput.checked) {
+            valueInput.value = '<?= $escaper->escapeJs($emptyMarker) ?>';
+            colorInput.disabled = true;
+            return;
+        }
+
+        colorInput.disabled = false;
+        valueInput.value = colorInput.value;
+    };
+
+    colorInput.addEventListener('input', function () {
+        emptyInput.checked = false;
+        syncState();
+    });
+
+    emptyInput.addEventListener('change', syncState);
+
+    syncState();
+});
+</script>

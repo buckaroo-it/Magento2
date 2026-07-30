@@ -53,6 +53,7 @@ class VoidCm3Payment implements ObserverInterface
 
     /**
      * A CM3 payment doesn't always use the Authorize payment flow.
+     *
      * Perform the payment void() call when in those cases so the necessary SOAP calls are been made.
      *
      * @param Observer $observer

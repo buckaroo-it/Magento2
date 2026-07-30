@@ -26,14 +26,18 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
+use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
+use Buckaroo\Magento2\Service\Push\KlarnaMorOrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderPaymentRepositoryInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -45,43 +49,43 @@ use Magento\Sales\Model\Order;
 class KlarnaMorProcessor extends DefaultProcessor
 {
     /**
-     * @var Klarna
-     */
-    private Klarna $klarnaConfig;
-
-    /**
-     * @param OrderRequestService     $orderRequestService
-     * @param PushTransactionType     $pushTransactionType
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
-     * @param Data                    $helper
-     * @param TransactionInterface    $transaction
+     * @param Data $helper
+     * @param TransactionInterface $transaction
      * @param PaymentGroupTransaction $groupTransaction
-     * @param BuckarooStatusCode      $buckarooStatusCode
-     * @param OrderStatusFactory      $orderStatusFactory
-     * @param Account                 $configAccount
-     * @param GiftCardRefundService   $giftCardRefundService
-     * @param Uncancel                $uncancelService
-     * @param ResourceConnection      $resourceConnection
-     * @param GiftcardCollection      $giftcardCollection
-     * @param Klarna                  $klarnaConfig
-     *
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param OrderRepositoryInterface|null $orderRepository
+     * @param OrderPaymentRepositoryInterface|null $paymentRepository
+     * @param InvoiceRepositoryInterface|null $invoiceRepository
+     * @param GroupTransaction|null $groupTransactionResource
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
         BuckarooLoggerInterface $logger,
-        Data $helper,
-        TransactionInterface $transaction,
-        PaymentGroupTransaction $groupTransaction,
-        BuckarooStatusCode $buckarooStatusCode,
-        OrderStatusFactory $orderStatusFactory,
-        Account $configAccount,
-        GiftCardRefundService $giftCardRefundService,
-        Uncancel $uncancelService,
-        ResourceConnection $resourceConnection,
-        GiftcardCollection $giftcardCollection,
-        Klarna $klarnaConfig
+        Data                                                $helper,
+        TransactionInterface             $transaction,
+        PaymentGroupTransaction          $groupTransaction,
+        BuckarooStatusCode               $buckarooStatusCode,
+        OrderStatusFactory               $orderStatusFactory,
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        ?OrderRepositoryInterface        $orderRepository = null,
+        ?OrderPaymentRepositoryInterface $paymentRepository = null,
+        ?InvoiceRepositoryInterface      $invoiceRepository = null,
+        ?GroupTransaction                $groupTransactionResource = null
     ) {
         parent::__construct(
             $orderRequestService,
@@ -96,13 +100,81 @@ class KlarnaMorProcessor extends DefaultProcessor
             $giftCardRefundService,
             $uncancelService,
             $resourceConnection,
-            $giftcardCollection
+            $giftcardCollection,
+            null,
+            $orderRepository,
+            $paymentRepository,
+            $invoiceRepository,
+            $groupTransactionResource
         );
-        $this->klarnaConfig = $klarnaConfig;
+    }
+
+    /**
+     * Process the push according to the response status.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    protected function processPushByStatus(): bool
+    {
+        if ($this->isPlazaSecondaryDataRequestPush()) {
+            return $this->processPlazaSecondaryDataRequestPush();
+        }
+
+        return parent::processPushByStatus();
+    }
+
+    /**
+     * Detect a Plaza-originated extend/update reservation push for Klarna MOR.
+     *
+     * @return bool
+     */
+    private function isPlazaSecondaryDataRequestPush(): bool
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS
+            || $this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            || empty($this->pushRequest->getDatarequest())
+        ) {
+            return false;
+        }
+
+        return $this->shouldPreserveExistingDataRequestKey((string)$this->pushRequest->getDatarequest());
+    }
+
+    /**
+     * Record a Plaza extend/update reservation on the Magento order without altering the reservation key.
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    private function processPlazaSecondaryDataRequestPush(): bool
+    {
+        $dataRequestKey = (string)$this->pushRequest->getDatarequest();
+
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_MOR] | [%s:%s] - Processing Plaza secondary data request push for order %s | key: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $dataRequestKey
+        ));
+
+        $this->order->addCommentToStatusHistory(
+            (string)__(
+                'Buckaroo: Klarna reservation updated via Buckaroo Plaza (DataRequest: %1).',
+                $dataRequestKey
+            )
+        );
+        $this->orderRepository->save($this->order);
+
+        return true;
     }
 
     /**
      * Skip the push if the conditions are met.
+     *
      * Skips capture callbacks initiated by Magento to avoid duplicate processing.
      *
      * @throws \Exception
@@ -122,23 +194,25 @@ class KlarnaMorProcessor extends DefaultProcessor
 
     /**
      * Retrieves the transaction key from the push request.
-     * For Klarna MOR, use the DataRequest key from push if available.
      *
      * @return string
      */
     protected function getTransactionKey(): string
     {
-        $trxId = parent::getTransactionKey();
+        $isCapturePush = $this->pushRequest->hasPostData('transaction_type', 'C800')
+            || $this->pushRequest->hasPostData('mutationtype', 'collecting')
+            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
 
-        if (!empty($this->pushRequest->getDatarequest())) {
-            $trxId = $this->pushRequest->getDatarequest();
+        if ($isCapturePush && !empty($this->pushRequest->getTransactions())) {
+            return $this->pushRequest->getTransactions();
         }
 
-        return $trxId;
+        return parent::getTransactionKey();
     }
 
     /**
      * Save Buckaroo DataRequest key from push notification.
+     *
      * This replaces the old reservation number mechanism for the MOR flow.
      *
      * @return bool
@@ -169,9 +243,21 @@ class KlarnaMorProcessor extends DefaultProcessor
         ));
 
         if (!empty($dataRequestKey)) {
+            if ($this->shouldPreserveExistingDataRequestKey($dataRequestKey)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_MOR] | [%s:%s] - Preserving existing DataRequest key for order %s. '
+                    . 'Incoming push key %s belongs to a secondary MOR data request.',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $dataRequestKey
+                ));
+                return false;
+            }
+
             $this->order->setBuckarooDatarequestKey($dataRequestKey);
             $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
-            $this->order->save();
+            $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_MOR] | [%s:%s] - Successfully saved DataRequest key from PUSH for order %s: %s',
@@ -196,32 +282,74 @@ class KlarnaMorProcessor extends DefaultProcessor
     }
 
     /**
-     * Determine whether an invoice should be created for this push.
-     * When "Create Invoice After Shipment" is enabled, defer invoice creation.
+     * Secondary MOR data requests (extend/update) must not replace the original reservation key.
      *
-     * @param array $paymentDetails
-     *
-     * @throws \Exception
+     * @param string $incomingDataRequestKey
      *
      * @return bool
      */
-    protected function invoiceShouldBeSaved(array &$paymentDetails): bool
+    private function shouldPreserveExistingDataRequestKey(string $incomingDataRequestKey): bool
     {
-        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
-            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
-            && $this->klarnaConfig->isInvoiceCreatedAfterShipment()
-        ) {
-            $this->dontSaveOrderUponSuccessPush = true;
+        $existingKey = $this->order->getBuckarooDatarequestKey()
+            ?? $this->payment->getAdditionalInformation('buckaroo_datarequest_key');
+
+        if (empty($existingKey) || $existingKey === $incomingDataRequestKey) {
             return false;
         }
 
-        if (!empty($this->pushRequest->getDatarequest())
-            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
+        $secondaryActions = ['extendreservation', 'updatereservation'];
+
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', $secondaryActions)
         ) {
             return true;
         }
 
-        return true;
+        $pendingKeys = (array)$this->payment->getAdditionalInformation(
+            KlarnaMorOrderService::PENDING_DATAREQUEST_PUSH_KEYS
+        );
+
+        return isset($pendingKeys[$incomingDataRequestKey]);
+    }
+
+    /**
+     * Determine whether an invoice should be created for this push.
+     *
+     * When "Create Invoice After Shipment" is enabled, defer invoice creation.
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     *
+     * @return bool
+     */
+    protected function saveInvoice(): bool
+    {
+        $isCapturePush = $this->pushRequest->hasPostData('transaction_type', 'C800')
+            || $this->pushRequest->hasPostData('mutationtype', 'collecting')
+            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
+
+        if ($isCapturePush) {
+            $captureTransactionKey = $this->getTransactionKey();
+
+            if (!empty($captureTransactionKey)) {
+                $this->logger->addDebug(sprintf(
+                    '[KLARNA_MOR] | [%s:%s] - Plaza capture push for order %s; '
+                    . 'saving capture transaction key: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId(),
+                    $captureTransactionKey
+                ));
+                $this->payment->setAdditionalInformation('buckaroo_capture_transaction_key', $captureTransactionKey);
+                $this->payment->setAdditionalInformation('buckaroo_already_captured', true);
+                $this->paymentRepository->save($this->payment);
+            }
+
+            if ($this->order->hasInvoices()) {
+                return true;
+            }
+        }
+
+        return parent::saveInvoice();
     }
 
     /**
@@ -259,7 +387,7 @@ class KlarnaMorProcessor extends DefaultProcessor
 
             if ($this->order->getState() !== Order::STATE_CANCELED) {
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->save();
+                $this->orderRepository->save($this->order);
             }
         }
     }

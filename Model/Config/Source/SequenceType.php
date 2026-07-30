@@ -28,6 +28,11 @@ class SequenceType implements OptionSourceInterface
     public const SEQUENCE_TYPE_ONEOFF = 1;
     public const SEQUENCE_TYPE_RECURRING = 0;
 
+    /**
+     * Return the sequence type options for the system configuration dropdown.
+     *
+     * @return array
+     */
     public function toOptionArray(): array
     {
         $options = [];

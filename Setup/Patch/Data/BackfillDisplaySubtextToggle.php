@@ -37,6 +37,12 @@ class BackfillDisplaySubtextToggle implements DataPatchInterface
      */
     private $moduleDirReader;
 
+    /**
+     * Constructor.
+     *
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param ModuleDirReader          $moduleDirReader
+     */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
         ModuleDirReader $moduleDirReader
@@ -45,6 +51,11 @@ class BackfillDisplaySubtextToggle implements DataPatchInterface
         $this->moduleDirReader = $moduleDirReader;
     }
 
+    /**
+     * Backfill the display_subtext toggle to enabled for every Buckaroo payment method scope.
+     *
+     * @return $this
+     */
     public function apply()
     {
         $this->moduleDataSetup->startSetup();
@@ -113,17 +124,29 @@ class BackfillDisplaySubtextToggle implements DataPatchInterface
         return $this;
     }
 
+    /**
+     * Return the data patches this patch depends on.
+     *
+     * @return array
+     */
     public static function getDependencies(): array
     {
         return [];
     }
 
+    /**
+     * Return the aliases for this patch.
+     *
+     * @return array
+     */
     public function getAliases(): array
     {
         return [];
     }
 
     /**
+     * Read the Buckaroo payment method codes from the module config.xml defaults.
+     *
      * @return string[]
      */
     private function getPaymentMethodCodes(): array

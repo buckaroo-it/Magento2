@@ -30,7 +30,14 @@
 "var checkout_url":"Checkout URL",
 "var customer_name":"Customer Name",
 "var customer_email":"Customer Email",
-"var order.getShippingDescription":"Shipping Description"
+"var order.getShippingDescription":"Shipping Description",
+"var order.shipping_description":"Shipping Description",
+"var order_data.is_not_virtual":"Order Is Not Virtual",
+"var order_id":"Order Id",
+"var store.frontend_name":"Store Frontend Name",
+"var store.getFrontendName()":"Store Frontend Name",
+"var store.getStoreEmail()":"Store Email",
+"var formatted_grand_total":"Formatted Grand Total"
 } @-->
 
 {{template config_path="design/email/header_template"}}
@@ -53,7 +60,7 @@
     <tr class="email-summary">
         <td>
             <h1>{{trans 'Your Order <span class="no-link">#%increment_id</span>' increment_id=$expected_order_id |raw}}</h1>
-            <p>{{trans 'Order Total: %order_total' order_total=$order.formatPrice($order.getGrandTotal()) |raw}}</p>
+            <p>{{trans 'Order Total: %order_total' order_total=$formatted_grand_total |raw}}</p>
         </td>
     </tr>
     <tr class="email-information">
@@ -84,13 +91,13 @@
                     {{/depend}}
                 </tr>
             </table>
-            
+
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{{var checkout_url}}&utm_source=magento&utm_medium=email&utm_campaign=transactional-email&utm_content=buckaroo-payment-reminder-1" style="background-color: #1979c3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
                     {{trans "Complete Your Order"}}
                 </a>
             </div>
-            
+
             {{layout handle="sales_email_order_items" order_id=$order_id area="frontend"}}
         </td>
     </tr>

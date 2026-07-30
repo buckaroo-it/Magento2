@@ -120,15 +120,22 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected $payReminderService;
 
     /**
-     * @param ScopeConfigInterface        $scopeConfig
-     * @param BuckarooLog                 $buckarooLog
-     * @param QuoteFactory                $quoteFactory
-     * @param Calculation                 $taxCalculation
-     * @param Config                      $taxConfig
-     * @param BuckarooFee                 $configProviderBuckarooFee
-     * @param SoftwareData                $softwareData
+     * @var \Magento\Quote\Model\ResourceModel\Quote
+     */
+    protected $quoteResource;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param BuckarooLog $buckarooLog
+     * @param QuoteFactory $quoteFactory
+     * @param Calculation $taxCalculation
+     * @param Config $taxConfig
+     * @param BuckarooFee $configProviderBuckarooFee
+     * @param SoftwareData $softwareData
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
-     * @param PayReminderService          $payReminderService
+     * @param PayReminderService $payReminderService
+     * @param \Magento\Quote\Model\ResourceModel\Quote|null $quoteResource
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -139,8 +146,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         BuckarooFee $configProviderBuckarooFee,
         SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
-        PayReminderService $payReminderService
+        PayReminderService $payReminderService,
+        ?\Magento\Quote\Model\ResourceModel\Quote $quoteResource = null
     ) {
+        $this->quoteResource = $quoteResource
+            ?? \Magento\Framework\App\ObjectManager::getInstance()
+                ->get(\Magento\Quote\Model\ResourceModel\Quote::class);
         $this->scopeConfig = $scopeConfig;
         $this->buckarooLog = $buckarooLog;
         $this->quoteFactory = $quoteFactory;
@@ -270,7 +281,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public function getQuote(): Quote
     {
         if (!$this->quote instanceof Quote) {
-            $this->quote = $this->quoteFactory->create()->load($this->getOrder()->getQuoteId());
+            $quote = $this->quoteFactory->create();
+            $this->quoteResource->load($quote, $this->getOrder()->getQuoteId());
+            $this->quote = $quote;
         }
 
         return $this->quote;
@@ -497,19 +510,19 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $edition = $this->softwareData->getProductMetaData()->getEdition();
 
         if ($this->order->getDiscountAmount() < 0) {
-            $discount -= abs((double)$this->order->getDiscountAmount());
+            $discount -= abs((float)$this->order->getDiscountAmount());
 
             $includesTax = (bool)$this->scopeConfig->getValue(
                 static::TAX_CALCULATION_INCLUDES_TAX,
                 ScopeInterface::SCOPE_STORE
             );
             if (!$includesTax) {
-                $discount -= abs((double)$this->order->getDiscountTaxCompensationAmount());
+                $discount -= abs((float)$this->order->getDiscountTaxCompensationAmount());
             }
         }
 
         if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((double)$this->order->getCustomerBalanceAmount());
+            $discount -= abs((float)$this->order->getCustomerBalanceAmount());
         }
 
         return $discount;
@@ -525,7 +538,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $totalExclTax = 0.0;
         $weightedTax = 0.0;
 
-        foreach ($this->order->getAllVisibleItems() as $item) {
+        foreach (($this->order->getAllVisibleItems() ?: []) as $item) {
             $rowTotal = (float)$item->getRowTotal();
             if ($rowTotal <= 0) {
                 continue;
@@ -564,11 +577,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getServiceCostLine($order, &$itemsTotalAmount = 0, bool $creditmemo = false): array
     {
-        $buckarooFeeLine = (double)$order->getBuckarooFeeInclTax();
+        $buckarooFeeLine = (float)$order->getBuckarooFeeInclTax();
 
         if (!$buckarooFeeLine && ($order->getBuckarooFee() >= 0.01)) {
             $this->buckarooLog->addDebug(__METHOD__ . '|5|');
-            $buckarooFeeLine = (double)$order->getBuckarooFee();
+            $buckarooFeeLine = (float)$order->getBuckarooFee();
         }
 
         $article = [];
@@ -724,7 +737,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get the discount cost line.
      *
-     * @deprecated Use getDiscountLines() to correctly split discounts per VAT rate.
+     * @deprecated A single discount line cannot represent discounts spread over multiple VAT rates.
+     * @see \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::getDiscountLines()
      * @return array
      */
     public function getDiscountLine(): array
@@ -741,7 +755,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected function getOrderVatGroups(): array
     {
         $groups = [];
-        foreach ($this->order->getAllVisibleItems() as $item) {
+        foreach (($this->order->getAllVisibleItems() ?: []) as $item) {
             $rowTotal = (float)$item->getRowTotal();
             if ($rowTotal <= 0) {
                 continue;
@@ -773,7 +787,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-       $discountLines = $this->getDiscountLines();
+        $discountLines = $this->getDiscountLines();
 
         $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLines));
 
@@ -998,7 +1012,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ];
     }
 
-
     /**
      * Safety net: if the assembled article lines do not sum exactly to the grand total
      * (rounding, unusual discount types, third-party fees), add an adjustment line to
@@ -1123,7 +1136,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Set payment
      *
-     * @param $payment
+     * @param InfoInterface $payment
      *
      * @return $this
      */

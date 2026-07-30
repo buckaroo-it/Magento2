@@ -35,8 +35,7 @@ class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetConfig()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')->willReturn(null)
             ->willReturn(false);
 
@@ -53,8 +52,7 @@ class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testGetConfigWithStoreId()
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->onlyMethods(['getValue'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $scopeConfigMock->method('getValue')->willReturn(null)
             ->willReturn(false);
 

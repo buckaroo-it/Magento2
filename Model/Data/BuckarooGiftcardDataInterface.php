@@ -25,11 +25,15 @@ use Buckaroo\Magento2\Model\Giftcard;
 interface BuckarooGiftcardDataInterface
 {
     /**
+     * Get the giftcard model.
+     *
      * @return Giftcard
      */
     public function getGiftcardModel(): Giftcard;
 
     /**
+     * Set the giftcard model.
+     *
      * @param Giftcard $giftcard
      *
      * @return BuckarooGiftcardDataInterface

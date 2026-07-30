@@ -52,6 +52,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/googlepay.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/clicktopay.xml"/>
+
         <include path="Buckaroo_Magento2::system/payment_methods/capayable_in3.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/alipay.xml"/>

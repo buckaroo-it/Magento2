@@ -87,6 +87,8 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
     }
 
     /**
+     * Resolve the Klarna reservation reference for the given order and payment.
+     *
      * @param \Magento\Sales\Model\Order|null $order
      * @param \Magento\Sales\Model\Order\Payment $payment
      * @param string $methodCode

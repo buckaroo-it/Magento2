@@ -122,8 +122,6 @@ class RestoreQuote implements ObserverInterface
             }
 
             if ($this->isCartKeepAlive($lastRealOrder)) {
-                $this->prepareQuoteShippingAddress();
-
                 $isNewPending = $this->isNewPendingLastOrder($lastRealOrder, $payment);
                 $canRestoreSpam = $this->canRestoreFailedFromSpam();
                 $isCanceledWithRedirect = $this->isCanceledLastOrderWithRedirect($lastRealOrder, $payment);
@@ -237,23 +235,6 @@ class RestoreQuote implements ObserverInterface
     private function isCartKeepAlive($lastRealOrder): bool
     {
         return $this->accountConfig->getCartKeepAlive($lastRealOrder->getStore());
-    }
-
-    /**
-     * Prepare quote and shipping address if needed
-     */
-    private function prepareQuoteShippingAddress(): void
-    {
-        if ($this->checkoutSession->getQuote()
-            && $this->checkoutSession->getQuote()->getId()
-            && ($quote = $this->quoteRepository->getActive($this->checkoutSession->getQuote()->getId()))
-        ) {
-            if ($shippingAddress = $quote->getShippingAddress()) {
-                if (!$shippingAddress->getShippingMethod()) {
-                    $shippingAddress->load($shippingAddress->getAddressId());
-                }
-            }
-        }
     }
 
     /**
