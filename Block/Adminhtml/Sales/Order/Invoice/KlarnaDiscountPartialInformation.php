@@ -43,9 +43,9 @@ class KlarnaDiscountPartialInformation extends Template
      * RoundingWarning constructor.
      *
      * @param OrderRepositoryInterface $orderRepository
-     * @param Factory                 $configProviderFactory
-     * @param Context                 $context
-     * @param array                   $data
+     * @param Factory                  $configProviderFactory
+     * @param Context                  $context
+     * @param array                    $data
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
