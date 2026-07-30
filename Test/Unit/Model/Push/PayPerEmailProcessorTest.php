@@ -25,6 +25,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $giftcardCollectionMock;
     private $configPayPerEmailMock;
     private $currencyFactoryMock;
+    private $orderRepositoryMock;
 
     public function setUp(): void
     {
@@ -45,6 +46,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->giftcardCollectionMock = $this->getFakeMock('Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection')->getMock();
         $this->configPayPerEmailMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail')->getMock();
         $this->currencyFactoryMock = $this->getFakeMock('Magento\Directory\Model\CurrencyFactory')->getMock();
+        $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
     }
 
     public function getInstance(array $args = [])
@@ -65,7 +67,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'giftcardCollection' => $this->giftcardCollectionMock,
             'configPayPerEmail' => $this->configPayPerEmailMock,
             'currencyFactory' => $this->currencyFactoryMock,
-            'orderRepository' => $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class),
+            'orderRepository' => $this->orderRepositoryMock,
             'paymentRepository' => $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class),
             'invoiceRepository' => $this->createMock(\Magento\Sales\Api\InvoiceRepositoryInterface::class),
             'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
@@ -140,5 +142,42 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->setProperty('order', $orderMock, $instance);
 
         $this->assertTrue($this->invoke('canProcessPendingPush', $instance));
+    }
+
+    public function testInvoiceShouldBeSavedB2BSecondPushRegistersCaptureWithoutIntermediateSave(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAdditionalInformation')->willReturnMap([
+            ['frompayperemail', '1'],
+        ]);
+        $pushRequestMock->method('getTransactionMethod')->willReturn('payperemail');
+        $pushRequestMock->method('getTransactions')->willReturn('');
+        $pushRequestMock->method('getDatarequest')->willReturn('');
+        $pushRequestMock->method('getRelatedtransactionRefund')->willReturn('');
+
+        $this->configPayPerEmailMock->method('isEnabledB2B')->willReturn(true);
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('isSameCurrency')->willReturn(true);
+        $paymentMock->method('isCaptureFinal')->willReturn(true);
+        $paymentMock->expects($this->once())->method('registerCaptureNotification')->with(100.0);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getGrandTotal')->willReturn(100.0);
+        $orderMock->expects($this->once())->method('setState')->with('complete')->willReturnSelf();
+        // BTI-1239: no intermediate save — the capture, comment and state are persisted
+        // by the updateOrderStatus save that always follows in processSucceededPush
+        $orderMock->expects($this->never())->method('save');
+        $this->orderRepositoryMock->expects($this->never())->method('save');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $paymentDetails = ['description' => 'Payment status : success'];
+        $this->assertFalse($this->invokeArgs('invoiceShouldBeSaved', [&$paymentDetails], $instance));
     }
 }
