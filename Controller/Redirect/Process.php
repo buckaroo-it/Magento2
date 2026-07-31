@@ -661,7 +661,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected function redirectSuccessApplePay(): void
     {
         if ($this->redirectRequest->hasPostData('payment_method', 'applepay')
-            && $this->redirectRequest->hasPostData('status_code', '190')
+            && $this->redirectRequest->hasPostData('status_code', (string)BuckarooStatusCode::SUCCESS)
             && $this->redirectRequest->hasPostData('test', 'true')
         ) {
             $this->checkoutSession

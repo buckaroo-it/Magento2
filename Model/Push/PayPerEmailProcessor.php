@@ -36,14 +36,19 @@ use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
 use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Escaper;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -83,14 +88,15 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
      * @param PayPerEmail $configPayPerEmail
-     * @param CurrencyFactory|null $currencyFactory
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param GroupTransaction|null $groupTransactionResource
-     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
-     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -108,14 +114,15 @@ class PayPerEmailProcessor extends DefaultProcessor
         ResourceConnection               $resourceConnection,
         GiftcardCollection               $giftcardCollection,
         PayPerEmail                      $configPayPerEmail,
-        ?CurrencyFactory                 $currencyFactory = null,
-        ?OrderRepositoryInterface        $orderRepository = null,
-        ?OrderPaymentRepositoryInterface $paymentRepository = null,
-        ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null,
-        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
-        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
-        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
+        CurrencyFactory                 $currencyFactory,
+        OrderRepositoryInterface        $orderRepository,
+        OrderPaymentRepositoryInterface $paymentRepository,
+        InvoiceRepositoryInterface      $invoiceRepository,
+        GroupTransaction                $groupTransactionResource,
+        TransactionRepositoryInterface  $transactionRepository,
+        SearchCriteriaBuilder           $searchCriteriaBuilder,
+        OrderManagementInterface        $orderManagement,
+        Escaper                         $escaper
     ) {
         parent::__construct(
             $orderRequestService,
@@ -138,7 +145,8 @@ class PayPerEmailProcessor extends DefaultProcessor
             $groupTransactionResource,
             $transactionRepository,
             $searchCriteriaBuilder,
-            $orderManagement
+            $orderManagement,
+            $escaper
         );
         $this->configPayPerEmail = $configPayPerEmail;
     }
@@ -152,7 +160,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param PushRequestInterface $pushRequest
      *
      * @throws FileSystemException
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -241,7 +249,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set Payment method as PayPerEmail if the push request is PayLink
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function receivePushCheckPayLink(): void
     {
@@ -257,7 +265,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Skip the push if the conditions are met.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -301,7 +309,7 @@ class PayPerEmailProcessor extends DefaultProcessor
     /**
      * Set the payment method if the request is from Pay Per Email
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -553,7 +561,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      *
      * @param array $paymentDetails
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */

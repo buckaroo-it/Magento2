@@ -262,7 +262,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             if ($this->order->getStatus() == 'complete') {
                 $description = 'Total amount of '
-                    . $this->order->getBaseCurrency()->formatTxt($this->order->getTotalInvoiced())
+                    . $this->order->getBaseCurrency()->formatTxt($this->order->getBaseTotalInvoiced())
                     . ' has been paid';
                 $this->order->addCommentToStatusHistory($description);
             }
@@ -279,12 +279,17 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 var_export($this->order->getStatus(), true)
             ));
         } catch (\Exception $e) {
-            $this->logger->addDebug(sprintf(
+            $this->logger->addError(sprintf(
                 '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
                 $e->getMessage()
             ));
+            // Surface the failed capture to the merchant: the shipment itself is already
+            // committed, so without this comment the order looks shipped-and-paid
+            $this->order->addCommentToStatusHistory(
+                __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $e->getMessage())
+            );
             return null;
         }
 

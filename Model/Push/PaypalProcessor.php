@@ -34,12 +34,17 @@ use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Escaper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -66,13 +71,15 @@ class PaypalProcessor extends DefaultProcessor
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
      * @param PaypalConfig $paypalConfig
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param GroupTransaction|null $groupTransactionResource
-     * @param \Magento\Sales\Api\TransactionRepositoryInterface|null $transactionRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder|null $searchCriteriaBuilder
-     * @param \Magento\Sales\Api\OrderManagementInterface|null $orderManagement
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -84,19 +91,21 @@ class PaypalProcessor extends DefaultProcessor
         PaymentGroupTransaction                                  $groupTransaction,
         BuckarooStatusCode                                       $buckarooStatusCode,
         OrderStatusFactory                                       $orderStatusFactory,
-        Account                                                  $configAccount,
-        GiftCardRefundService                                    $giftCardRefundService,
-        Uncancel                                                 $uncancelService,
-        ResourceConnection                                       $resourceConnection,
-        GiftcardCollection                                       $giftcardCollection,
-        PaypalConfig                                             $paypalConfig,
-        ?OrderRepositoryInterface                                $orderRepository = null,
-        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
-        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?GroupTransaction $groupTransactionResource = null,
-        ?\Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository = null,
-        ?\Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder = null,
-        ?\Magento\Sales\Api\OrderManagementInterface $orderManagement = null
+        Account                          $configAccount,
+        GiftCardRefundService            $giftCardRefundService,
+        Uncancel                         $uncancelService,
+        ResourceConnection               $resourceConnection,
+        GiftcardCollection               $giftcardCollection,
+        PaypalConfig                     $paypalConfig,
+        CurrencyFactory $currencyFactory,
+        OrderRepositoryInterface        $orderRepository,
+        OrderPaymentRepositoryInterface $paymentRepository,
+        InvoiceRepositoryInterface      $invoiceRepository,
+        GroupTransaction                $groupTransactionResource,
+        TransactionRepositoryInterface  $transactionRepository,
+        SearchCriteriaBuilder           $searchCriteriaBuilder,
+        OrderManagementInterface        $orderManagement,
+        Escaper                         $escaper
     ) {
         parent::__construct(
             $orderRequestService,
@@ -112,14 +121,15 @@ class PaypalProcessor extends DefaultProcessor
             $uncancelService,
             $resourceConnection,
             $giftcardCollection,
-            null,
+            $currencyFactory,
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
             $groupTransactionResource,
             $transactionRepository,
             $searchCriteriaBuilder,
-            $orderManagement
+            $orderManagement,
+            $escaper
         );
         $this->paypalConfig = $paypalConfig;
     }

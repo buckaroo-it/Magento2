@@ -158,9 +158,7 @@ class PaypalProcessorPlugin
         $ref = new \ReflectionClass($subject);
         do {
             if ($ref->hasProperty($name)) {
-                $prop = $ref->getProperty($name);
-                $prop->setAccessible(true);
-                return $prop->getValue($subject);
+                return $ref->getProperty($name)->getValue($subject);
             }
             $ref = $ref->getParentClass();
         } while ($ref);

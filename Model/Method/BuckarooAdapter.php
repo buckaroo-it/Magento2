@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Model\Method;
 
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\RequestInterface;
@@ -86,6 +87,11 @@ class BuckarooAdapter extends Adapter
      * @var RequestInterface|null
      */
     protected $request;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private $buckarooLogger;
     /**
      * @var int
      */
@@ -100,6 +106,7 @@ class BuckarooAdapter extends Adapter
      * @param string                       $infoBlockType
      * @param Factory                      $configProviderMethodFactory
      * @param Data                         $priceHelper
+     * @param BuckarooLoggerInterface      $buckarooLogger
      * @param RequestInterface|null        $request
      * @param CommandPoolInterface|null    $commandPool
      * @param ValidatorPoolInterface|null  $validatorPool
@@ -118,6 +125,7 @@ class BuckarooAdapter extends Adapter
         $infoBlockType,
         Factory $configProviderMethodFactory,
         Data $priceHelper,
+        BuckarooLoggerInterface $buckarooLogger,
         ?RequestInterface $request = null,
         ?CommandPoolInterface $commandPool = null,
         ?ValidatorPoolInterface $validatorPool = null,
@@ -139,6 +147,7 @@ class BuckarooAdapter extends Adapter
         );
 
         $this->buckarooPaymentMethodCode = $this->setBuckarooPaymentMethodCode();
+        $this->buckarooLogger = $buckarooLogger;
         $this->request = $request;
         $this->usesRedirect = $usesRedirect;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
@@ -175,9 +184,16 @@ class BuckarooAdapter extends Adapter
             if (!$result->isValid()) {
                 return false;
             }
-            // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
         } catch (\Exception $e) {
-            // pass
+            // Fail open (method stays available) but no longer silently: a throwing
+            // availability validator means broken configuration, not an unavailable method
+            $this->buckarooLogger->addError(sprintf(
+                '[AVAILABILITY] | [Adapter] | [%s:%s] - Availability validator failed for %s | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $this->getCode(),
+                $e->getMessage()
+            ));
         }
 
         return parent::isAvailable($quote);
