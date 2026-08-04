@@ -68,6 +68,8 @@ class SaveOrderProcessor
      * @param Order $order
      * @param BuckarooLoggerInterface $logger
      * @param OrderByIncrementId $orderByIncrementId
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         QuoteManagement             $quoteManagement,

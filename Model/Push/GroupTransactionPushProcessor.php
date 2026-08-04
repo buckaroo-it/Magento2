@@ -114,6 +114,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      * @param DefaultProcessor $defaultProcessor
      * @param OrderCommentHistoryService $orderCommentHistoryService
      * @param CartRepositoryInterface $cartRepository
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         PaymentGroupTransaction $groupTransaction,

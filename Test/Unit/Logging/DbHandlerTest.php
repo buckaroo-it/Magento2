@@ -72,7 +72,7 @@ class DbHandlerTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('insertMultiple')
             ->with(
                 'buckaroo_magento2_log',
-                $this->callback(fn (array $rows): bool => count($rows) === 100)
+                $this->callback(fn (array $rows) => count($rows) === 100)
             );
 
         for ($i = 0; $i < 100; $i++) {
