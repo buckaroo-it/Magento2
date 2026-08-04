@@ -65,7 +65,15 @@ class Creditcard extends Info
         array $data = [],
         ?ConfigProviderCreditcard $configProvider = null
     ) {
-        parent::__construct($context, $groupTransaction, $giftcardCollection, $logoService, $baseUrl, $data);
+        parent::__construct(
+            $context,
+            $groupTransaction,
+            $giftcardCollection,
+            $logoService,
+            $baseUrl,
+            $data,
+            $configProvider
+        );
         $this->configProvider = $configProvider;
     }
 
