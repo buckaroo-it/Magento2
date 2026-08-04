@@ -17,7 +17,6 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-// @codingStandardsIgnoreFile
 try {
     $paymentMethod = $block->getConfiguration('providerType');
     $issuers = $block->getIssuers();
@@ -27,9 +26,10 @@ try {
 }
 ?>
 <div class="issuers_sort_wrapper">
-    <input type="hidden" name="<?= $block->getConfiguration('name') ?>" id="sort_<?= $paymentMethod ?>"
-           value="<?= $block->getSortedIssuerCodes() ?>">
-    <div id="sort_<?= $paymentMethod ?>_list"></div>
+    <input type="hidden" name="<?= $escaper->escapeHtmlAttr($block->getConfiguration('name')) ?>"
+           id="sort_<?= $escaper->escapeHtmlAttr($paymentMethod) ?>"
+           value="<?= $escaper->escapeHtmlAttr($block->getSortedIssuerCodes()) ?>">
+    <div id="sort_<?= $escaper->escapeHtmlAttr($paymentMethod) ?>_list"></div>
 </div>
 
 <script>
@@ -40,7 +40,7 @@ try {
     ], function ($) {
         'use strict';
 
-        let listSelector = '#sort_<?= $paymentMethod ?>_list';
+        let listSelector = '#sort_<?= $escaper->escapeJs($paymentMethod) ?>_list';
         $(listSelector).sortable({
             axis: 'y',
             tolerance: 'pointer',
@@ -50,12 +50,12 @@ try {
             }
         });
 
-        let ccInherit = $('input[name="<?= $block->getConfiguration('ccInherit') ?>"]');
-        let selector = 'select[name="<?= $block->getConfiguration('selector') ?>[]"]';
-        let inputText = $('#sort_<?= $paymentMethod ?>').val();
-        let selectorWrapper = '.<?= $paymentMethod ?>_sort_wrapper';
+        let ccInherit = $('input[name="<?= $escaper->escapeJs($block->getConfiguration('ccInherit')) ?>"]');
+        let selector = 'select[name="<?= $escaper->escapeJs($block->getConfiguration('selector')) ?>[]"]';
+        let inputText = $('#sort_<?= $escaper->escapeJs($paymentMethod) ?>').val();
+        let selectorWrapper = '.<?= $escaper->escapeJs($paymentMethod) ?>_sort_wrapper';
 
-        var issuers = <?php echo json_encode($issuers); ?>;
+        var issuers = <?= /* @noEscape */ json_encode($issuers) ?>;
 
         function createParagraphElement(code) {
             if (!issuers[code]) {
@@ -129,7 +129,7 @@ try {
                 cardList = '__EMPTY__';
             }
             
-            $('#sort_<?= $paymentMethod ?>').val(cardList);
+            $('#sort_<?= $escaper->escapeJs($paymentMethod) ?>').val(cardList);
         }
 
         function sortableOnOff(status) {

@@ -24,6 +24,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -84,6 +85,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
      * @param UrlInterface          $urlBuilder
      * @param FormKey               $formKey
      * @param Session               $customerSession
+     * @param CheckoutSession       $checkoutSession
      *
      * @throws Exception
      *
@@ -97,7 +99,8 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         StoreManagerInterface $storeManager,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        Session $customerSession
+        Session $customerSession,
+        CheckoutSession $checkoutSession
     ) {
         parent::__construct($context);
         $this->order = $order;
@@ -107,7 +110,13 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->customerSession = $customerSession;
+        $this->checkoutSession = $checkoutSession;
     }
+
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
 
     /**
      * Process action
@@ -122,7 +131,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {
             $this->order->loadByIncrementId($params['orderId']);
-            if ($this->customerSession->getCustomerId() === $this->order->getCustomerId() && $this->order->getId()) {
+            if ($this->order->getId() && $this->isOrderOwnedByCurrentVisitor()) {
                 $store = $this->order->getStore();
                 $url = '';
 
@@ -153,5 +162,26 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
 
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData($response);
+    }
+
+    /**
+     * Verify the loaded order belongs to the current visitor.
+     *
+     * A logged-in customer must own the order; for guest orders the order must be the
+     * one this session just placed. Comparing the customer ids alone is not enough:
+     * both are null for a guest order in an anonymous session, which would expose the
+     * state of any order whose increment id is guessed.
+     *
+     * @return bool
+     */
+    private function isOrderOwnedByCurrentVisitor(): bool
+    {
+        $sessionCustomerId = $this->customerSession->getCustomerId();
+
+        if ($sessionCustomerId !== null && $this->order->getCustomerId() !== null) {
+            return (int)$sessionCustomerId === (int)$this->order->getCustomerId();
+        }
+
+        return (string)$this->checkoutSession->getLastRealOrderId() === (string)$this->order->getIncrementId();
     }
 }

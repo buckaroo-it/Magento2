@@ -95,7 +95,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         // Enable group transaction logic when amounts differ
         $hasGroupTransactions = ($amount !== $amountLeftToRefund);
         $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn($hasGroupTransactions);
-        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn($amountLeftToRefund);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn($amountLeftToRefund);
 
         $result = $this->amountCreditDataBuilder->build($buildSubject);
 
@@ -155,7 +155,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         $this->transactionCurrencyResolverMock->method('resolve')->willReturn('PLN');
 
         $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
-        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn(10.00);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn(10.00);
 
         $result = $this->amountCreditDataBuilder->build([
             'payment' => $this->getSalesPaymentDOMock(null),
@@ -164,6 +164,38 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         // 10.00 base * 4.2882 = 42.88 in order currency
         $this->assertEquals(42.88, $result[AmountCreditDataBuilder::AMOUNT_CREDIT]);
+    }
+
+    /**
+     * refundGroupTransactions() returns the CLAMPED remainder (group-transaction
+     * deduction and total-order ceiling applied). The builder must consume that
+     * return value - reading the raw amountLeftToRefund property discards the
+     * clamps and can over-refund the primary payment method.
+     *
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    public function testBuildUsesClampedReturnValueOfRefundGroupTransactions(): void
+    {
+        $this->orderMock->method('getBaseGrandTotal')->willReturn(100.00);
+        $this->orderMock->method('getOrderCurrencyCode')->willReturn('USD');
+        $this->orderMock->method('getBaseCurrencyCode')->willReturn('EUR');
+        $this->orderMock->method('getBaseToOrderRate')->willReturn(1.0);
+        $this->orderMock->method('getIncrementId')->willReturn('000000001');
+        $this->transactionCurrencyResolverMock->method('resolve')->willReturn(null);
+
+        $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
+        // Clamped return value (e.g. grand total minus giftcard group amount) ...
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn(40.00);
+        // ... must win over the raw, un-clamped property value
+        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn(100.00);
+
+        $result = $this->amountCreditDataBuilder->build([
+            'payment' => $this->getPaymentDOMock(),
+            'amount'  => 100.00
+        ]);
+
+        $this->assertEquals(40.00, $result[AmountCreditDataBuilder::AMOUNT_CREDIT]);
     }
 
     /**

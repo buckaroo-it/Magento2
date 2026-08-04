@@ -96,8 +96,9 @@ class AmountCreditDataBuilder implements BuilderInterface
 
         $amountAdjustedForGroupTransactions = false;
         if ($hasGroupTransactions || $isSingleGiftcard) {
-            $this->refundGroupService->refundGroupTransactions($buildSubject);
-            $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
+            // The return value carries the clamped remainder (group-transaction deduction,
+            // total-order ceiling) - the raw amountLeftToRefund property does not
+            $this->refundAmount = (float)$this->refundGroupService->refundGroupTransactions($buildSubject);
             $amountAdjustedForGroupTransactions = true;
 
             if ($this->refundAmount < 0.01) {
