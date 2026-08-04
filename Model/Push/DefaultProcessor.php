@@ -47,7 +47,7 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Escaper;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
@@ -210,6 +210,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected $orderManagement;
 
     /**
+     * @var Escaper
+     */
+    protected $escaper;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -225,14 +230,15 @@ class DefaultProcessor implements PushProcessorInterface
      * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     * @param CurrencyFactory|null $currencyFactory
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
-     * @param TransactionRepositoryInterface|null $transactionRepository
-     * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
-     * @param OrderManagementInterface|null $orderManagement
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -249,14 +255,15 @@ class DefaultProcessor implements PushProcessorInterface
         Uncancel                                                 $uncancelService,
         ResourceConnection                                       $resourceConnection,
         GiftcardCollection                                       $giftcardCollection,
-        ?CurrencyFactory                                         $currencyFactory = null,
-        ?OrderRepositoryInterface                                $orderRepository = null,
-        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
-        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null,
-        ?TransactionRepositoryInterface                          $transactionRepository = null,
-        ?SearchCriteriaBuilder                                   $searchCriteriaBuilder = null,
-        ?OrderManagementInterface                                $orderManagement = null
+        CurrencyFactory                                          $currencyFactory,
+        OrderRepositoryInterface                                 $orderRepository,
+        OrderPaymentRepositoryInterface                          $paymentRepository,
+        InvoiceRepositoryInterface                               $invoiceRepository,
+        \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction  $groupTransactionResource,
+        TransactionRepositoryInterface                           $transactionRepository,
+        SearchCriteriaBuilder                                    $searchCriteriaBuilder,
+        OrderManagementInterface                                 $orderManagement,
+        Escaper                                                  $escaper
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -272,34 +279,15 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
-        $this->currencyFactory = $this->resolveDependency($currencyFactory, CurrencyFactory::class);
-        $this->orderRepository = $this->resolveDependency($orderRepository, OrderRepositoryInterface::class);
-        $this->paymentRepository = $this->resolveDependency($paymentRepository, OrderPaymentRepositoryInterface::class);
-        $this->invoiceRepository = $this->resolveDependency($invoiceRepository, InvoiceRepositoryInterface::class);
-        $this->groupTransactionResource = $this->resolveDependency(
-            $groupTransactionResource,
-            \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class
-        );
-        $this->transactionRepository = $this->resolveDependency(
-            $transactionRepository,
-            TransactionRepositoryInterface::class
-        );
-        $this->searchCriteriaBuilder = $this->resolveDependency($searchCriteriaBuilder, SearchCriteriaBuilder::class);
-        $this->orderManagement = $this->resolveDependency($orderManagement, OrderManagementInterface::class);
-    }
-
-    /**
-     * BC fallback for constructor deps added after the initial release; subclasses
-     * forward them positionally, so DI cannot fill parent-only params. Removed when
-     * the Phase 4.4 constructor cleanup makes them required.
-     *
-     * @param object|null $dependency
-     * @param class-string $class
-     * @return object
-     */
-    private function resolveDependency(?object $dependency, string $class): object
-    {
-        return $dependency ?: ObjectManager::getInstance()->get($class);
+        $this->currencyFactory = $currencyFactory;
+        $this->orderRepository = $orderRepository;
+        $this->paymentRepository = $paymentRepository;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->groupTransactionResource = $groupTransactionResource;
+        $this->transactionRepository = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderManagement = $orderManagement;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -988,7 +976,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         // 7. Save order changes (payment is persisted by the order save cascade)
-        $this->order->save();
+        $this->orderRepository->save($this->order);
 
         $this->logger->addDebug(sprintf(
             '[%s:%s] - Order %s: Successfully reactivated and set to %s state',
@@ -1998,7 +1986,7 @@ class DefaultProcessor implements PushProcessorInterface
             ];
             if (in_array($payment->getMethodInstance()->getCode(), $methods)) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                $payment->save();
+                $this->paymentRepository->save($payment);
             }
 
             // Check if we should skip void request (no successful transaction to void)
@@ -2162,7 +2150,9 @@ class DefaultProcessor implements PushProcessorInterface
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
             foreach ($transferDetails as $key => $transferDetail) {
-                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: ' . $transferDetail;
+                // Consumer-entered values relayed by the push; the comment is rendered as HTML in admin
+                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: '
+                    . $this->escaper->escapeHtml((string)$transferDetail);
             }
         }
 

@@ -214,7 +214,7 @@ class NotificationRenderer
             $content .= $this->escaper->escapeHtml($subHeading['title']);
             $content .= "</h3>";
             $content .= "<p>";
-            $content .= $this->formatContentWithLinks($subHeading['content']);
+            $content .= $this->formatContentWithLinks($this->escaper->escapeHtml($subHeading['content']));
             $content .= "</p>";
             $content .= "</div>";
         }

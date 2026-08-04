@@ -106,7 +106,7 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
         ];
 
         if ($this->payReminderService->getServiceAction($this->getOrder()->getIncrementId()) !== 'payRemainder') {
-            $this->payReminderService->setServiceAction('ExtraInfo');
+            $this->payReminderService->setServiceAction('ExtraInfo', $this->getOrder()->getIncrementId());
         }
 
         return $data;
