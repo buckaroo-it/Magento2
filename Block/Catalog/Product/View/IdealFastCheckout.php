@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
+use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Exception\LocalizedException;
@@ -32,8 +33,13 @@ use Magento\Framework\View\Asset\Repository;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\View\Element\Template\Context;
 
-class IdealFastCheckout extends Template
+class IdealFastCheckout extends Template implements ShortcutInterface
 {
+    /**
+     * Alias used when this block is added as a shortcut button.
+     */
+    private const SHORTCUT_ALIAS = 'buckaroo_magento2.checkout.cart.ideal.fast.checkout';
+
     /**
      * @var Account
      */
@@ -95,6 +101,16 @@ class IdealFastCheckout extends Template
         $this->idealConfig = $idealConfig;
         $this->assetRepo = $assetRepo;
         $this->registry = $registry;
+    }
+
+    /**
+     * Get the shortcut alias used by the shortcut buttons container.
+     *
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return self::SHORTCUT_ALIAS;
     }
 
     /**

@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
+use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Encryption\Encryptor;
@@ -31,8 +32,13 @@ use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
-class PaypalExpress extends Template
+class PaypalExpress extends Template implements ShortcutInterface
 {
+    /**
+     * Alias used when this block is added as a shortcut button.
+     */
+    private const SHORTCUT_ALIAS = 'buckaroo.paypal.express.cart.button';
+
     /**
      * @var Account
      */
@@ -87,6 +93,16 @@ class PaypalExpress extends Template
         $this->paypalConfig = $paypalConfig;
         $this->registry = $registry;
         $this->checkoutSession = $checkoutSession;
+    }
+
+    /**
+     * Get the shortcut alias used by the shortcut buttons container.
+     *
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return self::SHORTCUT_ALIAS;
     }
 
     /**

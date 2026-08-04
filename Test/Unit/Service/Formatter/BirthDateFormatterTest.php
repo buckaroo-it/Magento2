@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Formatter;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Buckaroo\Magento2\Test\BaseTest;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class BirthDateFormatterTest extends BaseTest
 {
@@ -62,11 +63,10 @@ class BirthDateFormatterTest extends BaseTest
     }
 
     /**
-     * @dataProvider parsableDateProvider
-     *
      * @param string $raw
      * @param string $expected
      */
+    #[DataProvider('parsableDateProvider')]
     public function testFormatParsesEverySeparatorTheCheckoutAccepts(string $raw, string $expected): void
     {
         $this->assertSame($expected, $this->getFormatter()->format($raw));
@@ -99,10 +99,9 @@ class BirthDateFormatterTest extends BaseTest
     }
 
     /**
-     * @dataProvider unusableDateProvider
-     *
      * @param string|null $raw
      */
+    #[DataProvider('unusableDateProvider')]
     public function testFormatReturnsNullInsteadOfThrowingOnUnusableInput(?string $raw): void
     {
         $this->assertNull($this->getFormatter()->format($raw));
