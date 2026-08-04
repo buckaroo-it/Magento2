@@ -34,6 +34,8 @@ if (!empty($allPaymentMethods)) {
             <div class="bk-img-wrap">
                 <?php if ($paymentMethod['type'] === 'giftcard'): ?>
                     <img src="<?php echo $block->escapeHtml($block->getGiftcardLogo($paymentMethod)) ?>" alt=""/>
+                <?php elseif ($paymentMethod['type'] === 'creditcard'): ?>
+                    <img src="<?php echo $block->escapeHtml($block->getCreditcardLogo($paymentMethod['code'])) ?>" alt=""/>
                 <?php else: ?>
                     <img src="<?php echo $block->escapeHtml($block->getPaymentLogo($paymentMethod['code'])) ?>" alt=""/>
                 <?php endif; ?>

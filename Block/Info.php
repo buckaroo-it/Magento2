@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Block;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as CreditcardConfigProvider;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
@@ -53,12 +54,18 @@ class Info extends \Magento\Payment\Block\Info
     protected $logoService;
 
     /**
-     * @param Context                 $context
-     * @param PaymentGroupTransaction $groupTransaction
-     * @param GiftcardCollection      $giftcardCollection
-     * @param LogoService             $logoService
-     * @param UrlInterface            $baseUrl
-     * @param array                   $data
+     * @var CreditcardConfigProvider|null
+     */
+    protected $creditcardConfigProvider;
+
+    /**
+     * @param Context                       $context
+     * @param PaymentGroupTransaction       $groupTransaction
+     * @param GiftcardCollection            $giftcardCollection
+     * @param LogoService                   $logoService
+     * @param UrlInterface                  $baseUrl
+     * @param array                         $data
+     * @param CreditcardConfigProvider|null $creditcardConfigProvider
      */
     public function __construct(
         Context $context,
@@ -66,13 +73,15 @@ class Info extends \Magento\Payment\Block\Info
         GiftcardCollection $giftcardCollection,
         LogoService $logoService,
         UrlInterface $baseUrl,
-        array $data = []
+        array $data = [],
+        ?CreditcardConfigProvider $creditcardConfigProvider = null
     ) {
         parent::__construct($context, $data);
         $this->groupTransaction = $groupTransaction;
         $this->giftcardCollection = $giftcardCollection;
         $this->logoService = $logoService;
         $this->baseUrl = $baseUrl;
+        $this->creditcardConfigProvider = $creditcardConfigProvider;
     }
 
     /**
@@ -239,6 +248,15 @@ class Info extends \Magento\Payment\Block\Info
                     'logo' => null,
                     'amount' => $item['amount'] ?? null
                 ];
+            } elseif ($issuer = $this->getCreditcardIssuerByCode($servicecode)) {
+                // It's a creditcard brand (visa, mastercard, amex, ...) used for the remainder payment
+                $result[] = [
+                    'type' => 'creditcard',
+                    'code' => strtolower($servicecode),
+                    'label' => $issuer['name'],
+                    'logo' => null,
+                    'amount' => $item['amount'] ?? null
+                ];
             } else {
                 // It's a regular payment method (ideal, alipay, paypal, etc)
                 $label = ucfirst($servicecode); // Capitalize first letter
@@ -343,6 +361,28 @@ class Info extends \Magento\Payment\Block\Info
     public function getCreditcardLogo(string $code): string
     {
         return $this->logoService->getCreditcard($code);
+    }
+
+    /**
+     * Find a creditcard issuer (visa, mastercard, amex, ...) by its service code
+     *
+     * @param string $servicecode
+     *
+     * @return array|null ['name' => 'VISA', 'code' => 'visa', ...] or null when not a creditcard brand
+     */
+    private function getCreditcardIssuerByCode(string $servicecode): ?array
+    {
+        if ($this->creditcardConfigProvider === null) {
+            return null;
+        }
+
+        foreach ($this->creditcardConfigProvider->getIssuers() as $issuer) {
+            if (strtolower($issuer['code']) === strtolower($servicecode)) {
+                return $issuer;
+            }
+        }
+
+        return null;
     }
 
     /**

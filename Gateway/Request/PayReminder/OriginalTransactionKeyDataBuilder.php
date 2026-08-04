@@ -50,7 +50,13 @@ class OriginalTransactionKeyDataBuilder extends AbstractDataBuilder
 
         $serviceAction = $this->payReminderService->getServiceAction($this->getOrder()->getIncrementId());
 
-        if (in_array($serviceAction, [TransactionType::PAY_REMAINDER, TransactionType::PAY_REMAINDER_ENCRYPTED], true)) {
+        $remainderActions = [
+            TransactionType::PAY_REMAINDER,
+            TransactionType::PAY_REMAINDER_ENCRYPTED,
+            TransactionType::PAY_REMAINDER_WITH_TOKEN,
+        ];
+
+        if (in_array($serviceAction, $remainderActions, true)) {
             return [
                 'originalTransactionKey' => $this->payReminderService->getOriginalTransactionKey($this->getOrder())
             ];
