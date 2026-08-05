@@ -243,9 +243,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             'description' => $articleDescription,
             'vatPercentage' => $this->normalizeAmount($articleVat),
             'quantity' => (int)round((float)$articleQuantity),
-            // Round to 2 decimals: the gateway rounds each unit price before
-            // multiplying by quantity, so unrounded values (e.g. 25.0236363636)
-            // make the article sum drift from the order amount and get rejected.
             'price' => round($this->normalizeAmount($articleUnitPrice), 2)
         ];
     }
