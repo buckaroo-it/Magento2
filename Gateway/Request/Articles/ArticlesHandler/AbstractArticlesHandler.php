@@ -239,12 +239,43 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $articleVat = ''
     ): array {
         return [
-            'identifier' => $articleId,
+            'identifier' => (string)$articleId,
             'description' => $articleDescription,
-            'vatPercentage' => $articleVat,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
+            'vatPercentage' => $this->normalizeAmount($articleVat),
+            'quantity' => (int)round((float)$articleQuantity),
+            'price' => round($this->normalizeAmount($articleUnitPrice), 2)
         ];
+    }
+
+    /**
+     * Normalize an amount to a float for the SDK's strictly-typed Article model
+     * (float $price, float $vatPercentage). Numeric strings such as "20.0000" or
+     * thousands-formatted amounts like "1,234.50" would otherwise cause a
+     * TypeError when assigned to the typed SDK properties.
+     *
+     * @param string|int|float|null $amount
+     */
+    protected function normalizeAmount($amount): float
+    {
+        if ($amount === null || $amount === '' || is_int($amount) || is_float($amount)) {
+            return (float)$amount;
+        }
+
+        $normalized = trim((string)$amount);
+
+        // number_format-style thousands separators ("1,234.50") — strictly matched
+        // so locale-ambiguous values (e.g. "1.234,56") are never silently misread.
+        if (preg_match('/^-?\d{1,3}(,\d{3})+(\.\d+)?$/', $normalized)) {
+            $normalized = str_replace(',', '', $normalized);
+        }
+
+        if (!is_numeric($normalized)) {
+            throw new \InvalidArgumentException(
+                sprintf('Article amount "%s" is not a valid number.', $amount)
+            );
+        }
+
+        return (float)$normalized;
     }
 
     /**
@@ -862,7 +893,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                     $this->getDiscountDescription($item),
                     $item->getSku(),
                     1,
-                    number_format(-$discountAmount, 2),
+                    round(-$discountAmount, 2),
                     $this->getItemTax($item->getOrderItem())
                 );
                 $articles[] = $article;
@@ -1004,11 +1035,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     ): array {
         return [
             'refundType' => 'Refund',
-            'identifier' => $articleId,
+            'identifier' => (string)$articleId,
             'description' => $articleDescription,
-            'vatPercentage' => $articleVat,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
+            'vatPercentage' => $this->normalizeAmount($articleVat),
+            'quantity' => (int)round((float)$articleQuantity),
+            'price' => round($this->normalizeAmount($articleUnitPrice), 2)
         ];
     }
 

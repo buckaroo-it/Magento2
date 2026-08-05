@@ -43,11 +43,11 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $articleVat = ''
     ): array {
         return [
-            'identifier' => $articleId,
+            'identifier' => (string)$articleId,
             'description' => $articleDescription,
             'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
+            'quantity' => (int)round((float)$articleQuantity),
+            'price' => round($this->normalizeAmount($articleUnitPrice), 2)
         ];
     }
 
@@ -62,11 +62,11 @@ class AfterpayOldHandler extends AbstractArticlesHandler
         $articleVat = ''
     ): array {
         return [
-            'identifier' => $articleId,
+            'identifier' => (string)$articleId,
             'description' => $articleDescription,
             'vatCategory' => $articleVat ?: self::DEFAULT_TAX_CATEGORY,
-            'quantity' => $articleQuantity,
-            'price' => $articleUnitPrice
+            'quantity' => (int)round((float)$articleQuantity),
+            'price' => round($this->normalizeAmount($articleUnitPrice), 2)
         ];
     }
 
