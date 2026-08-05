@@ -460,8 +460,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         } elseif (in_array($statusCode, [
             BuckarooStatusCode::ORDER_FAILED,
             BuckarooStatusCode::FAILED,
+            BuckarooStatusCode::VALIDATION_FAILURE,
+            BuckarooStatusCode::TECHNICAL_ERROR,
             BuckarooStatusCode::REJECTED,
-            BuckarooStatusCode::CANCELLED_BY_USER
+            BuckarooStatusCode::CANCELLED_BY_USER,
+            BuckarooStatusCode::CANCELLED_BY_MERCHANT
         ])) {
             $result = $this->handleFailed($statusCode);
         }
