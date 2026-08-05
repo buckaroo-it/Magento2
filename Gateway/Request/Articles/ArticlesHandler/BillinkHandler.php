@@ -30,7 +30,7 @@ class BillinkHandler extends AbstractArticlesHandler
      *
      * @return array
      */
-    public function getDiscountLine(): array
+    public function getDiscountLines(): array
     {
         return [];
     }
@@ -165,7 +165,7 @@ class BillinkHandler extends AbstractArticlesHandler
                     'Korting op ' . $item->getName(),
                     $item->getSku(),
                     1,
-                    number_format(($item->getDiscountAmount() * -1), 2),
+                    round($item->getDiscountAmount() * -1, 2),
                     $item->getTaxPercent() ?: 0
                 );
                 $articles[] = $article;

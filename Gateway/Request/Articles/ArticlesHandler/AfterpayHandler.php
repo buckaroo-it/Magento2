@@ -189,11 +189,11 @@ class AfterpayHandler extends AbstractArticlesHandler
         $imageUrl = ''
     ): array {
         return [
-            'identifier'    => $articleId,
+            'identifier'    => (string)$articleId,
             'description'   => $articleDescription,
-            'vatPercentage' => $articleVat,
-            'quantity'      => $articleQuantity,
-            'price'         => $articleUnitPrice,
+            'vatPercentage' => $this->normalizeAmount($articleVat),
+            'quantity'      => (int)round((float)$articleQuantity),
+            'price'         => round($this->normalizeAmount($articleUnitPrice), 2),
             'imageUrl'      => $imageUrl
         ];
     }
