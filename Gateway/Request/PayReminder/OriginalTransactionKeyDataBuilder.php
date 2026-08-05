@@ -57,9 +57,13 @@ class OriginalTransactionKeyDataBuilder extends AbstractDataBuilder
         ];
 
         if (in_array($serviceAction, $remainderActions, true)) {
-            return [
-                'originalTransactionKey' => $this->payReminderService->getOriginalTransactionKey($this->getOrder())
-            ];
+            $originalTransactionKey = $this->payReminderService->getOriginalTransactionKey($this->getOrder());
+
+            if (empty($originalTransactionKey)) {
+                return [];
+            }
+
+            return ['originalTransactionKey' => $originalTransactionKey];
         }
 
         return [];
