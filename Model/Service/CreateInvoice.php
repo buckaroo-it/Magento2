@@ -180,6 +180,7 @@ class CreateInvoice
             return false;
         }
 
+        $this->registry->unregister('current_invoice');
         $this->registry->register('current_invoice', $invoice);
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 
