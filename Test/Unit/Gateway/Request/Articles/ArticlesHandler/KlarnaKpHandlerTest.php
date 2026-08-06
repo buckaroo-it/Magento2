@@ -86,6 +86,7 @@ class KlarnaKpHandlerTest extends TestCase
     /** Staged invoice items set by buildHandler, consumed by makeOrder(). */
     private array $stagedItems = [];
     private float $stagedGrandTotal = 0.0;
+    private float $stagedGiftCardAmount = 0.0;
     private float $stagedOrderDiscountAmount = 0.0;
 
     protected function setUp(): void
@@ -313,6 +314,7 @@ class KlarnaKpHandlerTest extends TestCase
         // Stage invoice data so makeOrder() can use it.
         $this->stagedItems             = $items;
         $this->stagedGrandTotal        = $invoiceGrandTotal;
+        $this->stagedGiftCardAmount    = $giftCardAmount;
         $this->stagedOrderDiscountAmount = $orderDiscountAmount;
 
         // Quote mock — getGiftCardsAmount / getRewardCurrencyAmount are Adobe Commerce methods
@@ -385,6 +387,16 @@ class KlarnaKpHandlerTest extends TestCase
         $order->method('getQuoteId')->willReturn(1);
         $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+        $order->method('getAllVisibleItems')->willReturn([]);
+        $order->method('getData')->willReturnCallback(function (string $key) use ($orderDiscountAmount) {
+            return match ($key) {
+                'gift_cards_amount'                => $this->stagedGiftCardAmount,
+                'reward_currency_amount'           => 0.0,
+                'discount_amount'                  => $orderDiscountAmount,
+                'discount_tax_compensation_amount' => 0.0,
+                default                            => null,
+            };
+        });
 
         return $order;
     }
