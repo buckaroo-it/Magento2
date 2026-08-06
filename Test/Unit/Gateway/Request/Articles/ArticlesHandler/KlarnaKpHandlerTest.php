@@ -388,8 +388,8 @@ class KlarnaKpHandlerTest extends TestCase
         $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $order->method('getAllVisibleItems')->willReturn([]);
-        $order->method('getData')->willReturnCallback(function (string $key) use ($orderDiscountAmount) {
-            return match ($key) {
+        $order->method('getData')->willReturnCallback(function ($key = '') use ($orderDiscountAmount) {
+            return match ((string)$key) {
                 'gift_cards_amount'                => $this->stagedGiftCardAmount,
                 'reward_currency_amount'           => 0.0,
                 'discount_amount'                  => $orderDiscountAmount,
