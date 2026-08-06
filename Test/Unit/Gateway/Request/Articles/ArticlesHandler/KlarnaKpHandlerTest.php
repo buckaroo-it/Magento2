@@ -382,21 +382,19 @@ class KlarnaKpHandlerTest extends TestCase
         $collection->method('count')->willReturn(1);
         $collection->method('getLastItem')->willReturn($invoice);
 
-        $order = $this->createMock(Order::class);
+        $order = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getInvoiceCollection', 'getQuoteId', 'getAllVisibleItems'])
+            ->getMock();
         $order->method('getInvoiceCollection')->willReturn($collection);
         $order->method('getQuoteId')->willReturn(1);
-        $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
-        $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $order->method('getAllVisibleItems')->willReturn([]);
-        $order->method('getData')->willReturnCallback(function ($key = '') use ($orderDiscountAmount) {
-            return match ((string)$key) {
-                'gift_cards_amount'                => $this->stagedGiftCardAmount,
-                'reward_currency_amount'           => 0.0,
-                'discount_amount'                  => $orderDiscountAmount,
-                'discount_tax_compensation_amount' => 0.0,
-                default                            => null,
-            };
-        });
+        $order->setData([
+            'gift_cards_amount'                => $this->stagedGiftCardAmount,
+            'reward_currency_amount'           => 0.0,
+            'discount_amount'                  => $orderDiscountAmount,
+            'discount_tax_compensation_amount' => 0.0,
+        ]);
 
         return $order;
     }
