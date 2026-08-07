@@ -37,6 +37,8 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Framework\App\Area;
+use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Tax\Model\Calculation;
 use Magento\Tax\Model\Config;
@@ -125,6 +127,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected $quoteResource;
 
     /**
+     * @var Emulation|null
+     */
+    private $appEmulation;
+
+    /**
      * @param ScopeConfigInterface $scopeConfig
      * @param BuckarooLog $buckarooLog
      * @param QuoteFactory $quoteFactory
@@ -135,6 +142,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      * @param PayReminderService $payReminderService
      * @param \Magento\Quote\Model\ResourceModel\Quote|null $quoteResource
+     * @param Emulation|null $appEmulation
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -147,11 +155,13 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
         PayReminderService $payReminderService,
-        ?\Magento\Quote\Model\ResourceModel\Quote $quoteResource = null
+        ?\Magento\Quote\Model\ResourceModel\Quote $quoteResource = null,
+        ?Emulation $appEmulation = null
     ) {
         $this->quoteResource = $quoteResource
             ?? \Magento\Framework\App\ObjectManager::getInstance()
                 ->get(\Magento\Quote\Model\ResourceModel\Quote::class);
+        $this->appEmulation = $appEmulation;
         $this->scopeConfig = $scopeConfig;
         $this->buckarooLog = $buckarooLog;
         $this->quoteFactory = $quoteFactory;
@@ -652,12 +662,17 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return $shippingCostsArticle;
         }
 
-        $request = $this->taxCalculation->getRateRequest();
-        $taxClassId = $this->taxConfig->getShippingTaxClass();
+        $request = $this->taxCalculation->getRateRequest(
+            $order->getShippingAddress(),
+            $order->getBillingAddress(),
+            null,
+            $order->getStore()
+        );
+        $taxClassId = $this->taxConfig->getShippingTaxClass($order->getStore());
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = $this->getArticleArrayLine(
-            (string)$this->getShippingFee(),
+            $this->renderInOrderStoreLocale(fn (): string => (string)$this->getShippingFee()),
             2,
             1,
             $this->formatPrice($shippingAmount),
@@ -671,6 +686,29 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $itemsTotalAmount += $shippingAmount;
 
         return !empty($shippingCostsArticle) ? ['articles' => [$shippingCostsArticle]] : [];
+    }
+
+    /**
+     * Render a synthetic article label in the locale of the order's store.
+     *
+     * @param callable $render
+     *
+     * @return string
+     */
+    private function renderInOrderStoreLocale(callable $render): string
+    {
+        $order = $this->order ?? null;
+        if ($order === null || $this->appEmulation === null) {
+            return (string)$render();
+        }
+
+        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND, true);
+
+        try {
+            return (string)$render();
+        } finally {
+            $this->appEmulation->stopEnvironmentEmulation();
+        }
     }
 
     /**

@@ -754,6 +754,11 @@
         </arguments>
     </virtualType>
 
+    <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler">
+        <arguments>
+            <argument name="appEmulation" xsi:type="object">Magento\Store\Model\App\Emulation</argument>
+        </arguments>
+    </type>
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">
         <arguments>
             <argument name="articlesHandlers" xsi:type="array">
@@ -1532,9 +1537,18 @@
             <argument name="requestBuilder" xsi:type="object">KlarnaCaptureRequest</argument>
             <argument name="transferFactory" xsi:type="object">Buckaroo\Magento2\Gateway\Http\SDKTransferFactory</argument>
             <argument name="client" xsi:type="object">TransactionPay</argument>
-            <argument name="handler" xsi:type="object">CaptureResponseHandler</argument>
+            <argument name="handler" xsi:type="object">KlarnaMorCaptureResponseHandler</argument>
             <argument name="validator" xsi:type="object">Buckaroo\Magento2\Gateway\Validator\ResponseCodeSDKValidator</argument>
             <argument name="errorMessageMapper" xsi:type="object">Buckaroo\Magento2\Gateway\ErrorMapper\ErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="KlarnaMorCaptureResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="capture" xsi:type="string">CaptureResponseHandler</item>
+                <item name="capture_transaction_key" xsi:type="string">Buckaroo\Magento2\Gateway\Response\CaptureTransactionKeyHandler</item>
+            </argument>
         </arguments>
     </virtualType>
     <!-- Klarna Capture Command - Request Builder -->
@@ -1799,15 +1813,6 @@
                 <item name="reservation_number" xsi:type="string">Buckaroo\Magento2\Gateway\Request\ReservationNumberDataBuilder</item>
                 <item name="order" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\OrderNumberDataBuilder</item>
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\InvoicedArticlesDataBuilder</item>
-            </argument>
-        </arguments>
-    </virtualType>
-    <!-- KlarnaKp Capture Command - Response Handler -->
-    <virtualType name="KlarnaKpCaptureResponseHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="authorize" xsi:type="string">CaptureResponseHandler</item>
-                <item name="klarnakp" xsi:type="string">Buckaroo\Magento2\Gateway\Response\KlarnaKpHandler</item>
             </argument>
         </arguments>
     </virtualType>
