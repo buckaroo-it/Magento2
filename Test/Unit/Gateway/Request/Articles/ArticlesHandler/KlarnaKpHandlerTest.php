@@ -87,6 +87,7 @@ class KlarnaKpHandlerTest extends TestCase
     private array $stagedItems = [];
     private float $stagedGrandTotal = 0.0;
     private float $stagedOrderDiscountAmount = 0.0;
+    private float $stagedGiftCardAmount = 0.0;
 
     protected function setUp(): void
     {
@@ -132,7 +133,7 @@ class KlarnaKpHandlerTest extends TestCase
         $identifiers = array_column($result['articles'], 'identifier');
 
         $this->assertContains(
-            6,
+            '6',
             $identifiers,
             'Gift card line (identifier=6) must be present in the capture request'
         );
@@ -166,7 +167,7 @@ class KlarnaKpHandlerTest extends TestCase
         $identifiers = array_column($result['articles'], 'identifier');
 
         $this->assertNotContains('extra-fees', $identifiers);
-        $this->assertNotContains(6, $identifiers, 'No gift card line expected when no gift card was applied');
+        $this->assertNotContains('6', $identifiers, 'No gift card line expected when no gift card was applied');
     }
 
     // ---- Discount code tests ------------------------------------------------
@@ -197,7 +198,11 @@ class KlarnaKpHandlerTest extends TestCase
 
         $identifiers = array_column($result['articles'], 'identifier');
 
-        $this->assertContains(1, $identifiers, 'Global discount line (identifier=1) must be present — matches the reserve');
+        $this->assertContains(
+            '1',
+            $identifiers,
+            'Global discount line (identifier=1) must be present — matches the reserve'
+        );
         $this->assertSame(
             1,
             count(array_filter($identifiers, fn($id) => $id === 'PROD1')),
@@ -234,7 +239,7 @@ class KlarnaKpHandlerTest extends TestCase
 
         $discountLine = null;
         foreach ($result['articles'] as $article) {
-            if (($article['identifier'] ?? null) === 1) {
+            if (($article['identifier'] ?? null) === '1') {
                 $discountLine = $article;
                 break;
             }
@@ -290,7 +295,7 @@ class KlarnaKpHandlerTest extends TestCase
 
         $giftCardLine = null;
         foreach ($result['articles'] as $article) {
-            if (($article['identifier'] ?? null) === 6) {
+            if (($article['identifier'] ?? null) === '6') {
                 $giftCardLine = $article;
                 break;
             }
@@ -314,6 +319,7 @@ class KlarnaKpHandlerTest extends TestCase
         $this->stagedItems             = $items;
         $this->stagedGrandTotal        = $invoiceGrandTotal;
         $this->stagedOrderDiscountAmount = $orderDiscountAmount;
+        $this->stagedGiftCardAmount    = $giftCardAmount;
 
         // Quote mock — getGiftCardsAmount / getRewardCurrencyAmount are Adobe Commerce methods
         // absent on CE, so they must be added via addMethods().
@@ -385,6 +391,20 @@ class KlarnaKpHandlerTest extends TestCase
         $order->method('getQuoteId')->willReturn(1);
         $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+        // Gift card and reward totals are read from the order, not the quote
+        // (KlarnaKpHandler::getGiftCardLine/getRewardLine).
+        $order->method('getData')->willReturnCallback(
+            function ($key = null) {
+                switch ($key) {
+                    case 'gift_cards_amount':
+                        return $this->stagedGiftCardAmount;
+                    case 'reward_currency_amount':
+                        return 0.0;
+                    default:
+                        return null;
+                }
+            }
+        );
 
         return $order;
     }
