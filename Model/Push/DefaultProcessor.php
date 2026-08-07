@@ -1770,8 +1770,10 @@ class DefaultProcessor implements PushProcessorInterface
 
         /** @var Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey);
-            $this->invoiceRepository->save($invoice);
+            if (empty($invoice->getTransactionId())) {
+                $invoice->setTransactionId($transactionKey);
+                $this->invoiceRepository->save($invoice);
+            }
 
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
