@@ -41,6 +41,8 @@ use PHPUnit\Framework\TestCase;
  *
  * A capture or refund runs in an admin/CLI context, so falling back to the current store sends a
  * different ArticleVat than the reserve did (e.g. 21% NL instead of 19% DE).
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ShippingCostsStoreContextTest extends TestCase
 {

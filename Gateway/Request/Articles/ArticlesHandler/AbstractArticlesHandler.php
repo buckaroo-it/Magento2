@@ -672,7 +672,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $percent = $this->taxCalculation->getRate($request->setProductClassId($taxClassId));
 
         $shippingCostsArticle = $this->getArticleArrayLine(
-            $this->renderInOrderStoreLocale(fn (): string => (string)$this->getShippingFee()),
+            $this->renderInOrderStoreLocale(function () {
+                return (string)$this->getShippingFee();
+            }),
             2,
             1,
             $this->formatPrice($shippingAmount),
