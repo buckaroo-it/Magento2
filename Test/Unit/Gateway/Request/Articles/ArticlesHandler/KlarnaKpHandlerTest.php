@@ -389,7 +389,6 @@ class KlarnaKpHandlerTest extends TestCase
         $order = $this->createMock(Order::class);
         $order->method('getInvoiceCollection')->willReturn($collection);
         $order->method('getQuoteId')->willReturn(1);
-        $order->method('getAllVisibleItems')->willReturn([]);
         $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         // Gift card and reward totals are read from the order, not the quote
