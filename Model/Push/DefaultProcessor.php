@@ -736,10 +736,6 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        if ($this->isCanceledOrderWithExternalPush()) {
-            return true;
-        }
-
         return false;
     }
 

@@ -192,6 +192,15 @@ class Uncancel
         $item->setTaxCanceled(0);
         $item->setDiscountTaxCompensationCanceled(0);
 
+        $qtyToInvoice = max(
+            0,
+            $item->getQtyOrdered()
+                - $item->getQtyInvoiced()
+                - $item->getQtyShipped()
+                - (float)$item->getQtyRefunded()
+        );
+        $item->setQtyToInvoice($qtyToInvoice);
+
         $this->eventManager->dispatch('buckaroo_order_item_uncancel', ['item' => $item]);
 
         // Handle child items (e.g., configurable product children, bundle items)
