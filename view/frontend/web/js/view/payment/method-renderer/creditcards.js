@@ -29,7 +29,8 @@ define(
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
-        'BuckarooHostedFieldsSdk'
+        'BuckarooHostedFieldsSdk',
+        'buckaroo/checkout/creditcards/error-gate'
 
     ],
     function (
@@ -42,7 +43,8 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        BuckarooHostedFieldsSdk
+        BuckarooHostedFieldsSdk,
+        errorGate
     ) {
         'use strict';
 
@@ -58,6 +60,7 @@ define(
             isPayButtonDisabled: ko.observable(false),
             isResetting: ko.observable(false),
             sdkClient: null,
+            hostedFieldsErrorGate: null,
             tokenExpiresAt: null,
 
             /**
@@ -161,6 +164,10 @@ define(
                 this.isResetting(true);
                 this.removeHostedFieldIframes();
 
+                if (this.hostedFieldsErrorGate) {
+                    this.hostedFieldsErrorGate.reset();
+                }
+
                 // Clear all payment data and errors
                 this.encryptedCardData = null;
                 this.service = null;
@@ -211,15 +218,20 @@ define(
                     this.sdkClient.setLanguage(languageCode);
                     this.sdkClient.setSupportedServices(issuers);
 
+                    this.hostedFieldsErrorGate = errorGate.createErrorGate({
+                        errorElementIds: {
+                            cardHolderName: 'cc-name-error',
+                            cardNumber: 'cc-number-error',
+                            expiryDate: 'cc-expiry-error',
+                            cvc: 'cc-cvc-error'
+                        }
+                    });
+
                     // Start the session and update the pay button state based on validation.
                     await this.sdkClient.startSession((event) => {
-                        this.sdkClient.handleValidation(
-                            event,
-                            'cc-name-error',
-                            'cc-number-error',
-                            'cc-expiry-error',
-                            'cc-cvc-error'
-                        );
+                        this.sdkClient.handleValidation(event);
+                        this.hostedFieldsErrorGate.handle(event);
+
                         this.isPayButtonDisabled(!this.sdkClient.formIsValid());
                         this.service = this.sdkClient.getService();
 
@@ -358,6 +370,10 @@ define(
             onPayClick: async function(data, event) {
                 event.preventDefault();
                 this.isPayButtonDisabled(true);
+
+                if (this.hostedFieldsErrorGate) {
+                    this.hostedFieldsErrorGate.showAll();
+                }
 
                 // Check if the token has expired before processing payment.
                 if (Date.now() > this.tokenExpiresAt) {
