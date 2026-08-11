@@ -21,13 +21,11 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
         'Magento_Checkout/js/model/quote',
         'ko',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/googlepay/pay',
         'BuckarooSdk'
     ],
@@ -38,8 +36,6 @@ define(
         placeOrderAction,
         quote,
         ko,
-        checkoutData,
-        selectPaymentMethodAction,
         googlepayPay
     ) {
         'use strict';
@@ -51,7 +47,6 @@ define(
                 },
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
-                subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay.subtext,
                 submit: false,
 
                 /**
@@ -154,40 +149,12 @@ define(
                 },
 
                 /**
-                 * Select payment method
-                 */
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-
-                    return true;
-                },
-
-                /**
                  * Show Google Pay button
                  */
                 showPayButton: function () {
                     googlepayPay.setIsOnCheckout(true);
                     googlepayPay.setQuote(quote);
                     googlepayPay.showPayButton();
-                },
-
-                /**
-                 * Check if payment should be done in base currency
-                 */
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay.allowedCurrencies;
-
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                /**
-                 * Get the text for paying with the base currency
-                 */
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-
-                    return text.replace('%s', this.baseCurrencyCode);
                 },
 
                 /**
