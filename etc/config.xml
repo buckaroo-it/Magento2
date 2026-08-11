@@ -42,7 +42,7 @@
                 <model>IdealFacade</model>
                 <order_status>pending</order_status>
                 <title>iDEAL | Wero</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>10</sort_order>
                 <order_email>1</order_email>
@@ -67,7 +67,7 @@
                 <model>PayByBankFacade</model>
                 <order_status>pending</order_status>
                 <title>PayByBank</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
@@ -91,7 +91,7 @@
                 <model>SepaDirectDebitFacade</model>
                 <order_status>pending</order_status>
                 <title>SEPA Direct Debit</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>110</sort_order>
                 <reminder_leve1>4</reminder_leve1>
@@ -118,7 +118,7 @@
                 <model>PaypalFacade</model>
                 <order_status>pending</order_status>
                 <title>PayPal</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>90</sort_order>
                 <sellers_protection>1</sellers_protection>
@@ -149,7 +149,7 @@
                 <model>CreditcardFacade</model>
                 <order_status>pending</order_status>
                 <title>Creditcard and Debit Card</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
                 <order_email>1</order_email>
@@ -181,7 +181,7 @@
                 <model>CreditcardEncryptedFacade</model>
                 <order_status>pending</order_status>
                 <title>Creditcard and Debit Cards</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <sort_order>35</sort_order>
                 <order_email>1</order_email>
                 <card_design>1</card_design>
@@ -223,7 +223,7 @@
                 <model>TransferFacade</model>
                 <order_status>pending</order_status>
                 <title>Transfer</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>100</sort_order>
                 <order_email>1</order_email>
@@ -254,7 +254,7 @@
                 <model>MrcashFacade</model>
                 <order_status>pending</order_status>
                 <title>Bancontact</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>140</sort_order>
                 <order_email>1</order_email>
@@ -281,7 +281,7 @@
                 <model>BelfiusFacade</model>
                 <order_status>pending</order_status>
                 <title>Belfius</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -305,7 +305,7 @@
                 <model>BizumFacade</model>
                 <order_status>pending</order_status>
                 <title>Bizum</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>151</sort_order>
                 <order_email>1</order_email>
@@ -329,7 +329,7 @@
                 <model>SwishFacade</model>
                 <order_status>pending</order_status>
                 <title>Swish</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>151</sort_order>
                 <order_email>1</order_email>
@@ -353,7 +353,7 @@
                 <model>TwintFacade</model>
                 <order_status>pending</order_status>
                 <title>Twint</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>151</sort_order>
                 <order_email>1</order_email>
@@ -377,7 +377,7 @@
                 <model>WeroFacade</model>
                 <order_status>pending</order_status>
                 <title>Wero</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>151</sort_order>
                 <order_email>1</order_email>
@@ -401,7 +401,7 @@
                 <model>BlikFacade</model>
                 <order_status>pending</order_status>
                 <title>Blik</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>150</sort_order>
                 <order_email>1</order_email>
@@ -480,7 +480,7 @@
                 <model>PayPerEmailFacade</model>
                 <order_status>pending</order_status>
                 <title>PayPerEmail</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>170</sort_order>
                 <order_email>1</order_email>
@@ -510,7 +510,7 @@
                 <model>EpsFacade</model>
                 <order_status>pending</order_status>
                 <title>EPS</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>180</sort_order>
                 <order_email>1</order_email>
@@ -534,7 +534,7 @@
                 <model>GiftcardsFacade</model>
                 <order_status>pending</order_status>
                 <title>Giftcards</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <sort_order>190</sort_order>
                 <order_email>1</order_email>
                 <group>buckaroo_magento2</group>
@@ -557,7 +557,7 @@
                 <model>KbcFacade</model>
                 <order_status>pending</order_status>
                 <title>KBC</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>210</sort_order>
                 <order_email>1</order_email>
@@ -713,7 +713,7 @@
                 <model>ApplepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Apple Pay</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>240</sort_order>
                 <order_email>1</order_email>
@@ -736,7 +736,7 @@
                 <model>GooglepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Google Pay</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>245</sort_order>
                 <order_email>1</order_email>
@@ -807,7 +807,7 @@
                 <model>AlipayFacade</model>
                 <order_status>pending</order_status>
                 <title>Alipay</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>270</sort_order>
                 <order_email>1</order_email>
@@ -830,7 +830,7 @@
                 <model>WechatpayFacade</model>
                 <order_status>pending</order_status>
                 <title>WeChatPay</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>280</sort_order>
                 <order_email>1</order_email>
@@ -853,7 +853,7 @@
                 <model>Przelewy24Facade</model>
                 <order_status>pending</order_status>
                 <title>Przelewy24</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>290</sort_order>
                 <order_email>1</order_email>
@@ -876,7 +876,7 @@
                 <model>TrustlyFacade</model>
                 <order_status>pending</order_status>
                 <title>Trustly</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>300</sort_order>
                 <order_email>1</order_email>
@@ -899,7 +899,7 @@
                 <model>PospaymentFacade</model>
                 <order_status>pending</order_status>
                 <title>Point of Sale</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>320</sort_order>
                 <order_email>1</order_email>
@@ -922,7 +922,7 @@
                 <model>VoucherFacade</model>
                 <order_status>pending</order_status>
                 <title>Voucher</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>340</sort_order>
                 <order_email>1</order_email>
@@ -946,7 +946,7 @@
                 <model>MultibancoFacade</model>
                 <order_status>pending</order_status>
                 <title>Multibanco</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>350</sort_order>
                 <order_email>1</order_email>
@@ -970,7 +970,7 @@
                 <model>MBWayFacade</model>
                 <order_status>pending</order_status>
                 <title>MBWay</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>360</sort_order>
                 <order_email>1</order_email>
@@ -994,7 +994,7 @@
                 <model>KnakenFacade</model>
                 <order_status>pending</order_status>
                 <title>goSettle</title>
-                <display_subtext>1</display_subtext>
+                <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>360</sort_order>
                 <order_email>1</order_email>
