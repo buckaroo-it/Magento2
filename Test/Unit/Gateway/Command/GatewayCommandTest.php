@@ -456,6 +456,31 @@ class GatewayCommandTest extends BaseTest
         }
     }
 
+    public function testValidationFailureWithBlankFailsDescriptionFallsBackToDeclineMessage(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->expectLockAcquiredAndReleased();
+        $this->stubSuccessfulGatewayRoundTrip($commandSubject, ['status' => 'failed']);
+
+        $this->validator->method('validate')
+            ->willReturn($this->createValidationResult(false, [__('')], ['491']));
+
+        $this->captureCriticalLogs();
+
+        try {
+            $this->createCommand()->execute($commandSubject);
+            $this->fail('Expected CommandException was not thrown');
+        } catch (CommandException $exception) {
+            $this->assertSame(self::DEFAULT_DECLINE_MESSAGE, $exception->getMessage());
+        }
+
+        $this->assertSame(
+            ['Payment Error: gateway returned an empty failure description'],
+            $this->capturedLogs,
+            'A blank gateway description must leave something behind to diagnose from'
+        );
+    }
+
     public function testValidationFailureWhenSpamLimitReachedSetsFlagsInsteadOfThrowing(): void
     {
         $commandSubject = $this->createCommandSubject();

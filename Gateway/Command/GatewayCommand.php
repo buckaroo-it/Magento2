@@ -311,8 +311,17 @@ class GatewayCommand implements CommandInterface
                 $this->logger->critical('Payment Error: ' . $errorCodeOrMessage);
             }
         } else {
-            $messages[] = (string)($result->getFailsDescription()[0] ?? '');
+            $failsDescription = (string)($result->getFailsDescription()[0] ?? '');
+            $messages[] = $failsDescription;
+
+            if ($failsDescription === '') {
+                $this->logger->critical('Payment Error: gateway returned an empty failure description');
+            }
         }
+
+       $messages = array_values(array_filter($messages, static function ($message) {
+            return trim((string)$message) !== '';
+        }));
 
         $errorMessage = '';
         if (!empty($messages)) {
