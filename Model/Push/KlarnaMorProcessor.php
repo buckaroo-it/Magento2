@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
@@ -207,10 +208,54 @@ class KlarnaMorProcessor extends DefaultProcessor
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
         ) {
+            $this->recoverCaptureTransactionKeyFromPayPush();
             return true;
         }
 
         return parent::skipPush();
+    }
+
+    /**
+     * Persist the capture transaction key carried by the skipped Magento-initiated Pay push.
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function recoverCaptureTransactionKeyFromPayPush(): void
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS) {
+            return;
+        }
+
+        $payTransactionKey = (string)$this->pushRequest->getTransactions();
+        if ($payTransactionKey === '') {
+            return;
+        }
+
+        $dataRequestKey = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY)
+            ?? $this->order->getBuckarooDatarequestKey();
+        $captureTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_CAPTURE_TRANSACTION_KEY
+        );
+
+        if (!empty($captureTransactionKey) && $captureTransactionKey !== $dataRequestKey) {
+            return;
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_MOR] | [%s:%s] - Persisting capture transaction key %s from skipped Pay push for order %s',
+            __METHOD__,
+            __LINE__,
+            $payTransactionKey,
+            $this->order->getIncrementId()
+        ));
+
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_CAPTURE_TRANSACTION_KEY,
+            $payTransactionKey
+        );
+        $this->payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_ALREADY_CAPTURED, true);
+        $this->paymentRepository->save($this->payment);
     }
 
     /**
@@ -277,7 +322,7 @@ class KlarnaMorProcessor extends DefaultProcessor
             }
 
             $this->order->setBuckarooDatarequestKey($dataRequestKey);
-            $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
+            $this->payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY, $dataRequestKey);
             $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
@@ -312,7 +357,7 @@ class KlarnaMorProcessor extends DefaultProcessor
     private function shouldPreserveExistingDataRequestKey(string $incomingDataRequestKey): bool
     {
         $existingKey = $this->order->getBuckarooDatarequestKey()
-            ?? $this->payment->getAdditionalInformation('buckaroo_datarequest_key');
+            ?? $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY);
 
         if (empty($existingKey) || $existingKey === $incomingDataRequestKey) {
             return false;
