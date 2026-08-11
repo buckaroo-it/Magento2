@@ -21,14 +21,9 @@
 define(
     [
         'jquery',
-        'Magento_Checkout/js/view/payment/default',
+        'buckaroo/checkout/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Buckaroo_Magento2/js/action/place-order',
-        'ko',
-        'mage/translate',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'buckaroo/checkout/common',
         'mage/url'
     ],
     function (
@@ -36,11 +31,6 @@ define(
         Component,
         additionalValidators,
         placeOrderAction,
-        ko,
-        $t,
-        checkoutData,
-        selectPaymentMethodAction,
-        checkoutCommon,
         url
     ) {
         'use strict';
@@ -51,8 +41,6 @@ define(
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_googlepay_redirect'
                 },
                 redirectAfterPlaceOrder: false,
-                paymentFeeLabel: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay.paymentFeeLabel,
-                subtext: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay.subtext,
                 currencyCode: window.checkoutConfig.quoteData.quote_currency_code,
                 baseCurrencyCode: window.checkoutConfig.quoteData.base_currency_code,
 
@@ -115,15 +103,6 @@ define(
                 /**
                  * @override
                  */
-                selectPaymentMethod: function () {
-                    selectPaymentMethodAction(this.getData());
-                    checkoutData.setSelectedPaymentMethod(this.item.method);
-                    return true;
-                },
-
-                /**
-                 * @override
-                 */
                 getData: function () {
                     return {
                         "method": this.item.method,
@@ -133,23 +112,6 @@ define(
                     };
                 },
 
-                /**
-                 * Check if payment should be done in base currency.
-                 * @returns {boolean}
-                 */
-                payWithBaseCurrency: function () {
-                    var allowedCurrencies = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_googlepay.allowedCurrencies;
-                    return allowedCurrencies.indexOf(this.currencyCode) < 0;
-                },
-
-                /**
-                 * Get the text for paying with the base currency.
-                 * @returns {string}
-                 */
-                getPayWithBaseCurrencyText: function () {
-                    var text = $.mage.__('The transaction will be processed using %s.');
-                    return text.replace('%s', this.baseCurrencyCode);
-                }
             }
         );
     }

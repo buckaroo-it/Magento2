@@ -736,6 +736,7 @@
                 <model>GooglepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Google Pay</title>
+                <display_subtext>1</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>245</sort_order>
                 <order_email>1</order_email>

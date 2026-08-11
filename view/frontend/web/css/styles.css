@@ -76,11 +76,17 @@
 .bk-mode-and-img {
     display: flex;
     align-items: stretch;
+    flex-shrink: 0;
 }
 .bk-radio-wrap {
     flex: auto;
     display: flex;
     align-items: center;
+    min-width: 0;
+}
+.checkout-payment-method .payment-method-title.bk-payment .bk-radio-wrap > .label {
+    display: block;
+    min-width: 0;
 }
 .bk-test-mode {
     background-color:#ff6200;
