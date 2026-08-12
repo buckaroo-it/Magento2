@@ -20,23 +20,23 @@
 // @codingStandardsIgnoreFile
 ?>
 
-<?php $_code = $block->escapeHtml($block->getMethodCode()) ?>
-<div id="payment_form_<?= $_code ?>" class="payment-method">
-    <div class="payment-method-title field choice buckaroo-ppe-method-row">
-        <input type="radio"
-               id="p_method_<?= $_code ?>"
-               value="<?= $_code ?>"
-               name="payment[method]"
-               title="<?= $block->escapeHtmlAttr($block->getMethodTitle()) ?>"
-               <?php if (method_exists($block, 'isChecked') && $block->isChecked()): ?>checked="checked"<?php endif; ?> />
-        <label for="p_method_<?= $_code ?>" class="label">
-            <span><?= $block->escapeHtml($block->getMethodTitle()) ?></span>
-        </label>
-        <span class="buckaroo-ppe-billing-legend"><?= $block->escapeHtml(__('Billing address')) ?></span>
-    </div>
-    <fieldset class="admin__fieldset payment-method" id="payment_form_<?= $_code; ?>_fields" aria-labelledby="buckaroo_ppe_billing_legend">
-        <legend id="buckaroo_ppe_billing_legend" class="admin__legend visually-hidden"><?= $block->escapeHtml(__('Billing address')) ?></legend>
-        <?php $customerDetails = method_exists($block, 'getPPeCustomerDetails') ? $block->getPPeCustomerDetails() : null; ?>
+<?php
+/**
+ * The radio button and its label are rendered by the core billing method form; this template only
+ * provides the method's own fields, which core shows/hides through the "payment_form_<code>" element.
+ * The fields start collapsed here and core's order.setPaymentMethod() expands them once the method
+ * is selected, so the inline display is what it clears -- a stylesheet rule would not be reversible.
+ */
+$_code = $block->escapeHtml($block->getMethodCode());
+$customerDetails = method_exists($block, 'getPPeCustomerDetails') ? $block->getPPeCustomerDetails() : null;
+$mageInit = json_encode(['Buckaroo_Magento2/js/order/create/payperemail' => ['code' => $_code]]);
+?>
+<div id="payment_form_<?= $_code ?>"
+     class="payment-method"
+     style="display: none;"
+     data-mage-init='<?= $block->escapeHtmlAttr($mageInit) ?>'>
+    <fieldset class="admin__fieldset payment-method" id="payment_form_<?= $_code; ?>_fields">
+        <legend class="admin__legend"><?= $block->escapeHtml(__('Billing address')) ?></legend>
         <div class="admin__field _required">
             <label class="label admin__field-label" for="buckaroo_magento2_payperemail_genderSelect">
                 <span><?= $block->escapeHtml(__('Salutation:')); ?></span>
@@ -53,7 +53,6 @@
             </div>
         </div>
 
-        <?php $customerDetails = $block->getPPeCustomerDetails(); ?>
         <div class="admin__field _required">
             <label class="label admin__field-label" for="buckaroo_magento2_payperemail_BillingFirstName">
                 <span><?= $block->escapeHtml(__('Billing First Name:')); ?></span>
@@ -118,35 +117,3 @@
 
     </fieldset>
 </div>
-<script>
-    [
-        ['email', 'buckaroo_magento2_payperemail_Email'],
-        ['order-billing_address_firstname', 'buckaroo_magento2_payperemail_BillingFirstName'],
-        ['order-billing_address_lastname', 'buckaroo_magento2_payperemail_BillingLastName'],
-        ['order-billing_address_middlename', 'buckaroo_magento2_payperemail_BillingFirstName'],
-    ].forEach(function (item) {
-        if (document.getElementById(item[1]) && (document.getElementById(item[1]).value.length == 0) &&
-            document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
-        ) {
-            document.getElementById(item[1]).value = document.getElementById(item[0]).value;
-        }
-    });
-
-    [
-        ['order-billing_address_prefix', 'buckaroo_magento2_payperemail_genderSelect']
-    ].forEach(function (item) {
-        if (document.getElementById(item[1]) &&
-            document.getElementById(item[0]) && (document.getElementById(item[0]).value.length > 0)
-        ) {
-            document.getElementById(item[1]).value = 1;
-            if(['mrs.','mrs','ms.','ms','mevr.','mevr','mw.','mw'].includes(document.getElementById(item[0]).value.toLowerCase())){
-              document.getElementById(item[1]).value = 2;
-            }
-        }
-    });
-
-  document.getElementById("email").addEventListener("change", function(){
-    document.getElementById("buckaroo_magento2_payperemail_Email").value = document.getElementById("email").value;
-  });
-
-</script>
