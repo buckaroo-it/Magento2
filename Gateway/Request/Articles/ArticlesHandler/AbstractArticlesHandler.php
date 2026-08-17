@@ -57,6 +57,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public const MAX_ARTICLE_COUNT = 99;
 
     /**
+     * Largest gap between the article lines and the amount that is still treated as rounding.
+     */
+    public const ROUNDING_RESIDUAL_TOLERANCE = 0.05;
+
+    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -208,6 +213,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (!empty($additionalLines)) {
             $articles = array_merge_recursive($articles, $additionalLines);
         }
+
+        $articles = $this->absorbRoundingResidual($articles, (float)$order->getGrandTotal());
 
         $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$order->getGrandTotal());
 
@@ -860,7 +867,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         $discountLines = $this->getDiscountLines();
 
-        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, empty($discountLines));
+         $usesPerItemDiscounts = empty($discountLines);
+
+        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, $usesPerItemDiscounts);
+
+        if ($usesPerItemDiscounts) {
+            $unallocatedDiscountLine = $this->getUnallocatedDiscountLine($currentInvoice);
+            if (!empty($unallocatedDiscountLine)) {
+                $articles['articles'][] = $unallocatedDiscountLine;
+            }
+        }
 
         if (is_array($articles) && $numberOfInvoices == 1) {
             $serviceLine = $this->getServiceCostLine($currentInvoice);
@@ -883,9 +899,314 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles = array_merge_recursive($articles, $additionalLines);
         }
 
-        $articles = $this->reconcileArticlesWithGrandTotal($articles, (float)$currentInvoice->getGrandTotal(), (float)$currentInvoice->getTaxAmount());
+        $articles = $this->absorbRoundingResidual($articles, $this->getCaptureTarget($currentInvoice));
+
+        $this->reportInvoiceTotalMismatch($articles, (float)$currentInvoice->getGrandTotal());
 
         return $articles;
+    }
+
+    /**
+     * Fold a rounding residual into an existing line so the lines sum exactly to the amount.
+     *
+     * @param array $articles
+     * @param float $targetTotal
+     *
+     * @return array
+     */
+    protected function absorbRoundingResidual(array $articles, float $targetTotal): array
+    {
+        if ($targetTotal <= 0) {
+            return $articles;
+        }
+
+        $residual = round($targetTotal - $this->sumArticleLines($articles), 2);
+
+        if (abs($residual) < 0.01 || abs($residual) > self::ROUNDING_RESIDUAL_TOLERANCE) {
+            return $articles;
+        }
+
+        $adjustableIndex = null;
+        foreach ($articles['articles'] as $index => $article) {
+            if (!is_array($article) || (int)($article['quantity'] ?? 0) !== 1) {
+                continue;
+            }
+            // Prefer a discount line; fall back to any other single-quantity line.
+            if ((float)($article['price'] ?? 0) < 0 || $adjustableIndex === null) {
+                $adjustableIndex = $index;
+            }
+        }
+
+        if ($adjustableIndex === null) {
+            return $this->absorbResidualBySplittingALine($articles, $residual, $targetTotal);
+        }
+
+        $original = (float)$articles['articles'][$adjustableIndex]['price'];
+        $articles['articles'][$adjustableIndex]['price'] = round($original + $residual, 2);
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[%s] Folded rounding residual %.2f into line "%s" (%.2f -> %.2f) so the articles sum '
+            . 'to %.2f exactly.',
+            __METHOD__,
+            $residual,
+            (string)($articles['articles'][$adjustableIndex]['description'] ?? '?'),
+            $original,
+            $original + $residual,
+            $targetTotal
+        ));
+
+        return $articles;
+    }
+
+    /**
+     * Absorb a residual when no single-quantity line exists to carry it.
+     *
+     * @param array $articles
+     * @param float $residual
+     * @param float $targetTotal
+     *
+     * @return array
+     */
+    private function absorbResidualBySplittingALine(array $articles, float $residual, float $targetTotal): array
+    {
+        if (count($articles['articles']) >= self::MAX_ARTICLE_COUNT) {
+            return $articles;
+        }
+
+        $splitIndex = null;
+        foreach ($articles['articles'] as $index => $article) {
+            if (is_array($article) && (float)($article['quantity'] ?? 0) >= 2) {
+                $splitIndex = $index;
+            }
+        }
+
+        if ($splitIndex === null) {
+            return $articles;
+        }
+
+        $line = $articles['articles'][$splitIndex];
+        $unitPrice = (float)$line['price'];
+
+        $articles['articles'][$splitIndex]['quantity'] = (int)$line['quantity'] - 1;
+
+        $splitLine = $line;
+        $splitLine['quantity'] = 1;
+        $splitLine['price'] = round($unitPrice + $residual, 2);
+        $articles['articles'][] = $splitLine;
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[%s] Split one unit off line "%s" to absorb rounding residual %.2f (%d x %.2f became '
+            . '%d x %.2f plus 1 x %.2f) so the articles sum to %.2f exactly.',
+            __METHOD__,
+            (string)($line['description'] ?? '?'),
+            $residual,
+            (int)$line['quantity'],
+            $unitPrice,
+            (int)$line['quantity'] - 1,
+            $unitPrice,
+            $splitLine['price'],
+            $targetTotal
+        ));
+
+        return $articles;
+    }
+
+    /**
+     * Amount a capture may legitimately take.
+     *
+     * @param Invoice $invoice
+     *
+     * @return float
+     */
+    protected function getCaptureTarget(Invoice $invoice): float
+    {
+        $invoiceTotal = (float)$invoice->getGrandTotal();
+        $order = $this->getOrder();
+        $remaining = round((float)$order->getGrandTotal() - (float)$order->getTotalPaid(), 2);
+
+        if ($remaining > 0 && $invoiceTotal > $remaining) {
+            return $remaining;
+        }
+
+        return $invoiceTotal;
+    }
+
+    /**
+     * Sum the line totals of an assembled article list.
+     *
+     * @param array $articles
+     *
+     * @return float
+     */
+    protected function sumArticleLines(array $articles): float
+    {
+        $sum = 0.0;
+        foreach (($articles['articles'] ?? []) as $article) {
+            if (!is_array($article)) {
+                continue;
+            }
+            $sum += (float)($article['price'] ?? 0) * (float)($article['quantity'] ?? 1);
+        }
+
+        return round($sum, 2);
+    }
+
+    /**
+     * Discount line for the part of the order discount that never reached the order items.
+     *
+     * Only relevant when the item lines carry the discount per item (no global discount line):
+     * those lines can only represent what Magento actually wrote onto the items, so a
+     * third-party module applying a cart-level discount without allocating it leaves the
+     * remainder out of the request entirely.
+     *
+     * The remainder is DISCOUNT, so the line is negative. The reconciliation this replaces had
+     * the sign inverted - it added a positive "Extra Fees" article and pushed the capture ABOVE
+     * the authorized amount, which is what Klarna refused with CAPTURE_NOT_ALLOWED.
+     *
+     * Mirrors getInvoiceItemsLines()/getDiscountAmount() exactly: the tax compensation is only
+     * part of the discount when catalog prices exclude tax. Pro-rated by the invoice's share of
+     * the order subtotal so a partial invoice only carries its own portion.
+     *
+     * @param Invoice $invoice
+     *
+     * @return array
+     */
+    protected function getUnallocatedDiscountLine(Invoice $invoice): array
+    {
+        $order = $this->getOrder();
+
+        if ((float)$order->getDiscountAmount() >= 0) {
+            return [];
+        }
+
+        $includesTax = (bool)$this->scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $orderDiscount = abs((float)$order->getDiscountAmount());
+        if (!$includesTax) {
+            $orderDiscount += abs((float)$order->getDiscountTaxCompensationAmount());
+        }
+
+        $allocated = 0.0;
+        foreach (($order->getAllVisibleItems() ?: []) as $item) {
+            $allocated += abs((float)$item->getDiscountAmount());
+            if (!$includesTax) {
+                $allocated += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
+            }
+        }
+
+        $unallocated = round($orderDiscount - $allocated, 2);
+        if ($unallocated < 0.01) {
+            return [];
+        }
+
+        // A partial invoice must only carry its share of the unallocated remainder.
+        $orderSubtotal = (float)$order->getSubtotal();
+        $share = 1.0;
+        if ($orderSubtotal > 0) {
+            $share = min(1.0, max(0.0, (float)$invoice->getSubtotal() / $orderSubtotal));
+        }
+
+        $lineAmount = round($unallocated * $share, 2);
+        if ($lineAmount < 0.01) {
+            return [];
+        }
+
+        $vatGroups = $this->getOrderVatGroups();
+        $vatRate = count($vatGroups) === 1
+            ? (float)array_key_first($vatGroups)
+            : $this->getOrderEffectiveVatRate();
+
+        $this->buckarooLog->addDebug(sprintf(
+            '[%s] Adding unallocated order discount line: orderDiscount=%.2f, allocatedToItems=%.2f, '
+            . 'unallocated=%.2f, invoiceShare=%.4f, lineAmount=%.2f, vatRate=%.2f',
+            __METHOD__,
+            $orderDiscount,
+            $allocated,
+            $unallocated,
+            $share,
+            $lineAmount,
+            $vatRate
+        ));
+
+        return $this->getArticleArrayLine(
+            (string)$this->getDiscount(),
+            'unallocated-discount',
+            1,
+            -$lineAmount,
+            $vatRate
+        );
+    }
+
+    /**
+     * Log when the capture article lines do not sum to the invoice grand total.
+     *
+     * The lines are NOT padded to close the gap. Klarna validates capture articles against the
+     * ones it saw during the reserve, so an invented line is rejected outright ("The following
+     * article numbers are unknown or not pending: extra-fees"), and padding up to an inflated
+     * invoice total produces a capture above the authorized amount (CAPTURE_NOT_ALLOWED).
+     *
+     * A gap here means the order data itself is inconsistent - typically a third-party module
+     * applying a cart-level discount without allocating it to the order items, which makes
+     * Magento's own invoice grand total exceed the order grand total. The amount actually sent
+     * is capped at the remaining authorized amount by AbstractInvoiceDataBuilder.
+     *
+     * @param array $articles
+     * @param float $invoiceGrandTotal
+     *
+     * @return void
+     */
+    protected function reportInvoiceTotalMismatch(array $articles, float $invoiceGrandTotal): void
+    {
+        $articleSum = 0.0;
+        foreach ($articles['articles'] as $article) {
+            if (!is_array($article)) {
+                continue;
+            }
+            $articleSum += (float)($article['price'] ?? 0) * (float)($article['quantity'] ?? 1);
+        }
+
+        $diff = round($invoiceGrandTotal - $articleSum, 2);
+
+        if (abs($diff) <= 0.01) {
+            return;
+        }
+
+        $order = $this->getOrder();
+
+        $this->buckarooLog->addError(sprintf(
+            '[%s] Capture article sum does not match the invoice grand total: invoiceGrandTotal=%.2f, '
+            . 'articleSum=%.2f, diff=%.2f, orderGrandTotal=%.2f, orderDiscount=%.2f, itemDiscountSum=%.2f. '
+            . 'Sending the article lines unchanged; the amount is capped at the remaining authorized amount. '
+            . 'Check whether a third-party discount module allocated the order discount to the order items.',
+            __METHOD__,
+            $invoiceGrandTotal,
+            $articleSum,
+            $diff,
+            (float)$order->getGrandTotal(),
+            (float)$order->getDiscountAmount(),
+            $this->getItemDiscountSum()
+        ));
+    }
+
+    /**
+     * Sum of the discount actually allocated to the order items.
+     *
+     * Magento derives invoice totals from these values, so when they do not add up to
+     * sales_order.discount_amount the invoice grand total drifts away from the order total.
+     *
+     * @return float
+     */
+    private function getItemDiscountSum(): float
+    {
+        $sum = 0.0;
+        foreach (($this->getOrder()->getAllVisibleItems() ?: []) as $item) {
+            $sum += (float)$item->getDiscountAmount();
+        }
+
+        return round($sum, 2);
     }
 
     /**

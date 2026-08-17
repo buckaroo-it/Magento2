@@ -4,6 +4,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
 
@@ -14,6 +15,19 @@ class AmountDebitDataBuilder implements BuilderInterface
      * and must match the currency format of the merchant account.
      */
     public const AMOUNT_DEBIT = 'amountDebit';
+
+    /**
+     * @var ArticleTotalRegistry
+     */
+    private ArticleTotalRegistry $articleTotalRegistry;
+
+    /**
+     * @param ArticleTotalRegistry $articleTotalRegistry
+     */
+    public function __construct(ArticleTotalRegistry $articleTotalRegistry)
+    {
+        $this->articleTotalRegistry = $articleTotalRegistry;
+    }
 
     /**
      * @inheritdoc
@@ -37,12 +51,7 @@ class AmountDebitDataBuilder implements BuilderInterface
     }
 
     /**
-     * Get the order total in the order currency.
-     *
-     * Transactions are always sent in the order currency (the CurrencyDataBuilder
-     * rejects the request when the payment method does not support it, and the
-     * AvailableBasedOnCurrencyValidator hides the method up front), so the amount
-     * is always the order-currency grand total.
+     * Get the amount to send in the order currency.
      *
      * @param Order $order
      *
@@ -50,6 +59,11 @@ class AmountDebitDataBuilder implements BuilderInterface
      */
     public function getAmount(Order $order): ?float
     {
+        $articleTotal = $this->articleTotalRegistry->get((string)$order->getIncrementId());
+        if ($articleTotal !== null) {
+            return $articleTotal;
+        }
+
         $total = $order->getGrandTotal();
 
         return $total === null ? null : (float)$total;

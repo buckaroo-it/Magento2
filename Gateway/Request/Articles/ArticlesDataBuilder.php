@@ -32,13 +32,22 @@ class ArticlesDataBuilder extends AbstractDataBuilder
     protected $articlesHandlerFactory;
 
     /**
+     * @var ArticleTotalRegistry
+     */
+    private ArticleTotalRegistry $articleTotalRegistry;
+
+    /**
      * Constructor
      *
      * @param ArticlesHandlerFactory $articlesHandlerFactory
+     * @param ArticleTotalRegistry   $articleTotalRegistry
      */
-    public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
-    {
+    public function __construct(
+        ArticlesHandlerFactory $articlesHandlerFactory,
+        ArticleTotalRegistry $articleTotalRegistry
+    ) {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
+        $this->articleTotalRegistry = $articleTotalRegistry;
     }
 
     /**
@@ -54,6 +63,13 @@ class ArticlesDataBuilder extends AbstractDataBuilder
 
         $articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
-        return $articleHandler->getOrderArticlesData($this->getOrder(), $this->getPayment());
+        $articles = $articleHandler->getOrderArticlesData($this->getOrder(), $this->getPayment());
+
+        $this->articleTotalRegistry->set(
+            (string)$this->getOrder()->getIncrementId(),
+            $this->articleTotalRegistry->sumArticles($articles)
+        );
+
+        return $articles;
     }
 }

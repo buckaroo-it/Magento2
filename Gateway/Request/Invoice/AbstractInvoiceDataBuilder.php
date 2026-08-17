@@ -22,7 +22,9 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Invoice;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
+use Magento\Sales\Model\Order;
 
 abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
 {
@@ -47,11 +49,20 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
     private $buckarooHelper;
 
     /**
-     * @param BuckarooHelper $buckarooHelper
+     * @var ArticleTotalRegistry
      */
-    public function __construct(BuckarooHelper $buckarooHelper)
-    {
+    protected ArticleTotalRegistry $articleTotalRegistry;
+
+    /**
+     * @param BuckarooHelper       $buckarooHelper
+     * @param ArticleTotalRegistry $articleTotalRegistry
+     */
+    public function __construct(
+        BuckarooHelper $buckarooHelper,
+        ArticleTotalRegistry $articleTotalRegistry
+    ) {
         $this->buckarooHelper = $buckarooHelper;
+        $this->articleTotalRegistry = $articleTotalRegistry;
     }
 
     /**
@@ -78,6 +89,8 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
             $this->currentInvoiceTotal = $currentInvoice->getGrandTotal();
         }
 
+        $this->currentInvoiceTotal = $this->resolveCaptureAmount($order, (float)$this->currentInvoiceTotal);
+
         if ($this->buckarooHelper->areEqualAmounts($totalOrder, $this->currentInvoiceTotal)
             && $this->numberOfInvoices == 1) {
             $this->capturePartial = false; //full capture
@@ -88,5 +101,26 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
         $data['numberOfInvoices'] = $this->numberOfInvoices;
 
         return $data;
+    }
+
+    /**
+     * Resolve the amount to capture.
+     *
+     * @param Order $order
+     * @param float $invoiceTotal
+     *
+     * @return float
+     */
+    private function resolveCaptureAmount(Order $order, float $invoiceTotal): float
+    {
+        $amount = $this->articleTotalRegistry->get((string)$order->getIncrementId()) ?? $invoiceTotal;
+
+        $remaining = round((float)$order->getGrandTotal() - (float)$order->getTotalPaid(), 2);
+
+        if ($remaining > 0 && $amount > $remaining) {
+            return $remaining;
+        }
+
+        return $amount;
     }
 }

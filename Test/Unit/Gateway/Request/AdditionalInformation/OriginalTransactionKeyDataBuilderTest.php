@@ -175,11 +175,10 @@ class OriginalTransactionKeyDataBuilderTest extends TestCase
             'buckaroo_already_captured' => true,
         ];
 
-        // InfoInterface does not declare getMethod(); add it so the double matches what the
-        // gateway actually passes while deliberately NOT being an Order\Payment.
-        $paymentMock = $this->getMockBuilder(InfoInterface::class)
-            ->addMethods(['getMethod'])
-            ->getMockForAbstractClass();
+        // InfoInterface does not declare getMethod(); PaymentWithMethodStub adds it so the
+        // double matches what the gateway actually passes while deliberately NOT being an
+        // Order\Payment. (MockBuilder::addMethods() was removed in PHPUnit 12.)
+        $paymentMock = $this->createMock(PaymentWithMethodStub::class);
         $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarna');
         $paymentMock->method('getAdditionalInformation')
             ->willReturnCallback(

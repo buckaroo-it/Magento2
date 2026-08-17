@@ -285,15 +285,35 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            // Surface the failed capture to the merchant: the shipment itself is already
-            // committed, so without this comment the order looks shipped-and-paid
+            $this->rollBackRegisteredInvoiceValues($invoice ?? null);
+
             $this->order->addCommentToStatusHistory(
                 __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $e->getMessage())
             );
+
+            $this->orderRepository->save($this->order);
             return null;
         }
 
         return $invoice;
+    }
+
+    /**
+     * Reverse the invoiced values that Invoice::register() wrote onto the order items.
+     *
+     * @param Invoice|null $invoice
+     *
+     * @return void
+     */
+    private function rollBackRegisteredInvoiceValues(?Invoice $invoice): void
+    {
+        if ($invoice === null) {
+            return;
+        }
+
+        foreach ($invoice->getAllItems() as $invoiceItem) {
+            $invoiceItem->cancel();
+        }
     }
 
     /**

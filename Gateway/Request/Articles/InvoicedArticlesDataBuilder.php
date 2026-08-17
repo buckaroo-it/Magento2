@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry;
 
 class InvoicedArticlesDataBuilder extends AbstractDataBuilder
 {
@@ -32,13 +33,22 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
     protected $articlesHandlerFactory;
 
     /**
+     * @var ArticleTotalRegistry
+     */
+    private ArticleTotalRegistry $articleTotalRegistry;
+
+    /**
      * Constructor
      *
      * @param ArticlesHandlerFactory $articlesHandlerFactory
+     * @param ArticleTotalRegistry   $articleTotalRegistry
      */
-    public function __construct(ArticlesHandlerFactory $articlesHandlerFactory)
-    {
+    public function __construct(
+        ArticlesHandlerFactory $articlesHandlerFactory,
+        ArticleTotalRegistry $articleTotalRegistry
+    ) {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
+        $this->articleTotalRegistry = $articleTotalRegistry;
     }
 
     /**
@@ -54,6 +64,13 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
 
         $articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
 
-        return $articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
+        $articles = $articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
+
+        $this->articleTotalRegistry->set(
+            (string)$this->getOrder()->getIncrementId(),
+            $this->articleTotalRegistry->sumArticles($articles)
+        );
+
+        return $articles;
     }
 }

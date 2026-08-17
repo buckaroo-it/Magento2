@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountDebitDataBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 
@@ -34,13 +35,19 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
     private $builder;
 
     /**
+     * @var ArticleTotalRegistry
+     */
+    private $articleTotalRegistry;
+
+    /**
      * @inheritDoc
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->builder = new AmountDebitDataBuilder();
+        $this->articleTotalRegistry = new ArticleTotalRegistry();
+        $this->builder = new AmountDebitDataBuilder($this->articleTotalRegistry);
     }
 
     /**
@@ -88,6 +95,41 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
                 'expectedAmount' => 0
             ],
         ];
+    }
+
+    /**
+     * When article lines accompany the request the amount must equal their sum, or
+     * the gateway rejects it (Error 500108 Payment_OrderAmount_ValueInvalid: "OrderAmount
+     * should be equal to sum of order items price incl."). A grand total is rounded and cannot
+     * always be reproduced by per-line sums.
+     *
+     * @throws \Exception
+     */
+    public function testArticleLineTotalIsPreferredOverTheRoundedGrandTotal()
+    {
+        $this->orderMock->method('getIncrementId')->willReturn('000000165');
+        $this->orderMock->method('getGrandTotal')->willReturn(209.09);
+
+        $this->articleTotalRegistry->set('000000165', 209.08);
+
+        $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
+
+        $this->assertEquals(209.08, $result[AmountDebitDataBuilder::AMOUNT_DEBIT]);
+    }
+
+    /**
+     * Methods that send no article lines keep using the grand total.
+     *
+     * @throws \Exception
+     */
+    public function testGrandTotalIsUsedWhenNoArticlesWereBuilt()
+    {
+        $this->orderMock->method('getIncrementId')->willReturn('000000166');
+        $this->orderMock->method('getGrandTotal')->willReturn(209.09);
+
+        $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
+
+        $this->assertEquals(209.09, $result[AmountDebitDataBuilder::AMOUNT_DEBIT]);
     }
 
     public function testGetAmount()
