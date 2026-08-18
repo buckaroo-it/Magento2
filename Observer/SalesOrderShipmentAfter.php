@@ -283,25 +283,45 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 var_export($this->order->getStatus(), true)
             ));
         } catch (\Exception $e) {
-            $this->logger->addError(sprintf(
-                '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
-                $e->getMessage()
-            ));
-            if ($registered && $invoice !== null) {
-                $this->rollBackRegisteredInvoiceValues($invoice);
-            }
+            $this->handleInvoiceFailure($e, $registered ? $invoice : null);
 
-            $this->order->addCommentToStatusHistory(
-                __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $e->getMessage())
-            );
-
-            $this->orderRepository->save($this->order);
             return null;
         }
 
         return $invoice;
+    }
+
+    /**
+     * Leave the order clean and the failure visible when the capture did not go through.
+     *
+     * The shipment itself is already committed, so without the comment the order looks
+     * shipped-and-paid. Any invoiced values Invoice::register() wrote onto the order items are
+     * reversed first, otherwise a later save in this request persists them and the order ends up
+     * reporting invoiced items with no invoice entity (BTI-1312).
+     *
+     * @param \Exception   $exception
+     * @param Invoice|null $registeredInvoice Null when register() never ran.
+     *
+     * @return void
+     */
+    private function handleInvoiceFailure(\Exception $exception, ?Invoice $registeredInvoice): void
+    {
+        $this->logger->addError(sprintf(
+            '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
+            __METHOD__,
+            __LINE__,
+            $exception->getMessage()
+        ));
+
+        if ($registeredInvoice !== null) {
+            $this->rollBackRegisteredInvoiceValues($registeredInvoice);
+        }
+
+        $this->order->addCommentToStatusHistory(
+            __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $exception->getMessage())
+        );
+
+        $this->orderRepository->save($this->order);
     }
 
     /**
