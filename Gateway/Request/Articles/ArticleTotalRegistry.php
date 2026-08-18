@@ -51,6 +51,7 @@ class ArticleTotalRegistry
     /**
      * Record the summed article lines for an order.
      *
+     * @param string $context           One of the CONTEXT_* constants.
      * @param string $orderIncrementId
      * @param float  $total
      *
@@ -64,6 +65,7 @@ class ArticleTotalRegistry
     /**
      * Article total for an order, or null when the articles were not built in this request.
      *
+     * @param string $context           One of the CONTEXT_* constants.
      * @param string $orderIncrementId
      *
      * @return float|null
