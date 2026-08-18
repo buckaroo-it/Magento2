@@ -64,9 +64,13 @@ class AmountInvoicedDataBuilderTest extends AbstractDataBuilderTest
         parent::setUp();
 
         $helperMock = $this->createMock(BuckarooHelper::class);
+        // A plain closure, not an arrow function with a return type: the PDepend build behind
+        // the Magento mess detector cannot parse the latter.
         $helperMock->method('areEqualAmounts')
             ->willReturnCallback(
-                static fn ($left, $right): bool => abs((float)$left - (float)$right) < 0.01
+                static function ($left, $right) {
+                    return abs((float)$left - (float)$right) < 0.01;
+                }
             );
 
         $this->articleTotalRegistry = new ArticleTotalRegistry();

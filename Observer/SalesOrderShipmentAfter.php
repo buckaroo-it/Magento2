@@ -214,6 +214,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             var_export($this->order->getDiscountAmount(), true)
         ));
 
+        $invoice = null;
         $registered = false;
 
         try {
@@ -288,7 +289,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            if ($registered) {
+            if ($registered && $invoice !== null) {
                 $this->rollBackRegisteredInvoiceValues($invoice);
             }
 

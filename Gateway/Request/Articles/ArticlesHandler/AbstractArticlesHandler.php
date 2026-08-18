@@ -926,16 +926,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return $articles;
         }
 
-        $adjustableIndex = null;
-        foreach (($articles['articles'] ?? []) as $index => $article) {
-            if (!is_array($article) || (int)($article['quantity'] ?? 0) !== 1) {
-                continue;
-            }
-            // Prefer a discount line; fall back to any other single-quantity line.
-            if ((float)($article['price'] ?? 0) < 0 || $adjustableIndex === null) {
-                $adjustableIndex = $index;
-            }
-        }
+        $adjustableIndex = $this->findResidualCarrierIndex($articles);
 
         if ($adjustableIndex === null) {
             return $this->absorbResidualBySplittingALine($articles, $residual, $targetTotal);
@@ -956,6 +947,34 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ));
 
         return $articles;
+    }
+
+    /**
+     * Index of the line that can carry a rounding residual.
+     *
+     * Only a single-quantity line qualifies: any value can be expressed there, while a unit
+     * price multiplied by a quantity cannot absorb an arbitrary cent. A discount line is
+     * preferred over an ordinary one.
+     *
+     * @param array $articles
+     *
+     * @return int|string|null
+     */
+    private function findResidualCarrierIndex(array $articles)
+    {
+        $adjustableIndex = null;
+
+        foreach (($articles['articles'] ?? []) as $index => $article) {
+            if (!is_array($article) || (int)($article['quantity'] ?? 0) !== 1) {
+                continue;
+            }
+
+            if ((float)($article['price'] ?? 0) < 0 || $adjustableIndex === null) {
+                $adjustableIndex = $index;
+            }
+        }
+
+        return $adjustableIndex;
     }
 
     /**
@@ -1075,58 +1094,24 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getUnallocatedDiscountLine(Invoice $invoice): array
     {
-        $order = $this->getOrder();
-
-        if ((float)$order->getDiscountAmount() >= 0) {
-            return [];
-        }
-
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
-
-        $orderDiscount = abs((float)$order->getDiscountAmount());
-        if (!$includesTax) {
-            $orderDiscount += abs((float)$order->getDiscountTaxCompensationAmount());
-        }
-
-        $allocated = 0.0;
-        foreach (($order->getAllVisibleItems() ?: []) as $item) {
-            $allocated += abs((float)$item->getDiscountAmount());
-            if (!$includesTax) {
-                $allocated += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
-            }
-        }
-
-        $unallocated = round($orderDiscount - $allocated, 2);
+        $unallocated = $this->getUnallocatedOrderDiscount();
         if ($unallocated < 0.01) {
             return [];
         }
 
         // A partial invoice must only carry its share of the unallocated remainder.
-        $orderSubtotal = (float)$order->getSubtotal();
-        $share = 1.0;
-        if ($orderSubtotal > 0) {
-            $share = min(1.0, max(0.0, (float)$invoice->getSubtotal() / $orderSubtotal));
-        }
-
+        $share = $this->getInvoiceSubtotalShare($invoice);
         $lineAmount = round($unallocated * $share, 2);
         if ($lineAmount < 0.01) {
             return [];
         }
 
-        $vatGroups = $this->getOrderVatGroups();
-        $vatRate = count($vatGroups) === 1
-            ? (float)array_key_first($vatGroups)
-            : $this->getOrderEffectiveVatRate();
+        $vatRate = $this->getDiscountVatRate();
 
         $this->buckarooLog->addDebug(sprintf(
-            '[%s] Adding unallocated order discount line: orderDiscount=%.2f, allocatedToItems=%.2f, '
-            . 'unallocated=%.2f, invoiceShare=%.4f, lineAmount=%.2f, vatRate=%.2f',
+            '[%s] Adding unallocated order discount line: unallocated=%.2f, invoiceShare=%.4f, '
+            . 'lineAmount=%.2f, vatRate=%.2f',
             __METHOD__,
-            $orderDiscount,
-            $allocated,
             $unallocated,
             $share,
             $lineAmount,
@@ -1140,6 +1125,78 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             -$lineAmount,
             $vatRate
         );
+    }
+
+    /**
+     * Part of the order discount that was never written onto the order items.
+     *
+     * Mirrors getInvoiceItemsLines() and getDiscountAmount(): the tax compensation counts as
+     * discount only when catalog prices exclude tax.
+     *
+     * @return float
+     */
+    private function getUnallocatedOrderDiscount(): float
+    {
+        $order = $this->getOrder();
+
+        if ((float)$order->getDiscountAmount() >= 0) {
+            return 0.0;
+        }
+
+        $includesTax = (bool)$this->scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $orderDiscount = abs((float)$order->getDiscountAmount());
+        $allocated = 0.0;
+
+        foreach (($order->getAllVisibleItems() ?: []) as $item) {
+            $allocated += abs((float)$item->getDiscountAmount());
+            if (!$includesTax) {
+                $allocated += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
+            }
+        }
+
+        if (!$includesTax) {
+            $orderDiscount += abs((float)$order->getDiscountTaxCompensationAmount());
+        }
+
+        return round($orderDiscount - $allocated, 2);
+    }
+
+    /**
+     * Share of the order this invoice covers, by subtotal.
+     *
+     * @param Invoice $invoice
+     *
+     * @return float
+     */
+    private function getInvoiceSubtotalShare(Invoice $invoice): float
+    {
+        $orderSubtotal = (float)$this->getOrder()->getSubtotal();
+
+        if ($orderSubtotal <= 0) {
+            return 1.0;
+        }
+
+        return min(1.0, max(0.0, (float)$invoice->getSubtotal() / $orderSubtotal));
+    }
+
+    /**
+     * VAT rate to put on a discount line covering the whole order.
+     *
+     * @return float
+     */
+    private function getDiscountVatRate(): float
+    {
+        $vatGroups = $this->getOrderVatGroups();
+
+        if (count($vatGroups) === 1) {
+            return (float)array_key_first($vatGroups);
+        }
+
+        return $this->getOrderEffectiveVatRate();
     }
 
     /**
