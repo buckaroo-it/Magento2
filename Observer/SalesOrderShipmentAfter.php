@@ -214,6 +214,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
             var_export($this->order->getDiscountAmount(), true)
         ));
 
+        $invoice = null;
+        $registered = false;
+
         try {
             if ($this->order->hasInvoices()) {
                 $this->logger->addDebug(sprintf(
@@ -256,6 +259,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             }
 
             $invoice->register();
+            $registered = true;
             $invoice->getOrder()->setCustomerNoteNotify(0);
             $invoice->getOrder()->setIsInProcess(true);
             $this->order->addCommentToStatusHistory($message);
@@ -279,21 +283,59 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 var_export($this->order->getStatus(), true)
             ));
         } catch (\Exception $e) {
-            $this->logger->addError(sprintf(
-                '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
-                $e->getMessage()
-            ));
-            // Surface the failed capture to the merchant: the shipment itself is already
-            // committed, so without this comment the order looks shipped-and-paid
-            $this->order->addCommentToStatusHistory(
-                __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $e->getMessage())
-            );
+            $this->handleInvoiceFailure($e, $registered ? $invoice : null);
+
             return null;
         }
 
         return $invoice;
+    }
+
+    /**
+     * Leave the order clean and the failure visible when the capture did not go through.
+     *
+     * The shipment itself is already committed, so without the comment the order looks
+     * shipped-and-paid. Any invoiced values Invoice::register() wrote onto the order items are
+     * reversed first, otherwise a later save in this request persists them and the order ends up
+     * reporting invoiced items with no invoice entity (BTI-1312).
+     *
+     * @param \Exception   $exception
+     * @param Invoice|null $registeredInvoice Null when register() never ran.
+     *
+     * @return void
+     */
+    private function handleInvoiceFailure(\Exception $exception, ?Invoice $registeredInvoice): void
+    {
+        $this->logger->addError(sprintf(
+            '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | [ERROR]: %s',
+            __METHOD__,
+            __LINE__,
+            $exception->getMessage()
+        ));
+
+        if ($registeredInvoice !== null) {
+            $this->rollBackRegisteredInvoiceValues($registeredInvoice);
+        }
+
+        $this->order->addCommentToStatusHistory(
+            __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $exception->getMessage())
+        );
+
+        $this->orderRepository->save($this->order);
+    }
+
+    /**
+     * Reverse the invoiced values that Invoice::register() wrote onto the order items.
+     *
+     * @param Invoice $invoice
+     *
+     * @return void
+     */
+    private function rollBackRegisteredInvoiceValues(Invoice $invoice): void
+    {
+        foreach ($invoice->getAllItems() as $invoiceItem) {
+            $invoiceItem->cancel();
+        }
     }
 
     /**

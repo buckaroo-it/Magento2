@@ -85,6 +85,8 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             $articles = array_merge_recursive($articles, $additionalLines);
         }
 
+        $articles = $this->absorbRoundingResidual($articles, (float)$order->getGrandTotal());
+
         return $articles;
     }
 

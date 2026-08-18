@@ -4,18 +4,10 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Test\Unit\Stubs\FakeKlarnaMethodInstance;
 use Buckaroo\Magento2\Test\Unit\Stubs\OrderStub;
 use Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub;
 use Magento\Sales\Model\Order;
-
-/**
- * Minimal stand-in for a Buckaroo payment method instance, mirroring the
- * public static $requestOnVoid flag on BuckarooAdapter that the processor toggles.
- */
-class FakeKlarnaMethodInstance
-{
-    public static $requestOnVoid = true;
-}
 
 /**
  * @SuppressWarnings(PHPMD.TooManyFields)

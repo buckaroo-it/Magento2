@@ -202,4 +202,56 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->invokeArgs('processPendingPaymentEmail', [], $instance);
     }
+
+    /**
+     * The capture must be registered for the amount the gateway actually took. Registering the
+     * order total for a smaller capture overstates total_paid and produces an order comment that
+     * contradicts the amount sent.
+     *
+     * @param float|null $pushedAmount
+     * @param bool       $isSameCurrency
+     * @param bool       $isCaptureFinal
+     * @param float      $expected
+     */
+    #[DataProvider('captureNotificationAmountProvider')]
+    public function testCaptureNotificationUsesTheAmountTheGatewayCaptured(
+        ?float $pushedAmount,
+        bool $isSameCurrency,
+        bool $isCaptureFinal,
+        float $expected
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAmount')->willReturn($pushedAmount);
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('isSameCurrency')->willReturn($isSameCurrency);
+        $paymentMock->method('isCaptureFinal')->willReturn($isCaptureFinal);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getGrandTotal')->willReturn(209.09);
+        $orderMock->method('getBaseTotalDue')->willReturn(190.00);
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertEquals($expected, $this->invokeArgs('resolveCaptureNotificationAmount', [], $instance));
+    }
+
+    public static function captureNotificationAmountProvider(): array
+    {
+        return [
+            // A partial capture must be recorded as such, not as the full order total.
+            'partial capture is recorded for what was captured' => [150.00, true, false, 150.00],
+            'full capture is recorded for what was captured'    => [209.09, true, true, 209.09],
+            // Without an amount on the push the previous behaviour stands.
+            'no pushed amount falls back to the order total'    => [null, true, true, 209.09],
+            'non final capture falls back to base total due'    => [null, true, false, 190.00],
+            // A differing payment currency keeps using base_total_due to avoid a fraud flag.
+            'differing currency falls back to base total due'   => [150.00, false, true, 190.00],
+        ];
+    }
 }
