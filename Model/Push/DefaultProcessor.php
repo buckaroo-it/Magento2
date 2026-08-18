@@ -1746,6 +1746,27 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Amount to register against the payment for this capture.
+     *
+     * @return float
+     */
+    protected function resolveCaptureNotificationAmount(): float
+    {
+        $isSameCurrency = (bool)$this->payment->isSameCurrency();
+        $capturedAmount = $this->pushRequest->getAmount();
+
+        if ($isSameCurrency && !empty($capturedAmount)) {
+            return (float)$capturedAmount;
+        }
+
+        if ($isSameCurrency && $this->payment->isCaptureFinal($this->order->getGrandTotal())) {
+            return (float)$this->order->getGrandTotal();
+        }
+
+        return (float)$this->order->getBaseTotalDue();
+    }
+
+    /**
      * Saves the invoice for the order if applicable.
      *
      * @throws LocalizedException
@@ -1781,11 +1802,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
-            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
+        $this->payment->registerCaptureNotification($this->resolveCaptureNotificationAmount());
         $this->paymentRepository->save($this->payment);
 
         $transactionKey = $this->getTransactionKey();
