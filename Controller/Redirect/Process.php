@@ -1010,6 +1010,17 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         $url = $this->accountConfig->getFailureRedirect($store);
 
+        // Fragment URLs (for example: checkout#payment) must use a raw redirect; Magento's _redirect()
+        // would treat them as route paths and produce a noroute.
+        if ($url && strpos($url, '#') !== false) {
+            $url = rtrim($url, '/');
+            if (!preg_match('#^https?://#', $url)) {
+                $url = rtrim($this->_url->getBaseUrl(), '/') . '/' . ltrim($url, '/');
+            }
+            $this->getResponse()->setRedirect($url);
+            return $this->getResponse();
+        }
+
         return $this->handleProcessedResponse($url ?: 'checkout');
     }
 
@@ -1042,7 +1053,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             __LINE__
         ));
 
-        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+        // Raw redirect to guarantee no trailing slash after the fragment (checkout/#payment/ causes 404).
+        $checkoutUrl = rtrim($this->_url->getUrl('checkout', ['_query' => ['bk_e' => 1]]), '/') . '#payment';
+        $this->getResponse()->setRedirect($checkoutUrl);
+        return $this->getResponse();
     }
 
     /**
@@ -1183,7 +1197,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     {
         try {
             $quote->setIsActive(true);
-            $quote->collectTotals();
             $this->cartRepository->save($quote);
 
             $this->checkoutSession->replaceQuote($quote);
