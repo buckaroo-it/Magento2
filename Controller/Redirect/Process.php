@@ -1013,7 +1013,9 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         // Fragment URLs (for example: checkout#payment) must use a raw redirect; Magento's _redirect()
         // would treat them as route paths and produce a noroute.
         if ($url && strpos($url, '#') !== false) {
-            $url = rtrim($url, '/');
+            // Strip trailing slash from the path only, not from the fragment part.
+            [$path, $fragment] = explode('#', $url, 2);
+            $url = rtrim($path, '/') . '#' . $fragment;
             if (!preg_match('#^https?://#', $url)) {
                 $url = rtrim($this->_url->getBaseUrl(), '/') . '/' . ltrim($url, '/');
             }
