@@ -66,6 +66,7 @@ class ArticlesDataBuilder extends AbstractDataBuilder
         $articles = $articleHandler->getOrderArticlesData($this->getOrder(), $this->getPayment());
 
         $this->articleTotalRegistry->set(
+            ArticleTotalRegistry::CONTEXT_ORDER,
             (string)$this->getOrder()->getIncrementId(),
             $this->articleTotalRegistry->sumArticles($articles)
         );

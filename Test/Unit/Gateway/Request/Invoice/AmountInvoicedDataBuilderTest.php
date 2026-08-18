@@ -91,7 +91,11 @@ class AmountInvoicedDataBuilderTest extends AbstractDataBuilderTest
         float $expectedAmount
     ) {
         if ($articleSum !== null) {
-            $this->articleTotalRegistry->set(self::INCREMENT_ID, $articleSum);
+            $this->articleTotalRegistry->set(
+                ArticleTotalRegistry::CONTEXT_INVOICE,
+                self::INCREMENT_ID,
+                $articleSum
+            );
         }
 
         $invoiceMock = $this->createMock(Invoice::class);

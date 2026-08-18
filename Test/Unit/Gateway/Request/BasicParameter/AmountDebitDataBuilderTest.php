@@ -110,7 +110,7 @@ class AmountDebitDataBuilderTest extends AbstractDataBuilderTest
         $this->orderMock->method('getIncrementId')->willReturn('000000165');
         $this->orderMock->method('getGrandTotal')->willReturn(209.09);
 
-        $this->articleTotalRegistry->set('000000165', 209.08);
+        $this->articleTotalRegistry->set(ArticleTotalRegistry::CONTEXT_ORDER, '000000165', 209.08);
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
 

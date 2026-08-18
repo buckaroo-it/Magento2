@@ -214,6 +214,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
             var_export($this->order->getDiscountAmount(), true)
         ));
 
+        $registered = false;
+
         try {
             if ($this->order->hasInvoices()) {
                 $this->logger->addDebug(sprintf(
@@ -256,6 +258,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
             }
 
             $invoice->register();
+            $registered = true;
             $invoice->getOrder()->setCustomerNoteNotify(0);
             $invoice->getOrder()->setIsInProcess(true);
             $this->order->addCommentToStatusHistory($message);
@@ -285,7 +288,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 __LINE__,
                 $e->getMessage()
             ));
-            $this->rollBackRegisteredInvoiceValues($invoice ?? null);
+            if ($registered) {
+                $this->rollBackRegisteredInvoiceValues($invoice);
+            }
 
             $this->order->addCommentToStatusHistory(
                 __('Buckaroo: automatic invoice creation after shipment FAILED: %1', $e->getMessage())
@@ -301,16 +306,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Reverse the invoiced values that Invoice::register() wrote onto the order items.
      *
-     * @param Invoice|null $invoice
+     * @param Invoice $invoice
      *
      * @return void
      */
-    private function rollBackRegisteredInvoiceValues(?Invoice $invoice): void
+    private function rollBackRegisteredInvoiceValues(Invoice $invoice): void
     {
-        if ($invoice === null) {
-            return;
-        }
-
         foreach ($invoice->getAllItems() as $invoiceItem) {
             $invoiceItem->cancel();
         }

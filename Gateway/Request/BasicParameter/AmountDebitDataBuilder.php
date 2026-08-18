@@ -59,7 +59,10 @@ class AmountDebitDataBuilder implements BuilderInterface
      */
     public function getAmount(Order $order): ?float
     {
-        $articleTotal = $this->articleTotalRegistry->get((string)$order->getIncrementId());
+        $articleTotal = $this->articleTotalRegistry->get(
+            ArticleTotalRegistry::CONTEXT_ORDER,
+            (string)$order->getIncrementId()
+        );
         if ($articleTotal !== null) {
             return $articleTotal;
         }

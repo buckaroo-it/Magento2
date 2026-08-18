@@ -25,13 +25,26 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles;
  * Carries the assembled article total from the articles data builder to the amount data
  * builder within one gateway request.
  *
+ * Totals are scoped by context so an authorize total can never be read as a capture total: a
+ * capture request that sends no article lines (CreditcardCaptureRequest) must fall back to the
+ * invoice total rather than pick up whatever was written earlier in the same process.
  */
 class ArticleTotalRegistry
 {
     /**
-     * Article totals of the current request, keyed by order increment id.
+     * Article lines assembled for an order (authorize).
+     */
+    public const CONTEXT_ORDER = 'order';
+
+    /**
+     * Article lines assembled for an invoice (capture).
+     */
+    public const CONTEXT_INVOICE = 'invoice';
+
+    /**
+     * Article totals of the current request, keyed by context and order increment id.
      *
-     * @var array<string, float>
+     * @var array<string, array<string, float>>
      */
     private array $totals = [];
 
@@ -43,9 +56,9 @@ class ArticleTotalRegistry
      *
      * @return void
      */
-    public function set(string $orderIncrementId, float $total): void
+    public function set(string $context, string $orderIncrementId, float $total): void
     {
-        $this->totals[$orderIncrementId] = round($total, 2);
+        $this->totals[$context][$orderIncrementId] = round($total, 2);
     }
 
     /**
@@ -55,9 +68,9 @@ class ArticleTotalRegistry
      *
      * @return float|null
      */
-    public function get(string $orderIncrementId): ?float
+    public function get(string $context, string $orderIncrementId): ?float
     {
-        return $this->totals[$orderIncrementId] ?? null;
+        return $this->totals[$context][$orderIncrementId] ?? null;
     }
 
     /**

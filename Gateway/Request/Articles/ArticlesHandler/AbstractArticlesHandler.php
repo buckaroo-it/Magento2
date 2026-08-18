@@ -867,7 +867,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         $discountLines = $this->getDiscountLines();
 
-         $usesPerItemDiscounts = empty($discountLines);
+        $usesPerItemDiscounts = empty($discountLines);
 
         $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, $usesPerItemDiscounts);
 
@@ -927,7 +927,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         $adjustableIndex = null;
-        foreach ($articles['articles'] as $index => $article) {
+        foreach (($articles['articles'] ?? []) as $index => $article) {
             if (!is_array($article) || (int)($article['quantity'] ?? 0) !== 1) {
                 continue;
             }
@@ -969,12 +969,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     private function absorbResidualBySplittingALine(array $articles, float $residual, float $targetTotal): array
     {
-        if (count($articles['articles']) >= self::MAX_ARTICLE_COUNT) {
+        if (count($articles['articles'] ?? []) >= self::MAX_ARTICLE_COUNT) {
             return $articles;
         }
 
         $splitIndex = null;
-        foreach ($articles['articles'] as $index => $article) {
+        foreach (($articles['articles'] ?? []) as $index => $article) {
             if (is_array($article) && (float)($article['quantity'] ?? 0) >= 2) {
                 $splitIndex = $index;
             }
@@ -1040,6 +1040,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function sumArticleLines(array $articles): float
     {
+        // Kept in step with ArticleTotalRegistry::sumArticles(), which the data builders use to
+        // derive the amount from these same lines.
         $sum = 0.0;
         foreach (($articles['articles'] ?? []) as $article) {
             if (!is_array($article)) {
@@ -1160,14 +1162,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function reportInvoiceTotalMismatch(array $articles, float $invoiceGrandTotal): void
     {
-        $articleSum = 0.0;
-        foreach ($articles['articles'] as $article) {
-            if (!is_array($article)) {
-                continue;
-            }
-            $articleSum += (float)($article['price'] ?? 0) * (float)($article['quantity'] ?? 1);
-        }
-
+        $articleSum = $this->sumArticleLines($articles);
         $diff = round($invoiceGrandTotal - $articleSum, 2);
 
         if (abs($diff) <= 0.01) {

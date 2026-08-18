@@ -21,83 +21,43 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
-use Buckaroo\Magento2\Model\Service\CreateInvoice;
-use Buckaroo\Magento2\Observer\SalesOrderShipmentAfter;
-use Magento\Framework\DB\TransactionFactory;
-use Magento\Sales\Api\OrderItemRepositoryInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\Order\Invoice\Item as InvoiceItem;
-use Magento\Sales\Model\Service\InvoiceService;
-use PHPUnit\Framework\TestCase;
-
 /**
- * BTI-1312 — Invoice::register() writes qty_invoiced and the *_invoiced amounts onto the
- * order items BEFORE it runs the online capture. When the capture throws, the invoice entity
- * is never persisted while the dirty order items are saved later in the same request, leaving
- * an order that reports invoiced items with no invoice entity: it is marked complete/closed,
- * the capture is never retried, and the reservation expires. The failure path must reverse
- * those item writes (the 1.x plugin did; the 2.x rewrite lost the rollback).
+ * BTI-1312 — Invoice::register() writes qty_invoiced and the *_invoiced amounts onto the order
+ * items BEFORE it runs the online capture. When the capture throws, the invoice entity is never
+ * persisted while the dirty order items are saved later in the same request, leaving an order
+ * that reports invoiced items with no invoice entity: it is marked complete/closed, the capture
+ * is never retried, and the reservation expires. The failure path must reverse those item writes
+ * (the 1.x plugin did; the 2.x rewrite lost the rollback).
  */
-class SalesOrderShipmentAfterTest extends TestCase
+class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
 {
-    /**
-     * @var SalesOrderShipmentAfter
-     */
-    private $observer;
+    protected $instanceClass = 'Buckaroo\Magento2\Observer\SalesOrderShipmentAfter';
 
-    /**
-     * @inheritDoc
-     */
-    protected function setUp(): void
+    public function testRollbackCancelsEveryRegisteredInvoiceItem(): void
     {
-        $this->observer = new SalesOrderShipmentAfter(
-            $this->createMock(InvoiceService::class),
-            $this->createMock(TransactionFactory::class),
-            $this->createMock(ConfigProviderFactory::class),
-            $this->createMock(BuckarooLoggerInterface::class),
-            $this->createMock(CreateInvoice::class),
-            $this->createMock(OrderRepositoryInterface::class),
-            $this->createMock(OrderItemRepositoryInterface::class)
-        );
-    }
+        $instance = $this->getInstance();
 
-    public function testRollbackCancelsEveryRegisteredInvoiceItem()
-    {
-        // Arrange: an invoice whose items were registered onto the order items
-        $firstItem = $this->createMock(InvoiceItem::class);
-        $secondItem = $this->createMock(InvoiceItem::class);
-
-        // Assert: Invoice\Item::cancel() is Magento's exact inverse of register()
+        // Invoice\Item::cancel() is Magento's exact inverse of Invoice\Item::register(): it
+        // subtracts only this invoice's quantities, so previously persisted invoices stay intact.
+        $firstItem = $this->getFakeMock('Magento\Sales\Model\Order\Invoice\Item')->getMock();
         $firstItem->expects($this->once())->method('cancel');
+
+        $secondItem = $this->getFakeMock('Magento\Sales\Model\Order\Invoice\Item')->getMock();
         $secondItem->expects($this->once())->method('cancel');
 
-        $invoice = $this->createMock(Invoice::class);
-        $invoice->method('getAllItems')->willReturn([$firstItem, $secondItem]);
+        $invoiceMock = $this->getFakeMock('Magento\Sales\Model\Order\Invoice')->getMock();
+        $invoiceMock->method('getAllItems')->willReturn([$firstItem, $secondItem]);
 
-        // Act
-        $this->invokeRollback($invoice);
+        $this->invokeArgs('rollBackRegisteredInvoiceValues', [$invoiceMock], $instance);
     }
 
-    public function testRollbackDoesNothingWhenInvoiceWasNeverPrepared()
+    public function testRollbackIsANoOpForAnInvoiceWithoutItems(): void
     {
-        // Act + Assert: no error when the exception occurred before prepareInvoice returned
-        $this->invokeRollback(null);
-        $this->addToAssertionCount(1);
-    }
+        $instance = $this->getInstance();
 
-    /**
-     * @param Invoice|null $invoice
-     *
-     * @return void
-     * @throws \ReflectionException
-     */
-    private function invokeRollback(?Invoice $invoice): void
-    {
-        $method = new \ReflectionMethod($this->observer, 'rollBackRegisteredInvoiceValues');
-        $method->setAccessible(true);
-        $method->invoke($this->observer, $invoice);
+        $invoiceMock = $this->getFakeMock('Magento\Sales\Model\Order\Invoice')->getMock();
+        $invoiceMock->expects($this->once())->method('getAllItems')->willReturn([]);
+
+        $this->invokeArgs('rollBackRegisteredInvoiceValues', [$invoiceMock], $instance);
     }
 }

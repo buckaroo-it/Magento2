@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
-use Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry;
 
 class InvoicedArticlesDataBuilder extends AbstractDataBuilder
 {
@@ -67,6 +66,7 @@ class InvoicedArticlesDataBuilder extends AbstractDataBuilder
         $articles = $articleHandler->getInvoiceArticlesData($this->getOrder(), $this->getPayment());
 
         $this->articleTotalRegistry->set(
+            ArticleTotalRegistry::CONTEXT_INVOICE,
             (string)$this->getOrder()->getIncrementId(),
             $this->articleTotalRegistry->sumArticles($articles)
         );

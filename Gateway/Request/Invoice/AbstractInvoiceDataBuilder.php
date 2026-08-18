@@ -51,7 +51,7 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
     /**
      * @var ArticleTotalRegistry
      */
-    protected ArticleTotalRegistry $articleTotalRegistry;
+    private ArticleTotalRegistry $articleTotalRegistry;
 
     /**
      * @param BuckarooHelper       $buckarooHelper
@@ -113,7 +113,12 @@ abstract class AbstractInvoiceDataBuilder extends AbstractDataBuilder
      */
     private function resolveCaptureAmount(Order $order, float $invoiceTotal): float
     {
-        $amount = $this->articleTotalRegistry->get((string)$order->getIncrementId()) ?? $invoiceTotal;
+        // The articles handler already caps its lines the same way; this repeats the cap for
+        // captures that send no article lines and would otherwise use the invoice total as-is.
+        $amount = $this->articleTotalRegistry->get(
+            ArticleTotalRegistry::CONTEXT_INVOICE,
+            (string)$order->getIncrementId()
+        ) ?? $invoiceTotal;
 
         $remaining = round((float)$order->getGrandTotal() - (float)$order->getTotalPaid(), 2);
 
