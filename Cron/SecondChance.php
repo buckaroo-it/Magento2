@@ -73,13 +73,24 @@ class SecondChance
         try {
             $stores = $this->storeRepository->getList();
 
+            // Skip entirely if Second Chance is not enabled on any store
+            $anyEnabled = false;
+            foreach ($stores as $store) {
+                if ($store->getId() != 0 && $this->configProvider->isSecondChanceEnabled($store)) {
+                    $anyEnabled = true;
+                    break;
+                }
+            }
+            if (!$anyEnabled) {
+                return $this;
+            }
+
             foreach ($stores as $store) {
                 if ($store->getId() == 0) {
-                    continue; // Skip admin store
+                    continue;
                 }
 
                 if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    // Process step 2 first (second email), then step 1 (first email)
                     foreach ([2, 1] as $step) {
                         try {
                             $this->secondChanceRepository->getSecondChanceCollection($step, $store);

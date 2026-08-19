@@ -4529,4 +4529,13 @@
                 disabled="false"/>
     </type>
     <!-- END External Email Provider Integration -->
+
+    <!-- Prevent Magento's CleanExpiredOrders cron from canceling Bank Transfer orders
+         before their configured due date has passed. -->
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="buckaroo_prevent_bank_transfer_cron_cancellation"
+                type="Buckaroo\Magento2\Plugin\PreventBankTransferCronCancellation"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>
