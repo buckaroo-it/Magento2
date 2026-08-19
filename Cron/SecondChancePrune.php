@@ -72,18 +72,6 @@ class SecondChancePrune
 
         $stores = $this->storeRepository->getList();
 
-        $anyEnabled = false;
-        foreach ($stores as $store) {
-            if ($this->configProvider->isSecondChanceEnabled($store)) {
-                $anyEnabled = true;
-                break;
-            }
-        }
-        if (!$anyEnabled) {
-            $this->logging->addDebug(__METHOD__ . '|SecondChance disabled on all stores, skipping');
-            return $this;
-        }
-
         foreach ($stores as $store) {
             if ($this->configProvider->isSecondChanceEnabled($store)) {
                 $this->logging->addDebug(__METHOD__ . '|Pruning old records for store: ' . $store->getId());

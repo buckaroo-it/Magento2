@@ -73,21 +73,9 @@ class SecondChance
         try {
             $stores = $this->storeRepository->getList();
 
-            // Skip entirely if Second Chance is not enabled on any store
-            $anyEnabled = false;
-            foreach ($stores as $store) {
-                if ($store->getId() != 0 && $this->configProvider->isSecondChanceEnabled($store)) {
-                    $anyEnabled = true;
-                    break;
-                }
-            }
-            if (!$anyEnabled) {
-                return $this;
-            }
-
             foreach ($stores as $store) {
                 if ($store->getId() == 0) {
-                    continue;
+                    continue;// Skip admin store
                 }
 
                 if ($this->configProvider->isSecondChanceEnabled($store)) {
