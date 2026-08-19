@@ -12,7 +12,7 @@ use Magento\Sales\Model\Order;
 class TransferProcessor extends DefaultProcessor
 {
     /**
-     * Get the payment details (amount, description, force state) for the push.
+     * Get the payment details (amount, description) for the push.
      *
      * @param string $message
      * @return array
@@ -28,11 +28,6 @@ class TransferProcessor extends DefaultProcessor
             $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
-        /**
-         * force state eventhough this can lead to a transition of the order
-         * like new -> processing
-         */
-        $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
@@ -44,13 +39,11 @@ class TransferProcessor extends DefaultProcessor
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
-            $forceState = true;
         }
 
         return [
             'amount'      => $amount,
-            'description' => $description,
-            'forceState'  => $forceState
+            'description' => $description
         ];
     }
 
@@ -84,7 +77,6 @@ class TransferProcessor extends DefaultProcessor
         if (($paymentDetails['amount'] < $this->order->getTotalDue())
             || (($paymentDetails['amount'] == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
         ) {
-            $paymentDetails['forceState'] = true;
             if ($amount < $this->order->getTotalDue()) {
                 $paymentDetails['state'] = Order::STATE_NEW;
                 $paymentDetails['newStatus'] = $this->orderStatusFactory->get(

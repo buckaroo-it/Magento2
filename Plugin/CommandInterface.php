@@ -234,8 +234,9 @@ class CommandInterface
      * Determines if the order's state and status update should be skipped based on payment method and configuration.
      *
      *  - Skips for PayPerEmail B2B when the payment action is 'order'.
-     *  - Skips for Afterpay, Afterpay20, Afterpay2, and EPS if status is pending, state is processing
-     *  - Always skips for Apple Pay.
+     *  - Skips for Afterpay, Afterpay2 and Afterpay20 that already carry an original transaction key,
+     *    and for EPS outside live mode, while the order sits in processing and the status resolved for
+     *    the new state is still 'pending'.
      *
      * @param string          $orderStatus
      * @param OrderInterface  $order

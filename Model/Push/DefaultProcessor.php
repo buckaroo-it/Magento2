@@ -1210,47 +1210,60 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Set order status message from push request
+     * Add the status message from the push request to the order status history.
+     *
+     * This is informational only. The authoritative state and status transition is applied once, at
+     * the end of the push, by OrderRequestService::updateOrderStatus(). Setting a state here instead
+     * would be committed by any intermediate save that follows and briefly expose a status the push
+     * has not decided on yet to downstream systems such as a warehouse integration.
      *
      * @return void
-     * @throws LocalizedException
+     * @throws LocalizedException|Exception
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusMessage())) {
-            // Refresh the shared order instance in place
-            $this->orderRequestService->loadOrder();
-
-            if ($this->order->getState() === Order::STATE_NEW
-                && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
-            ) {
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusMessage(),
-                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
-                );
-            } else {
-                // Log the reason why we're not setting to processing
-                if ($this->order->getState() !== Order::STATE_NEW) {
-                    $this->logger->addDebug(sprintf(
-                        '[%s:%s] - Skip setting order to processing, current state: %s (not NEW)',
-                        __METHOD__,
-                        __LINE__,
-                        $this->order->getState()
-                    ));
-                }
-                if ((
-                        (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::PENDING_PROCESSING
-                        && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
-                    )
-                    ||
-                    (int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::PENDING_PROCESSING
-                ) {
-                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
-                }
-            }
+        if (empty($this->pushRequest->getStatusMessage())) {
+            return;
         }
+
+        // Refresh the shared order instance in place
+        $this->orderRequestService->loadOrder();
+
+        if (!$this->shouldAddStatusMessageToHistory()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skip adding the push status message | statusCode: %s | state: %s',
+                __METHOD__,
+                __LINE__,
+                $this->pushRequest->getStatusCode(),
+                $this->order->getState()
+            ));
+
+            return;
+        }
+
+        $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
+    }
+
+    /**
+     * Check whether the push status message still describes the order.
+     *
+     * A "pending processing" message arriving after the order already moved past its opening
+     * states describes an earlier attempt, so recording it only confuses whoever reads the
+     * history later.
+     *
+     * @return bool
+     */
+    private function shouldAddStatusMessageToHistory(): bool
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::PENDING_PROCESSING) {
+            return true;
+        }
+
+        return in_array(
+            $this->order->getState(),
+            [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT],
+            true
+        );
     }
 
     /**
@@ -1296,7 +1309,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Save new group transaction if needed
+     * Save a new group transaction if needed
      *
      * For mixed payments, this ensures all payment methods (not just giftcards)
      * are saved to the group_transaction table for proper refund handling.
@@ -1492,12 +1505,35 @@ class DefaultProcessor implements PushProcessorInterface
      * @throws LocalizedException
      *
      * @return bool
+     */
+    public function processSucceededPush(string $newStatus, string $message): bool
+    {
+        $succeeded = $this->applySucceededPush($newStatus, $message);
+
+        if ($succeeded) {
+            // Sent last on purpose: the order email is gated on the order's state, so it has to see
+            // the state this push settled on rather than an in-progress one.
+            $this->sendOrderEmail();
+        }
+
+        return $succeeded;
+    }
+
+    /**
+     * Apply the successful push to the order: reservation number, invoice, state and status.
+     *
+     * @param string $newStatus
+     * @param string $message
+     *
+     * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function processSucceededPush(string $newStatus, string $message): bool
+    protected function applySucceededPush(string $newStatus, string $message): bool
     {
         $this->logger->addDebug(sprintf(
             '[%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
@@ -1507,8 +1543,6 @@ class DefaultProcessor implements PushProcessorInterface
         ));
 
         $this->setBuckarooReservationNumber();
-
-        $this->sendOrderEmail();
 
         $paymentDetails = $this->getPaymentDetails($message);
         $paymentDetails['state'] = Order::STATE_PROCESSING;
@@ -1576,10 +1610,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-        if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
-            $paymentDetails['forceState'] = true;
-        }
-
         $this->processSucceededPushAuthorization();
 
         // Apply and save single giftcard metadata before order status update (redirect payment path)
@@ -1588,8 +1618,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
-            $paymentDetails['description'],
-            $paymentDetails['forceState']
+            $paymentDetails['description']
         );
         // updateOrderStatus persisted the order; skip the final save in processPush
         $this->dontSaveOrderUponSuccessPush = true;
@@ -2064,18 +2093,10 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        $force = false;
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
-            && ($this->order->getState() === Order::STATE_NEW)
-            && ($this->order->getStatus() === 'pending')
-        ) {
-            $force = true;
-        }
-
         // Add clear failure message to order history
         $this->order->addCommentToStatusHistory('Payment failed: ' . $message);
 
-        $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description, $force);
+        $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
         return true;
     }
@@ -2217,11 +2238,6 @@ class DefaultProcessor implements PushProcessorInterface
             $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
-        /**
-         * force state eventhough this can lead to a transition of the order
-         * like new -> processing
-         */
-        $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
         // Check if this is shipment mode - payment authorized but not captured yet
@@ -2248,13 +2264,11 @@ class DefaultProcessor implements PushProcessorInterface
                 $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Please create an invoice to capture the authorized amount.';
             }
-            $forceState = true;
         }
 
         return [
             'amount' => $amount,
-            'description' => $description,
-            'forceState' => $forceState
+            'description' => $description
         ];
     }
 

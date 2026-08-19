@@ -5,6 +5,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Magento\Sales\Model\Order;
 
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -253,5 +254,121 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             // A differing payment currency keeps using base_total_due to avoid a fraud flag.
             'differing currency falls back to base total due'   => [150.00, false, true, 190.00],
         ];
+    }
+
+    /**
+     * Recording the push message must not move the order. An intermediate save later in the push
+     * would commit that state, so the order would sit in processing before the push has decided
+     * anything, long enough for a warehouse integration to pick it up.
+     */
+    public function testSuccessfulPushRecordsTheStatusMessageWithoutTouchingTheOrderState(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getStatusMessage')->willReturn('The request was successful.');
+        $pushRequestMock->method('getStatusCode')->willReturn((string)BuckarooStatusCode::SUCCESS);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getState')->willReturn(Order::STATE_NEW);
+
+        $orderMock->expects($this->never())->method('setState');
+        $orderMock->expects($this->once())->method('addCommentToStatusHistory');
+
+        // The fabricated "processing" status came from here, so the comment must not be stamped with it.
+        $this->helperMock->expects($this->never())->method('getOrderStatusByState');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invokeArgs('setOrderStatusMessage', [], $instance);
+    }
+
+    public static function statusMessageHistoryProvider(): array
+    {
+        return [
+            'successful push is recorded'                => [BuckarooStatusCode::SUCCESS, Order::STATE_NEW, true],
+            'failed push is recorded'                    => [BuckarooStatusCode::FAILED, Order::STATE_PROCESSING, true],
+            'pending push on a new order is recorded'    => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_NEW, true],
+            'pending push awaiting payment is recorded'  => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_PENDING_PAYMENT, true],
+            // A 791 arriving after the order already succeeded describes the earlier attempt (BP-4716).
+            'pending push after progress is not recorded' => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_PROCESSING, false],
+        ];
+    }
+
+    /**
+     * @param int    $statusCode
+     * @param string $orderState
+     * @param bool   $expectsComment
+     */
+    #[DataProvider('statusMessageHistoryProvider')]
+    public function testStatusMessageIsOnlyRecordedWhenItStillDescribesTheOrder(
+        int $statusCode,
+        string $orderState,
+        bool $expectsComment
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getStatusMessage')->willReturn('Some gateway message.');
+        $pushRequestMock->method('getStatusCode')->willReturn((string)$statusCode);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getState')->willReturn($orderState);
+
+        $orderMock->expects($this->never())->method('setState');
+        $orderMock->expects($expectsComment ? $this->once() : $this->never())
+            ->method('addCommentToStatusHistory');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invokeArgs('setOrderStatusMessage', [], $instance);
+    }
+
+    /**
+     * The order confirmation email is gated on the order state, so it has to be sent after the push
+     * settled the state rather than off the back of a state set purely to stamp a comment.
+     */
+    public function testOrderEmailIsSentAfterTheSucceededPushHasBeenApplied(): void
+    {
+        $calls = [];
+
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('applySucceededPush')
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'applySucceededPush';
+                return true;
+            });
+        $instance->method('sendOrderEmail')
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'sendOrderEmail';
+            });
+
+        $this->assertTrue($instance->processSucceededPush('processing', 'Success'));
+        $this->assertSame(['applySucceededPush', 'sendOrderEmail'], $calls);
+    }
+
+    /**
+     * A push that could not be applied is retried by Buckaroo, so confirming it to the customer
+     * would email them for an order that is not settled yet.
+     */
+    public function testOrderEmailIsNotSentWhenTheSucceededPushCouldNotBeApplied(): void
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('applySucceededPush')->willReturn(false);
+        $instance->expects($this->never())->method('sendOrderEmail');
+
+        $this->assertFalse($instance->processSucceededPush('processing', 'Success'));
     }
 }
