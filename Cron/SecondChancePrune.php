@@ -71,7 +71,6 @@ class SecondChancePrune
         $this->logging->addDebug(__METHOD__ . '|Starting SecondChance prune execution');
 
         $stores = $this->storeRepository->getList();
-
         foreach ($stores as $store) {
             if ($this->configProvider->isSecondChanceEnabled($store)) {
                 $this->logging->addDebug(__METHOD__ . '|Pruning old records for store: ' . $store->getId());
