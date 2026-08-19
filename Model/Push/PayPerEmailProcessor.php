@@ -413,26 +413,19 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * Add the push status message to the order status history and update its state when new.
+     * Add the push status message to the order status history.
+     *
+     * Informational only, like the parent implementation: the state and status this push settles on
+     * are applied once by OrderRequestService::updateOrderStatus(). Unlike the parent, a "pending
+     * processing" message is always recorded because a Pay Per Email order legitimately sits in a
+     * pending state while it waits for the customer to pay the link.
      *
      * @return void
      */
     protected function setOrderStatusMessage(): void
     {
         if (!empty($this->pushRequest->getStatusMessage())) {
-            if ($this->order->getState() === Order::STATE_NEW
-                && empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
-                && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
-            ) {
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusMessage(),
-                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
-                );
-            } else {
-                $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
-            }
+            $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
         }
     }
 
@@ -525,11 +518,6 @@ class PayPerEmailProcessor extends DefaultProcessor
             $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
-        /**
-         * force state eventhough this can lead to a transition of the order
-         * like new -> processing
-         */
-        $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
@@ -542,7 +530,6 @@ class PayPerEmailProcessor extends DefaultProcessor
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
-            $forceState = true;
         }
 
         if ($this->isPayPerEmailB2BModePushInitial) {
@@ -551,8 +538,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         return [
             'amount' => $amount,
-            'description' => $description,
-            'forceState' => $forceState
+            'description' => $description
         ];
     }
 

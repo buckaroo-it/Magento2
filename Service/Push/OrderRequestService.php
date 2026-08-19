@@ -316,20 +316,20 @@ class OrderRequestService
     /**
      * Updates the order state and status, adds the comment and saves the order once.
      *
+     * This is the one place a push is meant to move an order. Callers must not set a state of their
+     * own beforehand: an intermediate save between that write and this call would commit a state the
+     * push has not settled on yet.
+     *
      * @param string $orderState
      * @param string $newStatus
      * @param string $description
-     * @param bool   $force
      *
      * @throws \Exception
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function updateOrderStatus(
         string $orderState,
         string $newStatus,
-        string $description,
-        bool $force = false
+        string $description
     ): void {
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
