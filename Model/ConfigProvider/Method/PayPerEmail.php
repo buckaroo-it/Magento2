@@ -103,25 +103,29 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Is enable or disable auto cancelling by cron
      *
+     * @param null|int|string $store
+     *
      * @return mixed
      */
-    public function getEnabledCronCancelPPE()
+    public function getEnabledCronCancelPPE($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE);
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE, $store);
     }
 
     /**
      * Get the expiration date for the paylink
      *
+     * @param null|int|string $store
+     *
      * @return int
      */
-    public function getExpireDays()
+    public function getExpireDays($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_EXPIRE_DAYS);
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_EXPIRE_DAYS, $store);
     }
 
     /**
-     * Cancel PPE link after order is cancel in Magento
+     * Cancel PPE link after the order is cancel in Magento
      *
      * @return mixed
      */
