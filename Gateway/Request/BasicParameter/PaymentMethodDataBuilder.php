@@ -56,12 +56,9 @@ class PaymentMethodDataBuilder implements BuilderInterface
         $method = $payment->getMethodInstance()->getCode() ?? 'buckaroo_magento2_ideal';
         $providerType = str_replace('buckaroo_magento2_', '', $method);
 
-        // PayPerEmail: get actual payment method from additional_information
-        if ($providerType === 'payperemail') {
-            $actualMethod = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
-            if (!empty($actualMethod) && is_string($actualMethod)) {
-                $providerType = strtolower(trim($actualMethod));
-            }
+        $actualMethod = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+        if (!empty($actualMethod) && is_string($actualMethod)) {
+            $providerType = strtolower(trim($actualMethod));
         }
 
         // Edge case: If method is "giftcards" but no group transactions exist,
