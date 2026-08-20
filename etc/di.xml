@@ -4529,4 +4529,21 @@
                 disabled="false"/>
     </type>
     <!-- END External Email Provider Integration -->
+
+    <!-- Bank Transfer and Pay Per Email orders wait in a pending state until their due date, which
+         is days away. Magento's expired-order cleanup cron would cancel them after
+         sales/orders/delete_pending_after (eight hours by default), so those cancellations are left
+         to buckaroo_magento2_cancel_cron, which honours the configured due date. -->
+    <type name="Magento\Sales\Model\CronJob\CleanExpiredOrders">
+        <plugin name="buckaroo_magento2_magento_order_cleanup_cron"
+                type="Buckaroo\Magento2\Plugin\MagentoOrderCleanupCron"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="buckaroo_magento2_skip_deferred_payment_cleanup"
+                type="Buckaroo\Magento2\Plugin\SkipDeferredPaymentCleanup"
+                sortOrder="10"
+                disabled="false"/>
+    </type>
 </config>
