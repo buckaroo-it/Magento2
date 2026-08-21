@@ -31,6 +31,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
+use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
@@ -74,6 +75,11 @@ class PayPerEmailProcessor extends DefaultProcessor
     private $isPayPerEmailB2BModePush = null;
 
     /**
+     * @var PaymentMethodCodeResolver
+     */
+    private PaymentMethodCodeResolver $paymentMethodCodeResolver;
+
+    /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -97,6 +103,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param PaymentMethodCodeResolver $paymentMethodCodeResolver
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -122,7 +129,8 @@ class PayPerEmailProcessor extends DefaultProcessor
         TransactionRepositoryInterface  $transactionRepository,
         SearchCriteriaBuilder           $searchCriteriaBuilder,
         OrderManagementInterface        $orderManagement,
-        Escaper                         $escaper
+        Escaper                         $escaper,
+        PaymentMethodCodeResolver       $paymentMethodCodeResolver
     ) {
         parent::__construct(
             $orderRequestService,
@@ -149,6 +157,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $escaper
         );
         $this->configPayPerEmail = $configPayPerEmail;
+        $this->paymentMethodCodeResolver = $paymentMethodCodeResolver;
     }
 
     /**
@@ -362,7 +371,21 @@ class PayPerEmailProcessor extends DefaultProcessor
             BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
             $transactionKey
         );
-        $this->payment->setMethod('buckaroo_magento2_' . $transactionMethod);
+        $methodCode = $this->paymentMethodCodeResolver->resolve($transactionMethod);
+
+        if ($methodCode !== null) {
+            $this->payment->setMethod($methodCode);
+        } else {
+            $this->logger->addWarning(sprintf(
+                '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - No payment method registered for service'
+                . ' %s; leaving the order method unchanged | order: %s',
+                __METHOD__,
+                __LINE__,
+                $transactionMethod,
+                $this->order->getIncrementId()
+            ));
+        }
+
         $this->orderRepository->save($this->order);
     }
 

@@ -4546,4 +4546,16 @@
                 sortOrder="10"
                 disabled="false"/>
     </type>
+
+    <type name="Buckaroo\Magento2\Model\PaymentMethodCodeResolver">
+        <arguments>
+            <argument name="serviceToMethod" xsi:type="array">
+                <item name="bancontactmrcash" xsi:type="string">mrcash</item>
+                <item name="giftcard" xsi:type="string">giftcards</item>
+                <item name="przelewy24" xsi:type="string">p24</item>
+                <item name="kbcpaymentbutton" xsi:type="string">kbc</item>
+                <item name="in3old" xsi:type="string">capayablein3</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
