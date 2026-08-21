@@ -336,7 +336,7 @@ class Info extends \Magento\Payment\Block\Info
      */
     public function getPaymentLogo(string $method): string
     {
-        return $this->logoService->getPayment($method);
+        return $this->logoService->getPaymentByServiceCode($method);
     }
 
     /**

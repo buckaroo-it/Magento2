@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -39,6 +40,7 @@ class PaymentMethodCodeResolverTest extends \Buckaroo\Magento2\Test\BaseTest
         'przelewy24'       => 'p24',
         'kbcpaymentbutton' => 'kbc',
         'in3old'           => 'capayablein3',
+        'buckaroovoucher'  => 'voucher',
     ];
 
     /**
@@ -54,8 +56,14 @@ class PaymentMethodCodeResolverTest extends \Buckaroo\Magento2\Test\BaseTest
         'buckaroo_magento2_transfer'     => [],
         'buckaroo_magento2_p24'          => [],
         'buckaroo_magento2_capayablein3' => [],
+        'buckaroo_magento2_voucher'      => [],
         'checkmo'                        => [],
     ];
+
+    /**
+     * The giftcard brands the merchant has configured.
+     */
+    private const CONFIGURED_GIFTCARDS = ['vvvgiftcard', 'boekenbon', 'fashionucadeaukaart'];
 
     private function resolver(): PaymentMethodCodeResolver
     {
@@ -72,7 +80,23 @@ class PaymentMethodCodeResolverTest extends \Buckaroo\Magento2\Test\BaseTest
         $paymentHelper = $this->getFakeMock(PaymentHelper::class)->disableOriginalConstructor()->getMock();
         $paymentHelper->method('getPaymentMethods')->willReturn(self::REGISTERED_METHODS);
 
-        return new PaymentMethodCodeResolver($creditcardConfig, $paymentHelper, self::SERVICE_TO_METHOD);
+        $giftcardCollection = $this->getFakeMock(GiftcardCollection::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $giftcardCollection->method('getItemByColumnValue')->willReturnCallback(
+            static function ($column, $value) {
+                return ($column === 'servicecode' && in_array($value, self::CONFIGURED_GIFTCARDS, true))
+                    ? new \Magento\Framework\DataObject(['servicecode' => $value])
+                    : null;
+            }
+        );
+
+        return new PaymentMethodCodeResolver(
+            $creditcardConfig,
+            $paymentHelper,
+            $giftcardCollection,
+            self::SERVICE_TO_METHOD
+        );
     }
 
     public static function serviceCodeProvider(): array
@@ -82,6 +106,10 @@ class PaymentMethodCodeResolverTest extends \Buckaroo\Magento2\Test\BaseTest
             'bancontact keeps its own method'      => ['bancontactmrcash', 'buckaroo_magento2_mrcash'],
             'giftcard is plural as a method'       => ['giftcard', 'buckaroo_magento2_giftcards'],
             'przelewy24 is p24'                    => ['przelewy24', 'buckaroo_magento2_p24'],
+            // A push names the giftcard brand, never the generic "giftcard" the settings offer.
+            'a vvv giftcard is the giftcards method' => ['vvvgiftcard', 'buckaroo_magento2_giftcards'],
+            'a boekenbon is the giftcards method'    => ['boekenbon', 'buckaroo_magento2_giftcards'],
+            'a buckaroo voucher is the voucher method' => ['buckaroovoucher', 'buckaroo_magento2_voucher'],
             'in3old is capayablein3'               => ['in3old', 'buckaroo_magento2_capayablein3'],
             // Card brands all belong to the one card method.
             'visa is a card'                       => ['visa', 'buckaroo_magento2_creditcard'],

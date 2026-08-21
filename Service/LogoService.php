@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
+use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 
@@ -38,19 +39,52 @@ class LogoService
     protected $baseUrl;
 
     /**
-     * @param Repository   $assetRepo
-     * @param UrlInterface $baseUrl
+     * @var PaymentMethodCodeResolver
+     */
+    private PaymentMethodCodeResolver $paymentMethodCodeResolver;
+
+    /**
+     * @param Repository                $assetRepo
+     * @param UrlInterface              $baseUrl
+     * @param PaymentMethodCodeResolver $paymentMethodCodeResolver
      */
     public function __construct(
         Repository $assetRepo,
-        UrlInterface $baseUrl
+        UrlInterface $baseUrl,
+        PaymentMethodCodeResolver $paymentMethodCodeResolver
     ) {
         $this->assetRepo = $assetRepo;
         $this->baseUrl = $baseUrl;
+        $this->paymentMethodCodeResolver = $paymentMethodCodeResolver;
     }
 
     /**
      * Get payment method logo
+     *
+     * Get the logo for a Buckaroo service code.
+     *
+     * A push reports the service that was used, which is a different vocabulary from the method
+     * codes this map is keyed on: Bancontact arrives as "bancontactmrcash" while the logo is filed
+     * under "mrcash". Translating first is what makes the lookup succeed.
+     *
+     * @param string $serviceCode
+     * @param bool   $backend
+     *
+     * @return string
+     */
+    public function getPaymentByServiceCode(string $serviceCode, bool $backend = false): string
+    {
+        $methodCode = $this->paymentMethodCodeResolver->resolve($serviceCode);
+
+        if ($methodCode !== null) {
+            $serviceCode = str_replace('buckaroo_magento2_', '', $methodCode);
+        }
+
+        return $this->getPayment($serviceCode, $backend);
+    }
+
+    /**
+     * Get the logo for a payment method code
      *
      * @param string $paymentCode
      * @param bool   $backend

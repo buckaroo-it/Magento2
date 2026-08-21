@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Payment\Helper\Data as PaymentHelper;
 
 /**
@@ -50,6 +51,11 @@ class PaymentMethodCodeResolver
     private const CREDITCARD_METHOD_CODE = 'creditcard';
 
     /**
+     * The method that handles every giftcard brand.
+     */
+    private const GIFTCARDS_METHOD_CODE = 'giftcards';
+
+    /**
      * @var Creditcard
      */
     private Creditcard $creditcardConfig;
@@ -60,22 +66,30 @@ class PaymentMethodCodeResolver
     private PaymentHelper $paymentHelper;
 
     /**
+     * @var GiftcardCollection
+     */
+    private GiftcardCollection $giftcardCollection;
+
+    /**
      * @var array
      */
     private array $serviceToMethod;
 
     /**
-     * @param Creditcard    $creditcardConfig
-     * @param PaymentHelper $paymentHelper
-     * @param array         $serviceToMethod
+     * @param Creditcard         $creditcardConfig
+     * @param PaymentHelper      $paymentHelper
+     * @param GiftcardCollection $giftcardCollection
+     * @param array              $serviceToMethod
      */
     public function __construct(
         Creditcard $creditcardConfig,
         PaymentHelper $paymentHelper,
+        GiftcardCollection $giftcardCollection,
         array $serviceToMethod = []
     ) {
         $this->creditcardConfig = $creditcardConfig;
         $this->paymentHelper = $paymentHelper;
+        $this->giftcardCollection = $giftcardCollection;
         $this->serviceToMethod = $serviceToMethod;
     }
 
@@ -111,7 +125,27 @@ class PaymentMethodCodeResolver
             return self::METHOD_CODE_PREFIX . self::CREDITCARD_METHOD_CODE;
         }
 
+        if ($this->isGiftcardBrand($serviceCode)) {
+            return self::METHOD_CODE_PREFIX . self::GIFTCARDS_METHOD_CODE;
+        }
+
         return null;
+    }
+
+    /**
+     * Whether the service code is one of the giftcards the merchant has configured.
+     *
+     * A push names the giftcard brand it was paid with, "vvvgiftcard" or "boekenbon" and so on, never
+     * the generic "giftcard" that the PayLink settings offer. The configured giftcards are the list
+     * to check against, so a brand added there needs no second edit.
+     *
+     * @param string $serviceCode
+     *
+     * @return bool
+     */
+    private function isGiftcardBrand(string $serviceCode): bool
+    {
+        return (bool)$this->giftcardCollection->getItemByColumnValue('servicecode', $serviceCode);
     }
 
     /**
