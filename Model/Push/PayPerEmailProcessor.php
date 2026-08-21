@@ -233,9 +233,8 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         $this->setOrderStatusMessage();
 
-        if ($this->isGroupTransactionPart()) {
-            $this->savePartGroupTransaction();
-            return true;
+        if ($this->isPartialPaymentPush()) {
+            return $this->handlePartialPaymentPush();
         }
 
         if ($this->giftcardPartialPayment()) {

@@ -321,7 +321,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->setOrderStatusMessage();
 
-        if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
+        if ($this->isPartialPaymentPush()) {
             return $this->handlePartialPaymentPush();
         }
 
@@ -1264,6 +1264,24 @@ class DefaultProcessor implements PushProcessorInterface
             [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT],
             true
         );
+    }
+
+    /**
+     * Whether this push settles one part of a payment that was split across several transactions.
+     *
+     * Both conditions are needed. A push carries brq_relatedtransaction_partialpayment from the
+     * start, whereas isGroupTransactionPart() recognises a part by looking up a group transaction
+     * row, so it cannot see the first part of a split before anything has been recorded.
+     *
+     * Kept here rather than in each processor: the two used to test this differently, and a PayLink
+     * settled in parts went unrecorded because of it.
+     *
+     * @return bool
+     */
+    protected function isPartialPaymentPush(): bool
+    {
+        return $this->isGroupTransactionPart()
+            || (bool)$this->pushRequest->getRelatedtransactionPartialpayment();
     }
 
     /**
@@ -2550,9 +2568,9 @@ class DefaultProcessor implements PushProcessorInterface
      *    GroupTransactionPushProcessor, which is responsible for cancelling the order.
      *
      * @return bool
-     * @throws LocalizedException
+     * @throws LocalizedException|Exception
      */
-    private function handlePartialPaymentPush(): bool
+    protected function handlePartialPaymentPush(): bool
     {
         $this->savePartGroupTransaction();
         $this->saveNewGroupTransactionIfNeeded();

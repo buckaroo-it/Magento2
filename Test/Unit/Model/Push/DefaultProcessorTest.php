@@ -371,4 +371,52 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertFalse($instance->processSucceededPush('processing', 'Success'));
     }
+
+    public static function partialPaymentPushProvider(): array
+    {
+        return [
+            // A part carries its related group transaction from the very first push.
+            'a related partial payment marks it as a part' => [null, 'REL-KEY', true],
+            // An already recorded part is recognised by its group transaction row.
+            'a recorded group transaction part is a part'  => ['partialpayment', null, true],
+            'both signals present'                        => ['partialpayment', 'REL-KEY', true],
+            // Neither: an ordinary single payment.
+            'no signals is not a part'                    => [null, null, false],
+            'an empty related key is not a part'          => [null, '', false],
+            // A group transaction of another type is not a part.
+            'a non partialpayment group type is not'      => ['group', null, false],
+        ];
+    }
+
+    /**
+     * A PayLink settled in several parts went unrecorded because the processors tested this
+     * differently, so the condition lives in one place and is pinned here.
+     *
+     * @param string|null $groupTransactionType
+     * @param string|null $relatedPartialPayment
+     * @param bool        $expected
+     */
+    #[DataProvider('partialPaymentPushProvider')]
+    public function testAPushIsRecognisedAsOnePartOfASplitPayment(
+        ?string $groupTransactionType,
+        ?string $relatedPartialPayment,
+        bool $expected
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getTransactions')
+            ->willReturn($groupTransactionType === null ? null : 'TRX-1');
+        $pushRequestMock->method('getRelatedtransactionPartialpayment')
+            ->willReturn($relatedPartialPayment);
+
+        // getType() is a magic getter, so a real DataObject stands in for the group transaction row.
+        $this->groupTransactionMock->method('getGroupTransactionByTrxId')
+            ->willReturn(new \Magento\Framework\DataObject(['type' => $groupTransactionType]));
+
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertSame($expected, $this->invokeArgs('isPartialPaymentPush', [], $instance));
+    }
 }
