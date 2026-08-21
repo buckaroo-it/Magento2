@@ -375,7 +375,7 @@ class AdminInfo extends ConfigurableInfo
      */
     public function getPaymentLogo(string $method): string
     {
-         return $this->logoService->getPaymentByServiceCode($method);
+        return $this->logoService->getPaymentByServiceCode($method);
     }
 
     /**
