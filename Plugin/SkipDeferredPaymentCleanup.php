@@ -185,13 +185,18 @@ class SkipDeferredPaymentCleanup
 
         $storeId = $order->getStoreId();
 
-        $dueDays = match ($payment->getMethod()) {
-            Transfer::CODE => (float)$this->transferConfig->getDueDate($storeId),
-            PayPerEmail::CODE => $this->payPerEmailConfig->getEnabledCronCancelPPE($storeId)
-                ? (float)$this->payPerEmailConfig->getExpireDays($storeId)
-                : 0.0,
-            default => 0.0,
-        };
+        // Written as a conditional rather than match() so the mess detector's parser,
+        // which does not understand match expressions, can still read this file.
+        $method = $payment->getMethod();
+        $dueDays = 0.0;
+
+        if ($method === Transfer::CODE) {
+            $dueDays = (float)$this->transferConfig->getDueDate($storeId);
+        } elseif ($method === PayPerEmail::CODE
+            && $this->payPerEmailConfig->getEnabledCronCancelPPE($storeId)
+        ) {
+            $dueDays = (float)$this->payPerEmailConfig->getExpireDays($storeId);
+        }
 
         return $dueDays > 0 ? $dueDays : null;
     }
