@@ -20,20 +20,21 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChancePrune
 {
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\SecondChance
+     * @var SecondChanceConfig
      */
     protected $configProvider;
 
     /**
      * @var Log
      */
-    public $logging;
+    protected $logging;
 
     /**
      * @var StoreRepositoryInterface
@@ -46,13 +47,13 @@ class SecondChancePrune
     protected $secondChanceRepository;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
-     * @param StoreRepositoryInterface                             $storeRepository
-     * @param Log                                                  $logging
-     * @param SecondChanceRepository                               $secondChanceRepository
+     * @param SecondChanceConfig       $configProvider
+     * @param StoreRepositoryInterface $storeRepository
+     * @param Log                      $logging
+     * @param SecondChanceRepository   $secondChanceRepository
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
+        SecondChanceConfig $configProvider,
         StoreRepositoryInterface $storeRepository,
         Log $logging,
         SecondChanceRepository $secondChanceRepository
@@ -64,16 +65,35 @@ class SecondChancePrune
     }
 
     /**
-     * Execute cron job to prune old SecondChance records
+     * Execute cron job to prune old SecondChance records.
+     *
+     * @return $this
      */
     public function execute()
     {
-        $this->logging->addDebug(__METHOD__ . '|Starting SecondChance prune execution');
-
         $stores = $this->storeRepository->getList();
+
+        $anyEnabled = false;
         foreach ($stores as $store) {
+            if ($store->getId() === 0) {
+                continue;
+            }
             if ($this->configProvider->isSecondChanceEnabled($store)) {
-                $this->logging->addDebug(__METHOD__ . '|Pruning old records for store: ' . $store->getId());
+                $anyEnabled = true;
+                break;
+            }
+        }
+
+        if (!$anyEnabled) {
+            return $this;
+        }
+
+        foreach ($stores as $store) {
+            if ($store->getId() === 0) {
+                continue;
+            }
+
+            if ($this->configProvider->isSecondChanceEnabled($store)) {
 
                 try {
                     $this->secondChanceRepository->deleteOlderRecords($store);
@@ -83,7 +103,6 @@ class SecondChancePrune
             }
         }
 
-        $this->logging->addDebug(__METHOD__ . '|SecondChance prune execution completed');
         return $this;
     }
 }

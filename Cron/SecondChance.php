@@ -20,20 +20,24 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChance
 {
+    public const STEP_FIRST_EMAIL  = 1;
+    public const STEP_SECOND_EMAIL = 2;
+
     /**
-     * @var \Buckaroo\Magento2\Model\ConfigProvider\SecondChance
+     * @var SecondChanceConfig
      */
     protected $configProvider;
 
     /**
-     * @var Log $logging
+     * @var Log
      */
-    public $logging;
+    protected $logging;
 
     /**
      * @var StoreRepositoryInterface
@@ -46,13 +50,13 @@ class SecondChance
     protected $secondChanceRepository;
 
     /**
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
-     * @param StoreRepositoryInterface                             $storeRepository
-     * @param Log                                                  $logging
-     * @param SecondChanceRepository                               $secondChanceRepository
+     * @param SecondChanceConfig       $configProvider
+     * @param StoreRepositoryInterface $storeRepository
+     * @param Log                      $logging
+     * @param SecondChanceRepository   $secondChanceRepository
      */
     public function __construct(
-        \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
+        SecondChanceConfig $configProvider,
         StoreRepositoryInterface $storeRepository,
         Log $logging,
         SecondChanceRepository $secondChanceRepository
@@ -66,21 +70,35 @@ class SecondChance
     /**
      * Process second chance emails for all enabled stores.
      *
-     * @return void
+     * @return $this
      */
     public function execute()
     {
         try {
             $stores = $this->storeRepository->getList();
 
+            $anyEnabled = false;
             foreach ($stores as $store) {
-                if ($store->getId() == 0) {
-                    continue; // Skip admin store
+                if ($store->getId() === 0) {
+                    continue;
+                }
+                if ($this->configProvider->isSecondChanceEnabled($store)) {
+                    $anyEnabled = true;
+                    break;
+                }
+            }
+
+            if (!$anyEnabled) {
+                return $this;
+            }
+
+            foreach ($stores as $store) {
+                if ($store->getId() === 0) {
+                    continue;
                 }
 
                 if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    // Process step 2 first (second email), then step 1 (first email)
-                    foreach ([2, 1] as $step) {
+                    foreach ([self::STEP_SECOND_EMAIL, self::STEP_FIRST_EMAIL] as $step) {
                         try {
                             $this->secondChanceRepository->getSecondChanceCollection($step, $store);
                         } catch (\Exception $e) {
