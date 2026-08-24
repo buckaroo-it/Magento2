@@ -20,16 +20,21 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
+use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
+use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
-use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChancePrune
 {
     /**
-     * @var SecondChanceConfig
+     * @var EnabledStoresProvider
      */
-    protected $configProvider;
+    private $enabledStoresProvider;
+
+    /**
+     * @var WorkChecker
+     */
+    private $workChecker;
 
     /**
      * @var Log
@@ -37,29 +42,24 @@ class SecondChancePrune
     protected $logging;
 
     /**
-     * @var StoreRepositoryInterface
-     */
-    private $storeRepository;
-
-    /**
      * @var SecondChanceRepository
      */
     protected $secondChanceRepository;
 
     /**
-     * @param SecondChanceConfig       $configProvider
-     * @param StoreRepositoryInterface $storeRepository
-     * @param Log                      $logging
-     * @param SecondChanceRepository   $secondChanceRepository
+     * @param EnabledStoresProvider  $enabledStoresProvider
+     * @param WorkChecker            $workChecker
+     * @param Log                    $logging
+     * @param SecondChanceRepository $secondChanceRepository
      */
     public function __construct(
-        SecondChanceConfig $configProvider,
-        StoreRepositoryInterface $storeRepository,
+        EnabledStoresProvider $enabledStoresProvider,
+        WorkChecker $workChecker,
         Log $logging,
         SecondChanceRepository $secondChanceRepository
     ) {
-        $this->configProvider         = $configProvider;
-        $this->storeRepository        = $storeRepository;
+        $this->enabledStoresProvider  = $enabledStoresProvider;
+        $this->workChecker            = $workChecker;
         $this->logging                = $logging;
         $this->secondChanceRepository = $secondChanceRepository;
     }
@@ -71,37 +71,30 @@ class SecondChancePrune
      */
     public function execute()
     {
-        $stores = $this->storeRepository->getList();
-
-        $anyEnabled = false;
-        foreach ($stores as $store) {
-            if ($store->getId() === 0) {
-                continue;
-            }
-            if ($this->configProvider->isSecondChanceEnabled($store)) {
-                $anyEnabled = true;
-                break;
-            }
-        }
-
-        if (!$anyEnabled) {
-            return $this;
-        }
-
-        foreach ($stores as $store) {
-            if ($store->getId() === 0) {
-                continue;
+        try {
+            $stores = $this->enabledStoresProvider->getEnabledStores();
+            if (empty($stores) || !$this->workChecker->hasPrunableItems($stores)) {
+                return $this;
             }
 
-            if ($this->configProvider->isSecondChanceEnabled($store)) {
-                $this->logging->addDebug(__METHOD__ . '|Pruning old records for store: ' . $store->getId());
-
+            foreach ($stores as $store) {
                 try {
-                    $this->secondChanceRepository->deleteOlderRecords($store);
+                    $deletedRecords = $this->secondChanceRepository->deleteOlderRecords($store);
+                    if ($deletedRecords > 0) {
+                        $this->logging->addDebug(
+                            __METHOD__ . '|Pruned ' . $deletedRecords . ' old records for store: ' . $store->getId()
+                        );
+                    }
                 } catch (\Exception $e) {
-                    $this->logging->addError('Error pruning SecondChance records for store ' . $store->getId() . ': ' . $e->getMessage());
+                    $this->logging->addError(
+                        'Error pruning SecondChance records for store ' . $store->getId() . ': ' . $e->getMessage()
+                    );
                 }
             }
+        } catch (\Exception $e) {
+            $this->logging->addError(
+                __METHOD__ . '|SecondChance prune cron execution failed: ' . $e->getMessage()
+            );
         }
 
         return $this;

@@ -20,10 +20,10 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
-use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
+use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
+use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChance
 {
@@ -31,9 +31,14 @@ class SecondChance
     public const STEP_SECOND_EMAIL = 2;
 
     /**
-     * @var SecondChanceConfig
+     * @var EnabledStoresProvider
      */
-    protected $configProvider;
+    private $enabledStoresProvider;
+
+    /**
+     * @var WorkChecker
+     */
+    private $workChecker;
 
     /**
      * @var Log
@@ -41,29 +46,24 @@ class SecondChance
     protected $logging;
 
     /**
-     * @var StoreRepositoryInterface
-     */
-    private $storeRepository;
-
-    /**
      * @var SecondChanceRepository
      */
     protected $secondChanceRepository;
 
     /**
-     * @param SecondChanceConfig       $configProvider
-     * @param StoreRepositoryInterface $storeRepository
-     * @param Log                      $logging
-     * @param SecondChanceRepository   $secondChanceRepository
+     * @param EnabledStoresProvider  $enabledStoresProvider
+     * @param WorkChecker            $workChecker
+     * @param Log                    $logging
+     * @param SecondChanceRepository $secondChanceRepository
      */
     public function __construct(
-        SecondChanceConfig $configProvider,
-        StoreRepositoryInterface $storeRepository,
+        EnabledStoresProvider $enabledStoresProvider,
+        WorkChecker $workChecker,
         Log $logging,
         SecondChanceRepository $secondChanceRepository
     ) {
-        $this->configProvider         = $configProvider;
-        $this->storeRepository        = $storeRepository;
+        $this->enabledStoresProvider  = $enabledStoresProvider;
+        $this->workChecker            = $workChecker;
         $this->logging                = $logging;
         $this->secondChanceRepository = $secondChanceRepository;
     }
@@ -76,33 +76,14 @@ class SecondChance
     public function execute()
     {
         try {
-            $stores = $this->storeRepository->getList();
-
-            $anyEnabled = false;
-            foreach ($stores as $store) {
-                if ($store->getId() === 0) {
-                    continue;
-                }
-                if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    $anyEnabled = true;
-                    break;
-                }
-            }
-
-            if (!$anyEnabled) {
+            $stores = $this->enabledStoresProvider->getEnabledStores();
+            if (empty($stores) || !$this->workChecker->hasProcessableItems($stores)) {
                 return $this;
             }
 
             foreach ($stores as $store) {
-                if ($store->getId() === 0) {
-                    continue;
-                }
-
-                if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    $this->processStore($store);
-                }
+                $this->processStore($store);
             }
-
         } catch (\Exception $e) {
             $this->logging->addError(__METHOD__ . '|SecondChance cron execution failed: ' . $e->getMessage());
             $this->logging->addError(__METHOD__ . '|Error file: ' . $e->getFile() . ':' . $e->getLine());
@@ -124,7 +105,9 @@ class SecondChance
                 $this->secondChanceRepository->getSecondChanceCollection($step, $store);
             } catch (\Exception $e) {
                 $this->logging->addError(
-                    __METHOD__ . '|Error processing step ' . $step . ' for store ' . $store->getId() . ': ' . $e->getMessage()
+                    __METHOD__ . '|Error processing step ' . $step
+                    . ' for store ' . $store->getId()
+                    . ': ' . $e->getMessage()
                 );
             }
         }

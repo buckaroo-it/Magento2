@@ -423,25 +423,30 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Delete older records based on configuration
      *
      * @param mixed $store
+     * @return int
      */
     public function deleteOlderRecords($store)
     {
         $days = $this->configProvider->getSecondChanceDeleteAfterDays($store);
         if ($days <= 0) {
-            return;
+            return 0;
         }
 
         $collection = $this->secondChanceCollectionFactory->create();
         $collection->addFieldToFilter('store_id', $store->getId());
         $collection->addFieldToFilter('created_at', ['lt' => date('Y-m-d H:i:s', strtotime('-' . $days . ' days'))]);
 
+        $deletedRecords = 0;
         foreach ($collection as $item) {
             try {
                 $this->resource->delete($item);
+                $deletedRecords++;
             } catch (Exception $e) {
                 $this->logging->addError('Error deleting SecondChance record: ' . $e->getMessage());
             }
         }
+
+        return $deletedRecords;
     }
 
     /**
