@@ -42,9 +42,6 @@ class CreateCombinedInvoice
     private $configProviderMethodFactory;
 
     /**
-     * @param Factory $configProviderMethodFactory
-     */
-    /**
      * @var CultureCodeResolver
      */
     private $cultureCodeResolver;
