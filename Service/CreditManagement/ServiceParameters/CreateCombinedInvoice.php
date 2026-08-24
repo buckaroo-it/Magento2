@@ -419,10 +419,11 @@ class CreateCombinedInvoice
      * Get Company CM Parameters
      *
      * @param \Magento\Sales\Api\Data\OrderAddressInterface $billingAddress
+     * @param Order                                         $order
      *
      * @return array
      */
-    private function getCompanyCmParameters($billingAddress)
+    private function getCompanyCmParameters($billingAddress, Order $order)
     {
         $requestParameters = [];
         $company = $billingAddress->getCompany();
