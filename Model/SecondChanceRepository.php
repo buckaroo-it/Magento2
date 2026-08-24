@@ -68,6 +68,16 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
     /**
+     * How long a record keeps retrying while its order still carries a placeholder email.
+     *
+     * Express checkout methods place the order with a placeholder address and replace it
+     * moments later, so a short retry window is needed. Past that the address is never going
+     * to change, and without a cut-off the record would be re-examined - and logged - on
+     * every cron run for the rest of its life.
+     */
+    private const PLACEHOLDER_EMAIL_GRACE_HOURS = 1;
+
+    /**
      * @var SecondChanceFactory
      */
     protected $secondChanceFactory;
@@ -208,34 +218,34 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private $cartRepository;
 
     /**
-     * @param ResourceSecondChance                                        $resource
-     * @param SecondChanceFactory                                         $secondChanceFactory
-     * @param SecondChanceInterfaceFactory                                $dataSecondChanceFactory
-     * @param SecondChanceCollectionFactory                               $secondChanceCollectionFactory
-     * @param SecondChanceSearchResultsInterfaceFactory                   $searchResultsFactory
-     * @param DataObjectHelper                                            $dataObjectHelper
-     * @param DataObjectProcessor                                         $dataObjectProcessor
-     * @param StoreManagerInterface                                       $storeManager
-     * @param CollectionProcessorInterface                                $collectionProcessor
-     * @param JoinProcessorInterface                                      $extensionAttributesJoinProcessor
-     * @param ExtensibleDataObjectConverter                               $extensibleDataObjectConverter
-     * @param \Buckaroo\Magento2\Logging\Log                              $logging
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance        $configProvider
-     * @param Random                              $mathRandom
-     * @param DateTime                 $dateTime
-     * @param OrderFactory                           $orderFactory
-     * @param AddressFactory                      $addressFactory
-     * @param StockRegistryInterface        $stockRegistry
-     * @param StateInterface          $inlineTranslation
-     * @param TransportBuilder           $transportBuilder
-     * @param Renderer                 $addressRenderer
-     * @param Data                                $paymentHelper
-     * @param ShipmentIdentity $identityContainer
-     * @param QuoteRecreateService                                        $quoteRecreate
-     * @param \Magento\Checkout\Model\Session                             $checkoutSession
-     * @param QuoteFactory                           $quoteFactory
-     * @param Manager                        $orderIncrementIdChecker
-     * @param CartRepositoryInterface             $cartRepository
+     * @param ResourceSecondChance                                 $resource
+     * @param SecondChanceFactory                                  $secondChanceFactory
+     * @param SecondChanceInterfaceFactory                         $dataSecondChanceFactory
+     * @param SecondChanceCollectionFactory                        $secondChanceCollectionFactory
+     * @param SecondChanceSearchResultsInterfaceFactory            $searchResultsFactory
+     * @param DataObjectHelper                                     $dataObjectHelper
+     * @param DataObjectProcessor                                  $dataObjectProcessor
+     * @param StoreManagerInterface                                $storeManager
+     * @param CollectionProcessorInterface                         $collectionProcessor
+     * @param JoinProcessorInterface                               $extensionAttributesJoinProcessor
+     * @param ExtensibleDataObjectConverter                        $extensibleDataObjectConverter
+     * @param \Buckaroo\Magento2\Logging\Log                       $logging
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
+     * @param Random                                               $mathRandom
+     * @param DateTime                                             $dateTime
+     * @param OrderFactory                                         $orderFactory
+     * @param AddressFactory                                       $addressFactory
+     * @param StockRegistryInterface                               $stockRegistry
+     * @param StateInterface                                       $inlineTranslation
+     * @param TransportBuilder                                     $transportBuilder
+     * @param Renderer                                             $addressRenderer
+     * @param Data                                                 $paymentHelper
+     * @param ShipmentIdentity                                     $identityContainer
+     * @param QuoteRecreateService                                 $quoteRecreate
+     * @param \Magento\Checkout\Model\Session                      $checkoutSession
+     * @param QuoteFactory                                         $quoteFactory
+     * @param Manager                                              $orderIncrementIdChecker
+     * @param CartRepositoryInterface                              $cartRepository
      */
     public function __construct(
         ResourceSecondChance $resource,
@@ -427,14 +437,16 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function deleteOlderRecords($store)
     {
-        $days = $this->configProvider->getSecondChanceDeleteAfterDays($store);
-        if ($days <= 0) {
+        if (!$this->configProvider->isRecordPruningEnabled($store)) {
             return 0;
         }
 
-        $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('store_id', $store->getId());
-        $collection->addFieldToFilter('created_at', ['lt' => date('Y-m-d H:i:s', strtotime('-' . $days . ' days'))]);
+        $collection = $this->secondChanceCollectionFactory->create()
+            ->addStoreFilter((int) $store->getId())
+            ->addRemovableFilter(
+                $this->configProvider->getSecondChanceDeleteAfterDays($store),
+                $this->configProvider->getReminderWindowHours($store)
+            );
 
         $deletedRecords = 0;
         foreach ($collection as $item) {
@@ -646,26 +658,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function getSecondChanceCollection($step, $store)
     {
-        $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('store_id', $store->getId());
-
-        if ($step == 1) {
-            $collection->addFieldToFilter('status', 'pending');
-            // For step 1: Check delay from when the order was created
-            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
-            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
-            // Use <= for instant processing when delay is 0
-            $operator = ($delay == 0) ? 'lteq' : 'lt';
-            $collection->addFieldToFilter('created_at', [$operator => $delayDate]);
-        } else {
-            $collection->addFieldToFilter('status', 'step1_sent');
-            // For step 2: Check delay from when the FIRST email was sent
-            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
-            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
-            // Use <= for instant processing when delay is 0
-            $operator = ($delay == 0) ? 'lteq' : 'lt';
-            $collection->addFieldToFilter('first_email_sent', [$operator => $delayDate]);
+        if (!$this->configProvider->isEmailStepEnabled($step, $store)) {
+            return;
         }
+
+        $collection = $this->secondChanceCollectionFactory->create()
+            ->addStoreFilter((int) $store->getId())
+            ->addStepDueFilter((int) $step, $this->configProvider->getSecondChanceDelay($step, $store));
 
         $limit = $this->configProvider->getSecondChanceEmailLimit($store);
         if ($limit > 0) {
@@ -674,16 +673,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         foreach ($collection as $item) {
             try {
-
-                // Check if this step email is enabled
-                if ($step == 1 && !$this->configProvider->isFirstEmailEnabled($store)) {
-                    continue;
-                }
-
-                if ($step == 2 && !$this->configProvider->isSecondEmailEnabled($store)) {
-                    continue;
-                }
-
                 // Load the base order (without suffixes) for processing
                 $baseOrderId = $this->getBaseOrderId($item->getOrderId());
                 $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
@@ -727,6 +716,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 // Validate order email is not a placeholder before sending
                 $orderEmail = $order->getCustomerEmail();
                 if ($this->isPlaceholderEmail($orderEmail)) {
+                    if ($this->isPastPlaceholderEmailGrace($item)) {
+                        $this->setFinalStatus($item, 'placeholder_email');
+                        continue;
+                    }
+
                     $this->logging->addDebug('SecondChance email skipped - order still has placeholder email', [
                         'order_id' => $order->getIncrementId(),
                         'email' => $orderEmail,
@@ -1100,23 +1094,35 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             return true;
         }
 
-        // List of known placeholder patterns used in express checkout methods
-        $placeholderPatterns = [
-            'no-reply@example.com',
-            'guest@example.com',
-        ];
-
         $lowerEmail = strtolower(trim($email));
 
-        // Check exact matches
-        if (in_array($lowerEmail, $placeholderPatterns)) {
-            return true;
-        }
-
-        if (strpos($lowerEmail, '@example.com') !== false) {
-            return true;
+        // Domains reserved for documentation and testing (RFC 2606). Express checkout methods
+        // place orders against one of these until the real address is known, and nothing sent
+        // to them can ever be delivered.
+        foreach (['@example.com', '@example.net', '@example.org'] as $reservedDomain) {
+            if (str_ends_with($lowerEmail, $reservedDomain)) {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /**
+     * Check whether a record waited long enough for its order to receive a real email address.
+     *
+     * @param mixed $item
+     * @return bool
+     */
+    private function isPastPlaceholderEmailGrace($item): bool
+    {
+        $createdAt = strtotime((string) $item->getCreatedAt());
+        if ($createdAt === false) {
+            return false;
+        }
+
+        $grace = self::PLACEHOLDER_EMAIL_GRACE_HOURS * 3600;
+
+        return $this->dateTime->gmtTimestamp() - $grace > $createdAt;
     }
 }

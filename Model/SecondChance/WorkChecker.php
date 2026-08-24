@@ -21,18 +21,24 @@
 namespace Buckaroo\Magento2\Model\SecondChance;
 
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
-use Magento\Framework\Stdlib\DateTime\DateTime;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory;
 use Magento\Store\Api\Data\StoreInterface;
 
+/**
+ * Answers whether the SecondChance crons have anything to do, so an idle run can exit
+ * before it touches any store.
+ *
+ * The candidate query itself is owned by the collection, which is also what the processing
+ * path uses. This class only decides which stores to ask about and groups them so a shared
+ * timing window costs a single count query instead of one per store.
+ */
 class WorkChecker
 {
-    private const STEP_FIRST_EMAIL = 1;
-    private const STEP_SECOND_EMAIL = 2;
-
     /**
-     * @var RecordsQuery
+     * @var CollectionFactory
      */
-    private $recordsQuery;
+    private $collectionFactory;
 
     /**
      * @var SecondChanceConfig
@@ -40,68 +46,53 @@ class WorkChecker
     private $configProvider;
 
     /**
-     * @var DateTime
-     */
-    private $dateTime;
-
-    /**
-     * @param RecordsQuery       $recordsQuery
+     * @param CollectionFactory  $collectionFactory
      * @param SecondChanceConfig $configProvider
-     * @param DateTime           $dateTime
      */
     public function __construct(
-        RecordsQuery $recordsQuery,
-        SecondChanceConfig $configProvider,
-        DateTime $dateTime
+        CollectionFactory $collectionFactory,
+        SecondChanceConfig $configProvider
     ) {
-        $this->recordsQuery = $recordsQuery;
+        $this->collectionFactory = $collectionFactory;
         $this->configProvider = $configProvider;
-        $this->dateTime = $dateTime;
     }
 
     /**
-     * Check for records that may be due for either email step.
-     *
-     * Stores are grouped by their configured delay so every candidate query
-     * uses the exact threshold for those stores.
+     * Check whether any store has a record that is due for one of the email steps.
      *
      * @param StoreInterface[] $stores
      * @return bool
      */
     public function hasProcessableItems(array $stores): bool
     {
-        return $this->hasItemsForStep($stores, self::STEP_SECOND_EMAIL)
-            || $this->hasItemsForStep($stores, self::STEP_FIRST_EMAIL);
+        return $this->hasItemsForStep($stores, Collection::STEP_SECOND_EMAIL)
+            || $this->hasItemsForStep($stores, Collection::STEP_FIRST_EMAIL);
     }
 
     /**
-     * Check for records that may be old enough to prune.
+     * Check whether any store has records that fall outside its retention window.
      *
      * @param StoreInterface[] $stores
      * @return bool
      */
     public function hasPrunableItems(array $stores): bool
     {
-        $storeIdsByDays = [];
-
-        foreach ($stores as $store) {
-            $days = $this->configProvider->getSecondChanceDeleteAfterDays($store);
-            if ($days <= 0) {
-                continue;
+        $storeIdsByDays = $this->groupStoreIds(
+            $stores,
+            function (StoreInterface $store) {
+                return $this->configProvider->isRecordPruningEnabled($store)
+                    ? $this->configProvider->getSecondChanceDeleteAfterDays($store)
+                    : null;
             }
-
-            $storeIdsByDays[$days][] = (int) $store->getId();
-        }
-
-        ksort($storeIdsByDays, SORT_NUMERIC);
+        );
 
         foreach ($storeIdsByDays as $days => $storeIds) {
-            if ($this->recordsQuery->hasRecords([
-                'store_id' => ['in' => $storeIds],
-                'created_at' => [
-                    'lt' => $this->getCutoff($days * 86400),
-                ],
-            ])) {
+            $reminderWindowHours = $this->getLongestReminderWindow($stores, $storeIds);
+            $collection = $this->collectionFactory->create()
+                ->addStoreFilter($storeIds)
+                ->addRemovableFilter((int) $days, $reminderWindowHours);
+
+            if ($collection->getSize() > 0) {
                 return true;
             }
         }
@@ -110,7 +101,7 @@ class WorkChecker
     }
 
     /**
-     * Check for candidate records for a specific email step.
+     * Check whether any store has a record that is due for a specific email step.
      *
      * @param StoreInterface[] $stores
      * @param int              $step
@@ -118,35 +109,21 @@ class WorkChecker
      */
     private function hasItemsForStep(array $stores, int $step): bool
     {
-        $storeIdsByDelay = [];
-
-        foreach ($stores as $store) {
-            if (!$this->isStepEnabled($step, $store)) {
-                continue;
+        $storeIdsByDelay = $this->groupStoreIds(
+            $stores,
+            function (StoreInterface $store) use ($step) {
+                return $this->configProvider->isEmailStepEnabled($step, $store)
+                    ? $this->configProvider->getSecondChanceDelay($step, $store)
+                    : null;
             }
-
-            $delay = max(0, $this->configProvider->getSecondChanceDelay($step, $store));
-            $storeIdsByDelay[$delay][] = (int) $store->getId();
-        }
-
-        $status = 'step1_sent';
-        $dateField = 'first_email_sent';
-        if ($step === self::STEP_FIRST_EMAIL) {
-            $status = 'pending';
-            $dateField = 'created_at';
-        }
-
-        ksort($storeIdsByDelay, SORT_NUMERIC);
+        );
 
         foreach ($storeIdsByDelay as $delay => $storeIds) {
-            $operator = $delay === 0 ? 'lteq' : 'lt';
-            if ($this->recordsQuery->hasRecords([
-                'store_id' => ['in' => $storeIds],
-                'status' => $status,
-                $dateField => [
-                    $operator => $this->getCutoff($delay * 3600),
-                ],
-            ])) {
+            $collection = $this->collectionFactory->create()
+                ->addStoreFilter($storeIds)
+                ->addStepDueFilter($step, (int) $delay);
+
+            if ($collection->getSize() > 0) {
                 return true;
             }
         }
@@ -155,32 +132,52 @@ class WorkChecker
     }
 
     /**
-     * Check whether a configured email step is enabled for a store.
+     * Return the longest reminder window among the given stores.
      *
-     * @param int            $step
-     * @param StoreInterface $store
-     * @return bool
+     * The gate counts several stores in one query, so it has to use the most protective
+     * window of the group. A store whose window is shorter is simply counted conservatively.
+     *
+     * @param StoreInterface[] $stores
+     * @param int[]            $storeIds
+     * @return int Hours
      */
-    private function isStepEnabled(int $step, StoreInterface $store): bool
+    private function getLongestReminderWindow(array $stores, array $storeIds): int
     {
-        if ($step === self::STEP_FIRST_EMAIL) {
-            return $this->configProvider->isFirstEmailEnabled($store);
+        $window = 0;
+
+        foreach ($stores as $store) {
+            if (!in_array((int) $store->getId(), $storeIds, true)) {
+                continue;
+            }
+
+            $window = max($window, $this->configProvider->getReminderWindowHours($store));
         }
 
-        return $this->configProvider->isSecondEmailEnabled($store);
+        return $window;
     }
 
     /**
-     * Return a GMT cutoff relative to the current time.
+     * Group store ids by the timing window they share, skipping stores the resolver rejects.
      *
-     * @param int $seconds
-     * @return string
+     * @param StoreInterface[] $stores
+     * @param callable         $windowResolver Returns the window for a store, or null to skip it
+     * @return array<int, int[]>
      */
-    private function getCutoff(int $seconds): string
+    private function groupStoreIds(array $stores, callable $windowResolver): array
     {
-        return $this->dateTime->gmtDate(
-            null,
-            $this->dateTime->gmtTimestamp() - $seconds
-        );
+        $grouped = [];
+
+        foreach ($stores as $store) {
+            $window = $windowResolver($store);
+            if ($window === null) {
+                continue;
+            }
+
+            $grouped[$window][] = (int) $store->getId();
+        }
+
+        ksort($grouped, SORT_NUMERIC);
+
+        return $grouped;
     }
 }

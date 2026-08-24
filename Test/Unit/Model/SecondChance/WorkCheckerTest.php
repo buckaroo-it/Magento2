@@ -21,187 +21,254 @@
 namespace Buckaroo\Magento2\Test\Unit\Model\SecondChance;
 
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory;
 use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
-use Buckaroo\Magento2\Model\SecondChance\RecordsQuery;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Store\Api\Data\StoreInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class WorkCheckerTest extends TestCase
 {
-    private const NOW = 1700000000;
-
     /**
-     * @var RecordsQuery|\PHPUnit\Framework\MockObject\MockObject
+     * @var CollectionFactory|MockObject
      */
-    private $recordsQuery;
+    private $collectionFactory;
 
     /**
-     * @var SecondChanceConfig|\PHPUnit\Framework\MockObject\MockObject
+     * @var SecondChanceConfig|MockObject
      */
     private $configProvider;
 
     /**
-     * @var DateTime|\PHPUnit\Framework\MockObject\MockObject
+     * Filter calls recorded from every collection the factory handed out.
+     *
+     * @var array
      */
-    private $dateTime;
+    private $queries = [];
 
     protected function setUp(): void
     {
-        $this->recordsQuery = $this->createMock(RecordsQuery::class);
+        $this->queries = [];
         $this->configProvider = $this->createMock(SecondChanceConfig::class);
-        $this->dateTime = $this->createMock(DateTime::class);
-        $this->dateTime->method('gmtTimestamp')->willReturn(self::NOW);
-        $this->dateTime->method('gmtDate')
-            ->willReturnCallback(
-                function ($format, $timestamp): string {
-                    return gmdate($format ?? 'Y-m-d H:i:s', $timestamp);
-                }
-            );
+        $this->collectionFactory = $this->getMockBuilder(CollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
     }
 
-    public function testIdleEmailRunUsesTwoGlobalQueriesAndReturnsFalse(): void
+    public function testIdleEmailRunQueriesBothStepsAndReturnsFalse(): void
     {
         $store = $this->createStore(5);
-        $filters = [];
 
-        $this->configProvider->method('isSecondEmailEnabled')->with($store)->willReturn(true);
-        $this->configProvider->method('isFirstEmailEnabled')->with($store)->willReturn(true);
+        $this->configProvider->method('isEmailStepEnabled')->willReturn(true);
         $this->configProvider->method('getSecondChanceDelay')
             ->willReturnCallback(
                 function ($step): int {
-                    return $step === 2 ? 2 : 1;
+                    return $step === Collection::STEP_SECOND_EMAIL ? 2 : 1;
                 }
             );
-        $this->recordsQuery->expects($this->exactly(2))
-            ->method('hasRecords')
-            ->willReturnCallback(
-                function ($queryFilters) use (&$filters): bool {
-                    $filters[] = $queryFilters;
-                    return false;
-                }
-            );
+        $this->expectCollections([false, false]);
 
         $this->assertFalse($this->createChecker()->hasProcessableItems([$store]));
-        $this->assertSame([
+        $this->assertSame(
             [
-                'store_id' => ['in' => [5]],
-                'status' => 'step1_sent',
-                'first_email_sent' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - 7200)],
+                ['store' => [5], 'step' => [Collection::STEP_SECOND_EMAIL, 2]],
+                ['store' => [5], 'step' => [Collection::STEP_FIRST_EMAIL, 1]],
             ],
-            [
-                'store_id' => ['in' => [5]],
-                'status' => 'pending',
-                'created_at' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - 3600)],
-            ],
-        ], $filters);
+            $this->queries
+        );
     }
 
-    public function testEmailGateKeepsStoreSpecificDelays(): void
+    public function testStoresSharingADelayAreCountedInOneQuery(): void
     {
         $storeOne = $this->createStore(1);
         $storeTwo = $this->createStore(2);
-        $filters = [];
 
-        $this->configProvider->method('isSecondEmailEnabled')->willReturn(false);
-        $this->configProvider->method('isFirstEmailEnabled')->willReturn(true);
+        $this->configProvider->method('isEmailStepEnabled')
+            ->willReturnCallback(
+                function ($step): bool {
+                    return $step === Collection::STEP_FIRST_EMAIL;
+                }
+            );
+        $this->configProvider->method('getSecondChanceDelay')->willReturn(4);
+        $this->expectCollections([false]);
+
+        $this->assertFalse($this->createChecker()->hasProcessableItems([$storeOne, $storeTwo]));
+        $this->assertSame(
+            [['store' => [1, 2], 'step' => [Collection::STEP_FIRST_EMAIL, 4]]],
+            $this->queries
+        );
+    }
+
+    public function testStoresWithDifferentDelaysAreQueriedSeparately(): void
+    {
+        $storeOne = $this->createStore(1);
+        $storeTwo = $this->createStore(2);
+
+        $this->configProvider->method('isEmailStepEnabled')
+            ->willReturnCallback(
+                function ($step): bool {
+                    return $step === Collection::STEP_FIRST_EMAIL;
+                }
+            );
         $this->configProvider->method('getSecondChanceDelay')
             ->willReturnCallback(
                 function ($step, $store) use ($storeOne): int {
-                    return $step === 1 && $store === $storeOne ? 1 : 24;
+                    return $store === $storeOne ? 1 : 24;
                 }
             );
-        $this->recordsQuery->expects($this->exactly(2))
-            ->method('hasRecords')
-            ->willReturnCallback(
-                function ($queryFilters) use (&$filters): bool {
-                    $filters[] = $queryFilters;
-                    return false;
-                }
-            );
+        $this->expectCollections([false, false]);
 
         $this->assertFalse($this->createChecker()->hasProcessableItems([$storeOne, $storeTwo]));
-        $this->assertSame([
+        $this->assertSame(
             [
-                'store_id' => ['in' => [1]],
-                'status' => 'pending',
-                'created_at' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - 3600)],
+                ['store' => [1], 'step' => [Collection::STEP_FIRST_EMAIL, 1]],
+                ['store' => [2], 'step' => [Collection::STEP_FIRST_EMAIL, 24]],
             ],
-            [
-                'store_id' => ['in' => [2]],
-                'status' => 'pending',
-                'created_at' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - 86400)],
-            ],
-        ], $filters);
+            $this->queries
+        );
     }
 
-    public function testProcessableSecondStepAvoidsAnotherCountQuery(): void
+    public function testWorkFoundInSecondStepSkipsTheFirstStepQuery(): void
     {
         $store = $this->createStore(4);
-        $expectedFilters = [
-            'store_id' => ['in' => [4]],
-            'status' => 'step1_sent',
-            'first_email_sent' => ['lteq' => gmdate('Y-m-d H:i:s', self::NOW)],
-        ];
 
-        $this->configProvider->method('isSecondEmailEnabled')->with($store)->willReturn(true);
-        $this->configProvider->method('getSecondChanceDelay')->with(2, $store)->willReturn(0);
-        $this->configProvider->expects($this->never())->method('isFirstEmailEnabled');
-        $this->recordsQuery->expects($this->once())
-            ->method('hasRecords')
-            ->with($expectedFilters)
-            ->willReturn(true);
+        $this->configProvider->method('isEmailStepEnabled')->willReturn(true);
+        $this->configProvider->method('getSecondChanceDelay')->willReturn(0);
+        $this->expectCollections([true]);
 
         $this->assertTrue($this->createChecker()->hasProcessableItems([$store]));
+        $this->assertSame(
+            [['store' => [4], 'step' => [Collection::STEP_SECOND_EMAIL, 0]]],
+            $this->queries
+        );
     }
 
-    public function testPruneGateKeepsStoreSpecificRetentionPeriods(): void
+    public function testDisabledEmailStepIsNeverQueried(): void
+    {
+        $store = $this->createStore(7);
+
+        $this->configProvider->method('isEmailStepEnabled')->willReturn(false);
+        $this->configProvider->expects($this->never())->method('getSecondChanceDelay');
+        $this->collectionFactory->expects($this->never())->method('create');
+
+        $this->assertFalse($this->createChecker()->hasProcessableItems([$store]));
+    }
+
+    public function testPruneGateGroupsStoresByRetentionWindow(): void
     {
         $storeOne = $this->createStore(1);
         $storeTwo = $this->createStore(2);
-        $filters = [];
+        $storeThree = $this->createStore(3);
 
+        $this->configProvider->method('isRecordPruningEnabled')->willReturn(true);
         $this->configProvider->method('getSecondChanceDeleteAfterDays')
             ->willReturnCallback(
-                function ($store) use ($storeOne): int {
-                    return $store === $storeOne ? 7 : 30;
+                function ($store) use ($storeTwo): int {
+                    return $store === $storeTwo ? 90 : 30;
                 }
             );
-        $this->recordsQuery->expects($this->exactly(2))
-            ->method('hasRecords')
+        $this->configProvider->method('getReminderWindowHours')
             ->willReturnCallback(
-                function ($queryFilters) use (&$filters): bool {
-                    $filters[] = $queryFilters;
-                    return false;
+                function ($store) use ($storeThree): int {
+                    return $store === $storeThree ? 96 : 24;
                 }
             );
+        $this->expectCollections([false, false]);
 
-        $this->assertFalse($this->createChecker()->hasPrunableItems([$storeOne, $storeTwo]));
-        $this->assertSame([
+        $this->assertFalse($this->createChecker()->hasPrunableItems([$storeOne, $storeTwo, $storeThree]));
+        $this->assertSame(
             [
-                'store_id' => ['in' => [1]],
-                'created_at' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - (7 * 86400))],
+                ['store' => [1, 3], 'removable' => [30, 96]],
+                ['store' => [2], 'removable' => [90, 24]],
             ],
-            [
-                'store_id' => ['in' => [2]],
-                'created_at' => ['lt' => gmdate('Y-m-d H:i:s', self::NOW - (30 * 86400))],
-            ],
-        ], $filters);
+            $this->queries
+        );
     }
 
-    public function testPruneGateSkipsQueryWhenRetentionIsDisabled(): void
+    public function testPruneGateSkipsStoresWithPruningDisabled(): void
     {
-        $store = $this->createStore(1);
+        $store = $this->createStore(8);
 
-        $this->configProvider->method('getSecondChanceDeleteAfterDays')->with($store)->willReturn(0);
-        $this->recordsQuery->expects($this->never())->method('hasRecords');
+        $this->configProvider->method('isRecordPruningEnabled')->willReturn(false);
+        $this->configProvider->expects($this->never())->method('getSecondChanceDeleteAfterDays');
+        $this->collectionFactory->expects($this->never())->method('create');
 
         $this->assertFalse($this->createChecker()->hasPrunableItems([$store]));
     }
 
+    public function testEmptyStoreListNeverQueries(): void
+    {
+        $this->collectionFactory->expects($this->never())->method('create');
+
+        $this->assertFalse($this->createChecker()->hasProcessableItems([]));
+        $this->assertFalse($this->createChecker()->hasPrunableItems([]));
+    }
+
+    /**
+     * Queue one collection per expected query, each reporting whether it found rows.
+     *
+     * @param bool[] $results
+     * @return void
+     */
+    private function expectCollections(array $results): void
+    {
+        $collections = [];
+        foreach ($results as $hasRows) {
+            $collections[] = $this->createCollection($hasRows);
+        }
+
+        $this->collectionFactory->expects($this->exactly(count($results)))
+            ->method('create')
+            ->willReturnOnConsecutiveCalls(...$collections);
+    }
+
+    /**
+     * Build a collection that records the filters applied to it.
+     *
+     * @param bool $hasRows
+     * @return Collection|MockObject
+     */
+    private function createCollection(bool $hasRows)
+    {
+        $collection = $this->getMockBuilder(Collection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['addStoreFilter', 'addStepDueFilter', 'addRemovableFilter', 'getSize'])
+            ->getMock();
+
+        $this->queries[] = [];
+        $index = array_key_last($this->queries);
+
+        $collection->method('addStoreFilter')
+            ->willReturnCallback(
+                function ($storeIds) use ($collection, $index) {
+                    $this->queries[$index]['store'] = $storeIds;
+                    return $collection;
+                }
+            );
+        $collection->method('addStepDueFilter')
+            ->willReturnCallback(
+                function ($step, $delay) use ($collection, $index) {
+                    $this->queries[$index]['step'] = [$step, $delay];
+                    return $collection;
+                }
+            );
+        $collection->method('addRemovableFilter')
+            ->willReturnCallback(
+                function ($days, $reminderWindowHours) use ($collection, $index) {
+                    $this->queries[$index]['removable'] = [$days, $reminderWindowHours];
+                    return $collection;
+                }
+            );
+        $collection->method('getSize')->willReturn($hasRows ? 1 : 0);
+
+        return $collection;
+    }
+
     /**
      * @param int $storeId
-     * @return StoreInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @return StoreInterface|MockObject
      */
     private function createStore(int $storeId)
     {
@@ -211,12 +278,11 @@ class WorkCheckerTest extends TestCase
         return $store;
     }
 
+    /**
+     * @return WorkChecker
+     */
     private function createChecker(): WorkChecker
     {
-        return new WorkChecker(
-            $this->recordsQuery,
-            $this->configProvider,
-            $this->dateTime
-        );
+        return new WorkChecker($this->collectionFactory, $this->configProvider);
     }
 }

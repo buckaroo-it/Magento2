@@ -137,6 +137,8 @@ interface SecondChanceRepositoryInterface
      * Delete older records based on configuration
      *
      * @param StoreInterface $store
+     *
+     * @return int Number of records that were deleted
      */
     public function deleteOlderRecords($store);
 

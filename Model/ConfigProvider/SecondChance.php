@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\ConfigProvider;
 
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
@@ -243,7 +244,64 @@ class SecondChance
     }
 
     /**
-     * Get SecondChance delay based on step
+     * Check whether pruning of old SecondChance records is configured for a store.
+     *
+     * A retention window of zero-days disables pruning altogether.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return bool
+     */
+    public function isRecordPruningEnabled($store = null): bool
+    {
+        return $this->getSecondChanceDeleteAfterDays($store) > 0;
+    }
+
+    /**
+     * Return the combined delay of the reminders that can still go out for a store.
+     *
+     * Used to make sure record pruning never removes a record before its reminders had the
+     * chance to be sent. Disabled steps contribute nothing, because their records will never
+     * advance any further.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return int Hours
+     */
+    public function getReminderWindowHours($store = null): int
+    {
+        $hours = 0;
+
+        if ($this->isFirstEmailEnabled($store)) {
+            $hours += max(0, $this->getFirstEmailTiming($store));
+        }
+
+        if ($this->isSecondEmailEnabled($store)) {
+            $hours += max(0, $this->getSecondEmailTiming($store));
+        }
+
+        return $hours;
+    }
+
+    /**
+     * Check whether the email belonging to a SecondChance step is enabled for a store.
+     *
+     * @param int                                             $step
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return bool
+     */
+    public function isEmailStepEnabled($step, $store = null): bool
+    {
+        if ((int) $step === Collection::STEP_FIRST_EMAIL) {
+            return $this->isFirstEmailEnabled($store);
+        }
+
+        return $this->isSecondEmailEnabled($store);
+    }
+
+    /**
+     * Get SecondChance delay based on the step
      *
      * @param int                                             $step
      * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
@@ -252,7 +310,7 @@ class SecondChance
      */
     public function getSecondChanceDelay($step, $store = null): int
     {
-        if ($step == 1) {
+        if ((int) $step === Collection::STEP_FIRST_EMAIL) {
             return $this->getFirstEmailTiming($store);
         }
         return $this->getSecondEmailTiming($store);

@@ -21,6 +21,7 @@
 namespace Buckaroo\Magento2\Test\Unit\Cron;
 
 use Buckaroo\Magento2\Cron\SecondChance;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
 use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
@@ -111,8 +112,8 @@ class SecondChanceTest extends TestCase
 
         $this->assertSame($instance, $instance->execute());
         $this->assertSame([
-            [SecondChance::STEP_SECOND_EMAIL, $store],
-            [SecondChance::STEP_FIRST_EMAIL, $store],
+            [Collection::STEP_SECOND_EMAIL, $store],
+            [Collection::STEP_FIRST_EMAIL, $store],
         ], $calls);
     }
 
@@ -127,7 +128,7 @@ class SecondChanceTest extends TestCase
             ->method('getSecondChanceCollection')
             ->willReturnCallback(
                 function ($step): void {
-                    if ($step === SecondChance::STEP_SECOND_EMAIL) {
+                    if ($step === Collection::STEP_SECOND_EMAIL) {
                         throw new \RuntimeException('Processing failed');
                     }
                 }

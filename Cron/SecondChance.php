@@ -20,6 +20,7 @@
 namespace Buckaroo\Magento2\Cron;
 
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
 use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
 use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
@@ -27,9 +28,6 @@ use Magento\Store\Api\Data\StoreInterface;
 
 class SecondChance
 {
-    public const STEP_FIRST_EMAIL  = 1;
-    public const STEP_SECOND_EMAIL = 2;
-
     /**
      * @var EnabledStoresProvider
      */
@@ -100,7 +98,7 @@ class SecondChance
      */
     private function processStore(StoreInterface $store): void
     {
-        foreach ([self::STEP_SECOND_EMAIL, self::STEP_FIRST_EMAIL] as $step) {
+        foreach ([Collection::STEP_SECOND_EMAIL, Collection::STEP_FIRST_EMAIL] as $step) {
             try {
                 $this->secondChanceRepository->getSecondChanceCollection($step, $store);
             } catch (\Exception $e) {
