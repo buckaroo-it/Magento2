@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Magento\Framework\App\Area;
 
-class PayPerEmail extends AbstractConfigProvider
+class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInterface
 {
     public const CODE = 'buckaroo_magento2_payperemail';
 
@@ -69,11 +69,13 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Sends an email to the customer with the payment procedures.
      *
+     * @param int|null $storeId
+     *
      * @return bool
      */
-    public function hasSendMail(): bool
+    public function hasSendMail(?int $storeId = null): bool
     {
-        return (bool)$this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SEND_MAIL);
+        return (bool)$this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SEND_MAIL, $storeId);
     }
 
     /**

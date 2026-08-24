@@ -55,7 +55,7 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
     public function build(array $buildSubject): array
     {
         parent::initialize($buildSubject);
-        $storeId = $this->getOrder()->getStoreId();
+        $storeId = (int)$this->getOrder()->getStoreId();
         $payment = $this->getPayment();
 
         $data = [

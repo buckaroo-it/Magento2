@@ -3354,6 +3354,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payPerEmail" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayPerEmailDataBuilder</item>
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayPerEmailDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
