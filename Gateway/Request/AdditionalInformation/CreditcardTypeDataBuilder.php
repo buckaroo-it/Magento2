@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class CreditcardTypeDataBuilder implements BuilderInterface
@@ -31,8 +32,14 @@ class CreditcardTypeDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $payment = SubjectReader::readPayment($buildSubject)->getPayment();
 
-        return ['name' => $paymentDO->getPayment()->getAdditionalInformation('card_type')];
+        $cardType = $payment->getAdditionalInformation('card_type');
+
+        if (empty($cardType)) {
+            $cardType = $payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+        }
+
+        return ['name' => $cardType];
     }
 }
