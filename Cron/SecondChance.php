@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Cron;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 
 class SecondChance
@@ -98,13 +99,7 @@ class SecondChance
                 }
 
                 if ($this->configProvider->isSecondChanceEnabled($store)) {
-                    foreach ([self::STEP_SECOND_EMAIL, self::STEP_FIRST_EMAIL] as $step) {
-                        try {
-                            $this->secondChanceRepository->getSecondChanceCollection($step, $store);
-                        } catch (\Exception $e) {
-                            $this->logging->addError(__METHOD__ . '|Error processing step ' . $step . ' for store ' . $store->getId() . ': ' . $e->getMessage());
-                        }
-                    }
+                    $this->processStore($store);
                 }
             }
 
@@ -114,5 +109,24 @@ class SecondChance
         }
 
         return $this;
+    }
+
+    /**
+     * Process second chance email steps for a single store.
+     *
+     * @param StoreInterface $store
+     * @return void
+     */
+    private function processStore(StoreInterface $store): void
+    {
+        foreach ([self::STEP_SECOND_EMAIL, self::STEP_FIRST_EMAIL] as $step) {
+            try {
+                $this->secondChanceRepository->getSecondChanceCollection($step, $store);
+            } catch (\Exception $e) {
+                $this->logging->addError(
+                    __METHOD__ . '|Error processing step ' . $step . ' for store ' . $store->getId() . ': ' . $e->getMessage()
+                );
+            }
+        }
     }
 }

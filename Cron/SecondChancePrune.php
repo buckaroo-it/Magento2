@@ -94,6 +94,7 @@ class SecondChancePrune
             }
 
             if ($this->configProvider->isSecondChanceEnabled($store)) {
+                $this->logging->addDebug(__METHOD__ . '|Pruning old records for store: ' . $store->getId());
 
                 try {
                     $this->secondChanceRepository->deleteOlderRecords($store);
