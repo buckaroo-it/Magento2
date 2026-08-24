@@ -86,7 +86,7 @@ class CultureCodeResolverTest extends TestCase
             'SE'                         => ['SE', 'sv_SE', 'sv-SE'],
             'NO'                         => ['NO', 'nb_NO', 'nb-NO'],
             'DK'                         => ['DK', 'da_DK', 'da-DK'],
-            'US'                         => ['US', 'en_US', 'en-US'],
+            'US -> not a Klarna locale'  => ['US', 'en_US', CultureCodeResolver::DEFAULT_CULTURE],
 
             // Country id casing is normalized
             'lowercase country'          => ['be', 'fr_BE', 'fr-BE'],

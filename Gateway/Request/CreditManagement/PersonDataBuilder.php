@@ -22,9 +22,23 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 
 class PersonDataBuilder extends AbstractDataBuilder
 {
+    /**
+     * @var CultureCodeResolver
+     */
+    private $cultureCodeResolver;
+
+    /**
+     * @param CultureCodeResolver $cultureCodeResolver
+     */
+    public function __construct(CultureCodeResolver $cultureCodeResolver)
+    {
+        $this->cultureCodeResolver = $cultureCodeResolver;
+    }
+
     /**
      * @inheritdoc
      */
@@ -38,7 +52,7 @@ class PersonDataBuilder extends AbstractDataBuilder
         }
 
         return [
-            'culture'   => strtolower($address->getCountryId()),
+            'culture'   => $this->cultureCodeResolver->resolveDebtorCultureForOrder($this->getOrder()),
             'name'      => $address->getFirstname() . ' ' . $address->getLastname(),
             'firstName' => $address->getFirstname(),
             'lastName'  => $address->getLastname()
