@@ -25,6 +25,7 @@ use Magento\Framework\View\Asset\Repository;
 use Magento\Framework\UrlInterface;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard as ConfigProviderCreditcard;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\Exception\LocalizedException;
@@ -102,15 +103,19 @@ class Creditcard extends Info
     }
 
     /**
-     * Get card code
+     * Get card code or null when the card is unknown.
      *
      * @throws LocalizedException
      *
-     * @return string
+     * @return string|null
      */
-    public function getCardCode()
+    public function getCardCode(): ?string
     {
         $cardType = $this->getCardType();
+
+        if ($cardType === null) {
+            return null;
+        }
 
         return $this->configProvider->getCardCode($cardType);
     }
@@ -120,15 +125,21 @@ class Creditcard extends Info
      *
      * @throws LocalizedException
      *
-     * @return string
+     * @return string|null
      */
-    public function getCardType()
+    public function getCardType(): ?string
     {
         if ($this->cardType === null) {
-            $this->cardType = $this->configProvider->getCardName(
-                $this->getInfo()->getAdditionalInformation('card_type')
-            );
+            $info = $this->getInfo();
+            $cardCode = $info->getAdditionalInformation('card_type');
+
+            if (empty($cardCode)) {
+                $cardCode = $info->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+            }
+
+            $this->cardType = $this->configProvider->getCardName($cardCode);
         }
+
         return $this->cardType;
     }
 }
