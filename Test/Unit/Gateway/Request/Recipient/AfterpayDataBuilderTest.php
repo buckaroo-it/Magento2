@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Recipient;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\Recipient\AfterpayDataBuilder;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Service\Culture\AfterpayLanguageResolver;
 use Buckaroo\Magento2\Service\Formatter\BirthDateFormatter;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -53,7 +54,8 @@ class AfterpayDataBuilderTest extends AbstractDataBuilderTest
         $scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
         $this->builder = new AfterpayDataBuilder(
             $scopeConfigMock,
-            new BirthDateFormatter($this->createMock(BuckarooLoggerInterface::class))
+            new BirthDateFormatter($this->createMock(BuckarooLoggerInterface::class)),
+            new AfterpayLanguageResolver()
         );
         $this->addressMock = $this->createMock(Address::class);
     }
