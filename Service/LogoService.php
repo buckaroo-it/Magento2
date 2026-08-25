@@ -114,7 +114,6 @@ class LogoService
             "buckaroovoucher"  => "svg/vouchers.svg",
             "voucher"          => "svg/vouchers.svg",
             "paybybank"        => "svg/paybybank.svg",
-            "knaken"           => "svg/gosettle.svg"
         ];
 
         if ($backend === true) {

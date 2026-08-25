@@ -123,13 +123,13 @@ The plugin supports the following payment methods. Each one can be enabled or di
 | [Bank Transfer](https://docs.buckaroo.io/docs/transfer) | [Belfius](https://docs.buckaroo.io/docs/belfius) | [Billink](https://docs.buckaroo.io/docs/billink) |
 | [Bizum](https://docs.buckaroo.io/docs/bizum) | [Blik](https://docs.buckaroo.io/docs/blik) | [Buckaroo Voucher](https://docs.buckaroo.io/docs/buckaroo-voucher) |
 | [Credit and debit cards](https://docs.buckaroo.io/docs/creditcards) | [EPS](https://docs.buckaroo.io/docs/eps) | [Giftcards](https://docs.buckaroo.io/docs/giftcards) |
-| [GoSettle](https://docs.buckaroo.io/docs/gosettle) | [Google Pay](https://docs.buckaroo.io/docs/google-pay) | [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) |
-| [In3](https://docs.buckaroo.io/docs/in3) | [KBC](https://docs.buckaroo.io/docs/kbc) | [Klarna](https://docs.buckaroo.io/docs/klarna-kp) |
-| [MB Way](https://docs.buckaroo.io/docs/mb-way) | [Multibanco](https://docs.buckaroo.io/docs/multibanco) | [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) |
-| [PayLink](https://docs.buckaroo.io/docs/payperemail) | [PayPal](https://docs.buckaroo.io/docs/paypal) | [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) |
-| [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) | [Riverty](https://docs.buckaroo.io/docs/riverty) | [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) |
-| [Swish](https://docs.buckaroo.io/docs/swish) | [Trustly](https://docs.buckaroo.io/docs/trustly) | [Twint](https://docs.buckaroo.io/docs/twint) |
-| [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) | [Wero](https://docs.buckaroo.io/docs/wero) |  |
+| [Google Pay](https://docs.buckaroo.io/docs/google-pay) | [iDEAL / Wero](https://docs.buckaroo.io/docs/ideal) | [In3](https://docs.buckaroo.io/docs/in3) |
+| [KBC](https://docs.buckaroo.io/docs/kbc) | [Klarna](https://docs.buckaroo.io/docs/klarna-kp) | [MB Way](https://docs.buckaroo.io/docs/mb-way) |
+| [Multibanco](https://docs.buckaroo.io/docs/multibanco) | [Pay by Bank](https://docs.buckaroo.io/docs/pay-by-bank) | [PayLink](https://docs.buckaroo.io/docs/payperemail) |
+| [PayPal](https://docs.buckaroo.io/docs/paypal) | [PayPerEmail](https://docs.buckaroo.io/docs/payperemail) | [Przelewy24](https://docs.buckaroo.io/docs/przelewy24) |
+| [Riverty](https://docs.buckaroo.io/docs/riverty) | [SEPA Direct Debit](https://docs.buckaroo.io/docs/sepa-direct-debit) | [Swish](https://docs.buckaroo.io/docs/swish) |
+| [Trustly](https://docs.buckaroo.io/docs/trustly) | [Twint](https://docs.buckaroo.io/docs/twint) | [WeChatPay](https://docs.buckaroo.io/docs/wechatpay) |
+| [Wero](https://docs.buckaroo.io/docs/wero) |  |  |
 
 > [!IMPORTANT]
 > All supported methods appear in the Magento admin, but you need an active Buckaroo subscription for a method before you can offer it in your checkout.
