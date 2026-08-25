@@ -21,18 +21,19 @@
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Cm3ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 class CreateCombinedInvoice
 {
     /**
-     * @var AbstractConfigProvider
+     * @var Cm3ConfigProviderInterface
      */
     private $configProvider;
 
@@ -70,10 +71,22 @@ class CreateCombinedInvoice
      */
     public function get($payment, string $configProviderType): array
     {
-        $this->configProvider = $this->configProviderMethodFactory->get($configProviderType);
+        $configProvider = $this->configProviderMethodFactory->get($configProviderType);
+
+        if (!$configProvider instanceof Cm3ConfigProviderInterface) {
+            throw new Exception(
+                __('Credit Management is not supported by payment method %1.', $configProviderType)
+            );
+        }
+
+        $this->configProvider = $configProvider;
 
         if (!$this->configProvider->getActiveStatusCm3()) {
             return [];
+        }
+
+        if (!$payment instanceof Payment) {
+            throw new Exception(__('Credit Management requires an order payment.'));
         }
 
         return [
@@ -87,13 +100,12 @@ class CreateCombinedInvoice
     /**
      * Get debtor details
      *
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param Payment $payment
      *
      * @return array
      */
-    private function getCmRequestParameters($payment)
+    private function getCmRequestParameters(Payment $payment)
     {
-        /** @var Order $order */
         $order = $payment->getOrder();
 
         $requestParameters = [
@@ -263,13 +275,12 @@ class CreateCombinedInvoice
     /**
      * Get CM Person details
      *
-     * @param OrderPaymentInterface|InfoInterface $payment
+     * @param Payment $payment
      *
      * @return array
      */
-    private function getPersonCmParameters($payment)
+    private function getPersonCmParameters(Payment $payment)
     {
-        /** @var Order $order */
         $order = $payment->getOrder();
 
         $personParameters = [
@@ -381,28 +392,16 @@ class CreateCombinedInvoice
             return $addressData;
         }
 
-        $streetname = '';
-        $housenumber = '';
         $housenumberExtension = '';
-        if (isset($matches[1])) {
-            $streetname = $matches[1];
-        }
-
-        if (isset($matches[2])) {
-            $housenumber = $matches[2];
-        }
+        $streetname = $matches[1];
+        $housenumber = $matches[2];
 
         if (!empty($housenumber)) {
             $housenumber = trim($housenumber);
             $housenumberRegexResult = preg_match('#^([\d]+)(.*)#s', $housenumber, $matches);
             if ($housenumberRegexResult && is_array($matches)) {
-                if (isset($matches[1])) {
-                    $housenumber = $matches[1];
-                }
-
-                if (isset($matches[2])) {
-                    $housenumberExtension = trim($matches[2]);
-                }
+                $housenumber = $matches[1];
+                $housenumberExtension = trim($matches[2]);
             }
         }
 
@@ -428,7 +427,7 @@ class CreateCombinedInvoice
         $requestParameters = [];
         $company = $billingAddress->getCompany();
 
-        if (empty($company) || strlen($company) <= 0) {
+        if (empty($company)) {
             return $requestParameters;
         }
 
