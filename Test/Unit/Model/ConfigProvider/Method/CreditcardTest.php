@@ -26,6 +26,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class CreditcardTest extends BaseTest
 {
@@ -94,5 +95,83 @@ class CreditcardTest extends BaseTest
         $result = $instance->getActive();
 
         $this->assertEquals(1, $result);
+    }
+
+    /**
+     * A known card code resolves to its display name.
+     */
+    public function testGetCardNameReturnsTheNameForAKnownCode()
+    {
+        // Arrange
+        $instance = $this->getInstance();
+
+        // Act
+        $result = $instance->getCardName('visa');
+
+        // Assert
+        $this->assertEquals('VISA', $result);
+    }
+
+    /**
+     * An order that never went through Magento's card form has no card type at all. Returning null
+     * keeps the order view, the success page and the invoice PDF rendering; throwing broke all three
+     * for PayLink orders paid by card.
+     *
+     * @param string|null $cardType
+     */
+    #[DataProvider('unresolvableCardTypeProvider')]
+    public function testGetCardNameReturnsNullWhenTheCodeCannotBeResolved($cardType)
+    {
+        // Arrange
+        $instance = $this->getInstance();
+
+        // Act
+        $result = $instance->getCardName($cardType);
+
+        // Assert
+        $this->assertNull($result);
+    }
+
+    /**
+     * @return array
+     */
+    public static function unresolvableCardTypeProvider()
+    {
+        return [
+            'empty string' => [''],
+            'null' => [null],
+            'unknown brand' => ['notacard'],
+        ];
+    }
+
+    /**
+     * A known card name resolves back to its service code.
+     */
+    public function testGetCardCodeReturnsTheCodeForAKnownName()
+    {
+        // Arrange
+        $instance = $this->getInstance();
+
+        // Act
+        $result = $instance->getCardCode('VISA');
+
+        // Assert
+        $this->assertEquals('visa', $result);
+    }
+
+    /**
+     * The admin template reads getCardCode() straight into a CSS class, outside any guard, so it
+     * must not throw either.
+     */
+    public function testGetCardCodeReturnsNullWhenTheNameCannotBeResolved()
+    {
+        // Arrange
+        $instance = $this->getInstance();
+
+        // Act
+        $result = $instance->getCardCode('Not A Card');
+
+        // Assert
+        $this->assertNull($result);
     }
 }
