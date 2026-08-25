@@ -20,16 +20,16 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Cron;
 
-use Buckaroo\Magento2\Cron\SecondChance;
-use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
+use Buckaroo\Magento2\Cron\SecondChancePrune;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
 use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
-class SecondChanceTest extends TestCase
+class SecondChancePruneTest extends TestCase
 {
     /**
      * @var EnabledStoresProvider|\PHPUnit\Framework\MockObject\MockObject
@@ -59,30 +59,17 @@ class SecondChanceTest extends TestCase
         $this->secondChanceRepository = $this->createMock(SecondChanceRepository::class);
     }
 
-    public function testEmptyEnabledStoreListExitsImmediately(): void
-    {
-        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([]);
-        $this->workChecker->expects($this->never())->method('hasProcessableItems');
-        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceCollection');
-        $this->logging->expects($this->never())->method('addDebug');
-        $this->logging->expects($this->never())->method('addError');
-
-        $instance = $this->createInstance();
-
-        $this->assertSame($instance, $instance->execute());
-    }
-
-    public function testIdleRunDoesNotProcessOrLog(): void
+    public function testIdleRunDoesNotPruneOrLog(): void
     {
         $store = $this->createMock(StoreInterface::class);
         $stores = [$store];
 
         $this->enabledStoresProvider->method('getEnabledStores')->willReturn($stores);
         $this->workChecker->expects($this->once())
-            ->method('hasProcessableItems')
+            ->method('hasPrunableItems')
             ->with($stores)
             ->willReturn(false);
-        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceCollection');
+        $this->secondChanceRepository->expects($this->never())->method('deleteOlderRecords');
         $this->logging->expects($this->never())->method('addDebug');
         $this->logging->expects($this->never())->method('addError');
 
@@ -91,60 +78,79 @@ class SecondChanceTest extends TestCase
         $this->assertSame($instance, $instance->execute());
     }
 
-    public function testProcessesSecondStepBeforeFirstStep(): void
-    {
-        $store = $this->createMock(StoreInterface::class);
-        $stores = [$store];
-        $calls = [];
-
-        $this->enabledStoresProvider->method('getEnabledStores')->willReturn($stores);
-        $this->workChecker->method('hasProcessableItems')->with($stores)->willReturn(true);
-        $this->secondChanceRepository->expects($this->exactly(2))
-            ->method('getSecondChanceCollection')
-            ->willReturnCallback(
-                function ($step, $processedStore) use (&$calls): void {
-                    $calls[] = [$step, $processedStore];
-                }
-            );
-        $this->logging->expects($this->never())->method('addError');
-
-        $instance = $this->createInstance();
-
-        $this->assertSame($instance, $instance->execute());
-        $this->assertSame([
-            [Collection::STEP_SECOND_EMAIL, $store],
-            [Collection::STEP_FIRST_EMAIL, $store],
-        ], $calls);
-    }
-
-    public function testProcessingErrorIsLoggedAndNextStepStillRuns(): void
+    public function testLogsOnlyWhenRecordsWereDeleted(): void
     {
         $store = $this->createMock(StoreInterface::class);
         $store->method('getId')->willReturn(1);
 
         $this->enabledStoresProvider->method('getEnabledStores')->willReturn([$store]);
-        $this->workChecker->method('hasProcessableItems')->willReturn(true);
-        $this->secondChanceRepository->expects($this->exactly(2))
-            ->method('getSecondChanceCollection')
-            ->willReturnCallback(
-                function ($step): void {
-                    if ($step === Collection::STEP_SECOND_EMAIL) {
-                        throw new \RuntimeException('Processing failed');
-                    }
-                }
-            );
+        $this->workChecker->method('hasPrunableItems')->willReturn(true);
+        $this->secondChanceRepository->method('deleteOlderRecords')->with($store)->willReturn(2);
         $this->logging->expects($this->once())
-            ->method('addError')
-            ->with($this->stringContains('Processing failed'));
+            ->method('addDebug')
+            ->with($this->stringContains('Pruned 2 old records for store: 1'));
+        $this->logging->expects($this->never())->method('addError');
 
         $instance = $this->createInstance();
 
         $this->assertSame($instance, $instance->execute());
     }
 
-    private function createInstance(): SecondChance
+    public function testConservativeGateDoesNotLogWhenStoreHasNoExpiredRecords(): void
     {
-        return new SecondChance(
+        $store = $this->createMock(StoreInterface::class);
+
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([$store]);
+        $this->workChecker->method('hasPrunableItems')->willReturn(true);
+        $this->secondChanceRepository->method('deleteOlderRecords')->with($store)->willReturn(0);
+        $this->logging->expects($this->never())->method('addDebug');
+        $this->logging->expects($this->never())->method('addError');
+
+        $instance = $this->createInstance();
+
+        $this->assertSame($instance, $instance->execute());
+    }
+
+    public function testPruneErrorRemainsLogged(): void
+    {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(2);
+
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([$store]);
+        $this->workChecker->method('hasPrunableItems')->willReturn(true);
+        $this->secondChanceRepository->method('deleteOlderRecords')
+            ->willThrowException(new RuntimeException('Delete failed'));
+        $this->logging->expects($this->never())->method('addDebug');
+        $this->logging->expects($this->once())
+            ->method('addError')
+            ->with($this->stringContains('Delete failed'));
+
+        $instance = $this->createInstance();
+
+        $this->assertSame($instance, $instance->execute());
+    }
+
+    public function testWorkCheckerErrorIsLogged(): void
+    {
+        $store = $this->createMock(StoreInterface::class);
+
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([$store]);
+        $this->workChecker->method('hasPrunableItems')
+            ->willThrowException(new RuntimeException('Count query failed'));
+        $this->secondChanceRepository->expects($this->never())->method('deleteOlderRecords');
+        $this->logging->expects($this->never())->method('addDebug');
+        $this->logging->expects($this->once())
+            ->method('addError')
+            ->with($this->stringContains('Count query failed'));
+
+        $instance = $this->createInstance();
+
+        $this->assertSame($instance, $instance->execute());
+    }
+
+    private function createInstance(): SecondChancePrune
+    {
+        return new SecondChancePrune(
             $this->enabledStoresProvider,
             $this->workChecker,
             $this->logging,
