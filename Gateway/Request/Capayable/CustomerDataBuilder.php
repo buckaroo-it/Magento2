@@ -22,10 +22,24 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\Capayable;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
 class CustomerDataBuilder extends AbstractDataBuilder
 {
+    /**
+     * @var CultureCodeResolver
+     */
+    private $cultureCodeResolver;
+
+    /**
+     * @param CultureCodeResolver $cultureCodeResolver
+     */
+    public function __construct(CultureCodeResolver $cultureCodeResolver)
+    {
+        $this->cultureCodeResolver = $cultureCodeResolver;
+    }
+
     /**
      * @inheritdoc
      */
@@ -42,14 +56,14 @@ class CustomerDataBuilder extends AbstractDataBuilder
                 'lastName'  => $billingAddress->getLastname(),
                 'email'     => $billingAddress->getEmail(),
                 'phone'     => $billingAddress->getTelephone(),
-                'culture'   => 'nl-NL',
+                'culture'   => $this->cultureCodeResolver->resolveDebtorCultureForOrder($this->getOrder()),
                 'birthDate' => $this->getCustomerBirthDate()
             ]
         ];
     }
 
     /**
-     * Get initial from first name
+     * Get initial from the first name
      *
      * @param string $name
      *
@@ -60,10 +74,6 @@ class CustomerDataBuilder extends AbstractDataBuilder
         $initials = '';
         $nameParts = explode(' ', $name);
 
-        if (!$nameParts) {
-            return $initials;
-        }
-
         foreach ($nameParts as $part) {
             $initials .= strtoupper(substr($part, 0, 1)) . '.';
         }
@@ -72,7 +82,7 @@ class CustomerDataBuilder extends AbstractDataBuilder
     }
 
     /**
-     * Get customer birthdate
+     * Get a customer birthdate
      *
      * @return string
      */
