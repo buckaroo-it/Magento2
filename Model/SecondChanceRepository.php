@@ -1047,9 +1047,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         $streakSeconds = $this->configProvider->getStreakMinutes($store) * 60;
-        $createdAt     = strtotime((string)$item->getCreatedAt());
+        $createdAt     = $this->toGmtTimestamp($item->getCreatedAt());
 
-        if ($createdAt === false) {
+        if ($createdAt === null) {
             return false;
         }
 
@@ -1065,7 +1065,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             ['gt' => $item->getCreatedAt()]
         );
         // Only within the streak window
-        $streakCutoff = date('Y-m-d H:i:s', $createdAt + $streakSeconds);
+        $streakCutoff = gmdate('Y-m-d H:i:s', $createdAt + $streakSeconds);
         $collection->addFieldToFilter('created_at', ['lteq' => $streakCutoff]);
         $collection->setPageSize(1);
 
@@ -1116,13 +1116,45 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     private function isPastPlaceholderEmailGrace($item): bool
     {
-        $createdAt = strtotime((string) $item->getCreatedAt());
-        if ($createdAt === false) {
+        $createdAt = $this->toGmtTimestamp($item->getCreatedAt());
+        if ($createdAt === null) {
             return false;
         }
 
         $grace = self::PLACEHOLDER_EMAIL_GRACE_HOURS * 3600;
 
         return $this->dateTime->gmtTimestamp() - $grace > $createdAt;
+    }
+
+    /**
+     * Read a GMT date string from this table back into a UTC timestamp.
+     *
+     * `created_at` and the e-mail timestamps are written with `DateTime::gmtDate()`, so they must be
+     * parsed as UTC. Plain `strtotime()` interprets them in PHP's *default* timezone instead, which
+     * skews any comparison against `gmtTimestamp()` by that offset. The store's configured timezone
+     * is irrelevant here — `app/bootstrap.php` pins the PHP default to UTC for every web, CLI and
+     * cron entry point, so `strtotime()` happens to be correct at runtime. It is NOT correct
+     * wherever that pin is absent or temporarily lifted: the unit suite pins
+     * `America/Los_Angeles` (8h skew), `Timezone::scopeTimeStamp()` flips the default mid-call,
+     * and standalone scripts may bootstrap differently. Parsing as UTC removes the dependency.
+     *
+     * @param  string|null $value
+     * @return int|null    null when the value is empty or unparsable
+     */
+    private function toGmtTimestamp($value): ?int
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        try {
+            return (new \DateTimeImmutable($value, new \DateTimeZone('UTC')))->getTimestamp();
+        } catch (\Exception $e) {
+            $this->logging->addDebug(
+                'SecondChance: unparsable GMT date "' . $value . '": ' . $e->getMessage()
+            );
+            return null;
+        }
     }
 }
