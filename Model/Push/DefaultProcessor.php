@@ -440,6 +440,29 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Check whether this push reports a capture.
+     *
+     * A capture is either a capture Magento itself initiated, or a Klarna capture confirmation.
+     * The gateway's transaction_type codes are per card brand (C800 visa, C805 mastercard,
+     * C811 maestro), so they do not identify an action, and mutationtype=Collecting is present on
+     * every money-in push including ordinary pay pushes - neither can be used to detect a capture.
+     *
+     * @return bool
+     */
+    protected function isCaptureTransaction(): bool
+    {
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture')
+        ) {
+            return true;
+        }
+
+        return $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
+            && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
+            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
+    }
+
+    /**
      * Check if it is needed to handle the push message based on postdata
      *
      * @throws Exception
@@ -1035,7 +1058,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return int|string|null
      * @throws LocalizedException
      */
-    private function detectInvoiceHandlingMode()
+    protected function detectInvoiceHandlingMode()
     {
         // Check method-specific config first (e.g., Klarna's "create_invoice_after_shipment")
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
@@ -1570,15 +1593,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
-        // Handle capture transactions sent by Buckaroo (C800, mutationtype=collecting)
-        $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
-        $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
-            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
-        $isKlarnaMethod = $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp']);
-        $hasKlarnaCaptureId = $isKlarnaMethod && !empty($this->pushRequest->getServiceKlarnakpCaptureid());
-        $isSuccessStatus = ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
-
-        if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
+        // Handle capture transactions sent by Buckaroo
+        if ($this->isCaptureTransaction()) {
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
             $amountCurrency = $this->order->getBaseCurrencyCode();
@@ -1608,6 +1624,27 @@ class DefaultProcessor implements PushProcessorInterface
             if (!$this->saveInvoice()) {
                 $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_INVOICE_FAILED', __METHOD__, __LINE__));
                 return false;
+            }
+
+            // A partial capture makes Magento flag the payment as fraudulent and move the order to
+            // payment review. Forcing STATE_PROCESSING here would hide that: the order would read as
+            // paid while no invoice exists and the full amount is still due.
+            if ($this->payment->getIsFraudDetected()) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - CAPTURE_FRAUD_DETECTED - keeping order in payment review | order: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+
+                $this->orderRequestService->updateOrderStatus(
+                    Order::STATE_PAYMENT_REVIEW,
+                    Order::STATUS_FRAUD,
+                    $description
+                );
+                $this->dontSaveOrderUponSuccessPush = true;
+
+                return true;
             }
 
             $this->orderRequestService->updateOrderStatus(
@@ -1645,7 +1682,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Process succeeded push authorization.
+     * Process succeeded in push authorization.
      *
      * @throws Exception
      */
@@ -1734,10 +1771,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if (in_array($paymentMethod->getCode(), $afterpayMethods)) {
             // Check if this is a capture transaction (these are safe to send emails for)
-            $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
-            $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
-                || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
-            $isCapture = $isCaptureTx || $isCaptureMutation;
+            $isCapture = $this->isCaptureTransaction();
 
             if (!$isCapture) {
                 // Check if this is an authorization (not capture) transaction
