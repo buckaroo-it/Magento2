@@ -99,7 +99,7 @@
             <config_path>buckaroo_magento2/refund/enabled</config_path>
         </field>
 
-        <field id="allow_push" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+        <field id="allow_push" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Push Buckaroo Plaza Refunds to Magento</label>
             <comment><![CDATA[Allow 2-way refunding from Magento and Buckaroo Plaza.]]></comment>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -120,7 +120,7 @@
             </depends>
         </field>
 
-        <field id="pending_approval" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+        <field id="pending_approval" translate="label comment tooltip" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Create Refund on Approve for Pending Approval Refunds</label>
             <comment><![CDATA[Yes - Create CreditMemo after approve from Plaza <br> No - Create CreditMemo on Request with status "Pending"]]></comment>
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -282,14 +282,14 @@
                 <config_path>buckaroo_magento2/account/create_order_before_transaction</config_path>
             </field>
 
-            <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Client IP Detection Headers</label>
                 <comment><![CDATA[Optional HTTP headers what will be taken into account for client IP detection. Comma separated list of multiple values is allowed.]]></comment>
                 <tooltip>Example: "X-Forwarded-For,CF-Connecting-IP". If "X-Forwarded-For" is empty then "CF-Connecting-IP" will be checked.</tooltip>
                 <config_path>buckaroo_magento2/account/ip_header</config_path>
             </field>
 
-            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Add Customer Data to Request</label>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>
                 <comment><![CDATA[When adding custom fields to your transaction request you have to also add them to your Buckaroo <a href = "https://plaza.buckaroo.nl/Configuration/Merchant/CustomFields" target="_blank"> Plaza </a> account. Click on <a href="https://support.buckaroo.nl/categorie%C3%ABn/plugins/magento-2/faq-magento-2/add-custom-fields-to-transaction-requests" target="_blank"> read more </a> for additional information about adding this fields to the Plaza.]]></comment>
@@ -297,7 +297,7 @@
                 <can_be_empty>1</can_be_empty>
             </field>
 
-            <field id="cart_keep_alive" translate="label" type="select" sortOrder="205" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="cart_keep_alive" translate="label" type="select" sortOrder="205" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Keep Cart Alive</label>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <comment><![CDATA[Optional will restore the cart when consumer use back button]]></comment>

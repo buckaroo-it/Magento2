@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
@@ -1072,7 +1073,20 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         // Fall back to general account config if method-specific setting not configured
-        return $this->configAccount->getInvoiceHandling();
+        return $this->configAccount->getInvoiceHandling($this->getOrderStoreId());
+    }
+
+    /**
+     * Get the store of the order being pushed, for scoping configuration reads.
+     *
+     * A push runs on the REST route without a store code, so the ambient store is the default
+     * store view. Every configuration read in a processor has to be given this instead.
+     *
+     * @return int|null
+     */
+    protected function getOrderStoreId(): ?int
+    {
+        return $this->order !== null ? StoreId::normalize($this->order->getStoreId()) : null;
     }
 
     /**

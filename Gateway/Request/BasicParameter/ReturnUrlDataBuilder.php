@@ -22,12 +22,14 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Laminas\Uri\UriFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\StoreManagerInterface;
 
 class ReturnUrlDataBuilder implements BuilderInterface
 {
@@ -49,15 +51,23 @@ class ReturnUrlDataBuilder implements BuilderInterface
     protected $urlBuilder;
 
     /**
+     * @var PushUrlBuilder
+     */
+    private $pushUrlBuilder;
+
+    /**
      * TransactionBuilder constructor.
      *
-     * @param UrlInterface $urlBuilder
-     * @param FormKey      $formKey
+     * @param UrlInterface   $urlBuilder
+     * @param FormKey        $formKey
+     * @param PushUrlBuilder $pushUrlBuilder
      */
     public function __construct(
         UrlInterface $urlBuilder,
-        FormKey $formKey
+        FormKey $formKey,
+        PushUrlBuilder $pushUrlBuilder
     ) {
+        $this->pushUrlBuilder = $pushUrlBuilder;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
     }
@@ -72,14 +82,15 @@ class ReturnUrlDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
         $returnUrl = $this->getReturnUrl($order);
+        $pushUrl = $this->pushUrlBuilder->getPushUrl($order->getStoreId());
 
         return [
             'returnURL' => $returnUrl,
             'returnURLError' => $returnUrl,
             'returnURLCancel' => $returnUrl,
             'returnURLReject' => $returnUrl,
-            'pushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'pushURLFailure' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push')
+            'pushURL' => $pushUrl,
+            'pushURLFailure' => $pushUrl
         ];
     }
 
@@ -104,7 +115,7 @@ class ReturnUrlDataBuilder implements BuilderInterface
             $url = $this->urlBuilder->getDirectUrl(
                 'buckaroo/redirect/process',
                 ['_scope' => $order->getStoreId()]
-            ) . '?form_key=' . $this->getFormKey();
+            ) . '?form_key=' . $this->getFormKey() . $this->getStoreParam($order);
 
             $this->setReturnUrl($url);
         }
@@ -165,5 +176,31 @@ class ReturnUrlDataBuilder implements BuilderInterface
         }
 
         return null;
+    }
+
+    /**
+     * Get the ___store parameter that pins the return to the order's store view.
+     *
+     * The gateway returns the shopper with a cross-site POST, so the SameSite=Lax store cookie is
+     * not sent and Magento resolves the default store for that request. Everything the redirect
+     * controller then does - including building the URL it sends the shopper to - runs in the wrong
+     * scope. On a setup where each website has its own domain that means being dumped on another
+     * store's checkout, where the cart does not exist.
+     *
+     * Naming the store in the URL removes the dependency on a cookie that cannot survive the trip.
+     *
+     * @param Order $order
+     *
+     * @return string
+     */
+    private function getStoreParam(Order $order): string
+    {
+        try {
+            $code = (string)$order->getStore()->getCode();
+        } catch (\Exception $exception) {
+            return '';
+        }
+
+        return $code === '' ? '' : '&' . StoreManagerInterface::PARAM_NAME . '=' . urlencode($code);
     }
 }

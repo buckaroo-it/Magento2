@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -259,7 +260,7 @@ class CommandInterface
         // Skip setting the status here for PayPerEmail B2B
         if (($paymentCode == PayPerEmail::CODE) && ($paymentAction == 'order')) {
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if ($config->isEnabledB2B()) {
+            if ($config->isEnabledB2B(StoreId::normalize($order->getStoreId()))) {
                 return true;
             }
         }
@@ -272,7 +273,10 @@ class CommandInterface
                 )
                 || (
                     $paymentCode == Eps::CODE
-                    && ($this->helper->getMode($methodInstance->getCode()) != Data::MODE_LIVE)
+                    && ($this->helper->getMode(
+                        $methodInstance->getCode(),
+                        StoreId::normalize($order->getStoreId())
+                    ) != Data::MODE_LIVE)
                 )
             )
             && ($orderStatus == 'pending')

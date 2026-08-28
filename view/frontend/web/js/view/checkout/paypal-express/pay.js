@@ -24,8 +24,9 @@ define([
   "Magento_Customer/js/customer-data",
   'mage/translate',
   'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
+  'buckaroo/rest-url-builder',
   'BuckarooSdk'
-], function ($, ko, require, urlBuilder, customerData, $t, productPriceMixin) {
+], function ($, ko, require, urlBuilder, customerData, $t, productPriceMixin, restUrlBuilder) {
   "use strict";
 
   function getBuckarooSdkInstance() {
@@ -242,7 +243,7 @@ define([
         const cart_id = this.cart_id;
 
         return new Promise((resolve, reject) => {
-            $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/order/create"), {
+            $.post(restUrlBuilder.createUrl('/buckaroo/paypal-express/order/create'), {
                 paypal_order_id: orderId,
                 cart_id: cart_id
             }).then(
@@ -261,7 +262,7 @@ define([
      * @returns Promise
      */
     setShipping(data) {
-      return $.post(urlBuilder.build("rest/V1/buckaroo/paypal-express/quote/create"), {
+      return $.post(restUrlBuilder.createUrl('/buckaroo/paypal-express/quote/create'), {
         shipping_address: data.shipping_address,
         order_data: this.getOrderData(),
         page: this.page,

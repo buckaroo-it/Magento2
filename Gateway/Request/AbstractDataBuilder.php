@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Model\InfoInterface;
@@ -94,6 +95,24 @@ abstract class AbstractDataBuilder implements BuilderInterface
     public function getOrder(): Order
     {
         return $this->order;
+    }
+
+    /**
+     * Retrieves the store id of the order the request is being built for.
+     *
+     * Every configuration read inside a builder has to be scoped to this, not to the ambient
+     * store: a request can be built from the push webapi route, an admin action or a cron job,
+     * none of which sit in the order's store view.
+     *
+     * @return int|null
+     */
+    public function getStoreId(): ?int
+    {
+        if ($this->order === null) {
+            return null;
+        }
+
+        return StoreId::normalize($this->order->getStoreId());
     }
 
     /**

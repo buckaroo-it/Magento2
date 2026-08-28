@@ -21,16 +21,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Validator;
 
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ValidatorInterface;
-use Magento\Framework\UrlInterface;
 use Magento\Framework\Webapi\Request;
 
 class PushSDK implements ValidatorInterface
 {
-    /** @var UrlInterface */
-    protected $urlBuilder;
     /**
      * @var BuckarooAdapter
      */
@@ -41,21 +40,35 @@ class PushSDK implements ValidatorInterface
     private $request;
 
     /**
+     * @var PushUrlBuilder
+     */
+    private $pushUrlBuilder;
+
+    /**
      * @param BuckarooAdapter $sdkAdapter
      * @param Request         $request
-     * @param UrlInterface    $urlBuilder
+     * @param PushUrlBuilder  $pushUrlBuilder
      */
-    public function __construct(BuckarooAdapter $sdkAdapter, Request $request, UrlInterface $urlBuilder)
-    {
+    public function __construct(
+        BuckarooAdapter $sdkAdapter,
+        Request $request,
+        PushUrlBuilder $pushUrlBuilder
+    ) {
         $this->sdkAdapter = $sdkAdapter;
         $this->request = $request;
-        $this->urlBuilder = $urlBuilder;
+        $this->pushUrlBuilder = $pushUrlBuilder;
     }
 
     /**
      * Validate Push SDK
      *
-     * @param array $data
+     * $store must be the store of the order this push belongs to. Without it the SDK client is
+     * built from the ambient store, which on this REST route is the default store view of the
+     * default website — so a multi-store install would verify the signature with the wrong
+     * secret key.
+     *
+     * @param array                                                  $data
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @throws \Exception
      *
@@ -63,14 +76,23 @@ class PushSDK implements ValidatorInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function validate($data): bool
+    public function validate($data, $store = null): bool
     {
         try {
             $postData = $this->request->getContent();
             $authHeader = $this->request->getHeader('Authorization');
-            $uri = $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push');
+            $storeId = StoreId::normalize($store);
 
-            return $this->sdkAdapter->validate($postData, $authHeader, $uri);
+            // The signature covers the URL the gateway called. That is now the store-scoped push
+            // URL, but orders placed before this change carry the old storeless one, so both forms
+            // have to keep validating.
+            foreach ($this->pushUrlBuilder->getCandidateUris($storeId) as $uri) {
+                if ($this->sdkAdapter->validate($postData, $authHeader, $uri, $storeId)) {
+                    return true;
+                }
+            }
+
+            return false;
         } catch (BuckarooException $exception) {
             return false;
         }

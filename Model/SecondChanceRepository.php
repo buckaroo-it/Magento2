@@ -21,6 +21,7 @@ declare (strict_types = 1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\SecondChanceInterfaceFactory;
 use Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterfaceFactory;
 use Buckaroo\Magento2\Api\SecondChanceRepositoryInterface;
@@ -47,6 +48,7 @@ use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Payment\Helper\Data;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -529,7 +531,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
             $secondChance = $this->dataSecondChanceFactory->create();
             $secondChance->setOrderId($baseOrderId);
-            $secondChance->setStoreId($order->getStoreId());
+            $secondChance->setStoreId(StoreId::normalize($order->getStoreId()));
             $secondChance->setCustomerEmail($order->getCustomerEmail());
             $secondChance->setToken($token);
             $secondChance->setStatus('pending');
@@ -789,7 +791,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $store = $order->getStore();
 
         // Generate checkout URL with token (ensure correct store context for translations)
-        $store = $this->storeManager->getStore($order->getStoreId()); // Force frontend store object
+        $store = $this->storeManager->getStore(StoreId::normalize($order->getStoreId())); // Force frontend store object
         $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
             'token' => $secondChance->getToken(),
         ]);
@@ -926,7 +928,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private function getPaymentHtml(OrderInterface $order)
     {
         $payment = $order->getPayment();
-        return $this->paymentHelper->getInfoBlockHtml($payment, $order->getStoreId());
+        if (!$payment instanceof InfoInterface) {
+            return '';
+        }
+
+        return $this->paymentHelper->getInfoBlockHtml($payment, StoreId::normalize($order->getStoreId()));
     }
 
     /**

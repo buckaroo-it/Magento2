@@ -95,11 +95,13 @@ class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInt
     /**
      * B2B mode enabled
      *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
+     *
      * @return bool
      */
-    public function isEnabledB2B()
+    public function isEnabledB2B($store = null)
     {
-        return $this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B);
+        return $this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B, $store);
     }
 
     /**

@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Model\Refund;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
@@ -189,7 +190,7 @@ class Push
      */
     private function validateRefundConfiguration(): void
     {
-        if (!$this->configRefund->getAllowPush()) {
+        if (!$this->configRefund->getAllowPush(StoreId::normalize($this->order->getStoreId()))) {
             $this->logger->addDebug(sprintf(
                 '[PUSH_REFUND] | [Webapi] | [%s:%s] - Refund order failed - ' .
                 'the configuration is set not to accept refunds out of Buckaroo Plaza | orderId: %s',

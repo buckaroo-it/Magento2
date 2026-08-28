@@ -21,25 +21,26 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
-use Magento\Framework\UrlInterface;
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 
 class PushUrlDataBuilder implements BuilderInterface
 {
     /**
-     * @var UrlInterface
+     * @var PushUrlBuilder
      */
-    protected $urlBuilder;
+    protected $pushUrlBuilder;
 
     /**
      * TransactionBuilder constructor.
      *
-     * @param UrlInterface $urlBuilder
+     * @param PushUrlBuilder $pushUrlBuilder
      */
     public function __construct(
-        UrlInterface $urlBuilder
+        PushUrlBuilder $pushUrlBuilder
     ) {
-        $this->urlBuilder = $urlBuilder;
+        $this->pushUrlBuilder = $pushUrlBuilder;
     }
 
     /**
@@ -49,9 +50,13 @@ class PushUrlDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
+        $pushUrl = $this->pushUrlBuilder->getPushUrl(
+            SubjectReader::readPayment($buildSubject)->getOrder()->getStoreId()
+        );
+
         return [
-            'pushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'pushURLFailure' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push')
+            'pushURL' => $pushUrl,
+            'pushURLFailure' => $pushUrl
         ];
     }
 }

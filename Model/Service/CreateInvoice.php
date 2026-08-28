@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Service;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
@@ -218,7 +219,7 @@ class CreateInvoice
                 $invoice->setState(Invoice::STATE_PAID);
             }
 
-            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($order->getStoreId())) {
+            if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail(StoreId::normalize($order->getStoreId()))) {
                 $this->logger->addDebug(__METHOD__ . '|4| - Send Invoice Email');
                 $this->invoiceSender->send($invoice, true);
             }

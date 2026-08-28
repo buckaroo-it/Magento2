@@ -465,16 +465,22 @@ class BuckarooAdapter
     /**
      * Validate request
      *
+     * The store id must be the store of the order the push belongs to. The push endpoint is a REST
+     * route carrying no store code, so the ambient store is the default store view of the default
+     * website — validating against its keys would use the wrong secret on a multi-store install.
+     *
      * @param mixed $postData
      * @param mixed $authHeader
      * @param mixed $uri
+     * @param int|null $storeId
      *
+     * @return bool
      * @throws Exception
      */
-    public function validate($postData, $authHeader, $uri): bool
+    public function validate($postData, $authHeader, $uri, ?int $storeId = null): bool
     {
         try {
-            $this->setClientSdk();
+            $this->setClientSdk('', $storeId);
             $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
             $replyHandler->validate();
             return $replyHandler->isValid();

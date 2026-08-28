@@ -146,7 +146,7 @@ class AfterpayProcessor extends DefaultProcessor
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1) &&
             (
                 $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture') &&
-                $this->afterpayConfig->isInvoiceCreatedAfterShipment()
+                $this->afterpayConfig->isInvoiceCreatedAfterShipment($this->getOrderStoreId())
             )) {
             $this->dontSaveOrderUponSuccessPush = true;
             return false;

@@ -29,14 +29,14 @@
          <group id="buckaroo_magento2_idin" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>iDIN</label>
             <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\VerificationMethod</frontend_model>
-            <field id="idin" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="idin" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Enable iDIN verification</label>
                 <comment><![CDATA[Enable iDIN verification]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Enablemode</source_model>
                 <config_path>buckaroo_magento2/account/idin</config_path>
             </field>
 
-            <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+            <field id="idin_mode" translate="label comment tooltip" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>iDIN Mode</label>
                 <comment><![CDATA[iDIN can be used in different modes, based on when you want iDIN to be required as an additional verification.<br/><strong>Global Mode:</strong> Requires iDIN verification for all products.<br/><strong>Specific Products Mode:</strong> Enables iDIN for selected products via the Magento 2 catalog settings.<br/><strong>Product Categories Mode:</strong> Configures iDIN for specific product categories.]]></comment>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\Idinmode</source_model>

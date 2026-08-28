@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Plugin\SecondChance;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Model\ConfigProvider\ExternalEmailProvider as ExternalEmailConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
@@ -30,9 +31,12 @@ use Magento\Sales\Model\Order;
 use Magento\Framework\Mail\Template\FactoryInterface as TemplateFactory;
 use Magento\Sales\Model\Order\Address\Renderer as AddressRenderer;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Payment\Model\InfoInterface;
 
 /**
  * Plugin to intercept second-chance email sending and route through external email provider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ExternalEmailProviderPlugin
 {
@@ -126,7 +130,7 @@ class ExternalEmailProviderPlugin
         $secondChance,
         $step
     ) {
-        $storeId = $order->getStoreId();
+        $storeId = StoreId::normalize($order->getStoreId());
 
         // Check if external email provider is enabled for this store
         if (!$this->externalEmailConfig->isEnabled($storeId)) {
@@ -187,7 +191,7 @@ class ExternalEmailProviderPlugin
     protected function prepareEmailData($order, $secondChance, $step): array
     {
         try {
-            $storeId = $order->getStoreId();
+            $storeId = StoreId::normalize($order->getStoreId());
             $store = $order->getStore();
 
             // Get sender info
@@ -289,7 +293,11 @@ class ExternalEmailProviderPlugin
     {
         try {
             $payment = $order->getPayment();
-            return $this->paymentHelper->getInfoBlockHtml($payment, $order->getStoreId());
+            if (!$payment instanceof InfoInterface) {
+                return '';
+            }
+
+            return $this->paymentHelper->getInfoBlockHtml($payment, StoreId::normalize($order->getStoreId()));
         } catch (\Exception $e) {
             $this->logger->addError('Error getting payment HTML: ' . $e->getMessage());
             return '';

@@ -49,7 +49,8 @@ var config = {
             "buckaroo/paypal-express/pay": "Buckaroo_Magento2/js/view/checkout/paypal-express/pay",
             "buckaroo/paypal-express/button": "Buckaroo_Magento2/js/view/checkout/paypal-express/button",
             "buckaroo/ideal-fast-checkout/pay": "Buckaroo_Magento2/js/view/checkout/ideal-fast-checkout/pay",
-            "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default"
+            "buckaroo/checkout/payment/default": "Buckaroo_Magento2/js/view/payment/method-renderer/default",
+            "buckaroo/rest-url-builder": "Buckaroo_Magento2/js/model/rest-url-builder"
         }
     },
 

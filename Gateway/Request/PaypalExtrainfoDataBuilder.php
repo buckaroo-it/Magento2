@@ -65,8 +65,8 @@ class PaypalExtrainfoDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $sellersProtectionActive = (bool)$this->configProviderPaypal->getSellersProtection();
         $order = $this->getOrder();
+        $sellersProtectionActive = (bool)$this->configProviderPaypal->getSellersProtection($this->getStoreId());
         $shippingAddress = $order->getShippingAddress();
 
         if ($shippingAddress === null) {

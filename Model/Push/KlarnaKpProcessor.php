@@ -387,7 +387,7 @@ class KlarnaKpProcessor extends DefaultProcessor
                 $this->pushRequest->hasPostData('transaction_method', 'KlarnaKp') &&
                 $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay') &&
                 empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
-                $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
+                $this->klarnakpConfig->isInvoiceCreatedAfterShipment($this->getOrderStoreId())
             )) {
             $this->dontSaveOrderUponSuccessPush = true;
             return false;

@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Service\Sales\Quote;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Checkout\Model\Cart;
@@ -191,9 +192,9 @@ class Recreate
                 }
                 $quote->merge($oldQuote);
 
-                // Set the correct store environment after merge
-                $store = $this->storeManager->getStore($oldQuote->getStoreId());
-                $quote->setStore($store);
+                // Set the correct store environment after merge. Quote::setStore() only forwards
+                // $store->getId() to setStoreId(), so assign the id directly and skip the lookup.
+                $quote->setStoreId(StoreId::normalize($oldQuote->getStoreId()));
                 $quote->setIsActive(true);
                 $quote->collectTotals();
                 $this->cartRepository->save($quote);
@@ -254,14 +255,13 @@ class Recreate
             $quote = $this->quoteFactory->create();
 
             // Set store context to ensure correct locale/translations
-            $store = $this->storeManager->getStore($order->getStoreId());
+            $store = $this->storeManager->getStore(StoreId::normalize($order->getStoreId()));
             $this->storeManager->setCurrentStore($store);
-            $quote->setStore($store);
-            $quote->setStoreId($order->getStoreId());
+            $quote->setStoreId(StoreId::normalize($order->getStoreId()));
 
             $this->logger->addDebug('Second Chance: Store context set', [
                 'order_id' => $order->getIncrementId(),
-                'store_id' => $order->getStoreId(),
+                'store_id' => StoreId::normalize($order->getStoreId()),
                 'store_code' => $store->getCode(),
                 'locale' => $store->getConfig('general/locale/code')
             ]);
@@ -406,7 +406,9 @@ class Recreate
                     ]);
 
                     if ($this->secondChanceConfig !== null) {
-                        $message = $this->secondChanceConfig->getGiftCardInvalidMessage($order->getStoreId());
+                        $message = $this->secondChanceConfig->getGiftCardInvalidMessage(
+                            StoreId::normalize($order->getStoreId())
+                        );
                         if (!empty($message)) {
                             $this->messageManager->addWarningMessage(__($message));
                         }

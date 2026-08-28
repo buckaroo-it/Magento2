@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Creditcard;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
@@ -109,15 +110,19 @@ class DefaultProcessorPlugin
         $authentication = $pushRequest->$authenticationFunction();
 
         if ($authentication == 'U' || $authentication == 'N') {
+            // Unsecure-hold is configurable per store view and this runs inside the push, which
+            // does not sit in the order's store.
+            $storeId = StoreId::normalize($order->getStoreId());
+
             switch ($card) {
                 case 'maestro':
-                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMaestroUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMaestroUnsecureHold($storeId);
                     break;
                 case 'visa':
-                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getVisaUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getVisaUnsecureHold($storeId);
                     break;
                 case 'mastercard':
-                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMastercardUnsecureHold();
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getMastercardUnsecureHold($storeId);
                     break;
                 default:
                     $putOrderOnHold = false;

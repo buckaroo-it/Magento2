@@ -118,12 +118,12 @@ class Account extends AbstractConfigProvider
             'payment_fee_label'                 => $this->getPaymentFeeLabel($store),
             'order_status_new'                  => $this->getOrderStatusNew($store),
             'order_status_pending'              => $this->getOrderStatusPending($store),
-            'order_status_success'              => $this->getOrderStatusSuccess($store),
-            'order_status_failed'               => $this->getOrderStatusFailed($store),
+            'order_status_success'              => $this->getOrderStatusSuccess(null, $store),
+            'order_status_failed'               => $this->getOrderStatusFailed(null, $store),
             'create_order_before_transaction'   => $this->getCreateOrderBeforeTransaction($store),
             'ip_header'                         => $this->getIpHeader($store),
             'cart_keep_alive'                   => $this->getCartKeepAlive($store),
-            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass(),
+            'buckaroo_fee_tax_class'            => $this->getBuckarooFeeTaxClass($store),
             'customer_additional_info'          => $this->getCustomerAdditionalInfo($store),
             'idin'                              => $this->getIdin($store),
             'idin_mode'                         => $this->getIdinMode($store),
@@ -134,15 +134,16 @@ class Account extends AbstractConfigProvider
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param string|null $paymentMethod
+     * @param string|null                                            $paymentMethod
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @throws BuckarooException
      *
      * @return string
      */
-    public function getOrderStatusSuccess($paymentMethod = null)
+    public function getOrderStatusSuccess($paymentMethod = null, $store = null)
     {
-        $orderStatusSuccess = $this->getAccountOrderStatusSuccess();
+        $orderStatusSuccess = $this->getAccountOrderStatusSuccess($store);
 
         /**
          * If a Payment Method is set, get the payment method status
@@ -153,11 +154,11 @@ class Account extends AbstractConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
-            $activeStatus = $methodConfigProvider->getActiveStatus();
-            $methodOrderStatus = $methodConfigProvider->getOrderStatusSuccess();
+            $activeStatus = $methodConfigProvider->getActiveStatus($store);
+            $methodOrderStatus = $methodConfigProvider->getOrderStatusSuccess($store);
 
             if ($activeStatus && $methodOrderStatus !== null) {
-                $orderStatusSuccess = $methodConfigProvider->getOrderStatusSuccess();
+                $orderStatusSuccess = $methodOrderStatus;
             }
         }
         return $orderStatusSuccess;
@@ -166,15 +167,16 @@ class Account extends AbstractConfigProvider
     /**
      * Returns the method specific order status when available, or returns the global order status when not.
      *
-     * @param string|null $paymentMethod
+     * @param string|null                                            $paymentMethod
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @throws BuckarooException
      *
      * @return string
      */
-    public function getOrderStatusFailed($paymentMethod = null)
+    public function getOrderStatusFailed($paymentMethod = null, $store = null)
     {
-        $orderStatusFailed = $this->getAccountOrderStatusFailed();
+        $orderStatusFailed = $this->getAccountOrderStatusFailed($store);
 
         /**
          * If a Payment Method is set, get the payment method status
@@ -185,11 +187,11 @@ class Account extends AbstractConfigProvider
              */
             $methodConfigProvider = $this->getMethodConfigProvider($paymentMethod);
 
-            $activeStatus = $methodConfigProvider->getActiveStatus();
-            $methodOrderStatus = $methodConfigProvider->getOrderStatusFailed();
+            $activeStatus = $methodConfigProvider->getActiveStatus($store);
+            $methodOrderStatus = $methodConfigProvider->getOrderStatusFailed($store);
 
             if ($activeStatus && $methodOrderStatus !== null) {
-                $orderStatusFailed = $methodConfigProvider->getOrderStatusFailed();
+                $orderStatusFailed = $methodOrderStatus;
             }
         }
         return $orderStatusFailed;
@@ -260,7 +262,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Secret Key from Buckaroo Payment Engine
      *
-     * @param null|int|string $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return mixed
      */
@@ -276,7 +278,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get Merchant Store Key from Buckaroo Payment Engine
      *
-     * @param null|int|string $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return mixed
      */
@@ -310,7 +312,7 @@ class Account extends AbstractConfigProvider
     /**
      * Get transaction label
      *
-     * @param null|int|string $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return mixed
      */
@@ -326,7 +328,7 @@ class Account extends AbstractConfigProvider
     /**
      * Create Invoice on Payment or on Shipment
      *
-     * @param null|int|string $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return mixed
      */
@@ -630,7 +632,7 @@ class Account extends AbstractConfigProvider
     /**
      * Client IP detection headers (X-Forwarded-For,CF-Connecting-IP)
      *
-     * @param null|int|string $store
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return mixed
      */

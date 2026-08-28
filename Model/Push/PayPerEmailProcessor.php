@@ -195,7 +195,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
+            if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B($this->getOrderStoreId())) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Update Order State | currentState: %s',
                     __METHOD__,
@@ -462,7 +462,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $this->isPayPerEmailB2BModePush = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && !empty($this->pushRequest->getTransactionMethod())
                 && ($this->pushRequest->getTransactionMethod() == 'payperemail')
-                && $this->configPayPerEmail->isEnabledB2B();
+                && $this->configPayPerEmail->isEnabledB2B($this->getOrderStoreId());
 
             if ($this->isPayPerEmailB2BModePush) {
                 $this->logger->addDebug(sprintf(
@@ -510,7 +510,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         if ($this->isPayPerEmailB2BModePushInitial()) {
             $this->pushTransactionType->setStatusKey('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-            $newStatus = $this->configAccount->getOrderStatusSuccess();
+            $newStatus = $this->configAccount->getOrderStatusSuccess(null, $this->getOrderStoreId());
             $this->logger->addDebug(sprintf(
                 '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
                 __METHOD__,

@@ -209,8 +209,14 @@ class Creditcards extends AbstractConfigProvider
 
     /**
      * Get Active Status Cm3
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
+     *
+     * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getActiveStatusCm3()
+    public function getActiveStatusCm3($store = null)
     {
         return null;
     }

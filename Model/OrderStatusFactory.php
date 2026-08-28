@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
@@ -71,13 +72,17 @@ class OrderStatusFactory
         $paymentMethodInstance = $order->getPayment()->getMethodInstance();
         $paymentMethod = $paymentMethodInstance->getCode();
 
-        $status = $this->getPaymentMethodStatus($statusCode, $paymentMethod);
+        // Statuses are configurable per store view, and this runs from the push and the redirect
+        // controller, neither of which sits in the order's store by default.
+        $storeId = StoreId::normalize($order->getStoreId());
+
+        $status = $this->getPaymentMethodStatus($statusCode, $paymentMethod, $storeId);
 
         if ($status) {
             return $status;
         }
 
-        return $this->getAccountStatus($statusCode);
+        return $this->getAccountStatus($statusCode, $storeId);
     }
 
     /**
@@ -85,6 +90,7 @@ class OrderStatusFactory
      *
      * @param int|string $statusCode
      * @param string     $paymentMethod
+     * @param int|null   $storeId
      *
      * @throws Exception
      *
@@ -92,7 +98,7 @@ class OrderStatusFactory
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getPaymentMethodStatus($statusCode, string $paymentMethod)
+    public function getPaymentMethodStatus($statusCode, string $paymentMethod, ?int $storeId = null)
     {
         $status = false;
 
@@ -102,7 +108,7 @@ class OrderStatusFactory
              */
             $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
 
-            if ($configProvider->getActiveStatus()) {
+            if ($configProvider->getActiveStatus($storeId)) {
                 switch ($statusCode) {
                     case BuckarooStatusCode::TECHNICAL_ERROR:
                     case BuckarooStatusCode::VALIDATION_FAILURE:
@@ -110,10 +116,10 @@ class OrderStatusFactory
                     case BuckarooStatusCode::CANCELLED_BY_USER:
                     case BuckarooStatusCode::FAILED:
                     case BuckarooStatusCode::REJECTED:
-                        $status = $configProvider->getOrderStatusFailed();
+                        $status = $configProvider->getOrderStatusFailed($storeId);
                         break;
                     case BuckarooStatusCode::SUCCESS:
-                        $status = $configProvider->getOrderStatusSuccess();
+                        $status = $configProvider->getOrderStatusSuccess($storeId);
                         break;
                     default:
                         return false;
@@ -128,6 +134,7 @@ class OrderStatusFactory
      * Get status for failed or success transaction based on account config
      *
      * @param int|string $statusCode
+     * @param int|null   $storeId
      *
      * @throws Exception
      *
@@ -135,7 +142,7 @@ class OrderStatusFactory
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    public function getAccountStatus($statusCode)
+    public function getAccountStatus($statusCode, ?int $storeId = null)
     {
         switch ($statusCode) {
             case BuckarooStatusCode::REJECTED:
@@ -144,16 +151,16 @@ class OrderStatusFactory
             case BuckarooStatusCode::CANCELLED_BY_MERCHANT:
             case BuckarooStatusCode::CANCELLED_BY_USER:
             case BuckarooStatusCode::FAILED:
-                $status = $this->account->getOrderStatusFailed();
+                $status = $this->account->getOrderStatusFailed(null, $storeId);
                 break;
             case BuckarooStatusCode::SUCCESS:
-                $status = $this->account->getOrderStatusSuccess();
+                $status = $this->account->getOrderStatusSuccess(null, $storeId);
                 break;
             case BuckarooStatusCode::PAYMENT_ON_HOLD:
             case BuckarooStatusCode::WAITING_ON_CONSUMER:
             case BuckarooStatusCode::PENDING_PROCESSING:
             case BuckarooStatusCode::WAITING_ON_USER_INPUT:
-                $status = $this->account->getOrderStatusPending();
+                $status = $this->account->getOrderStatusPending($storeId);
                 break;
             default:
                 return false;

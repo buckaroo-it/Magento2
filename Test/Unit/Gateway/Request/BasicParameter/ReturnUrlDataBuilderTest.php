@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
@@ -46,6 +47,11 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     private $urlBuilderMock;
 
     /**
+     * @var PushUrlBuilder|MockObject
+     */
+    private $pushUrlBuilderMock;
+
+    /**
      * @inheritdoc
      */
     protected function setUp(): void
@@ -56,7 +62,13 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
 
         $this->urlBuilderMock = $this->createMock(UrlInterface::class);
 
-        $this->returnUrlDataBuilder = new ReturnUrlDataBuilder($this->urlBuilderMock, $this->formKeyMock);
+        $this->pushUrlBuilderMock = $this->createMock(PushUrlBuilder::class);
+
+        $this->returnUrlDataBuilder = new ReturnUrlDataBuilder(
+            $this->urlBuilderMock,
+            $this->formKeyMock,
+            $this->pushUrlBuilderMock
+        );
     }
 
     /**
@@ -65,29 +77,35 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     {
         $formKey = 'test_form_key';
         $storeId = 1;
-        $pushPath = 'rest/V1/buckaroo/push';
-        $pushUrl = 'https://example.com/' . $pushPath;
+        $pushUrl = 'https://example.com/rest/default/V1/buckaroo/push';
 
         $this->formKeyMock->method('getFormKey')
             ->willReturn($formKey);
 
         $this->urlBuilderMock->expects($this->atLeastOnce())->method('getDirectUrl')
-            ->willReturnOnConsecutiveCalls('http://example.com/buckaroo/redirect/process', $pushUrl, $pushUrl);
+            ->willReturn('http://example.com/buckaroo/redirect/process');
 
         $this->urlBuilderMock->method('setScope')
             ->with($storeId)
             ->willReturnSelf();
 
-        $this->urlBuilderMock->method('getDirectUrl')
-            ->willReturnMap(
-                [
-                    [$pushPath, [], $pushUrl],
-                    [$pushPath, [], $pushUrl]
-                ]
-            );
+        $this->pushUrlBuilderMock->expects($this->once())
+            ->method('getPushUrl')
+            ->with($storeId)
+            ->willReturn($pushUrl);
 
         $this->orderMock->method('getStoreId')
             ->willReturn($storeId);
+
+        $store = $this->createMock(\Magento\Store\Model\Store::class);
+        $store->method('getCode')->willReturn('second_store');
+        $this->orderMock->method('getStore')->willReturn($store);
+
+        // The gateway returns the shopper with a cross-site POST, so the SameSite=Lax store cookie
+        // is not sent. Naming the store in the URL is what keeps the redirect controller - and the
+        // URL it sends the shopper to - in the order's store rather than the default one.
+        $expectedReturnUrl = 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey
+            . '&___store=second_store';
 
         $paymentDOMock = $this->getPaymentDOMock();
 
@@ -95,10 +113,10 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
 
         $this->assertEquals(
             [
-                'returnURL'       => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLError'  => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLCancel' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLReject' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
+                'returnURL'       => $expectedReturnUrl,
+                'returnURLError'  => $expectedReturnUrl,
+                'returnURLCancel' => $expectedReturnUrl,
+                'returnURLReject' => $expectedReturnUrl,
                 'pushURL'         => $pushUrl,
                 'pushURLFailure'  => $pushUrl
             ],

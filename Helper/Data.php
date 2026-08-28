@@ -225,8 +225,8 @@ class Data extends AbstractHelper
     /**
      * Get the active mode for the given payment method and store.
      *
-     * @param string|null     $paymentMethod
-     * @param string|int|null $store
+     * @param string|null                                            $paymentMethod
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @throws BuckarooException
      *
@@ -234,7 +234,7 @@ class Data extends AbstractHelper
      */
     public function getMode(?string $paymentMethod = null, $store = null): int
     {
-        $baseMode = $this->configProviderAccount->getActive();
+        $baseMode = $this->configProviderAccount->getActive($store);
 
         if (!$paymentMethod || !$baseMode) {
             return $baseMode;
@@ -244,13 +244,8 @@ class Data extends AbstractHelper
          * @var AbstractConfigProvider $configProvider
          */
         $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
-        if ($store === null) {
-            $mode = $configProvider->getActive();
-        } else {
-            $mode = $configProvider->getActive($store);
-        }
 
-        return $mode;
+        return $configProvider->getActive($store);
     }
 
     /**

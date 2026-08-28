@@ -56,14 +56,16 @@ class ConfigDataBuilder extends AbstractDataBuilder
             $this->getPayment()->getMethod()
         );
 
+        $storeId = $this->getStoreId();
+
         $data = [
-            'dueDate'      => $this->getDueDate(),
-            'schemeKey'    => $this->config->getSchemeKey(),
-            'maxStepIndex' => $this->config->getMaxStepIndex(),
+            'dueDate'      => $this->getDueDate($storeId),
+            'schemeKey'    => $this->config->getSchemeKey($storeId),
+            'maxStepIndex' => $this->config->getMaxStepIndex($storeId),
         ];
 
-        if ($this->config->getPaymentMethodAfterExpiry() != null) {
-            $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodsAfterExpiry();
+        if ($this->config->getPaymentMethodAfterExpiry($storeId) != null) {
+            $data['allowedServicesAfterDueDate'] = $this->getPaymentMethodsAfterExpiry($storeId);
         }
         return $data;
     }
@@ -71,11 +73,13 @@ class ConfigDataBuilder extends AbstractDataBuilder
     /**
      * Get payment methods
      *
+     * @param int|null $storeId
+     *
      * @return string
      */
-    protected function getPaymentMethodsAfterExpiry(): string
+    protected function getPaymentMethodsAfterExpiry(?int $storeId = null): string
     {
-        $methods = $this->config->getPaymentMethodAfterExpiry();
+        $methods = $this->config->getPaymentMethodAfterExpiry($storeId);
         if (is_array($methods)) {
             return implode(',', $methods);
         }
@@ -85,11 +89,14 @@ class ConfigDataBuilder extends AbstractDataBuilder
     /**
      * Get transfer due date
      *
+     * @param int|null $storeId
+     *
      * @return string
+     * @throws \DateMalformedStringException
      */
-    protected function getDueDate(): string
+    protected function getDueDate(?int $storeId = null): string
     {
-        $dueDays = abs((float)$this->config->getCm3DueDate());
+        $dueDays = abs((float)$this->config->getCm3DueDate($storeId));
         return (new \DateTime())
             ->modify("+{$dueDays} day")
             ->format('Y-m-d');

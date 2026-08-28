@@ -71,8 +71,10 @@ class PayPerEmailDataBuilder extends AbstractDataBuilder
             ]
         ];
 
-        if ($this->payPerEmailConfig->getExpireDays()) {
-            $data['expirationDate'] = date('Y-m-d', time() + $this->payPerEmailConfig->getExpireDays() * 86400);
+        $expireDays = $this->payPerEmailConfig->getExpireDays($storeId);
+
+        if ($expireDays) {
+            $data['expirationDate'] = date('Y-m-d', time() + $expireDays * 86400);
         }
 
         return $data;

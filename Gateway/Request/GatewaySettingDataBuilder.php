@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -62,7 +63,9 @@ class GatewaySettingDataBuilder implements BuilderInterface
 
         if (method_exists($configProvider, 'getGatewaySettings')) {
             $paymentMethod = [
-                'payment_method' => $configProvider->getGatewaySettings(),
+                'payment_method' => $configProvider->getGatewaySettings(
+                    StoreId::normalize($paymentDO->getOrder()->getStoreId())
+                ),
             ];
         }
 
