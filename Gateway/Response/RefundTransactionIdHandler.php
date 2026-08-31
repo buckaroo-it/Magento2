@@ -21,10 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+
 class RefundTransactionIdHandler extends TransactionIdHandler
 {
     /**
-     * Whether transaction key should be saved on additional information
+     * Whether a transaction key should be saved on additional information
      *
      * @return bool
      */
@@ -46,9 +48,13 @@ class RefundTransactionIdHandler extends TransactionIdHandler
     /**
      * Whether parent transaction should be closed
      *
+     * @param OrderPaymentInterface $payment
+     *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function shouldCloseParentTransaction(): bool
+    protected function shouldCloseParentTransaction(OrderPaymentInterface $payment): bool
     {
         return true;
     }

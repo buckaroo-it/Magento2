@@ -108,7 +108,11 @@ class SendInvoiceMail implements ObserverInterface
             $orderBaseSubtotal = $order->getBaseSubtotal();
             $orderBaseTaxAmount = $order->getBaseTaxAmount();
             $orderBaseShippingAmount = $order->getBaseShippingAmount();
+            $itemRowTotals = $this->captureItemRowTotals($invoice);
+
             $this->invoiceSender->send($invoice, true);
+
+            $this->restoreItemRowTotals($invoice, $itemRowTotals);
             if (($orderBaseShippingAmount > 0) && ($order->getBaseShippingAmount() == 0)) {
                 $invoice->getOrder()->setBaseShippingAmount($orderBaseShippingAmount);
             }
@@ -121,6 +125,78 @@ class SendInvoiceMail implements ObserverInterface
             && ($order->getBaseCurrencyCode() == $order->getOrderCurrencyCode())
         ) {
             $order->setBaseTotalPaid($order->getTotalPaid());
+        }
+    }
+
+    /**
+     * Remember the row totals of the order items this invoice covers.
+     *
+     * Magento's invoice email template passes the ORDER item to DefaultItems::getItemPrice(),
+     * which overwrites row_total with price * invoiced qty. Wrong on a partial invoice, and the
+     * next order save commits it, so later credit memos refund shorts.
+     *
+     * @param Invoice $invoice
+     *
+     * @return array<int, array{row_total: mixed, base_row_total: mixed}>
+     */
+    private function captureItemRowTotals(Invoice $invoice): array
+    {
+        $totals = [];
+
+        foreach ($invoice->getAllItems() as $invoiceItem) {
+            $orderItem = $invoiceItem->getOrderItem();
+            if ($orderItem === null || !$orderItem->getId()) {
+                continue;
+            }
+
+            $totals[(int)$orderItem->getId()] = [
+                'row_total' => $orderItem->getRowTotal(),
+                'base_row_total' => $orderItem->getBaseRowTotal(),
+            ];
+        }
+
+        return $totals;
+    }
+
+    /**
+     * Put back what the email template overwrote.
+     *
+     * @param Invoice $invoice
+     * @param array   $totals
+     *
+     * @return void
+     */
+    private function restoreItemRowTotals(Invoice $invoice, array $totals): void
+    {
+        foreach ($invoice->getAllItems() as $invoiceItem) {
+            $orderItem = $invoiceItem->getOrderItem();
+            if ($orderItem === null || !isset($totals[(int)$orderItem->getId()])) {
+                continue;
+            }
+
+            $original = $totals[(int)$orderItem->getId()];
+
+            if ($this->helper->areEqualAmounts((float)$orderItem->getRowTotal(), (float)$original['row_total'])
+                && $this->helper->areEqualAmounts(
+                    (float)$orderItem->getBaseRowTotal(),
+                    (float)$original['base_row_total']
+                )
+            ) {
+                continue;
+            }
+
+            $this->logger->addDebug(sprintf(
+                '[SEND_EMAIL] | [Observer] | [%s:%s] - Restoring row totals the invoice email '
+                . 'overwrote on order item %s: %s -> %s',
+                __METHOD__,
+                __LINE__,
+                (string)$orderItem->getId(),
+                var_export($orderItem->getRowTotal(), true),
+                var_export($original['row_total'], true)
+            ));
+
+            $orderItem->setRowTotal($original['row_total']);
+            $orderItem->setBaseRowTotal($original['base_row_total']);
         }
     }
 }

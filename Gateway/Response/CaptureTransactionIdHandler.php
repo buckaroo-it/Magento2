@@ -22,40 +22,36 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment;
 
-class AuthorizeTransactionIdHandler extends TransactionIdHandler
+/**
+ * Keep the authorization open while the order still has lines left to capture.
+ *
+ * Magento refuses an online capture once the authorization transaction is closed
+ * (Payment::canCapture()), so closing it after a PARTIAL capture makes every later shipment
+ * register an invoice that is never paid and never reaches Buckaroo. The authorization is
+ * therefore only closed when this capture leaves nothing to invoice.
+ */
+class CaptureTransactionIdHandler extends TransactionIdHandler
 {
     /**
-     * Whether transaction key should be saved on additional information
+     * Close the authorization only when this capture was the final one.
      *
-     * @return bool
-     */
-    protected function shouldSaveTransactionKey(): bool
-    {
-        return true;
-    }
-
-    /**
-     * Whether transaction should be closed
-     *
-     * @return bool
-     */
-    protected function shouldCloseTransaction(): bool
-    {
-        return false;
-    }
-
-    /**
-     * Whether parent transaction should be closed
+     * Invoice::register() registers the invoice items before it captures, so the order already
+     * reflects this invoice when the response is handled.
      *
      * @param OrderPaymentInterface $payment
      *
      * @return bool
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function shouldCloseParentTransaction(OrderPaymentInterface $payment): bool
     {
-        return false;
+        $order = $payment instanceof Payment ? $payment->getOrder() : null;
+
+        if ($order === null) {
+            return true;
+        }
+
+        return !$order->canInvoice();
     }
 }

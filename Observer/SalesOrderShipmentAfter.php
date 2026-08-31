@@ -141,16 +141,12 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $paymentMethodCode = $paymentMethod->getCode();
         $storeId = (int)$this->order->getStoreId();
 
-        $storeId = (int)$this->order->getStoreId();
-
         /** @var Klarnakp $klarnakpConfig */
         $klarnakpConfig = $this->configProviderFactory->get('klarnakp');
         if (($paymentMethodCode == 'buckaroo_magento2_klarnakp')
             && $klarnakpConfig->isInvoiceCreatedAfterShipment($storeId)
         ) {
-            if (!$this->order->hasInvoices()) {
-                $this->createInvoice();
-            }
+            $this->createInvoice();
             $this->syncBundleTogetherChildQtyShipped();
             return;
         }
@@ -160,9 +156,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         if (($paymentMethodCode == 'buckaroo_magento2_klarna')
             && $klarnaConfig->isInvoiceCreatedAfterShipment($storeId)
         ) {
-            if (!$this->order->hasInvoices()) {
-                $this->createInvoice(true);
-            }
+            $this->createInvoice();
             $this->syncBundleTogetherChildQtyShipped();
             return;
         }
@@ -173,22 +167,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             && $afterpayConfig->isInvoiceCreatedAfterShipment($storeId)
             && ($paymentMethod->getConfigPaymentAction() == 'authorize')
         ) {
-            if (!$this->order->hasInvoices()) {
-                $this->createInvoice(true);
-            }
+            $this->createInvoice();
             $this->syncBundleTogetherChildQtyShipped();
             return;
         }
 
         if (strpos($paymentMethodCode, 'buckaroo_magento2') !== false
             && $this->isInvoiceCreatedAfterShipment($payment)) {
-            if ($this->order->hasInvoices()) {
-                return;
-            }
-
             if ($paymentMethod->getConfigPaymentAction() == 'authorize') {
-                $this->createInvoice(true);
-            } else {
+                $this->createInvoice();
+            } elseif (!$this->order->hasInvoices()) {
                 $this->createInvoiceService->createInvoiceGeneralSetting($this->order, $this->getQtys());
             }
 
@@ -199,13 +187,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Create invoice automatically after shipment
      *
-     * @param bool $allowPartialsWithDiscount
+     * Always invoices the shipped lines only. Invoicing the whole order on a discounted order
+     * used to be the default, and captured the full authorization on a partial shipment
+     * the discount is spread over the invoiced lines by the article handler.
      *
      * @throws \Exception
      *
      * @return InvoiceInterface|Invoice|null
      */
-    private function createInvoice(bool $allowPartialsWithDiscount = false)
+    private function createInvoice()
     {
         $this->logger->addDebug(sprintf(
             '[CREATE_INVOICE] | [Observer] | [%s:%s] - Create invoice after shipment | orderDiscountAmount: %s',
@@ -215,51 +205,50 @@ class SalesOrderShipmentAfter implements ObserverInterface
         ));
 
         $invoice = null;
-        $registered = false;
+        $mayHaveRegisteredItems = false;
 
         try {
-            if ($this->order->hasInvoices()) {
+            if (!$this->order->canInvoice()) {
                 $this->logger->addDebug(sprintf(
-                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Skip invoice creation: Invoice already exists',
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Skip invoice creation: nothing left to invoice',
                     __METHOD__,
                     __LINE__
                 ));
                 return null;
             }
 
-            if (!$this->order->canInvoice()) {
+            $invoice = $this->invoiceService->prepareInvoice($this->order, $this->getQtys());
+
+            if (!$invoice->getTotalQty()) {
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Skip invoice creation: the shipped '
+                    . 'items are already invoiced',
+                    __METHOD__,
+                    __LINE__
+                ));
                 return null;
             }
 
-            if (!$allowPartialsWithDiscount && ($this->order->getDiscountAmount() < 0)) {
-                $invoice = $this->invoiceService->prepareInvoice($this->order);
-                $message = 'Automatically invoiced full order (can not invoice partials with discount)';
-            } else {
-                $qtys = $this->getQtys();
-                $invoice = $this->invoiceService->prepareInvoice($this->order, $qtys);
-                $message = 'Automatically invoiced shipped items.';
-            }
+            $message = 'Automatically invoiced shipped items.';
 
-            // Check if payment was already captured (e.g., during order reactivation)
-            /** @var Order\Payment $payment */
-            $payment = $this->order->getPayment();
-            $wasCaptured = $payment->getAdditionalInformation('buckaroo_already_captured');
-
-            if ($wasCaptured) {
-                // Payment already captured, use offline capture to avoid duplicate
+            if ($this->isAlreadyPaidFor($invoice)) {
                 $this->logger->addDebug(sprintf(
-                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: payment already captured during reactivation',
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: this amount '
+                    . 'was already credited to the order',
                     __METHOD__,
                     __LINE__
                 ));
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
-
             } else {
                 $invoice->setRequestedCaptureCase(Invoice::CAPTURE_ONLINE);
             }
 
+            // Invoice::register() writes the invoiced quantities onto the order items BEFORE it
+            // attempts the capture, so from here on a failure has to be rolled back - flagging
+            // this after register() returns leaves those values behind when the capture throws.
+            $mayHaveRegisteredItems = true;
             $invoice->register();
-            $registered = true;
+
             $invoice->getOrder()->setCustomerNoteNotify(0);
             $invoice->getOrder()->setIsInProcess(true);
             $this->order->addCommentToStatusHistory($message);
@@ -283,12 +272,40 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 var_export($this->order->getStatus(), true)
             ));
         } catch (\Exception $e) {
-            $this->handleInvoiceFailure($e, $registered ? $invoice : null);
+            $this->handleInvoiceFailure($e, $mayHaveRegisteredItems ? $invoice : null);
 
             return null;
         }
 
         return $invoice;
+    }
+
+    /**
+     * Whether the money this invoice covers has already reached the order.
+     *
+     * `buckaroo_already_captured` only says SOME capture happened and is never cleared, so on an
+     * order that captures per shipment it would mark every later invoice paid with no gateway
+     * call.
+     *
+     * @param Invoice $invoice
+     *
+     * @return bool
+     */
+    private function isAlreadyPaidFor(Invoice $invoice): bool
+    {
+        /** @var Order\Payment $payment */
+        $payment = $this->order->getPayment();
+
+        if (!$payment->getAdditionalInformation('buckaroo_already_captured')) {
+            return false;
+        }
+
+        $paidButNotInvoiced = round(
+            (float)$this->order->getTotalPaid() - (float)$this->order->getTotalInvoiced(),
+            2
+        );
+
+        return $paidButNotInvoiced >= round((float)$invoice->getGrandTotal(), 2);
     }
 
     /**
@@ -300,7 +317,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * reporting invoiced items with no invoice entity (BTI-1312).
      *
      * @param \Exception   $exception
-     * @param Invoice|null $registeredInvoice Null when register() never ran.
+     * @param Invoice|null $registeredInvoice Null when register() was never reached.
      *
      * @return void
      */
@@ -326,6 +343,9 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
     /**
      * Reverse the invoiced values that Invoice::register() wrote onto the order items.
+     *
+     * Safe to call after a register() that threw part-way: Invoice::getAllItems() skips the
+     * item register() marked deleted, so only quantities it actually added are subtracted.
      *
      * @param Invoice $invoice
      *

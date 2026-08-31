@@ -62,6 +62,17 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public const ROUNDING_RESIDUAL_TOLERANCE = 0.05;
 
     /**
+     * ArticleNumber for a discount line. Must differ from the service cost line (article 1):
+     * a capture nominates reserved lines by number, so duplicates are ambiguous.
+     */
+    public const DISCOUNT_IDENTIFIER = 'discount';
+
+    /**
+     * ArticleNumber for the line that carries a rounding residual.
+     */
+    public const ADJUSTMENT_IDENTIFIER = 'adjustment';
+
+    /**
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
@@ -315,6 +326,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public function setOrder(Order $order): AbstractArticlesHandler
     {
         $this->order = $order;
+        // ArticlesHandlerFactory hands out a SHARED instance and getQuote() caches, so without
+        // this a second order in the same process reuses the previous order's cart.
+        $this->quote = null;
 
         return $this;
     }
@@ -397,11 +411,13 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 continue;
             }
 
+            $itemQty = (float)$item->getTotalQty();
+
             $article = $this->getArticleArrayLine(
                 $item->getName(),
                 $this->getIdentifier($item),
-                $item->getTotalQty(),
-                $this->calculateProductPrice($item),
+                $itemQty,
+                $this->getDiscountedProductPrice($item, $this->getUnitDiscount($item, $itemQty)),
                 $this->getItemTax($item)
             );
 
@@ -508,6 +524,56 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Unit price of an item with its own share of the cart discount already netted in.
+     *
+     * A partial capture is validated against the RESERVED prices, so a discount may not sit on
+     * a separate lump line - that line cannot be captured in part.
+     *
+     * @param Item|Order\Item|Invoice\Item|Creditmemo\Item $item
+     * @param float                                        $unitDiscount
+     *
+     * @return float
+     */
+    protected function getDiscountedProductPrice($item, float $unitDiscount): float
+    {
+        return round($this->calculateProductPrice($item) - $unitDiscount, 2);
+    }
+
+    /**
+     * Discount written onto a single unit of an item.
+     *
+     * Taken from the order item on the capture side too, so the price matches the one the
+     * reserve sent for that unit.
+     *
+     * @param Item|Order\Item|Invoice\Item $item
+     * @param float                        $qty
+     *
+     * @return float
+     */
+    protected function getUnitDiscount($item, float $qty): float
+    {
+        if ($qty <= 0) {
+            return 0.0;
+        }
+
+        $discount = abs((float)$item->getDiscountAmount());
+
+        if ($discount < 0.01) {
+            return 0.0;
+        }
+
+        $includesTax = (bool)$this->scopeConfig->getValue(
+            static::TAX_CALCULATION_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        if (!$includesTax) {
+            $discount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
+        }
+
+        return $discount / $qty;
+    }
+
+    /**
      * Get text for Discount
      *
      * @return Phrase
@@ -554,21 +620,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getDiscountAmount()
     {
-        $discount = 0;
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
+        $discount = 0.0;
 
-        if ($this->order->getDiscountAmount() < 0) {
-            $discount -= abs((float)$this->order->getDiscountAmount());
-
-            $includesTax = (bool)$this->scopeConfig->getValue(
-                static::TAX_CALCULATION_INCLUDES_TAX,
-                ScopeInterface::SCOPE_STORE
-            );
-            if (!$includesTax) {
-                $discount -= abs((float)$this->order->getDiscountTaxCompensationAmount());
-            }
+        // The allocated discount rides on the item lines and the shipping discount on the
+        // shipping line; only what no line could absorb is left for a global line.
+        $unallocated = $this->getUnallocatedOrderDiscount();
+        if ($unallocated >= 0.01) {
+            $discount -= $unallocated;
         }
 
+        $edition = $this->softwareData->getProductMetaData()->getEdition();
         if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
             $discount -= abs((float)$this->order->getCustomerBalanceAmount());
         }
@@ -577,7 +638,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * Get effective VAT rate as a weighted average of order item tax rates.
+     * Get an effective VAT rate as a weighted average of order item tax rates.
      *
      * @return float
      */
@@ -664,7 +725,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         $shippingCostsArticle = [];
 
-        $shippingAmount = $this->getShippingAmount($order);
+        $shippingAmount = $this->getShippingAmount($order) - $this->getShippingDiscount($order);
         if ($shippingAmount <= 0) {
             return $shippingCostsArticle;
         }
@@ -721,6 +782,35 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Discount written onto the shipping line, as a positive amount.
+     *
+     * Kept here, not in a global discount line, so a partial capture can repeat the reserved
+     * price. Magento settles shipping on the first invoice only.
+     *
+     * @param Order|Invoice|Creditmemo $order
+     *
+     * @return float
+     */
+    protected function getShippingDiscount($order): float
+    {
+        $discount = abs((float)($order->getShippingDiscountAmount() ?? 0));
+
+        if ($discount < 0.01) {
+            return 0.0;
+        }
+
+        $includesTax = (bool)$this->scopeConfig->getValue(
+            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
+            ScopeInterface::SCOPE_STORE
+        );
+        if (!$includesTax) {
+            $discount += abs((float)($order->getShippingDiscountTaxCompensationAmount() ?? 0));
+        }
+
+        return round($discount, 2);
+    }
+
+    /**
      * Get shipping amount include taxes
      *
      * @param Order|Invoice|Creditmemo $order
@@ -763,19 +853,28 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getDiscountLines(): array
     {
-        $discount = $this->getDiscountAmount();
+        return $this->buildDiscountLines((float)$this->getDiscountAmount(), $this->getOrderVatGroups());
+    }
 
+    /**
+     * Build the discount article lines for an amount, split proportionally per VAT rate.
+     *
+     * @param float $discount Negative.
+     * @param array $vatGroups
+     *
+     * @return array
+     */
+    private function buildDiscountLines(float $discount, array $vatGroups): array
+    {
         if ($discount >= 0) {
             return [];
         }
-
-        $vatGroups = $this->getOrderVatGroups();
 
         if (count($vatGroups) <= 1) {
             $vatRate = !empty($vatGroups) ? (float)array_key_first($vatGroups) : $this->getOrderEffectiveVatRate();
             return [$this->getArticleArrayLine(
                 (string)$this->getDiscount(),
-                1,
+                self::DISCOUNT_IDENTIFIER,
                 1,
                 round($discount, 2),
                 $vatRate
@@ -800,9 +899,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 continue;
             }
 
+            // One line per VAT rate, each with its own number - a capture nominates lines by
+            // ArticleNumber and cannot tell duplicates apart.
             $lines[] = $this->getArticleArrayLine(
                 (string)$this->getDiscount(),
-                1,
+                self::DISCOUNT_IDENTIFIER . '-' . $this->normalizeAmount($vatRate),
                 1,
                 $lineDiscount,
                 $vatRate
@@ -832,18 +933,34 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getOrderVatGroups(): array
     {
-        $groups = [];
+        $rows = [];
         foreach (($this->order->getAllVisibleItems() ?: []) as $item) {
-            $rowTotal = (float)$item->getRowTotal();
+            $rows[] = [(float)$item->getRowTotal(), (float)$item->getTaxPercent()];
+        }
+
+        return $this->groupRowTotalsByVatRate($rows);
+    }
+
+    /**
+     * Combine [rowTotal, vatRate] pairs into per-VAT-rate row totals.
+     *
+     * @param array $rows
+     *
+     * @return array
+     */
+    private function groupRowTotalsByVatRate(array $rows): array
+    {
+        $groups = [];
+        foreach ($rows as [$rowTotal, $vatRate]) {
             if ($rowTotal <= 0) {
                 continue;
             }
-            $vatRate = (float)$item->getTaxPercent();
             if (!isset($groups[$vatRate])) {
                 $groups[$vatRate] = ['rowTotal' => 0.0];
             }
             $groups[$vatRate]['rowTotal'] += $rowTotal;
         }
+
         return $groups;
     }
 
@@ -865,49 +982,66 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-        $discountLines = $this->getDiscountLines();
+        // Whatever could not be attributed to an item or the shipping line is settled on the
+        // first invoice, at the price the reserve sent for it.
+        $discountLines = $numberOfInvoices == 1 ? $this->getDiscountLines() : [];
 
-        $usesPerItemDiscounts = empty($discountLines);
+        $isFirstInvoice = $numberOfInvoices == 1;
 
-        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice, $usesPerItemDiscounts);
+        $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice);
 
-        if ($usesPerItemDiscounts) {
-            $unallocatedDiscountLine = $this->getUnallocatedDiscountLine($currentInvoice);
-            if (!empty($unallocatedDiscountLine)) {
-                $articles['articles'][] = $unallocatedDiscountLine;
-            }
+        if ($isFirstInvoice) {
+            $articles = $this->mergeArticleLines($articles, $this->getServiceCostLine($currentInvoice));
         }
 
-        if (is_array($articles) && $numberOfInvoices == 1) {
-            $serviceLine = $this->getServiceCostLine($currentInvoice);
-            if (!empty($serviceLine)) {
-                $articles = array_merge_recursive($articles, $serviceLine);
-            }
-        }
-
-        $shippingCosts = $this->getShippingCostsLine($currentInvoice);
-        if (!empty($shippingCosts)) {
-            $articles = array_merge_recursive($articles, $shippingCosts);
-        }
+        $articles = $this->mergeArticleLines($articles, $this->getShippingCostsLine($currentInvoice));
 
         foreach ($discountLines as $discountLine) {
             $articles['articles'][] = $discountLine;
         }
 
-        $additionalLines = $this->getAdditionalLines();
-        if (!empty($additionalLines)) {
-            $articles = array_merge_recursive($articles, $additionalLines);
+        if ($isFirstInvoice) {
+            $articles = $this->mergeArticleLines($articles, $this->getAdditionalLines());
         }
 
-        $articles = $this->absorbRoundingResidual($articles, $this->getCaptureTarget($currentInvoice));
+        return $this->finaliseCaptureArticles($articles, $currentInvoice);
+    }
 
-        $this->reportInvoiceTotalMismatch($articles, (float)$currentInvoice->getGrandTotal());
+    /**
+     * Append a builder's lines to the article list if it produced any.
+     *
+     * @param array $articles
+     * @param array $lines
+     *
+     * @return array
+     */
+    private function mergeArticleLines(array $articles, array $lines): array
+    {
+        return empty($lines) ? $articles : array_merge_recursive($articles, $lines);
+    }
+
+    /**
+     * Settle the assembled capture lines against the invoice they were built for.
+     *
+     * @param array   $articles
+     * @param Invoice $invoice
+     *
+     * @return array
+     */
+    private function finaliseCaptureArticles(array $articles, Invoice $invoice): array
+    {
+        $articles = $this->absorbRoundingResidual($articles, $this->getCaptureTarget($invoice));
+
+        $this->reportInvoiceTotalMismatch($articles, (float)$invoice->getGrandTotal());
 
         return $articles;
     }
 
     /**
-     * Fold a rounding residual into an existing line so the lines sum exactly to the amount.
+     * Give a rounding residual a line of its own so the articles sum exactly to the amount.
+     *
+     * Never rewrites the price of a real line: that no longer matches the merchant's records and
+     * is invisible to a provider that resolves a capture from the reservation.
      *
      * @param array $articles
      * @param float $targetTotal
@@ -926,59 +1060,14 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return $articles;
         }
 
-        $adjustableIndex = $this->findResidualCarrierIndex($articles);
-
-        if ($adjustableIndex === null) {
-            return $this->absorbResidualBySplittingALine($articles, $residual, $targetTotal);
-        }
-
-        $original = (float)$articles['articles'][$adjustableIndex]['price'];
-        $articles['articles'][$adjustableIndex]['price'] = round($original + $residual, 2);
-
-        $this->buckarooLog->addDebug(sprintf(
-            '[%s] Folded rounding residual %.2f into line "%s" (%.2f -> %.2f) so the articles sum '
-            . 'to %.2f exactly.',
-            __METHOD__,
-            $residual,
-            (string)($articles['articles'][$adjustableIndex]['description'] ?? '?'),
-            $original,
-            $original + $residual,
-            $targetTotal
-        ));
-
-        return $articles;
+        return $this->addAdjustmentLine($articles, $residual, $targetTotal);
     }
 
     /**
-     * Index of the line that can carry a rounding residual.
+     * Carry a residual on a line of its own.
      *
-     * Only a single-quantity line qualifies: any value can be expressed there, while a unit
-     * price multiplied by a quantity cannot absorb an arbitrary cent. A discount line is
-     * preferred over an ordinary one.
-     *
-     * @param array $articles
-     *
-     * @return int|string|null
-     */
-    private function findResidualCarrierIndex(array $articles)
-    {
-        $adjustableIndex = null;
-
-        foreach (($articles['articles'] ?? []) as $index => $article) {
-            if (!is_array($article) || (int)($article['quantity'] ?? 0) !== 1) {
-                continue;
-            }
-
-            if ((float)($article['price'] ?? 0) < 0 || $adjustableIndex === null) {
-                $adjustableIndex = $index;
-            }
-        }
-
-        return $adjustableIndex;
-    }
-
-    /**
-     * Absorb a residual when no single-quantity line exists to carry it.
+     * Splitting a unit off an existing line - what this replaces - left two articles with the
+     * same ArticleNumber, which a capture cannot tell apart.
      *
      * @param array $articles
      * @param float $residual
@@ -986,48 +1075,38 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      *
      * @return array
      */
-    private function absorbResidualBySplittingALine(array $articles, float $residual, float $targetTotal): array
+    private function addAdjustmentLine(array $articles, float $residual, float $targetTotal): array
     {
         if (count($articles['articles'] ?? []) >= self::MAX_ARTICLE_COUNT) {
             return $articles;
         }
 
-        $splitIndex = null;
-        foreach (($articles['articles'] ?? []) as $index => $article) {
-            if (is_array($article) && (float)($article['quantity'] ?? 0) >= 2) {
-                $splitIndex = $index;
-            }
-        }
-
-        if ($splitIndex === null) {
-            return $articles;
-        }
-
-        $line = $articles['articles'][$splitIndex];
-        $unitPrice = (float)$line['price'];
-
-        $articles['articles'][$splitIndex]['quantity'] = (int)$line['quantity'] - 1;
-
-        $splitLine = $line;
-        $splitLine['quantity'] = 1;
-        $splitLine['price'] = round($unitPrice + $residual, 2);
-        $articles['articles'][] = $splitLine;
+        $articles['articles'][] = $this->getArticleArrayLine(
+            (string)$this->getAdjustmentLabel(),
+            self::ADJUSTMENT_IDENTIFIER,
+            1,
+            $residual,
+            0
+        );
 
         $this->buckarooLog->addDebug(sprintf(
-            '[%s] Split one unit off line "%s" to absorb rounding residual %.2f (%d x %.2f became '
-            . '%d x %.2f plus 1 x %.2f) so the articles sum to %.2f exactly.',
+            '[%s] Added an adjustment line of %.2f so the articles sum to %.2f exactly.',
             __METHOD__,
-            (string)($line['description'] ?? '?'),
             $residual,
-            (int)$line['quantity'],
-            $unitPrice,
-            (int)$line['quantity'] - 1,
-            $unitPrice,
-            $splitLine['price'],
             $targetTotal
         ));
 
         return $articles;
+    }
+
+    /**
+     * Get text for the rounding adjustment line
+     *
+     * @return Phrase
+     */
+    public function getAdjustmentLabel(): Phrase
+    {
+        return __('Adjustment');
     }
 
     /**
@@ -1073,61 +1152,6 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * Discount line for the part of the order discount that never reached the order items.
-     *
-     * Only relevant when the item lines carry the discount per item (no global discount line):
-     * those lines can only represent what Magento actually wrote onto the items, so a
-     * third-party module applying a cart-level discount without allocating it leaves the
-     * remainder out of the request entirely.
-     *
-     * The remainder is DISCOUNT, so the line is negative. The reconciliation this replaces had
-     * the sign inverted - it added a positive "Extra Fees" article and pushed the capture ABOVE
-     * the authorized amount, which is what Klarna refused with CAPTURE_NOT_ALLOWED.
-     *
-     * Mirrors getInvoiceItemsLines()/getDiscountAmount() exactly: the tax compensation is only
-     * part of the discount when catalog prices exclude tax. Pro-rated by the invoice's share of
-     * the order subtotal so a partial invoice only carries its own portion.
-     *
-     * @param Invoice $invoice
-     *
-     * @return array
-     */
-    protected function getUnallocatedDiscountLine(Invoice $invoice): array
-    {
-        $unallocated = $this->getUnallocatedOrderDiscount();
-        if ($unallocated < 0.01) {
-            return [];
-        }
-
-        // A partial invoice must only carry its share of the unallocated remainder.
-        $share = $this->getInvoiceSubtotalShare($invoice);
-        $lineAmount = round($unallocated * $share, 2);
-        if ($lineAmount < 0.01) {
-            return [];
-        }
-
-        $vatRate = $this->getDiscountVatRate();
-
-        $this->buckarooLog->addDebug(sprintf(
-            '[%s] Adding unallocated order discount line: unallocated=%.2f, invoiceShare=%.4f, '
-            . 'lineAmount=%.2f, vatRate=%.2f',
-            __METHOD__,
-            $unallocated,
-            $share,
-            $lineAmount,
-            $vatRate
-        ));
-
-        return $this->getArticleArrayLine(
-            (string)$this->getDiscount(),
-            'unallocated-discount',
-            1,
-            -$lineAmount,
-            $vatRate
-        );
-    }
-
-    /**
      * Part of the order discount that was never written onto the order items.
      *
      * Mirrors getInvoiceItemsLines() and getDiscountAmount(): the tax compensation counts as
@@ -1158,45 +1182,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
         }
 
+        // The shipping discount is part of the order discount but is carried by the shipping
+        // line, not by an order item, so it is allocated rather than missing.
+        $allocated += abs((float)($order->getShippingDiscountAmount() ?? 0));
+
         if (!$includesTax) {
             $orderDiscount += abs((float)$order->getDiscountTaxCompensationAmount());
         }
 
         return round($orderDiscount - $allocated, 2);
-    }
-
-    /**
-     * Share of the order this invoice covers, by subtotal.
-     *
-     * @param Invoice $invoice
-     *
-     * @return float
-     */
-    private function getInvoiceSubtotalShare(Invoice $invoice): float
-    {
-        $orderSubtotal = (float)$this->getOrder()->getSubtotal();
-
-        if ($orderSubtotal <= 0) {
-            return 1.0;
-        }
-
-        return min(1.0, max(0.0, (float)$invoice->getSubtotal() / $orderSubtotal));
-    }
-
-    /**
-     * VAT rate to put on a discount line covering the whole order.
-     *
-     * @return float
-     */
-    private function getDiscountVatRate(): float
-    {
-        $vatGroups = $this->getOrderVatGroups();
-
-        if (count($vatGroups) === 1) {
-            return (float)array_key_first($vatGroups);
-        }
-
-        return $this->getOrderEffectiveVatRate();
     }
 
     /**
@@ -1262,23 +1256,16 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * Get items from invoice
+     * Get items from an invoice
      *
      * @param Invoice $invoice
-     * @param bool    $includePerItemDiscounts When false, per-item discount lines are
-     *                                         omitted because a global discount line is
-     *                                         already being added by the caller.
      *
      * @return array
      */
-    protected function getInvoiceItemsLines(Invoice $invoice, bool $includePerItemDiscounts = true): array
+    protected function getInvoiceItemsLines(Invoice $invoice): array
     {
         $articles = [];
         $count = 1;
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
 
         /** @var Invoice\Item $item */
         foreach ($invoice->getAllItems() as $item) {
@@ -1286,31 +1273,17 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 continue;
             }
 
+            $orderItem = $item->getOrderItem();
+
             $article = $this->getArticleArrayLine(
                 $item->getName(),
                 $this->getIdentifier($item),
                 $item->getQty(),
-                $this->calculateProductPrice($item),
-                $this->getItemTax($item->getOrderItem())
+                $this->getDiscountedProductPrice($item, $this->getReservedUnitDiscount($orderItem)),
+                $this->getItemTax($orderItem)
             );
 
             $articles[] = $article;
-
-            if ($includePerItemDiscounts && $item->getDiscountAmount() > 0) {
-                $count++;
-                $discountAmount = (float)$item->getDiscountAmount();
-                if (!$includesTax) {
-                    $discountAmount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
-                }
-                $article = $this->getArticleArrayLine(
-                    $this->getDiscountDescription($item),
-                    $item->getSku(),
-                    1,
-                    round(-$discountAmount, 2),
-                    $this->getItemTax($item->getOrderItem())
-                );
-                $articles[] = $article;
-            }
 
             if ($count >= self::MAX_ARTICLE_COUNT) {
                 break;
@@ -1323,15 +1296,22 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
-     * Get invoice discount description
+     * Per-unit discount as the reserve sent it.
      *
-     * @param Invoice\Item $item
+     * Derived from the ORDER item, which mirrors the quote the reserve was built from, so a
+     * partial capture repeats the reserved price.
      *
-     * @return string
+     * @param Order\Item|null $orderItem
+     *
+     * @return float
      */
-    protected function getDiscountDescription($item): string
+    protected function getReservedUnitDiscount($orderItem): float
     {
-        return $this->getDiscountOn() . ' ' . $item->getName();
+        if ($orderItem === null) {
+            return 0.0;
+        }
+
+        return $this->getUnitDiscount($orderItem, (float)$orderItem->getQtyOrdered());
     }
 
     /**
@@ -1599,5 +1579,65 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     protected function getAdditionalLines(): array
     {
         return [];
+    }
+
+    /**
+     * Reward point and gift card discount lines, for the methods that send them.
+     *
+     * Indivisible: they carry the reserved amount and are settled on the first invoice only.
+     *
+     * @return array
+     */
+    protected function getRewardAndGiftCardLines(): array
+    {
+        $articles = [];
+
+        $rewardLine = $this->getRewardLine();
+        if (!empty($rewardLine)) {
+            $articles[] = $rewardLine;
+        }
+
+        $giftCardLine = $this->getGiftCardLine();
+        if (!empty($giftCardLine)) {
+            $articles[] = $giftCardLine;
+        }
+
+        return $articles;
+    }
+
+    /**
+     * Get the reward points discount line
+     *
+     * @return array
+     */
+    public function getRewardLine(): array
+    {
+        $discount = (float)$this->getOrder()->getData('reward_currency_amount');
+
+        if ($discount <= 0) {
+            return [];
+        }
+
+        $this->buckarooLog->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
+
+        return $this->getArticleArrayLine('Discount Reward Points', 5, 1, -$discount, 0);
+    }
+
+    /**
+     * Get the gift card discount line
+     *
+     * @return array
+     */
+    public function getGiftCardLine(): array
+    {
+        $discount = (float)$this->getOrder()->getData('gift_cards_amount');
+
+        if ($discount <= 0) {
+            return [];
+        }
+
+        $this->buckarooLog->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
+
+        return $this->getArticleArrayLine('Discount Gift Card', 6, 1, -$discount, 0);
     }
 }

@@ -174,7 +174,7 @@ class KlarnaKpHandlerTest extends TestCase
 
     /**
      * When a coupon/discount code is applied, the capture must use the same global
-     * discount line (identifier = 1) that was sent during reserve.
+     * discount line (identifier = "discount") that was sent during reserve.
      * Per-item discount lines (identifier = SKU) must NOT appear — they would be
      * unknown to Klarna and cause a capture rejection.
      */
@@ -199,9 +199,9 @@ class KlarnaKpHandlerTest extends TestCase
         $identifiers = array_column($result['articles'], 'identifier');
 
         $this->assertContains(
-            '1',
+            \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::DISCOUNT_IDENTIFIER,
             $identifiers,
-            'Global discount line (identifier=1) must be present — matches the reserve'
+            'Global discount line must be present and must not share a number with another line'
         );
         $this->assertSame(
             1,
@@ -239,7 +239,9 @@ class KlarnaKpHandlerTest extends TestCase
 
         $discountLine = null;
         foreach ($result['articles'] as $article) {
-            if (($article['identifier'] ?? null) === '1') {
+            if (($article['identifier'] ?? null)
+                === \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::DISCOUNT_IDENTIFIER
+            ) {
                 $discountLine = $article;
                 break;
             }

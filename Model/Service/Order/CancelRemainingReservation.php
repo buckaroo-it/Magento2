@@ -58,6 +58,16 @@ class CancelRemainingReservation
     private BuckarooLoggerInterface $logger;
 
     /**
+     * Orders already handled in this request, by increment id.
+     *
+     * `voided_by_buckaroo` lives on a payment INSTANCE and Order\Item::getOrder() can hand back
+     * a freshly loaded one, so that flag alone does not stop a second CancelReservation.
+     *
+     * @var array<string, bool>
+     */
+    private array $handledOrders = [];
+
+    /**
      * @param CommandManagerInterface  $klarnaCommandManager
      * @param CommandManagerInterface  $klarnaKpCommandManager
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
@@ -103,6 +113,15 @@ class CancelRemainingReservation
             return false;
         }
 
+        $incrementId = (string)$order->getIncrementId();
+        if (isset($this->handledOrders[$incrementId])) {
+            $this->logger->addDebug(sprintf(
+                '[KLARNA] CancelRemainingReservation skipped for order %s: already sent in this request.',
+                $incrementId
+            ));
+            return false;
+        }
+
         if (!$this->hasReservationReference($order, $payment, $methodCode)) {
             $this->logger->addDebug(sprintf(
                 '[KLARNA] CancelRemainingReservation skipped for order %s: no reservation reference found.',
@@ -117,6 +136,10 @@ class CancelRemainingReservation
             $methodCode,
             $order->hasInvoices() ? 'yes' : 'no'
         ));
+
+        // Marked before the call: a request that fails must not be retried in the same run
+        // either, or a rejection turns into a second rejection.
+        $this->handledOrders[$incrementId] = true;
 
         try {
             $commandSubject = [
