@@ -87,6 +87,37 @@ class SendInvoiceMailTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * The core observers that accumulate an order-level amount over its invoices
+     * (Magento\CustomerBalance\Observer\IncreaseOrderInvoicedAmountObserver and the gift card and
+     * reward observers built the same way) recognise a newly created invoice by an empty origData,
+     * and this observer's save is that invoice's INSERT - it runs inside Invoice::register(),
+     * before the caller saves the same object again. Unless the object records that it now exists,
+     * every one of those amounts is counted twice: an order with 30.00 of store credit ended up
+     * with base_customer_balance_invoiced 60.00, and the next invoice was then handed a NEGATIVE
+     * store credit that inflated its grand total.
+     */
+    public function testTheInvoiceRecordsThatTheSaveHasPersistedIt(): void
+    {
+        $instance = $this->makeObserver();
+
+        $invoice = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+        $invoice->setData('customer_balance_amount', 30.00);
+
+        $this->assertNull($invoice->getOrigData(), 'An unsaved invoice has no original data');
+
+        $this->invokeArgs('markAsPersisted', [$invoice], $instance);
+
+        $this->assertSame(
+            30.00,
+            $invoice->getOrigData('customer_balance_amount'),
+            'After the save the invoice must no longer look newly created'
+        );
+    }
+
+    /**
      * @return object
      */
     private function makeObserver()

@@ -230,7 +230,15 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
             $message = 'Automatically invoiced shipped items.';
 
-            if ($this->isAlreadyPaidFor($invoice)) {
+            if ($this->hasNothingToCapture($invoice)) {
+                $this->logger->addDebug(sprintf(
+                    '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: this invoice '
+                    . 'charges nothing, it is covered by store credit or a gift card',
+                    __METHOD__,
+                    __LINE__
+                ));
+                $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+            } elseif ($this->isAlreadyPaidFor($invoice)) {
                 $this->logger->addDebug(sprintf(
                     '[CREATE_INVOICE] | [Observer] | [%s:%s] - Using OFFLINE capture: this amount '
                     . 'was already credited to the order',
@@ -277,6 +285,24 @@ class SalesOrderShipmentAfter implements ObserverInterface
         }
 
         return $invoice;
+    }
+
+    /**
+     * Whether this invoice asks the customer for nothing.
+     *
+     * A shipment invoiced on its own can be covered entirely by store credit or a gift card, and
+     * Magento then prices it at 0.00 - it charges the payment method nothing. Sending that to the
+     * gateway is a request for an amount of zero, which is refused ("amount is invalid for the
+     * action Pay"), and the whole invoice was lost with the failed capture. There is nothing to
+     * take, so it is captured offline.
+     *
+     * @param Invoice $invoice
+     *
+     * @return bool
+     */
+    private function hasNothingToCapture(Invoice $invoice): bool
+    {
+        return round((float)$invoice->getGrandTotal(), 2) < 0.01;
     }
 
     /**

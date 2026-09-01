@@ -88,6 +88,41 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     /**
      * A later shipment of the remaining lines must still be able to invoice and capture them.
      */
+    /**
+     * A shipment invoiced on its own can be covered entirely by store credit or a gift card, and
+     * Magento then prices that invoice at 0.00 - it charges the payment method nothing. Asking the
+     * gateway to take zero is refused ("amount is invalid for the action Pay"), and on order
+     * 300000009 the whole invoice was lost with the failed capture. There is nothing to take, so
+     * it must be captured offline.
+     *
+     */
+    #[DataProvider('invoiceTotalProvider')]
+    public function testAnInvoiceThatChargesNothingIsNotSentToTheGateway(float $grandTotal, bool $expected): void
+    {
+        $instance = $this->getInstance();
+
+        $invoice = $this->getFakeMock('Magento\Sales\Model\Order\Invoice')->getMock();
+        $invoice->method('getGrandTotal')->willReturn($grandTotal);
+
+        $this->assertSame(
+            $expected,
+            $this->invokeArgs('hasNothingToCapture', [$invoice], $instance)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function invoiceTotalProvider(): array
+    {
+        return [
+            'covered in full by store credit' => [0.0, true],
+            'a rounding remnant is still nothing' => [0.004, true],
+            'a cent is money and goes to the gateway' => [0.01, false],
+            'a normal invoice goes to the gateway' => [27.82, false],
+        ];
+    }
+
     public function testNothingIsInvoicedOnceTheOrderHasNoInvoiceableItemsLeft(): void
     {
         $orderMock = $this->getFakeMock('Magento\\Sales\\Model\\Order')->getMock();

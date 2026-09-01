@@ -77,6 +77,18 @@ class SendInvoiceMail implements ObserverInterface
     }
 
     /**
+     * Record that this invoice now exists in the database.
+     *
+     * @param Invoice $invoice
+     *
+     * @return void
+     */
+    private function markAsPersisted(Invoice $invoice): void
+    {
+        $invoice->setOrigData();
+    }
+
+    /**
      * Send email on creating invoice on sales_order_invoice_pay event
      *
      * @param Observer $observer
@@ -102,6 +114,7 @@ class SendInvoiceMail implements ObserverInterface
 
         if (!$invoice->getEmailSent() && $invoice->getIsPaid() && $canCapture && $sendInvoiceEmail) {
             $this->invoiceRepository->save($invoice);
+            $this->markAsPersisted($invoice);
             $this->logger->addDebug(
                 '[SEND_EMAIL] | [Observer] | ['.__METHOD__.':'.__LINE__.'] - Send email on creating invoice'
             );

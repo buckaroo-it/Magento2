@@ -46,6 +46,7 @@ use Magento\Tax\Model\Config;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 {
@@ -77,6 +78,14 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * product_calculations). The children carry the money, the parent only holds their sum.
      */
     public const BUNDLE_CALCULATE_CHILD = 0;
+
+    /**
+     * The invoice whose own share of the order-level credits is being priced, or null when the
+     * lines are built for the whole order.
+     *
+     * @var Invoice|null
+     */
+    private ?Invoice $creditAllocationInvoice = null;
 
     /**
      * @var ScopeConfigInterface
@@ -335,6 +344,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         // ArticlesHandlerFactory hands out a SHARED instance and getQuote() caches, so without
         // this a second order in the same process reuses the previous order's cart.
         $this->quote = null;
+        $this->creditAllocationInvoice = null;
 
         return $this;
     }
@@ -641,12 +651,60 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $discount -= $unallocated;
         }
 
-        $edition = $this->softwareData->getProductMetaData()->getEdition();
-        if ($edition == 'Enterprise' && $this->order->getCustomerBalanceAmount() > 0) {
-            $discount -= abs((float)$this->order->getCustomerBalanceAmount());
+        $storeCredit = $this->getStoreCreditAmount();
+        if ($storeCredit >= 0.01) {
+            $discount -= $storeCredit;
         }
 
         return $discount;
+    }
+
+    /**
+     * Store credit for the lines being priced, as a positive amount.
+     *
+     * @return float
+     */
+    protected function getStoreCreditAmount(): float
+    {
+        if ($this->softwareData->getProductMetaData()->getEdition() !== 'Enterprise') {
+            return 0.0;
+        }
+
+        return max(0.0, $this->getAllocatedCreditAmount('customer_balance_amount'));
+    }
+
+    /**
+     * One order-level credit, read from the invoice being priced when there is one.
+     *
+     * @param string $field
+     *
+     * @return float
+     */
+    private function getAllocatedCreditAmount(string $field): float
+    {
+        $source = $this->creditAllocationInvoice ?? $this->getOrder();
+
+        return (float)$source->getData($field);
+    }
+
+    /**
+     * The store credit lines for an invoice, without the cart discount.
+     *
+     * The part of the cart discount that no line could absorb is one indivisible reserved line and
+     * stays on the first invoice; store credit follows Magento's per-invoice allocation, so every
+     * invoice that absorbs some of it carries its own share.
+     *
+     * @return array
+     */
+    protected function getStoreCreditLines(): array
+    {
+        $storeCredit = $this->getStoreCreditAmount();
+
+        if ($storeCredit < 0.01) {
+            return [];
+        }
+
+        return $this->buildDiscountLines(-$storeCredit, $this->getOrderVatGroups());
     }
 
     /**
@@ -1030,11 +1088,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
          */
         $currentInvoice = $invoiceCollection->getLastItem();
 
-        // Whatever could not be attributed to an item or the shipping line is settled on the
-        // first invoice, at the price the reserve sent for it.
-        $discountLines = $numberOfInvoices == 1 ? $this->getDiscountLines() : [];
-
         $isFirstInvoice = $numberOfInvoices == 1;
+
+        // Price the order-level credits against this invoice's own share of them.
+        $this->creditAllocationInvoice = $currentInvoice;
+
+        $discountLines = $isFirstInvoice ? $this->getDiscountLines() : $this->getStoreCreditLines();
 
         $articles['articles'] = $this->getInvoiceItemsLines($currentInvoice);
 
@@ -1048,9 +1107,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             $articles['articles'][] = $discountLine;
         }
 
-        if ($isFirstInvoice) {
-            $articles = $this->mergeArticleLines($articles, $this->getAdditionalLines());
-        }
+        $articles = $this->mergeArticleLines($articles, $this->getAdditionalLines());
 
         return $this->finaliseCaptureArticles($articles, $currentInvoice);
     }
@@ -1084,17 +1141,20 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $isFirstInvoice = !empty($invoiceIds) && $invoiceId === reset($invoiceIds);
         $isClosingInvoice = !empty($invoiceIds) && $invoiceId === end($invoiceIds) && !$order->canInvoice();
 
+        // Mirror getInvoiceArticlesData(): the credits are priced per invoice.
+        $this->creditAllocationInvoice = $invoice;
+
         $articles = ['articles' => $this->getInvoiceItemsLines($invoice)];
 
         if ($isFirstInvoice) {
             $articles = $this->mergeArticleLines($articles, $this->getServiceCostLine($invoice));
-
-            foreach ($this->getDiscountLines() as $discountLine) {
-                $articles['articles'][] = $discountLine;
-            }
-
-            $articles = $this->mergeArticleLines($articles, $this->getAdditionalLines());
         }
+
+        foreach (($isFirstInvoice ? $this->getDiscountLines() : $this->getStoreCreditLines()) as $discountLine) {
+            $articles['articles'][] = $discountLine;
+        }
+
+        $articles = $this->mergeArticleLines($articles, $this->getAdditionalLines());
 
         $articles = $this->mergeArticleLines($articles, $this->getShippingCostsLine($invoice));
 
@@ -1807,7 +1867,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Reward point and gift card discount lines, for the methods that send them.
      *
-     * Indivisible: they carry the reserved amount and are settled on the first invoice only.
+     * Priced against the invoice being captured when there is one. Magento settles both on the
+     * first invoice in practice, so later invoices simply record 0 and get no line.
      *
      * @return array
      */
@@ -1835,7 +1896,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getRewardLine(): array
     {
-        $discount = (float)$this->getOrder()->getData('reward_currency_amount');
+        $discount = $this->getAllocatedCreditAmount('reward_currency_amount');
 
         if ($discount <= 0) {
             return [];
@@ -1853,7 +1914,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getGiftCardLine(): array
     {
-        $discount = (float)$this->getOrder()->getData('gift_cards_amount');
+        $discount = $this->getAllocatedCreditAmount('gift_cards_amount');
 
         if ($discount <= 0) {
             return [];

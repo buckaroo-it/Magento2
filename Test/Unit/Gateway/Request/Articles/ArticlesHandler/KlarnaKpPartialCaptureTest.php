@@ -159,16 +159,15 @@ class KlarnaKpPartialCaptureTest extends TestCase
     }
 
     /**
-     * A gift card is settled per invoice, so a partial capture may only subtract the part the
-     * invoice it captures actually carries.
+     * A gift card is recorded per invoice by Magento, and the capture lines follow that record.
+     * A first invoice large enough to absorb the whole card carries all of it, so the later
+     * capture must not send it again.
      */
-    public function testAGiftCardIsSettledWholeOnTheFirstInvoice(): void
+    public function testAGiftCardIsSettledWholeOnTheFirstInvoiceThatAbsorbsIt(): void
     {
-        // A gift card line is indivisible too: it carries the amount the reserve sent and is
-        // only repeated on the first capture.
         $first = $this->buildCapture(
             [$this->makeItem('SH00087452', 'Shipped product', 20.00)],
-            ['grandTotal' => 20.00, 'discount' => 0.0, 'subtotal' => 20.00],
+            ['grandTotal' => 20.00, 'discount' => 0.0, 'subtotal' => 20.00, 'giftCard' => 16.00],
             ['grandTotal' => 24.00, 'discount' => 0.0, 'subtotal' => 40.00, 'giftCard' => 16.00]
         );
 
@@ -181,6 +180,36 @@ class KlarnaKpPartialCaptureTest extends TestCase
 
         $this->assertEqualsWithDelta(-16.00, $this->priceOf($first, '6'), 0.001);
         $this->assertEqualsWithDelta(0.0, $this->priceOf($second, '6'), 0.001);
+    }
+
+    /**
+     * A credit worth more than the first invoice charges is NOT settled whole on it: Magento
+     * gives that invoice only what it can absorb and moves the rest to the next one. Pricing
+     * either capture from the ORDER amount sends more credit than the invoice carries, and the
+     * lines then sum below zero - order 300000009 sent -10.90 for an invoice of 19.10 against
+     * 30.00 of store credit, which the gateway refused and the invoice was lost with it.
+     */
+    public function testACreditLargerThanTheFirstInvoiceIsSplitOverTheInvoicesThatCarryIt(): void
+    {
+        $first = $this->buildCapture(
+            [$this->makeItem('SH00087452', 'Shipped product', 20.00)],
+            ['grandTotal' => 0.0, 'discount' => 0.0, 'subtotal' => 20.00, 'giftCard' => 20.00],
+            ['grandTotal' => 10.00, 'discount' => 0.0, 'subtotal' => 40.00, 'giftCard' => 30.00]
+        );
+
+        $second = $this->buildCapture(
+            [$this->makeItem('SH00074480', 'Late product', 20.00)],
+            ['grandTotal' => 10.00, 'discount' => 0.0, 'subtotal' => 20.00, 'giftCard' => 10.00],
+            ['grandTotal' => 10.00, 'discount' => 0.0, 'subtotal' => 40.00, 'giftCard' => 30.00],
+            2
+        );
+
+        $this->assertEqualsWithDelta(-20.00, $this->priceOf($first, '6'), 0.001);
+        $this->assertEqualsWithDelta(-10.00, $this->priceOf($second, '6'), 0.001);
+
+        // Each capture asks for exactly what its own invoice charges.
+        $this->assertEqualsWithDelta(0.0, $this->sumArticles($first), 0.001);
+        $this->assertEqualsWithDelta(10.00, $this->sumArticles($second), 0.001);
     }
 
     /**

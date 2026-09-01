@@ -34,4 +34,15 @@ class BillinkHandler extends AbstractArticlesHandler
     {
         return [];
     }
+
+    /**
+     * Billink prices every discount on the item lines, so a store credit line is suppressed for
+     * the same reason the global discount line is.
+     *
+     * @return array
+     */
+    protected function getStoreCreditLines(): array
+    {
+        return [];
+    }
 }

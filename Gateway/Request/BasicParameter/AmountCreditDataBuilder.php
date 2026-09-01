@@ -129,6 +129,10 @@ class AmountCreditDataBuilder implements BuilderInterface
         $this->setRefundAmount($order, $payment, $amountAdjustedForGroupTransactions);
         $this->capAtCapturedAmount($order, $payment);
 
+        if ($this->refundAmount < 0.01) {
+            throw new InvalidArgumentException('Credit Amount must be greater than 0');
+        }
+
         return [
             self::AMOUNT_CREDIT => $this->getRefundAmount()
         ];
