@@ -199,14 +199,4 @@ class AfterpayHandler extends AbstractArticlesHandler
             'imageUrl'      => $imageUrl
         ];
     }
-
-    /**
-     * Get additional discount lines such as reward points or gift cards
-     *
-     * @return array
-     */
-    protected function getAdditionalLines(): array
-    {
-        return ['articles' => $this->getRewardAndGiftCardLines()];
-    }
 }

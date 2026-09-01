@@ -392,6 +392,91 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * An amount already settled outside the gateway - reward points, a gift card, store credit -
+     * is sent as its own negative line so the articles still sum to what the gateway is asked for.
+     *
+     * @param string $dataKey
+     * @param int    $identifier
+     */
+    #[DataProvider('settledOutsideTheGatewayProvider')]
+    public function testAnAmountSettledOutsideTheGatewayGetsItsOwnLine(string $dataKey, int $identifier): void
+    {
+        $instance = $this->buildInstance(true);
+        $this->setProperty('order', $this->makeOrderWithData([$dataKey => 21.50]), $instance);
+
+        $lines = $this->invoke('getAdditionalLines', $instance)['articles'];
+
+        $this->assertCount(1, $lines);
+        $this->assertEquals($identifier, $lines[0]['identifier']);
+        $this->assertEqualsWithDelta(-21.50, (float)$lines[0]['price'], 0.001);
+    }
+
+    public static function settledOutsideTheGatewayProvider(): array
+    {
+        return [
+            'reward points' => ['reward_currency_amount', 5],
+            'gift card' => ['gift_cards_amount', 6],
+        ];
+    }
+
+    /**
+     * Reward points, gift cards and store credit are all Adobe Commerce features read from order
+     * data keys rather than from Magento\Reward or Magento\CustomerBalance classes, so the same
+     * handler runs unchanged on Open Source - where the keys are simply absent.
+     */
+    public function testNothingIsSentWhenNoneOfThoseKeysArePresent(): void
+    {
+        $instance = $this->buildInstance(true);
+        $this->setProperty('order', $this->makeOrderWithData([]), $instance);
+
+        $this->assertSame(
+            [],
+            $this->invoke('getAdditionalLines', $instance),
+            'On Open Source these order data keys do not exist, so no line may be sent'
+        );
+    }
+
+    /**
+     * Both can appear on one order, and no two lines may share an article number.
+     */
+    public function testBothCanAppearTogetherWithDistinctArticleNumbers(): void
+    {
+        $instance = $this->buildInstance(true);
+        $this->setProperty('order', $this->makeOrderWithData([
+            'reward_currency_amount' => 5.00,
+            'gift_cards_amount' => 10.00,
+        ]), $instance);
+
+        $lines = $this->invoke('getAdditionalLines', $instance)['articles'];
+        $identifiers = array_column($lines, 'identifier');
+
+        $this->assertCount(2, $lines);
+        $this->assertSame($identifiers, array_unique($identifiers), 'Every line needs its own number');
+        $this->assertEqualsWithDelta(
+            -15.00,
+            array_sum(array_map(static fn ($l) => (float)$l['price'], $lines)),
+            0.001
+        );
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeOrderWithData(array $data)
+    {
+        $order = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $order->method('getData')->willReturnCallback(
+            static function ($key = null) use ($data) {
+                return $data[$key] ?? null;
+            }
+        );
+
+        return $order;
+    }
+
+    /**
      * @param float $orderDiscount
      * @param array $items
      *

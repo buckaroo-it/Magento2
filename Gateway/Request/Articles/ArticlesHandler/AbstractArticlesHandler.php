@@ -1799,7 +1799,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function getAdditionalLines(): array
     {
-        return [];
+        $articles = $this->getRewardAndGiftCardLines();
+
+        return empty($articles) ? [] : ['articles' => $articles];
     }
 
     /**

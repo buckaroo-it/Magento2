@@ -23,13 +23,4 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
 class KlarnaKpHandler extends AbstractArticlesHandler
 {
-    /**
-     * Get Additional Lines for specific methods
-     *
-     * @return array
-     */
-    protected function getAdditionalLines(): array
-    {
-        return ['articles' => $this->getRewardAndGiftCardLines()];
-    }
 }
