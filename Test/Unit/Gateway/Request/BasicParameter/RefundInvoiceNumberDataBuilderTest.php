@@ -24,13 +24,13 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * BTI-1413 — "Invoice numbers for refunds have to be unique. We recommend to use the same
+ * "Invoice numbers for refunds have to be unique. We recommend to use the same
  * invoice number of the Pay or Capture transaction with an extra addition at the end like -1 or
  * -R." (Buckaroo RIVERTY request documentation; the general refund documentation is silent, and
  * Klarna accepts a repeated number.)
  *
  * Sending the bare order number for every refund made Riverty refuse the second one with
- * "Cannot create refund as invoice number already exists (creditNoteNumber)" on order 000000018.
+ * "Cannot create refund as invoice number already exists (creditNoteNumber)".
  * The first refund keeps the number every method has always sent, so nothing changes for the
  * single-refund orders that make up almost all traffic.
  */

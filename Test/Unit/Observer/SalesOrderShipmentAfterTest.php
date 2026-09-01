@@ -46,7 +46,7 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1413 — a discounted order used to be invoiced in full on a partial shipment, which
+     * A discounted order used to be invoiced in full on a partial shipment, which
      * captured the whole Klarna authorization and billed the shopper for unshipped lines.
      */
     public function testADiscountedOrderIsInvoicedForTheShippedItemsOnly(): void
@@ -104,7 +104,7 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1413 — Klarna KP supports partial fulfilment, so the shipment of the remaining lines
+     * Klarna KP supports partial fulfilment, so the shipment of the remaining lines
      * must be able to invoice and capture them even though a first invoice already exists.
      */
     public function testASecondShipmentOfAKlarnaKpOrderStillInvoices(): void
@@ -258,7 +258,7 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1413 — Invoice::register() writes the invoiced quantities onto the order items before
+     * Invoice::register() writes the invoiced quantities onto the order items before
      * it attempts the capture, so a capture that throws must still be rolled back. The flag that
      * gates the rollback used to be set only after register() returned, which left the order
      * reporting invoiced items with no invoice entity once handleInvoiceFailure() saved it.
@@ -348,7 +348,7 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1413 — `buckaroo_already_captured` is set by the push on the FIRST capture and never
+     * `buckaroo_already_captured` is set by the push on the FIRST capture and never
      * cleared. On an order that captures per shipment it would send every later invoice offline,
      * marking it paid while the money never leaves the gateway.
      *
@@ -397,6 +397,80 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
             'partly credited, but not enough for this invoice' => [true, 40.00, 31.46, 19.36, false],
             'no flag at all' => [false, 38.72, 0.0, 38.72, false],
         ];
+    }
+
+    /**
+     * A "Ship Together" bundle records qty_shipped on the parent only, so the children have to be
+     * mirrored or canShip() never returns false and the order cannot reach "complete". Mirroring
+     * the parent's full ordered quantity would claim stock still in the warehouse.
+     *
+     * @param float $parentQtyOrdered
+     * @param float $parentQtyShipped
+     * @param float $childQtyOrdered
+     * @param float $expected
+     */
+    #[DataProvider('bundleChildQtyProvider')]
+    public function testABundleChildFollowsTheShareOfTheBundleThatShipped(
+        float $parentQtyOrdered,
+        float $parentQtyShipped,
+        float $childQtyOrdered,
+        float $expected
+    ): void {
+        $child = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $child->method('getQtyOrdered')->willReturn($childQtyOrdered);
+        $child->method('getQtyShipped')->willReturn(0.0);
+        $child->expects($this->once())->method('setQtyShipped')->with($expected);
+
+        $this->runBundleQtySync($parentQtyOrdered, $parentQtyShipped, [$child]);
+    }
+
+    public static function bundleChildQtyProvider(): array
+    {
+        return [
+            'a single bundle that shipped' => [1.0, 1.0, 1.0, 1.0],
+            'half of the bundles shipped' => [2.0, 1.0, 2.0, 1.0],
+            'all the bundles shipped' => [2.0, 2.0, 2.0, 2.0],
+            'a child with more than one unit per bundle' => [2.0, 1.0, 6.0, 3.0],
+            'one of three bundles shipped' => [3.0, 1.0, 3.0, 1.0],
+        ];
+    }
+
+    /**
+     * A child is never written down, so a later shipment of the same bundle cannot undo an
+     * earlier one and a fully shipped child is left alone.
+     */
+    public function testAChildIsNeverWrittenBackDown(): void
+    {
+        $child = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $child->method('getQtyOrdered')->willReturn(2.0);
+        $child->method('getQtyShipped')->willReturn(2.0);
+        $child->expects($this->never())->method('setQtyShipped');
+
+        $this->runBundleQtySync(2.0, 1.0, [$child]);
+    }
+
+    /**
+     * @param float $parentQtyOrdered
+     * @param float $parentQtyShipped
+     * @param array $children
+     *
+     * @return void
+     */
+    private function runBundleQtySync(float $parentQtyOrdered, float $parentQtyShipped, array $children): void
+    {
+        $parent = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $parent->method('getProductType')->willReturn('bundle');
+        $parent->method('isShipSeparately')->willReturn(false);
+        $parent->method('getQtyOrdered')->willReturn($parentQtyOrdered);
+        $parent->method('getQtyShipped')->willReturn($parentQtyShipped);
+        $parent->method('getChildrenItems')->willReturn($children);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getAllItems')->willReturn([$parent]);
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $orderMock, $instance);
+        $this->invoke('syncBundleTogetherChildQtyShipped', $instance);
     }
 
     public function testRollbackIsANoOpForAnInvoiceWithoutItems(): void

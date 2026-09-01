@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Articles;
 
 /**
- * BTI-1413 — Buckaroo's Klarna KP Pay documentation takes no prices on a capture: a full
+ * Buckaroo's Klarna KP Pay documentation takes no prices on a capture: a full
  * capture carries only the reservation number, and a partial capture nominates reserved lines
  * by ArticleNumber and ArticleQuantity. Sending a price Klarna did not reserve is what produced
  * "Sum of given articles (3,36) is not equal to the given amount (19,36)".

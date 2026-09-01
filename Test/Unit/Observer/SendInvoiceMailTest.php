@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 /**
- * BTI-1413 — Magento's invoice email template passes the ORDER item to
+ * Magento's invoice email template passes the ORDER item to
  * DefaultItems::getItemPrice(), which writes row_total = orderItem.price * invoiceItem.qty onto
  * it. On a partial invoice that is wrong (2 of 3 units gives 64.00 for a 96.00 row), and the
  * next save of the order commits it, so credit memos are pro-rated from a corrupted figure.

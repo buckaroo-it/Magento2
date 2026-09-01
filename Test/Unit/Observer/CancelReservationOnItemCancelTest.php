@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 
 /**
- * BTI-1413 — a fulfilment system cancels the lines it could not ship instead of cancelling the
+ * A fulfilment system cancels the lines it could not ship instead of cancelling the
  * order, which never reaches order_cancel_after. The uncaptured part of the Klarna reservation
  * must still be released, but only once no line can be captured any more.
  */

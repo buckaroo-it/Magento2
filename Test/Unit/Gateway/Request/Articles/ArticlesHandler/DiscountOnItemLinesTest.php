@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\Articles\ArticlesHandler;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * BTI-1413 — a payment provider validates the article lines of a partial capture against the
+ * A payment provider validates the article lines of a partial capture against the
  * ones it saw during the reserve and uses the RESERVED unit price. A lump discount line can
  * therefore never be captured in part: Klarna answered a €19.36 capture that carried a −€16.00
  * slice of a −€32.00 reserved line with
@@ -36,6 +36,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
 {
+    /**
+     * Bundle price calculation, as an order item records it in product_options.
+     */
+    private const CALCULATE_CHILD = 0;
+    private const CALCULATE_PARENT = 1;
+
     protected $instanceClass = 'Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\BillinkHandler';
 
     /**
@@ -161,6 +167,53 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
         );
     }
 
+    /**
+     * shipping_incl_tax is the gross cost BEFORE the discount while shipping_discount_amount is
+     * net of tax, so subtracting one from the other leaves the tax on the discount behind and the
+     * remainder ends up on a fabricated article the provider refuses.
+     *
+     * @param float $shippingAmount
+     * @param float $shippingInclTax
+     * @param float $shippingTaxAmount
+     * @param float $shippingDiscount
+     * @param float $expected
+     */
+    #[DataProvider('discountedShippingProvider')]
+    public function testTheShippingLineIsGrossOfTaxAndNetOfItsDiscount(
+        float $shippingAmount,
+        float $shippingInclTax,
+        float $shippingTaxAmount,
+        float $shippingDiscount,
+        float $expected
+    ): void {
+        $instance = $this->buildInstance(false);
+
+        $order = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $order->method('getShippingAmount')->willReturn($shippingAmount);
+        $order->method('getShippingInclTax')->willReturn($shippingInclTax);
+        $order->method('getShippingTaxAmount')->willReturn($shippingTaxAmount);
+        $order->method('getShippingDiscountAmount')->willReturn(-$shippingDiscount);
+        $order->method('getShippingDiscountTaxCompensationAmount')->willReturn(0.0);
+
+        $this->assertEqualsWithDelta(
+            $expected,
+            $this->invokeArgs('getDiscountedShippingAmount', [$order], $instance),
+            0.001
+        );
+    }
+
+    public static function discountedShippingProvider(): array
+    {
+        return [
+            // Magento discounted the cost before taxing it, so shipping_tax_amount is already
+            // the tax on the 8.00 that is actually charged.
+            'discount applied before tax' => [10.00, 12.10, 1.68, 2.00, 9.68],
+            'no discount leaves the gross cost alone' => [10.00, 12.10, 2.10, 0.0, 12.10],
+            'a discount covering the whole cost leaves no line' => [10.00, 12.10, 0.0, 10.00, 0.0],
+            'free shipping has no line either' => [0.0, 0.0, 0.0, 0.0, 0.0],
+        ];
+    }
+
     public static function shippingDiscountProvider(): array
     {
         return [
@@ -201,7 +254,7 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getDiscountAmount')->willReturn($orderDiscount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $order->method('getShippingDiscountAmount')->willReturn($shippingDiscount);
-        $order->method('getAllVisibleItems')->willReturn($items);
+        $order->method('getAllItems')->willReturn($items);
 
         $this->setProperty('order', $order, $instance);
 
@@ -221,6 +274,198 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
             'a partly allocated discount leaves the rest' => [-16.99, [8.00, 0.0], 0.0, -8.99],
             'no discount at all' => [0.0, [0.0], 0.0, 0.0],
         ];
+    }
+
+    /**
+     * A dynamic-price bundle keeps its prices and its discount on the child items, which
+     * getAllVisibleItems() hides. Reading the allocation from the visible items alone sees a parent
+     * with discount 0 and reports the children's discount as unallocated, so it is sent a second
+     * time as a global discount line on top of child prices already discounted.
+     */
+    public function testADynamicBundleAllocatesItsDiscountOnTheChildren(): void
+    {
+        $instance = $this->buildInstance(true);
+
+        $items = [$this->makeBundleParent(615, self::CALCULATE_CHILD)];
+        foreach ([23.00, 5.00, 14.00, 19.00] as $index => $discount) {
+            $items[] = $this->makeChildItem($discount, 616 + $index, 615);
+        }
+        $items[] = $this->makeSimpleItem(16.00, 620);
+
+        $this->setProperty('order', $this->makeDiscountedOrder(-77.00, $items), $instance);
+
+        $this->assertEqualsWithDelta(
+            0.0,
+            (float)$this->invoke('getDiscountAmount', $instance),
+            0.001,
+            'The bundle children carry the discount, so nothing is left for a global line'
+        );
+    }
+
+    /**
+     * A fixed-price bundle carries its price and its discount on the parent and leaves its
+     * children empty, so only the parent may be counted - counting both would report the
+     * discount as over-allocated and drop a global line that is genuinely owed.
+     */
+    public function testAFixedPriceBundleAllocatesItsDiscountOnTheParent(): void
+    {
+        $instance = $this->buildInstance(true);
+
+        $parent = $this->makeBundleParent(700, self::CALCULATE_PARENT, 30.00);
+        $items = [$parent, $this->makeChildItem(0.0, 701, 700), $this->makeChildItem(0.0, 702, 700)];
+
+        $this->setProperty('order', $this->makeDiscountedOrder(-30.00, $items), $instance);
+
+        $this->assertEqualsWithDelta(
+            0.0,
+            (float)$this->invoke('getDiscountAmount', $instance),
+            0.001,
+            'The parent carries the whole discount of a fixed-price bundle'
+        );
+    }
+
+    /**
+     * A configurable keeps its price and discount on the parent too, and its child is a label
+     * with no money on it.
+     */
+    public function testAConfigurableChildIsNotCounted(): void
+    {
+        $instance = $this->buildInstance(true);
+
+        $parent = $this->makeSimpleItem(16.00, 800, 'configurable');
+        $items = [$parent, $this->makeChildItem(16.00, 801, 800)];
+
+        $this->setProperty('order', $this->makeDiscountedOrder(-16.00, $items), $instance);
+
+        $this->assertEqualsWithDelta(
+            0.0,
+            (float)$this->invoke('getDiscountAmount', $instance),
+            0.001,
+            'The configurable child must not be counted a second time'
+        );
+    }
+
+    /**
+     * The VAT grouping reads the same items. A dynamic bundle parent has no tax rate at all, so
+     * grouping by the visible items put the children's whole row total at 0% VAT and split the
+     * discount lines over the wrong rates.
+     */
+    public function testTheVatGroupingReadsTheBundleChildren(): void
+    {
+        $instance = $this->buildInstance(true);
+
+        $parent = $this->makeBundleParent(615, self::CALCULATE_CHILD);
+        $parent->method('getRowTotal')->willReturn(122.00);
+        $parent->method('getTaxPercent')->willReturn(null);
+
+        $items = [$parent];
+        foreach ([[46.00, 21.0, 616], [10.00, 21.0, 617], [28.00, 0.0, 618], [38.00, 21.0, 619]] as $row) {
+            [$rowTotal, $vat, $itemId] = $row;
+            $child = $this->makeChildItem(0.0, $itemId, 615);
+            $child->method('getRowTotal')->willReturn($rowTotal);
+            $child->method('getTaxPercent')->willReturn($vat);
+            $items[] = $child;
+        }
+
+        $this->setProperty('order', $this->makeDiscountedOrder(0.0, $items), $instance);
+
+        $groups = $this->invoke('getOrderVatGroups', $instance);
+
+        $this->assertEqualsWithDelta(
+            94.00,
+            $groups[21]['rowTotal'] ?? 0.0,
+            0.001,
+            'The 21% children are grouped at their own rate'
+        );
+        $this->assertEqualsWithDelta(
+            28.00,
+            $groups[0]['rowTotal'] ?? 0.0,
+            0.001,
+            'The 0% child keeps its own rate'
+        );
+        $this->assertEqualsWithDelta(
+            122.00,
+            array_sum(array_column($groups, 'rowTotal')),
+            0.001,
+            'The children add up to what the parent holds, and the parent is not counted twice'
+        );
+    }
+
+    /**
+     * @param float $orderDiscount
+     * @param array $items
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeDiscountedOrder(float $orderDiscount, array $items)
+    {
+        $order = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $order->method('getDiscountAmount')->willReturn($orderDiscount);
+        $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+        $order->method('getShippingDiscountAmount')->willReturn(0.0);
+        $order->method('getAllItems')->willReturn($items);
+
+        return $order;
+    }
+
+    /**
+     * @param int   $itemId
+     * @param int   $priceCalculation
+     * @param float $discount
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeBundleParent(int $itemId, int $priceCalculation, float $discount = 0.0)
+    {
+        $item = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $item->method('getItemId')->willReturn($itemId);
+        $item->method('getParentItemId')->willReturn(null);
+        $item->method('getProductType')->willReturn('bundle');
+        $item->method('getProductOptions')->willReturn(['product_calculations' => $priceCalculation]);
+        $item->method('getDiscountAmount')->willReturn($discount);
+        $item->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+
+        return $item;
+    }
+
+    /**
+     * @param float $discount
+     * @param int   $itemId
+     * @param int   $parentItemId
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeChildItem(float $discount, int $itemId, int $parentItemId)
+    {
+        $item = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $item->method('getItemId')->willReturn($itemId);
+        $item->method('getParentItemId')->willReturn($parentItemId);
+        $item->method('getProductType')->willReturn('simple');
+        $item->method('getProductOptions')->willReturn([]);
+        $item->method('getDiscountAmount')->willReturn($discount);
+        $item->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+
+        return $item;
+    }
+
+    /**
+     * @param float  $discount
+     * @param int    $itemId
+     * @param string $productType
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    private function makeSimpleItem(float $discount, int $itemId, string $productType = 'simple')
+    {
+        $item = $this->getFakeMock('Magento\Sales\Model\Order\Item')->getMock();
+        $item->method('getItemId')->willReturn($itemId);
+        $item->method('getParentItemId')->willReturn(null);
+        $item->method('getProductType')->willReturn($productType);
+        $item->method('getProductOptions')->willReturn([]);
+        $item->method('getDiscountAmount')->willReturn($discount);
+        $item->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
+
+        return $item;
     }
 
     /**
@@ -250,7 +495,7 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getDiscountAmount')->willReturn(-30.00);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $order->method('getShippingDiscountAmount')->willReturn(0.0);
-        $order->method('getAllVisibleItems')->willReturn($items);
+        $order->method('getAllItems')->willReturn($items);
         $this->setProperty('order', $order, $instance);
 
         $lines = $instance->getDiscountLines();
@@ -266,7 +511,7 @@ class DiscountOnItemLinesTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1413 — a residual used to be absorbed by splitting a unit off an existing line, which
+     * A residual used to be absorbed by splitting a unit off an existing line, which
      * left two articles with the SAME ArticleNumber. Klarna could not tell them apart on a
      * partial capture: "Please make sure you also provide the Article Quantity for the items
      * with the same Article Number as in the Reserve!".

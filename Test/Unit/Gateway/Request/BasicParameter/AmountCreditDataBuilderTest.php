@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
@@ -52,6 +53,11 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
      */
     private $amountCreditDataBuilder;
 
+    /**
+     * @var ArticlesHandlerFactory|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $articlesHandlerFactoryMock;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,9 +66,14 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         $this->refundGroupServiceMock = $this->createMock(RefundGroupTransactionService::class);
 
+        // No creditmemo on these subjects, so the captured-amount cap is never consulted.
+        $this->articlesHandlerFactoryMock = $this->createMock(ArticlesHandlerFactory::class);
+
         $this->amountCreditDataBuilder = new AmountCreditDataBuilder(
             $this->transactionCurrencyResolverMock,
-            $this->refundGroupServiceMock
+            $this->refundGroupServiceMock,
+            $this->articlesHandlerFactoryMock,
+            $this->createMock(\Buckaroo\Magento2\Logging\BuckarooLoggerInterface::class)
         );
     }
 
@@ -167,7 +178,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * refundGroupTransactions() returns the CLAMPED remainder (group-transaction
+     * RefundGroupTransactions() returns the CLAMPED remainder (group-transaction
      * deduction and total-order ceiling applied). The builder must consume that
      * return value - reading the raw amountLeftToRefund property discards the
      * clamps and can over-refund the primary payment method.

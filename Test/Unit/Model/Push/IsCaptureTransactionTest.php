@@ -40,7 +40,7 @@ class IsCaptureTransactionTest extends \Buckaroo\Magento2\Test\BaseTest
     public static function pushProvider(): array
     {
         return [
-            // brq_transaction_type C001, mutationtype Collecting - the BTI-1390 regression
+            // brq_transaction_type C001, mutationtype Collecting - the regression
             'bank transfer pay push' => [
                 [
                     'additional' => [['initiated_by_magento', 1], ['service_action_from_magento', 'pay']],

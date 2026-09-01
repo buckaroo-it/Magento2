@@ -43,7 +43,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * BTI-1413 — end-to-end shape of the capture request for a partially shipped order.
+ * End-to-end shape of the capture request for a partially shipped order.
  *
  * The article lines a capture sends must add up to the invoice grand total: Klarna validates
  * them against the lines it saw during the reserve and the amountDebit is derived from their
@@ -134,7 +134,7 @@ class KlarnaKpPartialCaptureTest extends TestCase
 
     /**
      * A cart-level discount a third-party module never wrote onto the order items is invisible
-     * to Magento's invoice totals, so the invoice grand total is inflated (BTI-1312). The lines
+     * to Magento's invoice totals, so the invoice grand total is inflated. The lines
      * must carry this invoice's share of that remainder instead of the whole of it.
      */
     public function testAnUnallocatedCartDiscountIsSettledWholeOnTheFirstInvoice(): void
@@ -160,7 +160,7 @@ class KlarnaKpPartialCaptureTest extends TestCase
 
     /**
      * A gift card is settled per invoice, so a partial capture may only subtract the part the
-     * invoice it captures actually carries (BTI-980).
+     * invoice it captures actually carries.
      */
     public function testAGiftCardIsSettledWholeOnTheFirstInvoice(): void
     {
@@ -236,13 +236,48 @@ class KlarnaKpPartialCaptureTest extends TestCase
         // 35.36 - (16.99 / 3) = 29.70, the same unit price the reserve sent for all three.
         $this->assertEqualsWithDelta(29.70, (float)$line['price'], 0.005);
 
-        // 2 x 29.70 is a cent short of the invoice, and that cent rides on its own line.
+        // 2 x 29.70 is a cent short of this invoice, and it STAYS short: the reserve's rounding
+        // adjustment is one indivisible reserved line and may not be sliced per invoice.
         $this->assertEqualsWithDelta(
-            0.01,
+            0.0,
             $this->priceOf($articles, \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::ADJUSTMENT_IDENTIFIER),
-            0.001
+            0.001,
+            'An intermediate capture carries no adjustment line'
         );
-        $this->assertEqualsWithDelta(59.41, $this->sumArticles($articles), 0.001);
+        $this->assertEqualsWithDelta(59.40, $this->sumArticles($articles), 0.001);
+    }
+
+    /**
+     * The leftover is settled on the capture that closes the order, at the amount the reservation
+     * still holds. Slicing a fresh adjustment per invoice re-prices a reserved line, and a provider
+     * that resums the reservation refuses the capture.
+     */
+    public function testTheLastCaptureSettlesTheReservedResidual(): void
+    {
+        // The third and last unit of the same order: 59.40 has been captured at reserved prices.
+        $item = $this->makeItem('24-WB01', 'Voyage Yoga Bag', 35.36, 16.99, 1.0, 3.0);
+
+        $articles = $this->buildCapture(
+            [$item],
+            ['grandTotal' => 29.70, 'discount' => -5.66, 'subtotal' => 35.36],
+            [
+                'grandTotal' => 89.09, 'discount' => -16.99, 'subtotal' => 106.08,
+                'itemDiscounts' => [16.99], 'totalPaid' => 59.40, 'canInvoice' => false,
+            ]
+        );
+
+        $this->assertEqualsWithDelta(
+            -0.01,
+            $this->priceOf($articles, \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::ADJUSTMENT_IDENTIFIER),
+            0.001,
+            'The residual the reservation still holds'
+        );
+        $this->assertEqualsWithDelta(
+            29.69,
+            $this->sumArticles($articles),
+            0.001,
+            'The final capture takes exactly what is left of the authorization'
+        );
     }
 
     /**
@@ -410,13 +445,24 @@ class KlarnaKpPartialCaptureTest extends TestCase
         $collection->method('count')->willReturn($numberOfInvoices);
         $collection->method('getLastItem')->willReturn($invoice);
 
+        // The order items behind the invoice items ARE the order's items: the reserve and the
+        // capture both read their prices, so the fixture may not invent a second set.
         $orderItems = [];
+        foreach ($invoiceItems as $invoiceItem) {
+            $behind = $invoiceItem->getOrderItem();
+            if ($behind !== null) {
+                $orderItems[] = $behind;
+            }
+        }
+
         foreach (($orderTotals['itemDiscounts'] ?? []) as $discount) {
             $orderItem = $this->createMock(Order\Item::class);
             $orderItem->method('getDiscountAmount')->willReturn($discount);
             $orderItem->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
             $orderItem->method('getRowTotal')->willReturn(16.99);
             $orderItem->method('getTaxPercent')->willReturn(0.0);
+            // No price data, so it contributes nothing to the reserve rounding residual.
+            $orderItem->method('getQtyOrdered')->willReturn(0.0);
             $orderItems[] = $orderItem;
         }
 
@@ -425,11 +471,13 @@ class KlarnaKpPartialCaptureTest extends TestCase
         $order->method('getQuoteId')->willReturn(1);
         $order->method('getGrandTotal')->willReturn($orderTotals['grandTotal']);
         $order->method('getTotalPaid')->willReturn($orderTotals['totalPaid'] ?? 0.0);
+        // Whether anything is left to invoice decides where the reserved rounding residual lands.
+        $order->method('canInvoice')->willReturn($orderTotals['canInvoice'] ?? true);
         $order->method('getDiscountAmount')->willReturn($orderTotals['discount']);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $order->method('getShippingDiscountAmount')->willReturn(0.0);
         $order->method('getSubtotal')->willReturn($orderTotals['subtotal']);
-        $order->method('getAllVisibleItems')->willReturn($orderItems);
+        $order->method('getAllItems')->willReturn($orderItems);
         $order->method('getData')->willReturnCallback(
             function ($key = null) use ($orderTotals) {
                 return $key === 'gift_cards_amount' ? ($orderTotals['giftCard'] ?? 0.0) : 0.0;
@@ -457,11 +505,17 @@ class KlarnaKpPartialCaptureTest extends TestCase
         float $qty = 1.0,
         float $qtyOrdered = 1.0
     ) {
+        // The order item mirrors the quote the reserve was built from, and the capture reads both
+        // the price and the discount from it so the reserved unit price is repeated exactly.
         $orderItem = $this->createMock(Order\Item::class);
         $orderItem->method('getTaxPercent')->willReturn(0.0);
         $orderItem->method('getDiscountAmount')->willReturn($discount);
         $orderItem->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
         $orderItem->method('getQtyOrdered')->willReturn($qtyOrdered);
+        $orderItem->method('getPriceInclTax')->willReturn($price);
+        $orderItem->method('getPrice')->willReturn($price);
+        $orderItem->method('getTaxAmount')->willReturn(0.0);
+        $orderItem->method('getWeeeTaxAppliedAmount')->willReturn(0.0);
 
         $item = $this->getMockBuilder(InvoiceItemStub::class)
             ->disableOriginalConstructor()

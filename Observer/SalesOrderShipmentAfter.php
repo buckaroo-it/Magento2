@@ -187,9 +187,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
     /**
      * Create invoice automatically after shipment
      *
-     * Always invoices the shipped lines only. Invoicing the whole order on a discounted order
-     * used to be the default, and captured the full authorization on a partial shipment
-     * the discount is spread over the invoiced lines by the article handler.
+     * Always invoices the shipped lines only; the discount is spread over the invoiced lines by
+     * the articles handler.
      *
      * @throws \Exception
      *
@@ -314,7 +313,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * The shipment itself is already committed, so without the comment the order looks
      * shipped-and-paid. Any invoiced values Invoice::register() wrote onto the order items are
      * reversed first, otherwise a later save in this request persists them and the order ends up
-     * reporting invoiced items with no invoice entity (BTI-1312).
+     * reporting invoiced items with no invoice entity.
      *
      * @param \Exception   $exception
      * @param Invoice|null $registeredInvoice Null when register() was never reached.
@@ -377,9 +376,10 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * children (bypasses isDummy), so children with qty_shipped=0 keep canShip() returning true
      * forever, preventing the order from reaching "complete" state.
      *
-     * This method mirrors the parent's shipped quantity onto each child item so that
-     * getSimpleQtyToShip() returns 0 for them, allowing canShip() to return false after all
-     * items are invoiced, which lets Magento's state machine transition the order to "complete".
+     * This method mirrors the share of the parent that shipped onto each child item, so that
+     * getSimpleQtyToShip() returns 0 for them once the whole bundle has gone out, which lets
+     * canShip() return false and Magento's state machine move the order to "complete" - while a
+     * bundle that shipped in part still reports only the quantity that actually left.
      */
     private function syncBundleTogetherChildQtyShipped(): void
     {
@@ -391,27 +391,16 @@ class SalesOrderShipmentAfter implements ObserverInterface
             }
 
             $parentQtyShipped = (float)$item->getQtyShipped();
-            if ($parentQtyShipped <= 0) {
+            $parentQtyOrdered = (float)$item->getQtyOrdered();
+            if ($parentQtyShipped <= 0 || $parentQtyOrdered <= 0) {
                 continue;
             }
 
-            foreach ($item->getChildrenItems() as $child) {
-                if ((float)$child->getQtyShipped() >= (float)$child->getQtyOrdered()) {
-                    continue;
-                }
-                $child->setQtyShipped($child->getQtyOrdered());
-                try {
-                    $this->orderItemRepository->save($child);
-                    $hasChanges = true;
-                } catch (\Exception $e) {
-                    $this->logger->addDebug(sprintf(
-                        '[SYNC_BUNDLE_QTY] | [Observer] | [%s:%s] - Failed to save child item %s: %s',
-                        __METHOD__,
-                        __LINE__,
-                        $child->getId(),
-                        $e->getMessage()
-                    ));
-                }
+            // The children follow the share of the bundle that actually shipped. Stamping them
+            // complete on the first of several bundle shipments claimed quantities that are still
+            // in the warehouse.
+            if ($this->mirrorShippedShare($item, $parentQtyShipped / $parentQtyOrdered)) {
+                $hasChanges = true;
             }
         }
 
@@ -419,6 +408,48 @@ class SalesOrderShipmentAfter implements ObserverInterface
             $this->order->setIsInProcess(true);
             $this->orderRepository->save($this->order);
         }
+    }
+
+    /**
+     * Write the shipped share of a bundle onto its child items.
+     *
+     * A child is only ever written up, so a later shipment of the same bundle cannot undo an
+     * earlier one.
+     *
+     * @param Order\Item $bundle
+     * @param float      $shippedShare
+     *
+     * @return bool Whether any child was saved.
+     */
+    private function mirrorShippedShare($bundle, float $shippedShare): bool
+    {
+        $hasChanges = false;
+
+        foreach ($bundle->getChildrenItems() as $child) {
+            $childQtyOrdered = (float)$child->getQtyOrdered();
+            $qtyShipped = min($childQtyOrdered, round($childQtyOrdered * $shippedShare, 4));
+
+            if ($qtyShipped <= (float)$child->getQtyShipped()) {
+                continue;
+            }
+
+            $child->setQtyShipped($qtyShipped);
+
+            try {
+                $this->orderItemRepository->save($child);
+                $hasChanges = true;
+            } catch (\Exception $e) {
+                $this->logger->addDebug(sprintf(
+                    '[SYNC_BUNDLE_QTY] | [Observer] | [%s:%s] - Failed to save child item %s: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $child->getId(),
+                    $e->getMessage()
+                ));
+            }
+        }
+
+        return $hasChanges;
     }
 
     /**

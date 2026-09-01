@@ -22,7 +22,9 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use InvalidArgumentException;
@@ -31,6 +33,7 @@ use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 
 class AmountCreditDataBuilder implements BuilderInterface
 {
@@ -56,17 +59,33 @@ class AmountCreditDataBuilder implements BuilderInterface
     private $refundGroupService;
 
     /**
+     * @var ArticlesHandlerFactory
+     */
+    private ArticlesHandlerFactory $articlesHandlerFactory;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private BuckarooLoggerInterface $logger;
+
+    /**
      * Constructor
      *
      * @param TransactionCurrencyResolver   $transactionCurrencyResolver
      * @param RefundGroupTransactionService $refundGroupService
+     * @param ArticlesHandlerFactory        $articlesHandlerFactory
+     * @param BuckarooLoggerInterface       $logger
      */
     public function __construct(
         TransactionCurrencyResolver $transactionCurrencyResolver,
-        RefundGroupTransactionService $refundGroupService
+        RefundGroupTransactionService $refundGroupService,
+        ArticlesHandlerFactory $articlesHandlerFactory,
+        BuckarooLoggerInterface $logger
     ) {
         $this->transactionCurrencyResolver = $transactionCurrencyResolver;
         $this->refundGroupService = $refundGroupService;
+        $this->articlesHandlerFactory = $articlesHandlerFactory;
+        $this->logger = $logger;
     }
 
     /**
@@ -108,10 +127,72 @@ class AmountCreditDataBuilder implements BuilderInterface
         }
 
         $this->setRefundAmount($order, $payment, $amountAdjustedForGroupTransactions);
+        $this->capAtCapturedAmount($order, $payment);
 
         return [
             self::AMOUNT_CREDIT => $this->getRefundAmount()
         ];
+    }
+
+    /**
+     * Never ask to refund more than the targeted transaction actually took.
+     *
+     * A credit memo is priced by Magento, which rounds the discount per invoice, while the capture
+     * was sent at reserved prices rounded per unit. The gateway validates a refund against its own
+     * transaction, so a memo built from the invoice total can exceed what is refundable.
+     *
+     * Only ever lowers the amount, and only when the memo targets a single invoice.
+     *
+     * @param Order         $order
+     * @param InfoInterface $payment
+     *
+     * @return void
+     */
+    private function capAtCapturedAmount(Order $order, InfoInterface $payment): void
+    {
+        // Only an order payment carries the credit memo; InfoInterface does not declare it.
+        if (!$payment instanceof OrderPayment) {
+            return;
+        }
+
+        $creditmemo = $payment->getCreditmemo();
+
+        if ($creditmemo === null) {
+            return;
+        }
+
+        $invoice = $creditmemo->getInvoice();
+
+        if ($invoice === null || !$invoice->getId()) {
+            return;
+        }
+
+        try {
+            $captured = $this->articlesHandlerFactory
+                ->create($payment->getMethod())
+                ->getCapturedTotalForInvoice($order, $payment, $invoice);
+        } catch (\Throwable $e) {
+            // A refund must never be blocked by this safety net.
+            return;
+        }
+
+        $refundable = round($captured - (float)$invoice->getTotalRefunded(), 2);
+
+        $this->logger->addDebug(sprintf(
+            '[REFUND_CAP] invoice %s: creditmemo asks %.4f, invoice grand total %.2f, captured %.2f, '
+            . 'already refunded %.2f, refundable %.2f -> sending %.2f',
+            $invoice->getIncrementId(),
+            $this->refundAmount,
+            (float)$invoice->getGrandTotal(),
+            $captured,
+            (float)$invoice->getTotalRefunded(),
+            $refundable,
+            ($refundable > 0 && $this->refundAmount > $refundable) ? $refundable : $this->refundAmount
+        ));
+
+        if ($refundable > 0 && $this->refundAmount > $refundable) {
+            $this->refundAmount = $refundable;
+        }
     }
 
     /**

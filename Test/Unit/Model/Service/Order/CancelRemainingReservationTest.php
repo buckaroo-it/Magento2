@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Service\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 
 /**
- * BTI-1413 — the `voided_by_buckaroo` flag lives on a payment INSTANCE. Order\Item::getOrder()
+ * The `voided_by_buckaroo` flag lives on a payment INSTANCE. Order\Item::getOrder()
  * lazily loads a fresh order when the item does not already carry one, so the item-cancel
  * observer can hold a payment object that never saw the flag. That produced a
  * second CancelReservation which the gateway refused:

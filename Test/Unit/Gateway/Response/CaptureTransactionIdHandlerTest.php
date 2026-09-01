@@ -25,7 +25,7 @@ use Buckaroo\Magento2\Gateway\Response\CaptureTransactionIdHandler;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * BTI-1413 — Magento refuses an online capture once the authorization transaction is closed
+ * Magento refuses an online capture once the authorization transaction is closed
  * (Payment::canCapture()), so a partial capture must leave it open. Otherwise the next shipment
  * registers an invoice that is never paid and never reaches Buckaroo.
  */

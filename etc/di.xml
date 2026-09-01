@@ -4533,4 +4533,11 @@
             </argument>
         </arguments>
     </type>
+    <!-- keep a credit memo's shipping within what its own invoice charged. -->
+    <type name="Magento\Sales\Model\Order\Creditmemo">
+        <plugin name="buckaroo_clamp_creditmemo_shipping_to_invoice"
+                type="Buckaroo\Magento2\Plugin\Sales\Order\ClampCreditmemoShippingToInvoice"
+                sortOrder="10"/>
+    </type>
+
 </config>

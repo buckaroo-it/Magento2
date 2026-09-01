@@ -396,7 +396,7 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock = $this->preparePushAuthorization($instance, '190', Order::STATE_NEW);
         $orderMock->expects($this->once())->method('setState')->with(Order::STATE_PROCESSING)->willReturnSelf();
         // No intermediate save: the state is persisted by the updateOrderStatus
-        // save that follows in processSucceededPush (BTI-1238 save consolidation)
+        // save that follows in processSucceededPush ( save consolidation)
         $orderMock->expects($this->never())->method('save');
         $this->orderRepositoryMock->expects($this->never())->method('save');
 
