@@ -95,11 +95,16 @@ class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInt
     /**
      * B2B mode enabled
      *
+     * Reads the flag from the given store so that pushes and admin actions, which run outside the
+     * order's scope, evaluate the setting of the store the order was placed against.
+     *
+     * @param int|null $storeId
+     *
      * @return bool
      */
-    public function isEnabledB2B()
+    public function isEnabledB2B(?int $storeId = null): bool
     {
-        return $this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B);
+        return (bool)$this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B, $storeId);
     }
 
     /**
@@ -230,18 +235,6 @@ class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInt
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY, $store);
-    }
-
-    /**
-     * Get status of B2B mode enabled
-     *
-     * @param null|int|string $store
-     *
-     * @return mixed
-     */
-    public function getEnableB2b($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_ENABLE_B2B, $store);
     }
 
     /**

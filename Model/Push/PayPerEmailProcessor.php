@@ -195,7 +195,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         // Check if the order can be updated
         if (!$this->canUpdateOrderStatus()) {
-            if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B()) {
+            if ($isDifferentPaymentMethod && $this->configPayPerEmail->isEnabledB2B($this->getOrderStoreId())) {
                 $this->logger->addDebug(sprintf(
                     '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Update Order State | currentState: %s',
                     __METHOD__,
@@ -497,6 +497,20 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
+     * Store id of the order this push belongs to, so config is read in the order's scope.
+     *
+     * A push is delivered outside any store context, so the current scope is the request's default
+     * store rather than the order's. The order is resolved by initializeFields() before any push
+     * handling runs, so it is always available here.
+     *
+     * @return int
+     */
+    private function getOrderStoreId(): int
+    {
+        return (int)$this->order->getStoreId();
+    }
+
+    /**
      * Check if the Pay Per Email payment is in B2B mode.
      *
      * @return bool
@@ -507,7 +521,7 @@ class PayPerEmailProcessor extends DefaultProcessor
             $this->isPayPerEmailB2BModePush = !empty($this->pushRequest->getAdditionalInformation('frompayperemail'))
                 && !empty($this->pushRequest->getTransactionMethod())
                 && ($this->pushRequest->getTransactionMethod() == 'payperemail')
-                && $this->configPayPerEmail->isEnabledB2B();
+                && $this->configPayPerEmail->isEnabledB2B($this->getOrderStoreId());
 
             if ($this->isPayPerEmailB2BModePush) {
                 $this->logger->addDebug(sprintf(
