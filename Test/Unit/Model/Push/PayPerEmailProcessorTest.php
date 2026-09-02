@@ -26,6 +26,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $configPayPerEmailMock;
     private $currencyFactoryMock;
     private $orderRepositoryMock;
+    private $paymentMethodCodeResolverMock;
 
     public function setUp(): void
     {
@@ -47,6 +48,9 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->configPayPerEmailMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail')->getMock();
         $this->currencyFactoryMock = $this->getFakeMock('Magento\Directory\Model\CurrencyFactory')->getMock();
         $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
+        $this->paymentMethodCodeResolverMock = $this->createMock(
+            \Buckaroo\Magento2\Model\PaymentMethodCodeResolver::class
+        );
     }
 
     public function getInstance(array $args = [])
@@ -73,6 +77,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'groupTransactionResource' => $this->createMock(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class),
             'transactionRepository' => $this->createMock(\Magento\Sales\Api\TransactionRepositoryInterface::class),
             'searchCriteriaBuilder' => $this->createMock(\Magento\Framework\Api\SearchCriteriaBuilder::class),
+            'paymentMethodCodeResolver' => $this->paymentMethodCodeResolverMock,
         ] + $args);
     }
 
@@ -179,5 +184,118 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $paymentDetails = ['description' => 'Payment status : success'];
         $this->assertFalse($this->invokeArgs('invoiceShouldBeSaved', [&$paymentDetails], $instance));
+    }
+
+    /**
+     * BTI-1316: a PayLink paid in full with one giftcard is closed by a push that names no payment
+     * service of its own, only the PayLink. Overwriting the giftcard method with PayLink at that
+     * point left the order on a method that cannot be refunded online.
+     */
+    public function testPayLinkPushKeepsAnAlreadyResolvedPaymentMethod(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAdditionalInformation')->willReturnMap([
+            ['service_action_from_magento', 'frompaylink'],
+        ]);
+        $this->pushTransactionTypeMock->method('getStatusKey')
+            ->willReturn('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getAdditionalInformation')
+            ->with('buckaroo_actual_payment_method')
+            ->willReturn('vvvgiftcard');
+        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_giftcards');
+        $paymentMock->expects($this->never())->method('setMethod');
+
+        $this->paymentMethodCodeResolverMock->method('resolve')
+            ->with('vvvgiftcard')
+            ->willReturn('buckaroo_magento2_giftcards');
+
+        $this->orderRepositoryMock->expects($this->never())->method('save');
+
+        $this->setProperty('order', $this->getFakeMock('Magento\Sales\Model\Order')->getMock(), $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invoke('receivePushCheckPayLink', $instance);
+    }
+
+    public function testPayLinkPushStampsPayPerEmailWhenNoMethodResolvedYet(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAdditionalInformation')->willReturnMap([
+            ['service_action_from_magento', 'frompaylink'],
+        ]);
+        $this->pushTransactionTypeMock->method('getStatusKey')
+            ->willReturn('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getAdditionalInformation')->willReturn(null);
+        $paymentMock->expects($this->once())->method('setMethod')->with('buckaroo_magento2_payperemail');
+
+        $this->orderRepositoryMock->expects($this->once())->method('save');
+
+        $this->setProperty('order', $this->getFakeMock('Magento\Sales\Model\Order')->getMock(), $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invoke('receivePushCheckPayLink', $instance);
+    }
+
+    /**
+     * A PayLink push carries brq_SERVICE_general_paylink alongside the service actually paid with.
+     * Matching on the key shape alone picked "general" and wrote that onto the order.
+     */
+    public function testFindServiceInPushDataSkipsServiceKeysThatAreNotPaymentMethods(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getData')->willReturn([
+            'brq_amount'                                  => '30.25',
+            'brq_service_general_paylink'                 => 'https://testcheckout.buckaroo.nl/html/',
+            'brq_service_payperemail_expirationdate'      => '2027-09-02',
+            'brq_service_vvvgiftcard_maskedgiftcardnumber' => '00000000*******0001',
+        ]);
+
+        $this->paymentMethodCodeResolverMock->method('resolve')->willReturnMap([
+            ['general', null],
+            ['vvvgiftcard', 'buckaroo_magento2_giftcards'],
+        ]);
+
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertSame('vvvgiftcard', $this->invoke('findServiceInPushData', $instance));
+    }
+
+    public function testUnresolvableServiceCodeIsNotWrittenOntoThePayment(): void
+    {
+        $instance = $this->getInstance();
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->expects($this->never())->method('setAdditionalInformation');
+        $paymentMock->expects($this->never())->method('setMethod');
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getIncrementId')->willReturn('300000013');
+
+        $this->paymentMethodCodeResolverMock->method('resolve')->with('general')->willReturn(null);
+        $this->orderRepositoryMock->expects($this->never())->method('save');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+
+        $this->assertFalse($this->invokeArgs(
+            'saveActualPaymentMethodAndKeyForRefund',
+            ['SOME_GROUP_TRANSACTION_KEY', 'general'],
+            $instance
+        ));
     }
 }
