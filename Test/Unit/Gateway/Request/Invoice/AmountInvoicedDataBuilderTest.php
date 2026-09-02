@@ -30,7 +30,7 @@ use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollect
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * BTI-1312 — the amount sent with a capture must equal the article lines that accompany it.
+ * The amount sent with a capture must equal the article lines that accompany it.
  *
  * The gateway rejects a request where the two disagree ("Sum of given articles (209,08) is not
  * equal to the given amount (209,09)"), and grand totals are ROUNDED values that per-line sums

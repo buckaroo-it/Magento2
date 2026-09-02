@@ -168,7 +168,7 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
         $orderMock->method('getGrandTotal')->willReturn(100.0);
         $orderMock->expects($this->once())->method('setState')->with('complete')->willReturnSelf();
-        // BTI-1239: no intermediate save — the capture, comment and state are persisted
+        // no intermediate save — the capture, comment and state are persisted
         // by the updateOrderStatus save that always follows in processSucceededPush
         $orderMock->expects($this->never())->method('save');
         $this->orderRepositoryMock->expects($this->never())->method('save');

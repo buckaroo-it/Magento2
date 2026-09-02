@@ -60,13 +60,13 @@ class BuckarooAdapter extends Adapter
     /** Refundable transaction key for PayPerEmail orders */
     public const BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY = 'buckaroo_actual_payment_transaction_key';
 
-    /** Key of the capture (Pay) transaction – the refund target for Klarna methods (BTI-1265) */
+    /** Key of the capture (Pay) transaction – the refund target for Klarna methods */
     public const BUCKAROO_CAPTURE_TRANSACTION_KEY = 'buckaroo_capture_transaction_key';
 
     /** Set once a capture has been registered, so shipments capture offline */
     public const BUCKAROO_ALREADY_CAPTURED = 'buckaroo_already_captured';
 
-    /** Key of the Klarna MOR Reserve DataRequest – never a valid refund target (BTI-1265) */
+    /** Key of the Klarna MOR Reserve DataRequest – never a valid refund target */
     public const BUCKAROO_DATAREQUEST_KEY = 'buckaroo_datarequest_key';
     /**
      * @var bool

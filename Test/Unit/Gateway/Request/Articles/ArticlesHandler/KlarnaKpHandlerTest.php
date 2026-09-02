@@ -174,7 +174,7 @@ class KlarnaKpHandlerTest extends TestCase
 
     /**
      * When a coupon/discount code is applied, the capture must use the same global
-     * discount line (identifier = 1) that was sent during reserve.
+     * discount line (identifier = "discount") that was sent during reserve.
      * Per-item discount lines (identifier = SKU) must NOT appear — they would be
      * unknown to Klarna and cause a capture rejection.
      */
@@ -199,9 +199,9 @@ class KlarnaKpHandlerTest extends TestCase
         $identifiers = array_column($result['articles'], 'identifier');
 
         $this->assertContains(
-            '1',
+            \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::DISCOUNT_IDENTIFIER,
             $identifiers,
-            'Global discount line (identifier=1) must be present — matches the reserve'
+            'Global discount line must be present and must not share a number with another line'
         );
         $this->assertSame(
             1,
@@ -239,7 +239,9 @@ class KlarnaKpHandlerTest extends TestCase
 
         $discountLine = null;
         foreach ($result['articles'] as $article) {
-            if (($article['identifier'] ?? null) === '1') {
+            if (($article['identifier'] ?? null)
+                === \Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler::DISCOUNT_IDENTIFIER
+            ) {
                 $discountLine = $article;
                 break;
             }
@@ -374,13 +376,27 @@ class KlarnaKpHandlerTest extends TestCase
         // from the base Invoice class, so they must be added via addMethods().
         $invoice = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getAllItems', 'getGrandTotal', 'getTaxAmount', 'getShippingInclTax', 'getBuckarooFeeInclTax', 'getBuckarooFee'])->getMock();
+            ->onlyMethods(['getAllItems', 'getGrandTotal', 'getTaxAmount', 'getShippingInclTax', 'getBuckarooFeeInclTax', 'getBuckarooFee', 'getData'])->getMock();
         $invoice->method('getAllItems')->willReturn($this->stagedItems);
         $invoice->method('getGrandTotal')->willReturn($this->stagedGrandTotal);
         $invoice->method('getTaxAmount')->willReturn(0.0);
         $invoice->method('getShippingInclTax')->willReturn(0.0);
         $invoice->method('getBuckarooFeeInclTax')->willReturn(0.0);
         $invoice->method('getBuckarooFee')->willReturn(0.0);
+        // Magento records the gift card on the invoice that absorbs it, and this single invoice
+        // covers the whole order, so it carries all of it.
+        $invoice->method('getData')->willReturnCallback(
+            function ($key = null) {
+                switch ($key) {
+                    case 'gift_cards_amount':
+                        return $this->stagedGiftCardAmount;
+                    case 'reward_currency_amount':
+                        return 0.0;
+                    default:
+                        return null;
+                }
+            }
+        );
 
         $collection = $this->createMock(InvoiceCollection::class);
         $collection->method('count')->willReturn(1);
@@ -391,7 +407,7 @@ class KlarnaKpHandlerTest extends TestCase
         $order->method('getQuoteId')->willReturn(1);
         $order->method('getDiscountAmount')->willReturn($orderDiscountAmount);
         $order->method('getDiscountTaxCompensationAmount')->willReturn(0.0);
-        // Gift card and reward totals are read from the order, not the quote
+        // Gift card and reward totals are read from the order when no invoice is being priced
         // (KlarnaKpHandler::getGiftCardLine/getRewardLine).
         $order->method('getData')->willReturnCallback(
             function ($key = null) {

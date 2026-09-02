@@ -77,7 +77,7 @@ class CaptureTransactionKeyHandlerTest extends AbstractResponseHandlerTest
         $this->assertSame(
             $transactionKey,
             $additionalInformationCalls[BuckarooAdapter::BUCKAROO_CAPTURE_TRANSACTION_KEY] ?? null,
-            'The Pay transaction key must be stored as the capture transaction key (BTI-1265)'
+            'The Pay transaction key must be stored as the capture transaction key'
         );
         $this->assertTrue(
             $additionalInformationCalls[BuckarooAdapter::BUCKAROO_ALREADY_CAPTURED] ?? null,

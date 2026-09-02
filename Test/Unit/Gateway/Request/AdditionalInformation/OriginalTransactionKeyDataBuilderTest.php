@@ -107,7 +107,7 @@ class OriginalTransactionKeyDataBuilderTest extends TestCase
 
     /**
      * The DataRequest key often lives only on the order, not in the payment's additional
-     * information. The corruption guards must still reject it there (BTI-1265).
+     * information. The corruption guards must still reject it there.
      */
     public function testBuildRejectsCorruptKeysWhenDataRequestKeyIsOnlyOnTheOrder(): void
     {
@@ -263,7 +263,7 @@ class OriginalTransactionKeyDataBuilderTest extends TestCase
                 ],
                 self::PAY_KEY,
             ],
-            'klarna ignores capture key equal to datarequest key (BTI-1265)' => [
+            'klarna ignores capture key equal to datarequest key' => [
                 'buckaroo_magento2_klarna',
                 [
                     'buckaroo_capture_transaction_key' => self::DATAREQUEST_KEY,
