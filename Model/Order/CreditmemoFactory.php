@@ -1,21 +1,14 @@
 <?php
 /**
- * NOTICE OF LICENSE
+ * Buckaroo Magento 2 payment module (https://www.buckaroo.eu/)
  *
- * This source file is subject to the MIT License
- * It is available through the world-wide-web at this URL:
- * https://tldrlegal.com/license/mit-license
- * If you are unable to obtain it through the world-wide-web, please email
- * to support@buckaroo.nl, so we can send you a copy immediately.
+ * Copyright (c) Buckaroo B.V.
+ * See LICENSE for license details.
  *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade this module to newer
- * versions in the future. If you wish to customize this module for your
- * needs please contact support@buckaroo.nl for more information.
+ * Support: support@buckaroo.nl
  *
  * @copyright Copyright (c) Buckaroo B.V.
- * @license   https://tldrlegal.com/license/mit-license
+ * @license   MIT
  */
 
 namespace Buckaroo\Magento2\Model\Order;
