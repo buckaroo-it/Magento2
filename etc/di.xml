@@ -919,6 +919,7 @@
     <virtualType name="BuckarooOrderRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
         <arguments>
             <argument name="builders" xsi:type="array">
+                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <item name="method" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\PaymentMethodDataBuilder</item>
                 <item name="store_id" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\StoreIdDataBuilder</item>
                 <item name="currency" xsi:type="string">Buckaroo\Magento2\Gateway\Request\BasicParameter\CurrencyDataBuilder</item>
@@ -1477,7 +1478,6 @@
                 <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\ArticlesDataBuilder</item>
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="customer" xsi:type="string">CustomerKlarnaDataBuilder</item>
-                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <!-- Override BuckarooOrderRequest's "pay" action so the redirect returns service_action_from_magento=reserve -->
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersReserveDataBuilder</item>
             </argument>
@@ -3350,7 +3350,6 @@
             <argument name="builders" xsi:type="array">
                 <item name="order_request" xsi:type="string">BuckarooOrderRequest</item>
                 <item name="payPerEmail" xsi:type="string">Buckaroo\Magento2\Gateway\Request\PayPerEmailDataBuilder</item>
-                <item name="culture" xsi:type="string">Buckaroo\Magento2\Gateway\Request\CultureDataBuilder</item>
                 <item name="additional_parameters" xsi:type="string">AdditionalParametersPayPerEmailDataBuilder</item>
                 <item name="credit_management" xsi:type="string">BuckarooDefaultCreditManagment</item>
             </argument>
