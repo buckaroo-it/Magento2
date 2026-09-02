@@ -475,9 +475,46 @@ class GatewayCommandTest extends BaseTest
         }
 
         $this->assertSame(
-            ['Payment Error: gateway returned an empty failure description'],
+            [
+                'Payment Error: gateway returned a failure description without a reason. '
+                . 'description: "", error_codes: 491',
+            ],
             $this->capturedLogs,
             'A blank gateway description must leave something behind to diagnose from'
+        );
+    }
+
+    public function testValidationFailureWithAReasonlessTemplateFallsBackToDeclineMessage(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->expectLockAcquiredAndReleased();
+        $this->stubSuccessfulGatewayRoundTrip($commandSubject, ['status' => 'failed']);
+
+        // Plaza's SubCode S996 sentence with an empty reason behind the colon: it reads like
+        // a description but tells the shopper nothing, so it must not reach checkout.
+        $this->validator->method('validate')
+            ->willReturn($this->createValidationResult(
+                false,
+                [__('An error occurred while processing the transaction: .')],
+                ['490']
+            ));
+
+        $this->captureCriticalLogs();
+
+        try {
+            $this->createCommand()->execute($commandSubject);
+            $this->fail('Expected CommandException was not thrown');
+        } catch (CommandException $exception) {
+            $this->assertSame(self::DEFAULT_DECLINE_MESSAGE, $exception->getMessage());
+        }
+
+        $this->assertSame(
+            [
+                'Payment Error: gateway returned a failure description without a reason. '
+                . 'description: "An error occurred while processing the transaction: .", error_codes: 490',
+            ],
+            $this->capturedLogs,
+            'The raw gateway description must be logged so support can diagnose the decline'
         );
     }
 
