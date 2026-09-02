@@ -1131,15 +1131,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         $this->setPayment($payment);
         $this->setOrder($order);
 
-        $invoiceIds = [];
-        foreach ($order->getInvoiceCollection() as $existing) {
-            $invoiceIds[] = (int)$existing->getId();
-        }
-        sort($invoiceIds);
-
-        $invoiceId = (int)$invoice->getId();
-        $isFirstInvoice = !empty($invoiceIds) && $invoiceId === reset($invoiceIds);
-        $isClosingInvoice = !empty($invoiceIds) && $invoiceId === end($invoiceIds) && !$order->canInvoice();
+        $isFirstInvoice = $this->isFirstInvoice($order, $invoice);
 
         // Mirror getInvoiceArticlesData(): the credits are priced per invoice.
         $this->creditAllocationInvoice = $invoice;
@@ -1158,19 +1150,85 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         $articles = $this->mergeArticleLines($articles, $this->getShippingCostsLine($invoice));
 
-        if ($isClosingInvoice) {
-            $residual = $this->getReserveRoundingResidual();
-
-            if (abs($residual) >= 0.01 && abs($residual) <= self::ROUNDING_RESIDUAL_TOLERANCE) {
-                $articles = $this->addAdjustmentLine(
-                    $articles,
-                    $residual,
-                    round($this->sumArticleLines($articles) + $residual, 2)
-                );
-            }
+        if ($this->isClosingInvoice($order, $invoice)) {
+            $articles = $this->appendClosingResidual($articles);
         }
 
         return $this->sumArticleLines($articles);
+    }
+
+    /**
+     * Ids of every invoice on the order, in creation order.
+     *
+     * @param Order $order
+     *
+     * @return int[]
+     */
+    private function getSortedInvoiceIds(Order $order): array
+    {
+        $invoiceIds = [];
+
+        foreach ($order->getInvoiceCollection() as $existing) {
+            $invoiceIds[] = (int)$existing->getId();
+        }
+
+        sort($invoiceIds);
+
+        return $invoiceIds;
+    }
+
+    /**
+     * Whether this invoice is the order's first, which carries the service cost and the discount.
+     *
+     * @param Order   $order
+     * @param Invoice $invoice
+     *
+     * @return bool
+     */
+    private function isFirstInvoice(Order $order, Invoice $invoice): bool
+    {
+        $invoiceIds = $this->getSortedInvoiceIds($order);
+
+        return !empty($invoiceIds) && (int)$invoice->getId() === reset($invoiceIds);
+    }
+
+    /**
+     * Whether this invoice closes the order, which is where the reserve's residual is settled.
+     *
+     * @param Order   $order
+     * @param Invoice $invoice
+     *
+     * @return bool
+     */
+    private function isClosingInvoice(Order $order, Invoice $invoice): bool
+    {
+        $invoiceIds = $this->getSortedInvoiceIds($order);
+
+        return !empty($invoiceIds)
+            && (int)$invoice->getId() === end($invoiceIds)
+            && !$order->canInvoice();
+    }
+
+    /**
+     * Settle the reserve's leftover rounding on the capture that closes the order.
+     *
+     * @param array $articles
+     *
+     * @return array
+     */
+    private function appendClosingResidual(array $articles): array
+    {
+        $residual = $this->getReserveRoundingResidual();
+
+        if (abs($residual) < 0.01 || abs($residual) > self::ROUNDING_RESIDUAL_TOLERANCE) {
+            return $articles;
+        }
+
+        return $this->addAdjustmentLine(
+            $articles,
+            $residual,
+            round($this->sumArticleLines($articles) + $residual, 2)
+        );
     }
 
     /**
@@ -1554,7 +1612,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             // Price and discount both come from the ORDER item, which mirrors the quote the
             // reserve was built from. The invoice item would derive the gross unit price from its
             // own rounded tax over the invoiced quantity, drifting a cent from the reserved price.
-            $priceItem = $orderItem ?? $item;
+            $priceItem = $orderItem;
 
             $article = $this->getArticleArrayLine(
                 $item->getName(),

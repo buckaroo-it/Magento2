@@ -25,7 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder;
-use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
+use Buckaroo\Magento2\Service\Refund\RefundCapResolver;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
@@ -55,9 +55,9 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     private $amountCreditDataBuilder;
 
     /**
-     * @var ArticlesHandlerFactory|\PHPUnit\Framework\MockObject\MockObject
+     * @var RefundCapResolver|MockObject
      */
-    private $articlesHandlerFactoryMock;
+    private $refundCapResolverMock;
 
     /**
      * The amount is validated again AFTER it has been resolved. The check at the top of build()
@@ -95,14 +95,14 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         $this->refundGroupServiceMock = $this->createMock(RefundGroupTransactionService::class);
 
-        // No creditmemo on these subjects, so the captured-amount cap is never consulted.
-        $this->articlesHandlerFactoryMock = $this->createMock(ArticlesHandlerFactory::class);
+        // The cap only ever lowers the amount; these subjects are not capped.
+        $this->refundCapResolverMock = $this->createMock(RefundCapResolver::class);
+        $this->refundCapResolverMock->method('resolveCappedAmount')->willReturnArgument(2);
 
         $this->amountCreditDataBuilder = new AmountCreditDataBuilder(
             $this->transactionCurrencyResolverMock,
             $this->refundGroupServiceMock,
-            $this->articlesHandlerFactoryMock,
-            $this->createMock(\Buckaroo\Magento2\Logging\BuckarooLoggerInterface::class)
+            $this->refundCapResolverMock
         );
     }
 
