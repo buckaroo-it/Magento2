@@ -259,7 +259,7 @@ class CommandInterface
         // Skip setting the status here for PayPerEmail B2B
         if (($paymentCode == PayPerEmail::CODE) && ($paymentAction == 'order')) {
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if ($config->isEnabledB2B()) {
+            if ($config->isEnabledB2B((int)$order->getStoreId())) {
                 return true;
             }
         }
