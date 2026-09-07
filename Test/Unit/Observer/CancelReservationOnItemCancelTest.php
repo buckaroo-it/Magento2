@@ -38,13 +38,8 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
         $shippedItem = $this->makeItem(1, 0.0, 0.0);
         $cancelledItem = $this->makeItem(2, 2.0, 2.0);
 
-        $cancelService = $this->makeCancelServiceExpecting($this->once(), true);
-        $paymentRepository = $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')->getMock();
-        $paymentRepository->expects($this->once())->method('save');
-
         $instance = $this->getInstance([
-            'cancelRemainingReservation' => $cancelService,
-            'paymentRepository' => $paymentRepository,
+            'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->once(), true),
         ]);
 
         $instance->execute($this->makeObserver($cancelledItem, [$shippedItem, $cancelledItem], true));
@@ -86,21 +81,6 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
         );
     }
 
-    public function testThePaymentIsNotSavedWhenTheReservationWasNotCancelled(): void
-    {
-        $cancelledItem = $this->makeItem(1, 2.0, 2.0);
-
-        $paymentRepository = $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')->getMock();
-        $paymentRepository->expects($this->never())->method('save');
-
-        $instance = $this->getInstance([
-            'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->once(), false),
-            'paymentRepository' => $paymentRepository,
-        ]);
-
-        $instance->execute($this->makeObserver($cancelledItem, [$cancelledItem], true));
-    }
-
     /**
      * Cancelling one line of two open lines must leave the reservation alone; cancelling the
      * last one releases it.
@@ -119,8 +99,6 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
         $alreadyCancelled = $this->makeItem(1, 0.0, 0.0);
         $closing = $this->getInstance([
             'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->once(), true),
-            'paymentRepository' => $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')
-                ->getMock(),
         ]);
         $closing->execute($this->makeObserver($lastToCancel, [$alreadyCancelled, $lastToCancel], true));
     }
@@ -149,8 +127,6 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->once(), true),
-            'paymentRepository' => $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')
-                ->getMock(),
         ]);
 
         $instance->execute($this->makeObserver($cancelledItem, [$dummy, $cancelledItem], true));
@@ -165,13 +141,27 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance = $this->getInstance([
             'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->once(), true),
-            'paymentRepository' => $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')
-                ->getMock(),
         ]);
 
         $instance->execute(
             $this->makeObserver($cancelledItem, [$cancelledItem], true, Klarna::CODE)
         );
+    }
+
+    /**
+     * Order::cancel() dispatches this event for a configurable's child row too. Order 300000019
+     * ran the whole decision four times for two products because of it.
+     */
+    public function testADummyCancelledItemIsSkipped(): void
+    {
+        $dummyChild = $this->makeItem(1, 0.0, 0.0, true);
+        $openItem = $this->makeItem(2, 1.0, 0.0);
+
+        $instance = $this->getInstance([
+            'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->never(), true),
+        ]);
+
+        $instance->execute($this->makeObserver($dummyChild, [$dummyChild, $openItem], true));
     }
 
     public function testAnEventWithoutAnItemIsIgnored(): void
@@ -180,12 +170,7 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
             'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->never(), true),
         ]);
 
-        $event = $this->getFakeMock('Magento\Framework\Event')->addMethods(['getItem'])->getMock();
-        $event->method('getItem')->willReturn(null);
-        $observer = $this->getFakeMock('Magento\Framework\Event\Observer')->getMock();
-        $observer->method('getEvent')->willReturn($event);
-
-        $instance->execute($observer);
+        $instance->execute($this->makeObserverFor(null));
     }
 
     public function testAnItemWithoutAnOrderIsIgnored(): void
@@ -197,12 +182,7 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
         $item = $this->makeItem(1, 2.0, 2.0);
         $item->method('getOrder')->willReturn(null);
 
-        $event = $this->getFakeMock('Magento\Framework\Event')->addMethods(['getItem'])->getMock();
-        $event->method('getItem')->willReturn($item);
-        $observer = $this->getFakeMock('Magento\Framework\Event\Observer')->getMock();
-        $observer->method('getEvent')->willReturn($event);
-
-        $instance->execute($observer);
+        $instance->execute($this->makeObserverFor($item));
     }
 
     /**
@@ -261,12 +241,21 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $cancelledItem->method('getOrder')->willReturn($order);
 
-        $event = $this->getFakeMock('Magento\Framework\Event')->addMethods(['getItem'])->getMock();
-        $event->method('getItem')->willReturn($cancelledItem);
+        return $this->makeObserverFor($cancelledItem);
+    }
 
-        $observer = $this->getFakeMock('Magento\Framework\Event\Observer')->getMock();
-        $observer->method('getEvent')->willReturn($event);
-
-        return $observer;
+    /**
+     * Magento\Framework\Event resolves getItem() through __call, so a real instance carries the
+     * payload without needing the mock builder's addMethods() - removed in PHPUnit 12.
+     *
+     * @param object|null $item
+     *
+     * @return \Magento\Framework\Event\Observer
+     */
+    private function makeObserverFor($item)
+    {
+        return new \Magento\Framework\Event\Observer(
+            ['event' => new \Magento\Framework\Event(['item' => $item])]
+        );
     }
 }

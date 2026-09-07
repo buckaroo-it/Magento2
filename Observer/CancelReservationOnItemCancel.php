@@ -27,7 +27,6 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Service\Order\CancelRemainingReservation;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 
@@ -48,27 +47,19 @@ class CancelReservationOnItemCancel implements ObserverInterface
     private CancelRemainingReservation $cancelRemainingReservation;
 
     /**
-     * @var OrderPaymentRepositoryInterface
-     */
-    private OrderPaymentRepositoryInterface $paymentRepository;
-
-    /**
      * @var BuckarooLoggerInterface
      */
     private BuckarooLoggerInterface $logger;
 
     /**
-     * @param CancelRemainingReservation      $cancelRemainingReservation
-     * @param OrderPaymentRepositoryInterface $paymentRepository
-     * @param BuckarooLoggerInterface         $logger
+     * @param CancelRemainingReservation $cancelRemainingReservation
+     * @param BuckarooLoggerInterface    $logger
      */
     public function __construct(
         CancelRemainingReservation $cancelRemainingReservation,
-        OrderPaymentRepositoryInterface $paymentRepository,
         BuckarooLoggerInterface $logger
     ) {
         $this->cancelRemainingReservation = $cancelRemainingReservation;
-        $this->paymentRepository = $paymentRepository;
         $this->logger = $logger;
     }
 
@@ -84,6 +75,10 @@ class CancelReservationOnItemCancel implements ObserverInterface
         /** @var Item|null $item */
         $item = $observer->getEvent()->getItem();
         if ($item === null) {
+            return;
+        }
+
+        if ($item->isDummy()) {
             return;
         }
 
@@ -113,11 +108,7 @@ class CancelReservationOnItemCancel implements ObserverInterface
             return;
         }
 
-        if (!$this->cancelRemainingReservation->execute($order)) {
-            return;
-        }
-
-        $this->paymentRepository->save($order->getPayment());
+        $this->cancelRemainingReservation->execute($order);
     }
 
     /**
