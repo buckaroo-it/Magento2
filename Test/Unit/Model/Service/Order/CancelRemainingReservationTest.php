@@ -24,33 +24,40 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Service\Order;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 
 /**
- * The `voided_by_buckaroo` flag lives on a payment INSTANCE. Order\Item::getOrder()
- * lazily loads a fresh order when the item does not already carry one, so the item-cancel
- * observer can hold a payment object that never saw the flag. That produced a
- * second CancelReservation which the gateway refused:
- * "CancelReservation on reservation ee77b0c6-… is not allowed".
+ * Whether a reservation was already released is not this class's decision to make: the payment
+ * void during order cancellation releases it without ever coming through here, so the answer
+ * has to come from ReservationCancellationState, which reads persisted state rather than
+ * whichever payment instance a caller happens to hold.
+ *
+ * @see \Buckaroo\Magento2\Test\Unit\Model\Service\Order\ReservationCancellationStateTest
  */
 class CancelRemainingReservationTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = 'Buckaroo\Magento2\Model\Service\Order\CancelRemainingReservation';
 
-    public function testTheReservationIsOnlyCancelledOncePerRequest(): void
+    /**
+     * The regression: Magento's payment void released the reservation first, so this call is a
+     * duplicate the gateway rejects with 491 "reservation has status PartiallyCancelled".
+     */
+    public function testAReservationReleasedElsewhereIsNotCancelledAgain(): void
     {
-        $commandManager = $this->makeCommandManager($this->once());
-        $instance = $this->makeService($commandManager);
+        $instance = $this->makeService($this->makeCommandManager($this->never()), true);
 
-        // A fresh order object each time, as Order\Item::getOrder() would hand back.
+        $this->assertFalse($instance->execute($this->makeOrder()));
+    }
+
+    public function testAnUntouchedReservationIsCancelled(): void
+    {
+        $instance = $this->makeService($this->makeCommandManager($this->once()));
+
         $this->assertTrue($instance->execute($this->makeOrder()));
-        $this->assertFalse(
-            $instance->execute($this->makeOrder()),
-            'A second caller in the same request must not send another CancelReservation'
-        );
     }
 
     /**
-     * A failed attempt is not retried either - a rejection would only become a second rejection.
+     * A gateway rejection is reported as a failure rather than thrown, so the surrounding
+     * cancellation still completes.
      */
-    public function testAFailedAttemptIsNotRetriedInTheSameRequest(): void
+    public function testAGatewayRejectionIsReportedAsFailure(): void
     {
         $commandManager = $this->makeCommandManager($this->once());
         $commandManager->method('executeByCode')
@@ -59,17 +66,6 @@ class CancelRemainingReservationTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->makeService($commandManager);
 
         $this->assertFalse($instance->execute($this->makeOrder()));
-        $this->assertFalse($instance->execute($this->makeOrder()));
-    }
-
-    /**
-     * The instance-level flag still short-circuits when it IS visible.
-     */
-    public function testAnAlreadyVoidedPaymentIsSkipped(): void
-    {
-        $instance = $this->makeService($this->makeCommandManager($this->never()));
-
-        $this->assertFalse($instance->execute($this->makeOrder(true)));
     }
 
     public function testADifferentOrderIsStillCancelled(): void
@@ -96,14 +92,21 @@ class CancelRemainingReservationTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * @param object $commandManager
+     * @param bool   $alreadyCancelled
      *
      * @return object
      */
-    private function makeService($commandManager)
+    private function makeService($commandManager, bool $alreadyCancelled = false)
     {
+        $cancellationState = $this->getFakeMock(
+            'Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState'
+        )->getMock();
+        $cancellationState->method('isCancelled')->willReturn($alreadyCancelled);
+
         return $this->getInstance([
             'klarnaKpCommandManager' => $commandManager,
             'klarnaCommandManager' => $commandManager,
+            'cancellationState' => $cancellationState,
         ]);
     }
 

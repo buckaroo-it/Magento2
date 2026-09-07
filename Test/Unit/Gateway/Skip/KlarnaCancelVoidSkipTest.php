@@ -41,10 +41,44 @@ class KlarnaCancelVoidSkipTest extends TestCase
      */
     private $loggerMock;
 
+    /**
+     * @var \Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState|MockObject
+     */
+    private $cancellationStateMock;
+
     protected function setUp(): void
     {
         $this->loggerMock = $this->createMock(BuckarooLoggerInterface::class);
-        $this->klarnaCancelVoidSkip = new KlarnaCancelVoidSkip($this->loggerMock);
+        $this->cancellationStateMock = $this->createMock(
+            \Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState::class
+        );
+        $this->klarnaCancelVoidSkip = new KlarnaCancelVoidSkip(
+            $this->loggerMock,
+            $this->cancellationStateMock
+        );
+    }
+
+    /**
+     * Order 300000019: the payment void released the reservation, then the item-cancel observer
+     * released it again and the gateway answered 491 "PartiallyCancelled". Both paths come
+     * through here, so this is where the second one has to stand down.
+     */
+    public function testSkipWhenTheReservationWasAlreadyReleased(): void
+    {
+        $this->cancellationStateMock->method('isCancelled')->willReturn(true);
+
+        $orderMock = $this->createOrderMock();
+
+        $paymentMock = $this->createMock(Payment::class);
+        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_klarnakp');
+        $paymentMock->method('getOrder')->willReturn($orderMock);
+        // A perfectly valid reservation reference - the only reason to skip is the prior release.
+        $paymentMock->method('getAdditionalInformation')->willReturn('a-reservation');
+
+        $paymentDOMock = $this->createMock(PaymentDataObjectInterface::class);
+        $paymentDOMock->method('getPayment')->willReturn($paymentMock);
+
+        $this->assertTrue($this->klarnaCancelVoidSkip->isSkip(['payment' => $paymentDOMock]));
     }
 
     public function testSkipWhenKlarnaMorHasNoDataRequestKey(): void
