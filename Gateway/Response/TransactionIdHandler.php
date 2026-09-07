@@ -63,13 +63,12 @@ class TransactionIdHandler implements HandlerInterface
             }
 
             $payment->setIsTransactionClosed($this->shouldCloseTransaction());
-            $closed = $this->shouldCloseParentTransaction();
-            $payment->setShouldCloseParentTransaction($closed);
+            $payment->setShouldCloseParentTransaction($this->shouldCloseParentTransaction($payment));
         }
     }
 
     /**
-     * Whether transaction key should be saved on additional information
+     * Whether a transaction key should be saved on additional information
      *
      * @return bool
      */
@@ -91,9 +90,13 @@ class TransactionIdHandler implements HandlerInterface
     /**
      * Whether parent transaction should be closed
      *
+     * @param OrderPaymentInterface $payment
+     *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function shouldCloseParentTransaction(): bool
+    protected function shouldCloseParentTransaction(OrderPaymentInterface $payment): bool
     {
         return true;
     }

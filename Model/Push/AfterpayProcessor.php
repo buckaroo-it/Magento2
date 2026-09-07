@@ -33,11 +33,16 @@ use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Escaper;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -50,25 +55,29 @@ class AfterpayProcessor extends DefaultProcessor
     private $afterpayConfig;
 
     /**
-     * @param OrderRequestService                  $orderRequestService
-     * @param PushTransactionType                  $pushTransactionType
-     * @param BuckarooLoggerInterface              $logger
-     * @param Data                                 $helper
-     * @param TransactionInterface                 $transaction
-     * @param PaymentGroupTransaction              $groupTransaction
-     * @param BuckarooStatusCode                   $buckarooStatusCode
-     * @param OrderStatusFactory                   $orderStatusFactory
-     * @param Account                              $configAccount
-     * @param GiftCardRefundService                $giftCardRefundService
-     * @param Uncancel                             $uncancelService
-     * @param ResourceConnection                   $resourceConnection
-     * @param GiftcardCollection                   $giftcardCollection
-     * @param Afterpay20                           $afterpayConfig
-     * @param OrderRepositoryInterface|null        $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null      $invoiceRepository
-     * @param GroupTransaction|null                $groupTransactionResource
-     *
+     * @param OrderRequestService $orderRequestService
+     * @param PushTransactionType $pushTransactionType
+     * @param BuckarooLoggerInterface $logger
+     * @param Data $helper
+     * @param TransactionInterface $transaction
+     * @param PaymentGroupTransaction $groupTransaction
+     * @param BuckarooStatusCode $buckarooStatusCode
+     * @param OrderStatusFactory $orderStatusFactory
+     * @param Account $configAccount
+     * @param GiftCardRefundService $giftCardRefundService
+     * @param Uncancel $uncancelService
+     * @param ResourceConnection $resourceConnection
+     * @param GiftcardCollection $giftcardCollection
+     * @param Afterpay20 $afterpayConfig
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -86,10 +95,15 @@ class AfterpayProcessor extends DefaultProcessor
         ResourceConnection                                       $resourceConnection,
         GiftcardCollection                                       $giftcardCollection,
         Afterpay20                                               $afterpayConfig,
-        ?OrderRepositoryInterface                                $orderRepository = null,
-        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
-        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?GroupTransaction $groupTransactionResource = null
+        CurrencyFactory $currencyFactory,
+        OrderRepositoryInterface                                $orderRepository,
+        OrderPaymentRepositoryInterface                         $paymentRepository,
+        InvoiceRepositoryInterface                              $invoiceRepository,
+        GroupTransaction                                        $groupTransactionResource,
+        TransactionRepositoryInterface                          $transactionRepository,
+        SearchCriteriaBuilder                                   $searchCriteriaBuilder,
+        OrderManagementInterface                                $orderManagement,
+        \Magento\Framework\Escaper                              $escaper
     ) {
         parent::__construct(
             $orderRequestService,
@@ -105,11 +119,15 @@ class AfterpayProcessor extends DefaultProcessor
             $uncancelService,
             $resourceConnection,
             $giftcardCollection,
-            null,
+            $currencyFactory,
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement,
+            $escaper
         );
         $this->afterpayConfig = $afterpayConfig;
     }

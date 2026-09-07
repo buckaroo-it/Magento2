@@ -12,6 +12,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Model\Service\ExpressMethodsException;
 use Buckaroo\Magento2\Model\Service\QuoteAddressService;
+use Buckaroo\Magento2\Service\Order\OrderByIncrementId;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Group;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -29,20 +30,28 @@ class SaveOrderProcessor
 {
     /** @var QuoteManagement */
     private $quoteManagement;
+
     /** @var CustomerSession */
     private $customerSession;
+
     /** @var DataObjectFactory */
     private $objectFactory;
+
     /** @var BuckarooResponseDataInterface */
     private $buckarooResponseData;
+
     /** @var CheckoutSession */
     private $checkoutSession;
+
     /** @var ConfigProviderFactory */
     private $configProviderFactory;
+
     /** @var QuoteAddressService */
     private $quoteAddressService;
+
     /** @var Order */
     private $order;
+
     /** @var BuckarooLoggerInterface */
     private $logger;
 
@@ -58,6 +67,9 @@ class SaveOrderProcessor
      * @param QuoteAddressService $quoteAddressService
      * @param Order $order
      * @param BuckarooLoggerInterface $logger
+     * @param OrderByIncrementId $orderByIncrementId
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         QuoteManagement             $quoteManagement,
@@ -68,7 +80,8 @@ class SaveOrderProcessor
         ConfigProviderFactory       $configProviderFactory,
         QuoteAddressService         $quoteAddressService,
         Order                       $order,
-        BuckarooLoggerInterface     $logger
+        BuckarooLoggerInterface     $logger,
+        OrderByIncrementId $orderByIncrementId
     ) {
         $this->quoteManagement       = $quoteManagement;
         $this->customerSession       = $customerSession;
@@ -79,7 +92,13 @@ class SaveOrderProcessor
         $this->quoteAddressService   = $quoteAddressService;
         $this->order                 = $order;
         $this->logger                = $logger;
+        $this->orderByIncrementId    = $orderByIncrementId;
     }
+
+    /**
+     * @var OrderByIncrementId
+     */
+    private $orderByIncrementId;
 
     /**
      * Entry-point called by the controller to place the Apple Pay order.
@@ -225,20 +244,23 @@ class SaveOrderProcessor
      */
     private function prepareRedirect(string $incrementId): array
     {
-        $this->order->loadByIncrementId($incrementId);
+        $order = $this->orderByIncrementId->get($incrementId);
+        if ($order === null) {
+            throw new Exception(__('Order %1 could not be found after placement', $incrementId));
+        }
 
         $this->checkoutSession
-            ->setLastQuoteId($this->order->getQuoteId())
-            ->setLastSuccessQuoteId($this->order->getQuoteId())
-            ->setLastOrderId($this->order->getId())
-            ->setLastRealOrderId($this->order->getIncrementId())
-            ->setLastOrderStatus($this->order->getStatus());
+            ->setLastQuoteId($order->getQuoteId())
+            ->setLastSuccessQuoteId($order->getQuoteId())
+            ->setLastOrderId($order->getEntityId())
+            ->setLastRealOrderId($order->getIncrementId())
+            ->setLastOrderStatus($order->getStatus());
 
         /** @var Account $accountConfig */
         $accountConfig = $this->configProviderFactory->get('account');
 
-        $url = $this->order->getStore()->getBaseUrl()
-            . $accountConfig->getSuccessRedirect($this->order->getStore());
+        $url = $order->getStore()->getBaseUrl()
+            . $accountConfig->getSuccessRedirect($order->getStore());
 
         $this->logger->addDebug('[ApplePay] Redirect URL: ' . $url);
 

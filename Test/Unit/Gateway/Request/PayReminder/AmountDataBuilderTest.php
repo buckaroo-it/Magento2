@@ -70,7 +70,7 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
             ->with($incrementId)
             ->willReturn($serviceAction);
 
-        if ($serviceAction === 'payRemainder') {
+        if ($expectedResult !== []) {
             $this->payReminderServiceMock->method('getPayRemainder')
                 ->with($this->orderMock)
                 ->willReturn($payRemainder);
@@ -87,6 +87,9 @@ class AmountDataBuilderTest extends AbstractDataBuilderTest
     {
         return [
             ['payRemainder', 123.45, ['amountDebit' => 123.45]],
+            ['payRemainderEncrypted', 123.45, ['amountDebit' => 123.45]],
+            ['payRemainderWithToken', 123.45, ['amountDebit' => 123.45]],
+            ['payWithToken', 0, []],
             ['otherAction', 0, []],
         ];
     }

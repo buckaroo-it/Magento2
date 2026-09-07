@@ -44,6 +44,15 @@ use Magento\Framework\DB\Sql\Expression;
 class Order
 {
     /**
+     * Days past the due date that the expiry crons still act on an order.
+     *
+     * Orders older than the due date plus this grace period are deliberately left alone, so a
+     * deployment or a cron that has been down for a while cannot cancel a long tail of old orders at
+     * once. Anything beyond it is no longer Buckaroo's to expire.
+     */
+    public const EXPIRY_WINDOW_GRACE_DAYS = 7;
+
+    /**
      * @var Account
      */
     protected $accountConfig;
@@ -156,15 +165,13 @@ class Order
      */
     protected function cancelExpiredTransferOrdersPerStore(StoreInterface $store)
     {
-        $statesConfig = $this->configProviderFactory->get('states');
-        $state = $statesConfig->getOrderStateNew($store);
         if ($transferConfig = $this->configProviderMethodFactory->get('transfer')) {
-            if ($dueDays = abs($transferConfig->getDueDate())) {
+            if ($dueDays = abs((float)$transferConfig->getDueDate($store))) {
                 $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
                 $orderCollection
                     ->addFieldToFilter(
                         'state',
-                        ['eq' => $state]
+                        ['in' => $this->getUnpaidOrderStates($store)]
                     )
                     ->addFieldToFilter(
                         'store_id',
@@ -176,7 +183,7 @@ class Order
                     )
                     ->addFieldToFilter(
                         'created_at',
-                        ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                        ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + self::EXPIRY_WINDOW_GRACE_DAYS) . ' DAY')]
                     );
 
                 $orderCollection->getSelect()
@@ -228,6 +235,29 @@ class Order
     }
 
     /**
+     * The states an order can sit in while it still awaits payment.
+     *
+     * A deferred payment method starts the order off in the configured "new" state, but as soon as
+     * the gateway sends its first pending push, the order moves on to the configured pending state.
+     * Both therefore have to be considered, or the expiry cron never sees the orders it exists for.
+     *
+     * @param StoreInterface $store
+     *
+     * @throws BuckarooException
+     *
+     * @return array
+     */
+    private function getUnpaidOrderStates(StoreInterface $store): array
+    {
+        $statesConfig = $this->configProviderFactory->get('states');
+
+        return array_values(array_unique(array_filter([
+            $statesConfig->getOrderStateNew($store),
+            $statesConfig->getOrderStatePending($store),
+        ])));
+    }
+
+    /**
      * Cancel expired Pay Per Email orders for the specified store.
      *
      * @param StoreInterface $store
@@ -236,16 +266,14 @@ class Order
      */
     protected function cancelExpiredPPEOrdersPerStore(StoreInterface $store)
     {
-        $statesConfig = $this->configProviderFactory->get('states');
-        $state = $statesConfig->getOrderStateNew($store);
         if ($ppeConfig = $this->configProviderMethodFactory->get('payperemail')) {
-            if ($ppeConfig->getEnabledCronCancelPPE()) {
-                if ($dueDays = abs($ppeConfig->getExpireDays())) {
+            if ($ppeConfig->getEnabledCronCancelPPE($store)) {
+                if ($dueDays = abs((float)$ppeConfig->getExpireDays($store))) {
                     $orderCollection = $this->orderFactory->create()->addFieldToSelect(['*']);
                     $orderCollection
                         ->addFieldToFilter(
                             'state',
-                            ['eq' => $state]
+                            ['in' => $this->getUnpaidOrderStates($store)]
                         )
                         ->addFieldToFilter(
                             'store_id',
@@ -257,7 +285,7 @@ class Order
                         )
                         ->addFieldToFilter(
                             'created_at',
-                            ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + 7) . ' DAY')]
+                            ['gt' => new Expression('NOW() - INTERVAL ' . ($dueDays + self::EXPIRY_WINDOW_GRACE_DAYS) . ' DAY')]
                         );
 
                     $orderCollection->getSelect()

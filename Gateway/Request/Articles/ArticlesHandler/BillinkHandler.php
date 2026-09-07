@@ -30,154 +30,19 @@ class BillinkHandler extends AbstractArticlesHandler
      *
      * @return array
      */
-    public function getDiscountLine(): array
+    public function getDiscountLines(): array
     {
         return [];
     }
 
     /**
-     * Get additional discount lines such as reward points or gift cards
+     * Billink prices every discount on the item lines, so a store credit line is suppressed for
+     * the same reason the global discount line is.
      *
      * @return array
      */
-    protected function getAdditionalLines(): array
+    protected function getStoreCreditLines(): array
     {
-        $articles = [];
-
-        $rewardLine = $this->getRewardLine();
-        if (!empty($rewardLine)) {
-            $articles[] = $rewardLine;
-        }
-
-        $giftCardLine = $this->getGiftCardLine();
-        if (!empty($giftCardLine)) {
-            $articles[] = $giftCardLine;
-        }
-
-        return ['articles' => $articles];
-    }
-
-    /**
-     * Get the reward points discount line
-     *
-     * @return array
-     */
-    public function getRewardLine()
-    {
-        try {
-            $quote = $this->getQuote();
-            $discount = (float)$quote->getRewardCurrencyAmount();
-
-            if ($discount <= 0) {
-                return [];
-            }
-
-            $this->buckarooLog->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
-
-            return $this->getArticleArrayLine(
-                'Discount Reward Points',
-                5,
-                1,
-                -$discount,
-                0
-            );
-        } catch (\Error $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . '|getRewardCurrencyAmount method not available - Adobe Commerce reward points may not be installed');
-            return [];
-        } catch (\Exception $e) {
-            $this->buckarooLog->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * Get the gift card discount line
-     *
-     * @return array
-     */
-    public function getGiftCardLine(): array
-    {
-        try {
-            $quote = $this->getQuote();
-            $discount = (float)$quote->getGiftCardsAmount();
-
-            if ($discount <= 0) {
-                return [];
-            }
-
-            $this->buckarooLog->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
-
-            return $this->getArticleArrayLine(
-                'Discount Gift Card',
-                6,
-                1,
-                -$discount,
-                0
-            );
-        } catch (\Error $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . '|getGiftCardsAmount method not available - Adobe Commerce gift cards may not be installed');
-            return [];
-        } catch (\Exception $e) {
-            $this->buckarooLog->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * Get items lines
-     *
-     * @return array
-     */
-    protected function getItemsLines(): array
-    {
-        $articles = [];
-        $count = 1;
-        $bundleProductQty = 0;
-
-        $quote = $this->getQuote();
-        $cartData = $quote->getAllItems();
-
-        /**
-         * @var Item $item
-         */
-        foreach ($cartData as $item) {
-            if ($this->skipBundleProducts($item, $bundleProductQty)) {
-                continue;
-            }
-
-            if ($this->skipItem($item, $bundleProductQty)) {
-                continue;
-            }
-
-            $article = $this->getArticleArrayLine(
-                $item->getName(),
-                $this->getIdentifier($item),
-                $item->getTotalQty(),
-                $this->calculateProductPrice($item),
-                $this->getItemTax($item)
-            );
-
-            $articles[] = $article;
-
-            if ($item->getDiscountAmount() > 0) {
-                $count++;
-                $article = $this->getArticleArrayLine(
-                    'Korting op ' . $item->getName(),
-                    $item->getSku(),
-                    1,
-                    number_format(($item->getDiscountAmount() * -1), 2),
-                    $item->getTaxPercent() ?: 0
-                );
-                $articles[] = $article;
-            }
-
-            if ($count >= self::MAX_ARTICLE_COUNT) {
-                break;
-            }
-
-            $count++;
-        }
-
-        return $articles;
+        return [];
     }
 }

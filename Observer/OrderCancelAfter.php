@@ -190,7 +190,7 @@ class OrderCancelAfter implements ObserverInterface
         ));
 
         $payment->setAdditionalInformation('buckaroo_manually_canceled', true);
-        $payment->save();
+        $this->paymentRepository->save($payment);
     }
 
     /**

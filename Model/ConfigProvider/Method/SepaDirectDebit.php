@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Exception;
 
-class SepaDirectDebit extends AbstractConfigProvider
+class SepaDirectDebit extends AbstractConfigProvider implements Cm3ConfigProviderInterface
 {
     public const CODE = 'buckaroo_magento2_sepadirectdebit';
 
@@ -109,5 +109,22 @@ class SepaDirectDebit extends AbstractConfigProvider
         );
 
         return $paymentFee ?: 0;
+    }
+
+    /**
+     * Payment methods offered on the invoice.
+     *
+     * This method exposes no "allowed services" setting of its own, so the config
+     * read yields nothing, and Credit Management leaves the invoice unrestricted.
+     *
+     * @param int|null $storeId
+     *
+     * @return false|mixed
+     */
+    public function getPaymentMethod(?int $storeId = null)
+    {
+        $paymentMethod = $this->getMethodConfigValue('payment_method', $storeId);
+
+        return $paymentMethod ?: false;
     }
 }

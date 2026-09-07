@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Service\Refund\RefundCapResolver;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use InvalidArgumentException;
@@ -56,17 +57,25 @@ class AmountCreditDataBuilder implements BuilderInterface
     private $refundGroupService;
 
     /**
+     * @var RefundCapResolver
+     */
+    private RefundCapResolver $refundCapResolver;
+
+    /**
      * Constructor
      *
      * @param TransactionCurrencyResolver   $transactionCurrencyResolver
      * @param RefundGroupTransactionService $refundGroupService
+     * @param RefundCapResolver             $refundCapResolver
      */
     public function __construct(
         TransactionCurrencyResolver $transactionCurrencyResolver,
-        RefundGroupTransactionService $refundGroupService
+        RefundGroupTransactionService $refundGroupService,
+        RefundCapResolver $refundCapResolver
     ) {
         $this->transactionCurrencyResolver = $transactionCurrencyResolver;
         $this->refundGroupService = $refundGroupService;
+        $this->refundCapResolver = $refundCapResolver;
     }
 
     /**
@@ -96,8 +105,9 @@ class AmountCreditDataBuilder implements BuilderInterface
 
         $amountAdjustedForGroupTransactions = false;
         if ($hasGroupTransactions || $isSingleGiftcard) {
-            $this->refundGroupService->refundGroupTransactions($buildSubject);
-            $this->refundAmount = $this->refundGroupService->getAmountLeftToRefund();
+            // The return value carries the clamped remainder (group-transaction deduction,
+            // total-order ceiling) - the raw amountLeftToRefund property does not
+            $this->refundAmount = (float)$this->refundGroupService->refundGroupTransactions($buildSubject);
             $amountAdjustedForGroupTransactions = true;
 
             if ($this->refundAmount < 0.01) {
@@ -107,6 +117,11 @@ class AmountCreditDataBuilder implements BuilderInterface
         }
 
         $this->setRefundAmount($order, $payment, $amountAdjustedForGroupTransactions);
+        $this->refundAmount = $this->refundCapResolver->resolveCappedAmount($order, $payment, $this->refundAmount);
+
+        if ($this->refundAmount < 0.01) {
+            throw new InvalidArgumentException('Credit Amount must be greater than 0');
+        }
 
         return [
             self::AMOUNT_CREDIT => $this->getRefundAmount()

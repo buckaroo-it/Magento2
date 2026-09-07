@@ -179,8 +179,10 @@ class RestoreQuote implements ObserverInterface
                     if ($restored && $restoredQuoteId) {
                         $this->checkoutSession->getQuote()->setOrigOrderId(null);
                         $this->rollbackPartialPayment($lastRealOrder->getIncrementId(), $payment);
-                        $this->setOrderToCancel($previousOrderId);
+                        // Flag must be set BEFORE setOrderToCancel: that call performs the
+                        // only quote save, so anything set afterwards is silently discarded
                         $this->transferSpamLimitFlag($payment);
+                        $this->setOrderToCancel($previousOrderId);
 
                         $this->logger->addDebug(sprintf(
                             '[RESTORE_QUOTE] | [Observer] | [%s:%s] - Quote Restoration Completed Successfully',

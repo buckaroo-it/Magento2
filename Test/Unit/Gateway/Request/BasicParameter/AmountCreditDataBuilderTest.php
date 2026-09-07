@@ -25,9 +25,11 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder;
+use Buckaroo\Magento2\Service\Refund\RefundCapResolver;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
+use InvalidArgumentException;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
@@ -52,6 +54,39 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
      */
     private $amountCreditDataBuilder;
 
+    /**
+     * @var RefundCapResolver|MockObject
+     */
+    private $refundCapResolverMock;
+
+    /**
+     * The amount is validated again AFTER it has been resolved. The check at the top of build()
+     * only sees the figure Magento handed in, but setRefundAmount() can replace it with the credit
+     * memo's own grand total and the group-transaction branch can drive it below zero without
+     * throwing. The gateway answers a non-positive amount with statuscode 491, so it must be
+     * refused in Magento instead.
+     */
+    public function testANegativeResolvedAmountIsRefusedBeforeItReachesTheGateway(): void
+    {
+        $creditmemoMock = $this->createMock(Creditmemo::class);
+        $creditmemoMock->method('getGrandTotal')->willReturn(-10.90);
+
+        // The transaction is in the order currency and the order is not in the base currency, so
+        // setRefundAmount() swaps in the credit memo's own grand total.
+        $this->orderMock->method('getIncrementId')->willReturn('300000009');
+        $this->orderMock->method('getOrderCurrencyCode')->willReturn('EUR');
+        $this->orderMock->method('getBaseCurrencyCode')->willReturn('USD');
+        $this->transactionCurrencyResolverMock->method('resolve')->willReturn('EUR');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Credit Amount must be greater than 0');
+
+        $this->amountCreditDataBuilder->build([
+            'payment' => $this->getSalesPaymentDOMock($creditmemoMock),
+            'amount' => 19.10,
+        ]);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,9 +95,14 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         $this->refundGroupServiceMock = $this->createMock(RefundGroupTransactionService::class);
 
+        // The cap only ever lowers the amount; these subjects are not capped.
+        $this->refundCapResolverMock = $this->createMock(RefundCapResolver::class);
+        $this->refundCapResolverMock->method('resolveCappedAmount')->willReturnArgument(2);
+
         $this->amountCreditDataBuilder = new AmountCreditDataBuilder(
             $this->transactionCurrencyResolverMock,
-            $this->refundGroupServiceMock
+            $this->refundGroupServiceMock,
+            $this->refundCapResolverMock
         );
     }
 
@@ -95,7 +135,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         // Enable group transaction logic when amounts differ
         $hasGroupTransactions = ($amount !== $amountLeftToRefund);
         $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn($hasGroupTransactions);
-        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn($amountLeftToRefund);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn($amountLeftToRefund);
 
         $result = $this->amountCreditDataBuilder->build($buildSubject);
 
@@ -155,7 +195,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         $this->transactionCurrencyResolverMock->method('resolve')->willReturn('PLN');
 
         $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
-        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn(10.00);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn(10.00);
 
         $result = $this->amountCreditDataBuilder->build([
             'payment' => $this->getSalesPaymentDOMock(null),
@@ -164,6 +204,38 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         // 10.00 base * 4.2882 = 42.88 in order currency
         $this->assertEquals(42.88, $result[AmountCreditDataBuilder::AMOUNT_CREDIT]);
+    }
+
+    /**
+     * RefundGroupTransactions() returns the CLAMPED remainder (group-transaction
+     * deduction and total-order ceiling applied). The builder must consume that
+     * return value - reading the raw amountLeftToRefund property discards the
+     * clamps and can over-refund the primary payment method.
+     *
+     * @throws ClientException
+     * @throws ConverterException
+     */
+    public function testBuildUsesClampedReturnValueOfRefundGroupTransactions(): void
+    {
+        $this->orderMock->method('getBaseGrandTotal')->willReturn(100.00);
+        $this->orderMock->method('getOrderCurrencyCode')->willReturn('USD');
+        $this->orderMock->method('getBaseCurrencyCode')->willReturn('EUR');
+        $this->orderMock->method('getBaseToOrderRate')->willReturn(1.0);
+        $this->orderMock->method('getIncrementId')->willReturn('000000001');
+        $this->transactionCurrencyResolverMock->method('resolve')->willReturn(null);
+
+        $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
+        // Clamped return value (e.g. grand total minus giftcard group amount) ...
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn(40.00);
+        // ... must win over the raw, un-clamped property value
+        $this->refundGroupServiceMock->method('getAmountLeftToRefund')->willReturn(100.00);
+
+        $result = $this->amountCreditDataBuilder->build([
+            'payment' => $this->getPaymentDOMock(),
+            'amount'  => 100.00
+        ]);
+
+        $this->assertEquals(40.00, $result[AmountCreditDataBuilder::AMOUNT_CREDIT]);
     }
 
     /**

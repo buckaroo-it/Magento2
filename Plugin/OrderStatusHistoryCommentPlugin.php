@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Service\CheckPaymentType;
+use Magento\Framework\Escaper;
 use Magento\Sales\Model\Order;
 
 class OrderStatusHistoryCommentPlugin
@@ -35,13 +36,22 @@ class OrderStatusHistoryCommentPlugin
     private $checkPaymentType;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * Constructor.
      *
      * @param CheckPaymentType $checkPaymentType
+     * @param Escaper $escaper
      */
-    public function __construct(CheckPaymentType $checkPaymentType)
-    {
+    public function __construct(
+        CheckPaymentType $checkPaymentType,
+        Escaper $escaper
+    ) {
         $this->checkPaymentType = $checkPaymentType;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -126,15 +136,14 @@ class OrderStatusHistoryCommentPlugin
      */
     private function buildTransactionIdLink(string $transactionId): string
     {
-        $url = sprintf(
-            'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s',
-            $transactionId
+        $url = $this->escaper->escapeUrl(
+            'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=' . $transactionId
         );
 
         return sprintf(
             '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
             $url,
-            $transactionId
+            $this->escaper->escapeHtml($transactionId)
         );
     }
 }

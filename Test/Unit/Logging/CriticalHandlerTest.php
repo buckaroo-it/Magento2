@@ -42,6 +42,6 @@ class CriticalHandlerTest extends BaseTest
         $instance = $this->getInstance();
         $property = $this->getProperty('fileName', $instance);
 
-        $this->assertEquals('/var/log/Buckaroo/critial.log', $property);
+        $this->assertEquals('/var/log/Buckaroo/critical.log', $property);
     }
 }

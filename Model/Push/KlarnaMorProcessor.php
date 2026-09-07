@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
@@ -33,11 +34,18 @@ use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\KlarnaMorOrderService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Exception;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Escaper;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -62,10 +70,15 @@ class KlarnaMorProcessor extends DefaultProcessor
      * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param GroupTransaction|null $groupTransactionResource
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -82,10 +95,15 @@ class KlarnaMorProcessor extends DefaultProcessor
         Uncancel                         $uncancelService,
         ResourceConnection               $resourceConnection,
         GiftcardCollection               $giftcardCollection,
-        ?OrderRepositoryInterface        $orderRepository = null,
-        ?OrderPaymentRepositoryInterface $paymentRepository = null,
-        ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        CurrencyFactory $currencyFactory,
+        OrderRepositoryInterface        $orderRepository,
+        OrderPaymentRepositoryInterface $paymentRepository,
+        InvoiceRepositoryInterface      $invoiceRepository,
+        GroupTransaction                $groupTransactionResource,
+        TransactionRepositoryInterface  $transactionRepository,
+        SearchCriteriaBuilder           $searchCriteriaBuilder,
+        OrderManagementInterface        $orderManagement,
+        Escaper                         $escaper
     ) {
         parent::__construct(
             $orderRequestService,
@@ -101,18 +119,22 @@ class KlarnaMorProcessor extends DefaultProcessor
             $uncancelService,
             $resourceConnection,
             $giftcardCollection,
-            null,
+            $currencyFactory,
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement,
+            $escaper
         );
     }
 
     /**
      * Process the push according to the response status.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -145,7 +167,7 @@ class KlarnaMorProcessor extends DefaultProcessor
     /**
      * Record a Plaza extend/update reservation on the Magento order without altering the reservation key.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -177,7 +199,7 @@ class KlarnaMorProcessor extends DefaultProcessor
      *
      * Skips capture callbacks initiated by Magento to avoid duplicate processing.
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return bool
      */
@@ -186,10 +208,54 @@ class KlarnaMorProcessor extends DefaultProcessor
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
             && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay')
         ) {
+            $this->recoverCaptureTransactionKeyFromPayPush();
             return true;
         }
 
         return parent::skipPush();
+    }
+
+    /**
+     * Persist the capture transaction key carried by the skipped Magento-initiated Pay push.
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function recoverCaptureTransactionKeyFromPayPush(): void
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::SUCCESS) {
+            return;
+        }
+
+        $payTransactionKey = (string)$this->pushRequest->getTransactions();
+        if ($payTransactionKey === '') {
+            return;
+        }
+
+        $dataRequestKey = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY)
+            ?? $this->order->getBuckarooDatarequestKey();
+        $captureTransactionKey = $this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_CAPTURE_TRANSACTION_KEY
+        );
+
+        if (!empty($captureTransactionKey) && $captureTransactionKey !== $dataRequestKey) {
+            return;
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[KLARNA_MOR] | [%s:%s] - Persisting capture transaction key %s from skipped Pay push for order %s',
+            __METHOD__,
+            __LINE__,
+            $payTransactionKey,
+            $this->order->getIncrementId()
+        ));
+
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_CAPTURE_TRANSACTION_KEY,
+            $payTransactionKey
+        );
+        $this->payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_ALREADY_CAPTURED, true);
+        $this->paymentRepository->save($this->payment);
     }
 
     /**
@@ -256,7 +322,7 @@ class KlarnaMorProcessor extends DefaultProcessor
             }
 
             $this->order->setBuckarooDatarequestKey($dataRequestKey);
-            $this->payment->setAdditionalInformation('buckaroo_datarequest_key', $dataRequestKey);
+            $this->payment->setAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY, $dataRequestKey);
             $this->orderRepository->save($this->order);
 
             $this->logger->addDebug(sprintf(
@@ -291,7 +357,7 @@ class KlarnaMorProcessor extends DefaultProcessor
     private function shouldPreserveExistingDataRequestKey(string $incomingDataRequestKey): bool
     {
         $existingKey = $this->order->getBuckarooDatarequestKey()
-            ?? $this->payment->getAdditionalInformation('buckaroo_datarequest_key');
+            ?? $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_DATAREQUEST_KEY);
 
         if (empty($existingKey) || $existingKey === $incomingDataRequestKey) {
             return false;
@@ -317,7 +383,7 @@ class KlarnaMorProcessor extends DefaultProcessor
      *
      * When "Create Invoice After Shipment" is enabled, defer invoice creation.
      *
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      *
      * @return bool
      */
@@ -355,7 +421,7 @@ class KlarnaMorProcessor extends DefaultProcessor
     /**
      * Process succeeded push authorization for Klarna MOR.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processSucceededPushAuthorization(): void
     {
@@ -386,8 +452,8 @@ class KlarnaMorProcessor extends DefaultProcessor
             ));
 
             if ($this->order->getState() !== Order::STATE_CANCELED) {
+                // Persisted by the updateOrderStatus save that follows in processSucceededPush
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->orderRepository->save($this->order);
             }
         }
     }

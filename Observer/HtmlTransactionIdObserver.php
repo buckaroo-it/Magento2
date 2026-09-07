@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Service\CheckPaymentType;
+use Magento\Framework\Escaper;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -40,16 +41,25 @@ class HtmlTransactionIdObserver implements ObserverInterface
      */
     private $transactionRepository;
 
+
     /**
-     * @param CheckPaymentType               $checkPaymentType
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
+     * @param CheckPaymentType $checkPaymentType
      * @param TransactionRepositoryInterface $transactionRepository
+     * @param Escaper $escaper
      */
     public function __construct(
         CheckPaymentType $checkPaymentType,
-        TransactionRepositoryInterface $transactionRepository
+        TransactionRepositoryInterface $transactionRepository,
+        Escaper $escaper
     ) {
         $this->checkPaymentType = $checkPaymentType;
         $this->transactionRepository = $transactionRepository;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -210,9 +220,9 @@ class HtmlTransactionIdObserver implements ObserverInterface
         $transaction->setData(
             'html_txn_id',
             sprintf(
-                '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
-                $txnId,
-                $transaction->getTxnId()
+                '<a href="%s" target="_blank">%s</a>',
+                $this->escaper->escapeUrl('https://plaza.buckaroo.nl/Transaction/DataRequest/Details/' . $txnId),
+                $this->escaper->escapeHtml($transaction->getTxnId())
             )
         );
     }
@@ -229,9 +239,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
         $transaction->setData(
             'html_txn_id',
             sprintf(
-                '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-                $txnId,
-                $transaction->getTxnId()
+                '<a href="%s" target="_blank">%s</a>',
+                $this->escaper->escapeUrl(
+                    'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=' . $txnId
+                ),
+                $this->escaper->escapeHtml($transaction->getTxnId())
             )
         );
     }

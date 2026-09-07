@@ -34,6 +34,7 @@ use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Magento\Directory\Model\CurrencyFactory;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Escaper;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -53,11 +54,6 @@ class KlarnaKpProcessor extends DefaultProcessor
     private $klarnakpConfig;
 
     /**
-     * @var Escaper
-     */
-    private $escaper;
-
-    /**
      * @param OrderRequestService $orderRequestService
      * @param PushTransactionType $pushTransactionType
      * @param BuckarooLoggerInterface $logger
@@ -73,10 +69,14 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param GiftcardCollection $giftcardCollection
      * @param Klarnakp $klarnakpConfig
      * @param Escaper $escaper
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param GroupTransaction|null $groupTransactionResource
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param GroupTransaction $groupTransactionResource
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Sales\Api\OrderManagementInterface $orderManagement
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -95,10 +95,14 @@ class KlarnaKpProcessor extends DefaultProcessor
         GiftcardCollection               $giftcardCollection,
         Klarnakp                         $klarnakpConfig,
         Escaper                          $escaper,
-        ?OrderRepositoryInterface        $orderRepository = null,
-        ?OrderPaymentRepositoryInterface $paymentRepository = null,
-        ?InvoiceRepositoryInterface      $invoiceRepository = null,
-        ?GroupTransaction                $groupTransactionResource = null
+        CurrencyFactory $currencyFactory,
+        OrderRepositoryInterface        $orderRepository,
+        OrderPaymentRepositoryInterface $paymentRepository,
+        InvoiceRepositoryInterface      $invoiceRepository,
+        GroupTransaction                $groupTransactionResource,
+        \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
+        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement
     ) {
         parent::__construct(
             $orderRequestService,
@@ -114,14 +118,17 @@ class KlarnaKpProcessor extends DefaultProcessor
             $uncancelService,
             $resourceConnection,
             $giftcardCollection,
-            null,
+            $currencyFactory,
             $orderRepository,
             $paymentRepository,
             $invoiceRepository,
-            $groupTransactionResource
+            $groupTransactionResource,
+            $transactionRepository,
+            $searchCriteriaBuilder,
+            $orderManagement,
+            $escaper
         );
         $this->klarnakpConfig = $klarnakpConfig;
-        $this->escaper = $escaper;
     }
 
     /**
@@ -202,10 +209,14 @@ class KlarnaKpProcessor extends DefaultProcessor
             $methodInstanceClass::$requestOnVoid = false;
 
             try {
-                $this->order->cancel()->save();
+                $this->orderManagement->cancel((int)$this->order->getId());
             } finally {
                 $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
             }
+
+            // OrderManagement cancels and saves its own order instance; reload the
+            // shared one so updateOrderStatus below doesn't persist pre-cancellation state
+            $this->orderRequestService->loadOrder();
         }
 
         $cancelTrxId = $this->escaper->escapeHtml((string)$this->pushRequest->getDatarequest());
@@ -440,8 +451,8 @@ class KlarnaKpProcessor extends DefaultProcessor
 
             // Only set to processing if not already canceled (the canUpdateOrderStatus will handle canceled->new transition)
             if ($this->order->getState() !== Order::STATE_CANCELED) {
+                // Persisted by the updateOrderStatus save that follows in processSucceededPush
                 $this->order->setState(Order::STATE_PROCESSING);
-                $this->orderRepository->save($this->order);
             }
         }
     }

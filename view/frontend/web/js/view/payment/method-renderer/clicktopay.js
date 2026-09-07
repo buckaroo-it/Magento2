@@ -334,6 +334,25 @@ define(
                 getPayWithBaseCurrencyText: function () {
                     var text = $.mage.__('The transaction will be processed using %s.');
                     return text.replace('%s', this.baseCurrencyCode);
+                },
+
+                getSubtextStyle: function () {
+                    var config = this.buckaroo;
+                    if (config === undefined) {
+                        return;
+                    }
+                    var subtextColor = config.subtext_color || '#757575';
+                    var subtextStyle = config.subtext_style || 'regular';
+
+                    var style = { color: subtextColor };
+                    if (subtextStyle == 'bold') {
+                        style.fontWeight = 'bold';
+                    }
+
+                    if (subtextStyle == 'italic') {
+                        style.fontStyle = 'italic';
+                    }
+                    return style;
                 }
             }
         );

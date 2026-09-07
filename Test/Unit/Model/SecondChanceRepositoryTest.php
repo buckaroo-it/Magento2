@@ -614,4 +614,86 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $result = $this->invokeArgs('checkForMultipleEmail', [$order, true], $instance);
         $this->assertTrue($result);
     }
+
+    /**
+     * @return array
+     */
+    public static function placeholderEmailProvider(): array
+    {
+        return [
+            'empty address is a placeholder'            => ['', true],
+            'reserved example.com'                      => ['guest@example.com', true],
+            'reserved example.com, mixed case'          => ['No-Reply@Example.COM', true],
+            'reserved example.net'                      => ['guest@example.net', true],
+            'reserved example.org'                      => ['guest@example.org', true],
+            'real address'                              => ['klant@buckaroo.nl', false],
+            'reserved domain only as a local part'      => ['example.com@buckaroo.nl', false],
+            'reserved domain as a subdomain of a real one' => ['guest@example.com.buckaroo.nl', false],
+        ];
+    }
+
+    /**
+     * @dataProvider placeholderEmailProvider
+     *
+     * @param string $email
+     * @param bool   $expected
+     */
+    public function testIsPlaceholderEmail(string $email, bool $expected): void
+    {
+        $instance = $this->getInstance();
+        $method = new \ReflectionMethod($instance, 'isPlaceholderEmail');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($instance, $email));
+    }
+
+    /**
+     * @return array
+     */
+    public static function placeholderGraceProvider(): array
+    {
+        return [
+            'just created, still worth retrying'   => [5 * 60, false],
+            'well inside the grace period'         => [30 * 60, false],
+            'past the grace period, give up'       => [3 * 3600, true],
+        ];
+    }
+
+    /**
+     * @dataProvider placeholderGraceProvider
+     *
+     * @param int  $ageSeconds
+     * @param bool $expected
+     */
+    public function testIsPastPlaceholderEmailGrace(int $ageSeconds, bool $expected): void
+    {
+        $now = 1700000000;
+
+        $dateTime = $this->getFakeMock(\Magento\Framework\Stdlib\DateTime\DateTime::class)->getMock();
+        $dateTime->method('gmtTimestamp')->willReturn($now);
+
+        $item = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class)->getMock();
+        $item->method('getCreatedAt')->willReturn(gmdate('Y-m-d H:i:s', $now - $ageSeconds));
+
+        $instance = $this->getInstance(['dateTime' => $dateTime]);
+        $method = new \ReflectionMethod($instance, 'isPastPlaceholderEmailGrace');
+        $method->setAccessible(true);
+
+        $this->assertSame($expected, $method->invoke($instance, $item));
+    }
+
+    public function testIsPastPlaceholderEmailGraceHandlesAnUnparsableDate(): void
+    {
+        $dateTime = $this->getFakeMock(\Magento\Framework\Stdlib\DateTime\DateTime::class)->getMock();
+        $dateTime->method('gmtTimestamp')->willReturn(1700000000);
+
+        $item = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class)->getMock();
+        $item->method('getCreatedAt')->willReturn('not a date');
+
+        $instance = $this->getInstance(['dateTime' => $dateTime]);
+        $method = new \ReflectionMethod($instance, 'isPastPlaceholderEmailGrace');
+        $method->setAccessible(true);
+
+        $this->assertFalse($method->invoke($instance, $item));
+    }
 }

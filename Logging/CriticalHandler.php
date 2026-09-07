@@ -30,5 +30,5 @@ class CriticalHandler extends Base
     protected $loggerType = Logger::CRITICAL;
 
     // @codingStandardsIgnoreLine
-    protected $fileName = '/var/log/Buckaroo/critial.log';
+    protected $fileName = '/var/log/Buckaroo/critical.log';
 }

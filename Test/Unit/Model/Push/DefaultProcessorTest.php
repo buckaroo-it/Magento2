@@ -5,6 +5,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Magento\Sales\Model\Order;
 
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -201,5 +202,221 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->setProperty('pushRequest', $pushRequestMock, $instance);
 
         $this->invokeArgs('processPendingPaymentEmail', [], $instance);
+    }
+
+    /**
+     * The capture must be registered for the amount the gateway actually took. Registering the
+     * order total for a smaller capture overstates total_paid and produces an order comment that
+     * contradicts the amount sent.
+     *
+     * @param float|null $pushedAmount
+     * @param bool       $isSameCurrency
+     * @param bool       $isCaptureFinal
+     * @param float      $expected
+     */
+    #[DataProvider('captureNotificationAmountProvider')]
+    public function testCaptureNotificationUsesTheAmountTheGatewayCaptured(
+        ?float $pushedAmount,
+        bool $isSameCurrency,
+        bool $isCaptureFinal,
+        float $expected
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAmount')->willReturn($pushedAmount);
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('isSameCurrency')->willReturn($isSameCurrency);
+        $paymentMock->method('isCaptureFinal')->willReturn($isCaptureFinal);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getGrandTotal')->willReturn(209.09);
+        $orderMock->method('getBaseTotalDue')->willReturn(190.00);
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertEquals($expected, $this->invokeArgs('resolveCaptureNotificationAmount', [], $instance));
+    }
+
+    public static function captureNotificationAmountProvider(): array
+    {
+        return [
+            // A partial capture must be recorded as such, not as the full order total.
+            'partial capture is recorded for what was captured' => [150.00, true, false, 150.00],
+            'full capture is recorded for what was captured'    => [209.09, true, true, 209.09],
+            // Without an amount on the push the previous behaviour stands.
+            'no pushed amount falls back to the order total'    => [null, true, true, 209.09],
+            'non final capture falls back to base total due'    => [null, true, false, 190.00],
+            // A differing payment currency keeps using base_total_due to avoid a fraud flag.
+            'differing currency falls back to base total due'   => [150.00, false, true, 190.00],
+        ];
+    }
+
+    /**
+     * Recording the push message must not move the order. An intermediate save later in the push
+     * would commit that state, so the order would sit in processing before the push has decided
+     * anything, long enough for a warehouse integration to pick it up.
+     */
+    public function testSuccessfulPushRecordsTheStatusMessageWithoutTouchingTheOrderState(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getStatusMessage')->willReturn('The request was successful.');
+        $pushRequestMock->method('getStatusCode')->willReturn((string)BuckarooStatusCode::SUCCESS);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getState')->willReturn(Order::STATE_NEW);
+
+        $orderMock->expects($this->never())->method('setState');
+        $orderMock->expects($this->once())->method('addCommentToStatusHistory');
+
+        // The fabricated "processing" status came from here, so the comment must not be stamped with it.
+        $this->helperMock->expects($this->never())->method('getOrderStatusByState');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invokeArgs('setOrderStatusMessage', [], $instance);
+    }
+
+    public static function statusMessageHistoryProvider(): array
+    {
+        return [
+            'successful push is recorded'                => [BuckarooStatusCode::SUCCESS, Order::STATE_NEW, true],
+            'failed push is recorded'                    => [BuckarooStatusCode::FAILED, Order::STATE_PROCESSING, true],
+            'pending push on a new order is recorded'    => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_NEW, true],
+            'pending push awaiting payment is recorded'  => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_PENDING_PAYMENT, true],
+            // A 791 arriving after the order already succeeded describes the earlier attempt (BP-4716).
+            'pending push after progress is not recorded' => [BuckarooStatusCode::PENDING_PROCESSING, Order::STATE_PROCESSING, false],
+        ];
+    }
+
+    /**
+     * @param int    $statusCode
+     * @param string $orderState
+     * @param bool   $expectsComment
+     */
+    #[DataProvider('statusMessageHistoryProvider')]
+    public function testStatusMessageIsOnlyRecordedWhenItStillDescribesTheOrder(
+        int $statusCode,
+        string $orderState,
+        bool $expectsComment
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getStatusMessage')->willReturn('Some gateway message.');
+        $pushRequestMock->method('getStatusCode')->willReturn((string)$statusCode);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getState')->willReturn($orderState);
+
+        $orderMock->expects($this->never())->method('setState');
+        $orderMock->expects($expectsComment ? $this->once() : $this->never())
+            ->method('addCommentToStatusHistory');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->invokeArgs('setOrderStatusMessage', [], $instance);
+    }
+
+    /**
+     * The order confirmation email is gated on the order state, so it has to be sent after the push
+     * settled the state rather than off the back of a state set purely to stamp a comment.
+     */
+    public function testOrderEmailIsSentAfterTheSucceededPushHasBeenApplied(): void
+    {
+        $calls = [];
+
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('applySucceededPush')
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'applySucceededPush';
+                return true;
+            });
+        $instance->method('sendOrderEmail')
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'sendOrderEmail';
+            });
+
+        $this->assertTrue($instance->processSucceededPush('processing', 'Success'));
+        $this->assertSame(['applySucceededPush', 'sendOrderEmail'], $calls);
+    }
+
+    /**
+     * A push that could not be applied is retried by Buckaroo, so confirming it to the customer
+     * would email them for an order that is not settled yet.
+     */
+    public function testOrderEmailIsNotSentWhenTheSucceededPushCouldNotBeApplied(): void
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('applySucceededPush')->willReturn(false);
+        $instance->expects($this->never())->method('sendOrderEmail');
+
+        $this->assertFalse($instance->processSucceededPush('processing', 'Success'));
+    }
+
+    public static function partialPaymentPushProvider(): array
+    {
+        return [
+            // A part carries its related group transaction from the very first push.
+            'a related partial payment marks it as a part' => [null, 'REL-KEY', true],
+            // An already recorded part is recognised by its group transaction row.
+            'a recorded group transaction part is a part'  => ['partialpayment', null, true],
+            'both signals present'                        => ['partialpayment', 'REL-KEY', true],
+            // Neither: an ordinary single payment.
+            'no signals is not a part'                    => [null, null, false],
+            'an empty related key is not a part'          => [null, '', false],
+            // A group transaction of another type is not a part.
+            'a non partialpayment group type is not'      => ['group', null, false],
+        ];
+    }
+
+    /**
+     * A PayLink settled in several parts went unrecorded because the processors tested this
+     * differently, so the condition lives in one place and is pinned here.
+     *
+     * @param string|null $groupTransactionType
+     * @param string|null $relatedPartialPayment
+     * @param bool        $expected
+     */
+    #[DataProvider('partialPaymentPushProvider')]
+    public function testAPushIsRecognisedAsOnePartOfASplitPayment(
+        ?string $groupTransactionType,
+        ?string $relatedPartialPayment,
+        bool $expected
+    ): void {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getTransactions')
+            ->willReturn($groupTransactionType === null ? null : 'TRX-1');
+        $pushRequestMock->method('getRelatedtransactionPartialpayment')
+            ->willReturn($relatedPartialPayment);
+
+        // getType() is a magic getter, so a real DataObject stands in for the group transaction row.
+        $this->groupTransactionMock->method('getGroupTransactionByTrxId')
+            ->willReturn(new \Magento\Framework\DataObject(['type' => $groupTransactionType]));
+
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertSame($expected, $this->invokeArgs('isPartialPaymentPush', [], $instance));
     }
 }

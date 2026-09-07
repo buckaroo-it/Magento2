@@ -22,6 +22,7 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay as GooglepayConfig;
+use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
@@ -30,8 +31,13 @@ use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 
-class Googlepay extends Template
+class Googlepay extends Template implements ShortcutInterface
 {
+    /**
+     * Alias used when this block is added as a shortcut button.
+     */
+    private const SHORTCUT_ALIAS = 'buckaroo_magento2.checkout.cart.googlepay';
+
     /**
      * @var Cart
      */
@@ -87,6 +93,16 @@ class Googlepay extends Template
         $this->googlepayConfigProvider = $googlepayConfigProvider;
         $this->accountConfigProvider = $accountConfigProvider;
         $this->registry = $registry;
+    }
+
+    /**
+     * Get the shortcut alias used by the shortcut buttons container.
+     *
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return self::SHORTCUT_ALIAS;
     }
 
     /**

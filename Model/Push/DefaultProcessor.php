@@ -46,14 +46,17 @@ use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
 use Magento\Directory\Model\CurrencyFactory;
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Escaper;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
@@ -192,6 +195,26 @@ class DefaultProcessor implements PushProcessorInterface
     protected $groupTransactionResource;
 
     /**
+     * @var TransactionRepositoryInterface
+     */
+    protected $transactionRepository;
+
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    protected $searchCriteriaBuilder;
+
+    /**
+     * @var OrderManagementInterface
+     */
+    protected $orderManagement;
+
+    /**
+     * @var Escaper
+     */
+    protected $escaper;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -207,11 +230,15 @@ class DefaultProcessor implements PushProcessorInterface
      * @param Uncancel $uncancelService
      * @param ResourceConnection $resourceConnection
      * @param GiftcardCollection $giftcardCollection
-     * @param CurrencyFactory|null $currencyFactory
-     * @param OrderRepositoryInterface|null $orderRepository
-     * @param OrderPaymentRepositoryInterface|null $paymentRepository
-     * @param InvoiceRepositoryInterface|null $invoiceRepository
-     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction|null $groupTransactionResource
+     * @param CurrencyFactory $currencyFactory
+     * @param OrderRepositoryInterface $orderRepository
+     * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param InvoiceRepositoryInterface $invoiceRepository
+     * @param \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource
+     * @param TransactionRepositoryInterface $transactionRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param OrderManagementInterface $orderManagement
+     * @param Escaper $escaper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -228,11 +255,15 @@ class DefaultProcessor implements PushProcessorInterface
         Uncancel                                                 $uncancelService,
         ResourceConnection                                       $resourceConnection,
         GiftcardCollection                                       $giftcardCollection,
-        ?CurrencyFactory                                         $currencyFactory = null,
-        ?OrderRepositoryInterface                                $orderRepository = null,
-        ?OrderPaymentRepositoryInterface                         $paymentRepository = null,
-        ?InvoiceRepositoryInterface                              $invoiceRepository = null,
-        ?\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction $groupTransactionResource = null
+        CurrencyFactory                                          $currencyFactory,
+        OrderRepositoryInterface                                 $orderRepository,
+        OrderPaymentRepositoryInterface                          $paymentRepository,
+        InvoiceRepositoryInterface                               $invoiceRepository,
+        \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction  $groupTransactionResource,
+        TransactionRepositoryInterface                           $transactionRepository,
+        SearchCriteriaBuilder                                    $searchCriteriaBuilder,
+        OrderManagementInterface                                 $orderManagement,
+        Escaper                                                  $escaper
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -248,15 +279,15 @@ class DefaultProcessor implements PushProcessorInterface
         $this->uncancelService = $uncancelService;
         $this->resourceConnection = $resourceConnection;
         $this->giftcardCollection = $giftcardCollection;
-        $this->currencyFactory = $currencyFactory ?: ObjectManager::getInstance()->get(CurrencyFactory::class);
-        $this->orderRepository = $orderRepository
-            ?: ObjectManager::getInstance()->get(OrderRepositoryInterface::class);
-        $this->paymentRepository = $paymentRepository
-            ?: ObjectManager::getInstance()->get(OrderPaymentRepositoryInterface::class);
-        $this->invoiceRepository = $invoiceRepository
-            ?: ObjectManager::getInstance()->get(InvoiceRepositoryInterface::class);
-        $this->groupTransactionResource = $groupTransactionResource
-            ?: ObjectManager::getInstance()->get(\Buckaroo\Magento2\Model\ResourceModel\GroupTransaction::class);
+        $this->currencyFactory = $currencyFactory;
+        $this->orderRepository = $orderRepository;
+        $this->paymentRepository = $paymentRepository;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->groupTransactionResource = $groupTransactionResource;
+        $this->transactionRepository = $transactionRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->orderManagement = $orderManagement;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -290,7 +321,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->setOrderStatusMessage();
 
-        if ($this->isGroupTransactionPart() || $this->pushRequest->getRelatedtransactionPartialpayment()) {
+        if ($this->isPartialPaymentPush()) {
             return $this->handlePartialPaymentPush();
         }
 
@@ -406,6 +437,29 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return false;
+    }
+
+    /**
+     * Check whether this push reports a capture.
+     *
+     * A capture is either a capture Magento itself initiated, or a Klarna capture confirmation.
+     * The gateway's transaction_type codes are per card brand (C800 visa, C805 mastercard,
+     * C811 maestro), so they do not identify an action, and mutationtype=Collecting is present on
+     * every money-in push including ordinary pay pushes - neither can be used to detect a capture.
+     *
+     * @return bool
+     */
+    protected function isCaptureTransaction(): bool
+    {
+        if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1)
+            && $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture')
+        ) {
+            return true;
+        }
+
+        return $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
+            && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
+            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
     }
 
     /**
@@ -910,21 +964,22 @@ class DefaultProcessor implements PushProcessorInterface
         // 6. Delete ALL existing transactions to start fresh
         // This prevents circular references and stale transaction states
         try {
-            $connection = $this->resourceConnection->getConnection();
-            $tableName = $this->resourceConnection->getTableName('sales_payment_transaction');
+            $searchCriteria = $this->searchCriteriaBuilder
+                ->addFilter('order_id', $this->order->getId())
+                ->create();
+            $transactions = $this->transactionRepository->getList($searchCriteria)->getItems();
 
-            $deleted = $connection->delete(
-                $tableName,
-                ['order_id = ?' => $this->order->getId()]
-            );
+            foreach ($transactions as $orderTransaction) {
+                $this->transactionRepository->delete($orderTransaction);
+            }
 
-            if ($deleted > 0) {
+            if (count($transactions) > 0) {
                 $this->logger->addDebug(sprintf(
                     '[%s:%s] - Order %s: Deleted %d transaction(s) to prevent circular references',
                     __METHOD__,
                     __LINE__,
                     $orderNumber,
-                    $deleted
+                    count($transactions)
                 ));
             }
 
@@ -944,7 +999,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         // 7. Save order changes (payment is persisted by the order save cascade)
-        $this->order->save();
+        $this->orderRepository->save($this->order);
 
         $this->logger->addDebug(sprintf(
             '[%s:%s] - Order %s: Successfully reactivated and set to %s state',
@@ -1003,7 +1058,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @return int|string|null
      * @throws LocalizedException
      */
-    private function detectInvoiceHandlingMode()
+    protected function detectInvoiceHandlingMode()
     {
         // Check method-specific config first (e.g., Klarna's "create_invoice_after_shipment")
         $methodSpecificConfig = $this->payment->getMethodInstance()->getConfigData('create_invoice_after_shipment');
@@ -1059,10 +1114,10 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderRequestService->updateOrderStatus(
             Order::STATE_PROCESSING,
             $newStatus,
-            $description,
-            false,
-            $this->dontSaveOrderUponSuccessPush
+            $description
         );
+        // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }
@@ -1178,47 +1233,78 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Set order status message from push request
+     * Add the status message from the push request to the order status history.
+     *
+     * This is informational only. The authoritative state and status transition is applied once, at
+     * the end of the push, by OrderRequestService::updateOrderStatus(). Setting a state here instead
+     * would be committed by any intermediate save that follows and briefly expose a status the push
+     * has not decided on yet to downstream systems such as a warehouse integration.
      *
      * @return void
-     * @throws LocalizedException
+     * @throws LocalizedException|Exception
      */
     protected function setOrderStatusMessage(): void
     {
-        if (!empty($this->pushRequest->getStatusMessage())) {
-            // Refresh order state to get the most current state
-            $this->order = $this->order->load($this->order->getId());
-
-            if ($this->order->getState() === Order::STATE_NEW
-                && empty($this->pushRequest->getRelatedtransactionPartialpayment())
-                && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
-            ) {
-                $this->order->setState(Order::STATE_PROCESSING);
-                $this->order->addCommentToStatusHistory(
-                    $this->pushRequest->getStatusMessage(),
-                    $this->helper->getOrderStatusByState($this->order, Order::STATE_PROCESSING)
-                );
-            } else {
-                // Log the reason why we're not setting to processing
-                if ($this->order->getState() !== Order::STATE_NEW) {
-                    $this->logger->addDebug(sprintf(
-                        '[%s:%s] - Skip setting order to processing, current state: %s (not NEW)',
-                        __METHOD__,
-                        __LINE__,
-                        $this->order->getState()
-                    ));
-                }
-                if ((
-                        (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::PENDING_PROCESSING
-                        && in_array($this->order->getState(), [Order::STATE_PENDING_PAYMENT, Order::STATE_NEW], true)
-                    )
-                    ||
-                    (int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::PENDING_PROCESSING
-                ) {
-                    $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
-                }
-            }
+        if (empty($this->pushRequest->getStatusMessage())) {
+            return;
         }
+
+        // Refresh the shared order instance in place
+        $this->orderRequestService->loadOrder();
+
+        if (!$this->shouldAddStatusMessageToHistory()) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Skip adding the push status message | statusCode: %s | state: %s',
+                __METHOD__,
+                __LINE__,
+                $this->pushRequest->getStatusCode(),
+                $this->order->getState()
+            ));
+
+            return;
+        }
+
+        $this->order->addCommentToStatusHistory($this->pushRequest->getStatusMessage());
+    }
+
+    /**
+     * Check whether the push status message still describes the order.
+     *
+     * A "pending processing" message arriving after the order already moved past its opening
+     * states describes an earlier attempt, so recording it only confuses whoever reads the
+     * history later.
+     *
+     * @return bool
+     */
+    private function shouldAddStatusMessageToHistory(): bool
+    {
+        if ((int)$this->pushRequest->getStatusCode() !== BuckarooStatusCode::PENDING_PROCESSING) {
+            return true;
+        }
+
+        return in_array(
+            $this->order->getState(),
+            [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT],
+            true
+        );
+    }
+
+    /**
+     * Whether this push settles one part of a payment that was split across several transactions.
+     *
+     * Both conditions are needed. A push carries brq_relatedtransaction_partialpayment from the
+     * start, whereas isGroupTransactionPart() recognises a part by looking up a group transaction
+     * row, so it cannot see the first part of a split before anything has been recorded.
+     *
+     * Kept here rather than in each processor: the two used to test this differently, and a PayLink
+     * settled in parts went unrecorded because of it.
+     *
+     * @return bool
+     */
+    protected function isPartialPaymentPush(): bool
+    {
+        return $this->isGroupTransactionPart()
+            || (bool)$this->pushRequest->getRelatedtransactionPartialpayment();
     }
 
     /**
@@ -1264,7 +1350,7 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
-     * Save new group transaction if needed
+     * Save a new group transaction if needed
      *
      * For mixed payments, this ensures all payment methods (not just giftcards)
      * are saved to the group_transaction table for proper refund handling.
@@ -1460,12 +1546,35 @@ class DefaultProcessor implements PushProcessorInterface
      * @throws LocalizedException
      *
      * @return bool
+     */
+    public function processSucceededPush(string $newStatus, string $message): bool
+    {
+        $succeeded = $this->applySucceededPush($newStatus, $message);
+
+        if ($succeeded) {
+            // Sent last on purpose: the order email is gated on the order's state, so it has to see
+            // the state this push settled on rather than an in-progress one.
+            $this->sendOrderEmail();
+        }
+
+        return $succeeded;
+    }
+
+    /**
+     * Apply the successful push to the order: reservation number, invoice, state and status.
+     *
+     * @param string $newStatus
+     * @param string $message
+     *
+     * @throws Exception
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function processSucceededPush(string $newStatus, string $message): bool
+    protected function applySucceededPush(string $newStatus, string $message): bool
     {
         $this->logger->addDebug(sprintf(
             '[%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
@@ -1476,8 +1585,6 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->setBuckarooReservationNumber();
 
-        $this->sendOrderEmail();
-
         $paymentDetails = $this->getPaymentDetails($message);
         $paymentDetails['state'] = Order::STATE_PROCESSING;
         $paymentDetails['newStatus'] = $newStatus;
@@ -1486,15 +1593,8 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->dontSaveOrderUponSuccessPush = false;
 
-        // Handle capture transactions sent by Buckaroo (C800, mutationtype=collecting)
-        $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
-        $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
-            || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
-        $isKlarnaMethod = $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp']);
-        $hasKlarnaCaptureId = $isKlarnaMethod && !empty($this->pushRequest->getServiceKlarnakpCaptureid());
-        $isSuccessStatus = ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
-
-        if ($isCaptureTx || $isCaptureMutation || ($hasKlarnaCaptureId && $isSuccessStatus)) {
+        // Handle capture transactions sent by Buckaroo
+        if ($this->isCaptureTransaction()) {
             // Build capture description using current amount context
             $amount = $this->order->getBaseTotalDue();
             $amountCurrency = $this->order->getBaseCurrencyCode();
@@ -1526,13 +1626,34 @@ class DefaultProcessor implements PushProcessorInterface
                 return false;
             }
 
+            // A partial capture makes Magento flag the payment as fraudulent and move the order to
+            // payment review. Forcing STATE_PROCESSING here would hide that: the order would read as
+            // paid while no invoice exists and the full amount is still due.
+            if ($this->payment->getIsFraudDetected()) {
+                $this->logger->addDebug(sprintf(
+                    '[%s:%s] - CAPTURE_FRAUD_DETECTED - keeping order in payment review | order: %s',
+                    __METHOD__,
+                    __LINE__,
+                    $this->order->getIncrementId()
+                ));
+
+                $this->orderRequestService->updateOrderStatus(
+                    Order::STATE_PAYMENT_REVIEW,
+                    Order::STATUS_FRAUD,
+                    $description
+                );
+                $this->dontSaveOrderUponSuccessPush = true;
+
+                return true;
+            }
+
             $this->orderRequestService->updateOrderStatus(
                 Order::STATE_PROCESSING,
                 $newStatus,
-                $description,
-                false,
-                $this->dontSaveOrderUponSuccessPush
+                $description
             );
+            // updateOrderStatus persisted the order; skip the final save in processPush
+            $this->dontSaveOrderUponSuccessPush = true;
             $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_COMPLETE', __METHOD__, __LINE__));
             return true;
         }
@@ -1544,10 +1665,6 @@ class DefaultProcessor implements PushProcessorInterface
             }
         }
 
-        if ($this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
-            $paymentDetails['forceState'] = true;
-        }
-
         $this->processSucceededPushAuthorization();
 
         // Apply and save single giftcard metadata before order status update (redirect payment path)
@@ -1556,16 +1673,16 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
-            $paymentDetails['description'],
-            $paymentDetails['forceState'],
-            $this->dontSaveOrderUponSuccessPush
+            $paymentDetails['description']
         );
+        // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
     }
 
     /**
-     * Process succeeded push authorization.
+     * Process succeeded in push authorization.
      *
      * @throws Exception
      */
@@ -1612,8 +1729,8 @@ class DefaultProcessor implements PushProcessorInterface
                 var_export($this->payment->getMethod(), true)
             ));
 
+            // Persisted by the updateOrderStatus save that follows in processSucceededPush
             $this->order->setState(Order::STATE_PROCESSING);
-            $this->order->save();
         }
     }
 
@@ -1654,10 +1771,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         if (in_array($paymentMethod->getCode(), $afterpayMethods)) {
             // Check if this is a capture transaction (these are safe to send emails for)
-            $isCaptureTx = $this->pushRequest->hasPostData('transaction_type', 'C800');
-            $isCaptureMutation = $this->pushRequest->hasPostData('mutationtype', 'collecting')
-                || $this->pushRequest->hasPostData('mutationtype', 'Collecting');
-            $isCapture = $isCaptureTx || $isCaptureMutation;
+            $isCapture = $this->isCaptureTransaction();
 
             if (!$isCapture) {
                 // Check if this is an authorization (not capture) transaction
@@ -1713,6 +1827,27 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Amount to register against the payment for this capture.
+     *
+     * @return float
+     */
+    protected function resolveCaptureNotificationAmount(): float
+    {
+        $isSameCurrency = (bool)$this->payment->isSameCurrency();
+        $capturedAmount = $this->pushRequest->getAmount();
+
+        if ($isSameCurrency && !empty($capturedAmount)) {
+            return (float)$capturedAmount;
+        }
+
+        if ($isSameCurrency && $this->payment->isCaptureFinal($this->order->getGrandTotal())) {
+            return (float)$this->order->getGrandTotal();
+        }
+
+        return (float)$this->order->getBaseTotalDue();
+    }
+
+    /**
      * Saves the invoice for the order if applicable.
      *
      * @throws LocalizedException
@@ -1748,11 +1883,7 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        //Fix for suspected fraud when the order currency does not match with the payment's currency
-        $amount = ($this->payment->isSameCurrency()
-            && $this->payment->isCaptureFinal($this->order->getGrandTotal())) ?
-            $this->order->getGrandTotal() : $this->order->getBaseTotalDue();
-        $this->payment->registerCaptureNotification($amount);
+        $this->payment->registerCaptureNotification($this->resolveCaptureNotificationAmount());
         $this->paymentRepository->save($this->payment);
 
         $transactionKey = $this->getTransactionKey();
@@ -1770,8 +1901,10 @@ class DefaultProcessor implements PushProcessorInterface
 
         /** @var Invoice $invoice */
         foreach ($this->order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey);
-            $this->invoiceRepository->save($invoice);
+            if (empty($invoice->getTransactionId())) {
+                $invoice->setTransactionId($transactionKey);
+                $this->invoiceRepository->save($invoice);
+            }
 
             if (!empty($this->pushRequest->getInvoiceNumber())
                 && $this->groupTransaction->isGroupTransaction($this->pushRequest->getInvoiceNumber())) {
@@ -1944,9 +2077,6 @@ class DefaultProcessor implements PushProcessorInterface
                 $message
             ));
 
-            // Add a clear cancellation message to order history before canceling
-            $this->order->addCommentToStatusHistory('Payment failed. Canceling order due to payment failure: ' . $message);
-
             // setting parameter which will cause to stop the cancel process on
             $methods = [
                 'buckaroo_magento2_afterpay',
@@ -1956,7 +2086,7 @@ class DefaultProcessor implements PushProcessorInterface
             ];
             if (in_array($payment->getMethodInstance()->getCode(), $methods)) {
                 $payment->setAdditionalInformation('buckaroo_failed_authorize', 1);
-                $payment->save();
+                $this->paymentRepository->save($payment);
             }
 
             // Check if we should skip void request (no successful transaction to void)
@@ -1973,13 +2103,30 @@ class DefaultProcessor implements PushProcessorInterface
 
             try {
                 try {
-                    $this->order->cancel()->save();
+                    if (!$this->orderManagement->cancel((int)$this->order->getId())) {
+                        $this->logger->addDebug(sprintf(
+                            '[%s:%s] - Order %s could not be canceled through OrderManagement',
+                            __METHOD__,
+                            __LINE__,
+                            $this->order->getIncrementId()
+                        ));
+                    }
                 } finally {
                     // Restore the original flag value to avoid side effects
                     if ($originalRequestOnVoid !== null) {
                         $methodInstanceClass::$requestOnVoid = $originalRequestOnVoid;
                     }
                 }
+
+                // OrderManagement cancels and saves its own order instance; reload the
+                // shared one so the steps below don't persist pre-cancellation state
+                $this->orderRequestService->loadOrder();
+
+                // On the refreshed instance so it survives the reload; persisted by the
+                // updateOrderStatus save below
+                $this->order->addCommentToStatusHistory(
+                    'Payment failed. Canceling order due to payment failure: ' . $message
+                );
 
                 if (!$this->isMagentoGiftCardRefundActive()) {
                     $this->giftCardRefundService->refund($this->order);
@@ -1998,18 +2145,10 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        $force = false;
-        if (($payment->getMethodInstance()->getCode() == 'buckaroo_magento2_mrcash')
-            && ($this->order->getState() === Order::STATE_NEW)
-            && ($this->order->getStatus() === 'pending')
-        ) {
-            $force = true;
-        }
-
         // Add clear failure message to order history
         $this->order->addCommentToStatusHistory('Payment failed: ' . $message);
 
-        $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description, $force);
+        $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
         return true;
     }
@@ -2103,7 +2242,9 @@ class DefaultProcessor implements PushProcessorInterface
         if (!empty($transferDetails)) {
             $this->payment->setAdditionalInformation('transfer_details', $transferDetails);
             foreach ($transferDetails as $key => $transferDetail) {
-                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: ' . $transferDetail;
+                // Consumer-entered values relayed by the push; the comment is rendered as HTML in admin
+                $description .= '<br/><strong>' . $this->getLabel($key) . '</strong>: '
+                    . $this->escaper->escapeHtml((string)$transferDetail);
             }
         }
 
@@ -2149,11 +2290,6 @@ class DefaultProcessor implements PushProcessorInterface
             $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
-        /**
-         * force state eventhough this can lead to a transition of the order
-         * like new -> processing
-         */
-        $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
         // Check if this is shipment mode - payment authorized but not captured yet
@@ -2180,13 +2316,11 @@ class DefaultProcessor implements PushProcessorInterface
                 $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                     . ' has been authorized. Please create an invoice to capture the authorized amount.';
             }
-            $forceState = true;
         }
 
         return [
             'amount' => $amount,
-            'description' => $description,
-            'forceState' => $forceState
+            'description' => $description
         ];
     }
 
@@ -2468,9 +2602,9 @@ class DefaultProcessor implements PushProcessorInterface
      *    GroupTransactionPushProcessor, which is responsible for cancelling the order.
      *
      * @return bool
-     * @throws LocalizedException
+     * @throws LocalizedException|Exception
      */
-    private function handlePartialPaymentPush(): bool
+    protected function handlePartialPaymentPush(): bool
     {
         $this->savePartGroupTransaction();
         $this->saveNewGroupTransactionIfNeeded();

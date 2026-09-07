@@ -76,11 +76,17 @@
 .bk-mode-and-img {
     display: flex;
     align-items: stretch;
+    flex-shrink: 0;
 }
 .bk-radio-wrap {
     flex: auto;
     display: flex;
     align-items: center;
+    min-width: 0;
+}
+.checkout-payment-method .payment-method-title.bk-payment .bk-radio-wrap > .label {
+    display: block;
+    min-width: 0;
 }
 .bk-test-mode {
     background-color:#ff6200;
@@ -288,8 +294,7 @@
     .buckaroo_magento2_voucher .payment-method-second-col,
     .buckaroo_magento2_paybybank .payment-method-second-col,
     .buckaroo_magento2_mbway .payment-method-second-col,
-    .buckaroo_magento2_multibanco .payment-method-second-col,
-    .buckaroo_magento2_knaken .payment-method-second-col
+    .buckaroo_magento2_multibanco .payment-method-second-col
     {
         float:left;
         width: 50%;
@@ -317,8 +322,7 @@
     .buckaroo_magento2_paybybank .payment-method-billing-address,
     .buckaroo_magento2_mbway .payment-method-billing-address,
     .buckaroo_magento2_multibanco .payment-method-billing-address,
-    .buckaroo_magento2_all_creditcard .payment-method-billing-address,
-    .buckaroo_magento2_knaken .payment-method-billing-address
+    .buckaroo_magento2_all_creditcard .payment-method-billing-address
     {
         float:left;
         width: 50%;

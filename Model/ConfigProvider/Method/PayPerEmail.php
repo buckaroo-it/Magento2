@@ -24,7 +24,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Magento\Framework\App\Area;
 
-class PayPerEmail extends AbstractConfigProvider
+class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInterface
 {
     public const CODE = 'buckaroo_magento2_payperemail';
 
@@ -69,11 +69,13 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * Sends an email to the customer with the payment procedures.
      *
+     * @param int|null $storeId
+     *
      * @return bool
      */
-    public function hasSendMail(): bool
+    public function hasSendMail(?int $storeId = null): bool
     {
-        return (bool)$this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SEND_MAIL);
+        return (bool)$this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_SEND_MAIL, $storeId);
     }
 
     /**
@@ -93,35 +95,44 @@ class PayPerEmail extends AbstractConfigProvider
     /**
      * B2B mode enabled
      *
+     * Reads the flag from the given store so that pushes and admin actions, which run outside the
+     * order's scope, evaluate the setting of the store the order was placed against.
+     *
+     * @param int|null $storeId
+     *
      * @return bool
      */
-    public function isEnabledB2B()
+    public function isEnabledB2B(?int $storeId = null): bool
     {
-        return $this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B);
+        return (bool)$this->getMethodConfigValue(static::XPATH_PAYPEREMAIL_ENABLE_B2B, $storeId);
     }
 
     /**
      * Is enable or disable auto cancelling by cron
      *
+     * @param null|int|string $store
+     *
      * @return mixed
      */
-    public function getEnabledCronCancelPPE()
+    public function getEnabledCronCancelPPE($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE);
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CRON_CANCEL_PPE, $store);
     }
 
     /**
      * Get the expiration date for the paylink
      *
+     * @param null|int|string $store
+     *
      * @return int
      */
-    public function getExpireDays()
+    public function getExpireDays($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_EXPIRE_DAYS);
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_EXPIRE_DAYS, $store);
     }
 
     /**
-     * Cancel PPE link after order is cancel in Magento
+     * Cancel PPE link after the order is cancel in Magento
      *
      * @return mixed
      */
@@ -224,18 +235,6 @@ class PayPerEmail extends AbstractConfigProvider
     public function getPaymentMethodAfterExpiry($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_PAYMENT_METHOD_AFTER_EXPIRY, $store);
-    }
-
-    /**
-     * Get status of B2B mode enabled
-     *
-     * @param null|int|string $store
-     *
-     * @return mixed
-     */
-    public function getEnableB2b($store = null)
-    {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_ENABLE_B2B, $store);
     }
 
     /**

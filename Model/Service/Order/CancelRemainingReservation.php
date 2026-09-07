@@ -58,21 +58,29 @@ class CancelRemainingReservation
     private BuckarooLoggerInterface $logger;
 
     /**
+     * @var ReservationCancellationState
+     */
+    private ReservationCancellationState $cancellationState;
+
+    /**
      * @param CommandManagerInterface  $klarnaCommandManager
      * @param CommandManagerInterface  $klarnaKpCommandManager
-     * @param PaymentDataObjectFactory $paymentDataObjectFactory
-     * @param BuckarooLoggerInterface  $logger
+     * @param PaymentDataObjectFactory     $paymentDataObjectFactory
+     * @param BuckarooLoggerInterface      $logger
+     * @param ReservationCancellationState $cancellationState
      */
     public function __construct(
         CommandManagerInterface $klarnaCommandManager,
         CommandManagerInterface $klarnaKpCommandManager,
         PaymentDataObjectFactory $paymentDataObjectFactory,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        ReservationCancellationState $cancellationState
     ) {
         $this->klarnaCommandManager       = $klarnaCommandManager;
         $this->klarnaKpCommandManager     = $klarnaKpCommandManager;
         $this->paymentDataObjectFactory   = $paymentDataObjectFactory;
         $this->logger                     = $logger;
+        $this->cancellationState          = $cancellationState;
     }
 
     /**
@@ -95,7 +103,7 @@ class CancelRemainingReservation
             return false;
         }
 
-        if ($payment->getAdditionalInformation('voided_by_buckaroo')) {
+        if ($this->cancellationState->isCancelled($payment)) {
             $this->logger->addDebug(sprintf(
                 '[KLARNA] CancelRemainingReservation skipped for order %s: reservation already voided.',
                 $order->getIncrementId()

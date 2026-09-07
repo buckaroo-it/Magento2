@@ -23,7 +23,7 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\Config\Source\TransferPaymentMethodLogo;
 
-class Transfer extends AbstractConfigProvider
+class Transfer extends AbstractConfigProvider implements Cm3ConfigProviderInterface
 {
     public const CODE = 'buckaroo_magento2_transfer';
 
@@ -184,5 +184,22 @@ class Transfer extends AbstractConfigProvider
         );
 
         return $paymentFee ?: 0;
+    }
+
+    /**
+     * Payment methods offered on the invoice.
+     *
+     * This method exposes no "allowed services" setting of its own, so the config
+     * read yields nothing, and Credit Management leaves the invoice unrestricted.
+     *
+     * @param int|null $storeId
+     *
+     * @return false|mixed
+     */
+    public function getPaymentMethod(?int $storeId = null)
+    {
+        $paymentMethod = $this->getMethodConfigValue('payment_method', $storeId);
+
+        return $paymentMethod ?: false;
     }
 }

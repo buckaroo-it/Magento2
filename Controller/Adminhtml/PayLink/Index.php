@@ -108,7 +108,7 @@ class Index extends Action implements HttpGetActionInterface
         $payment = $order->getPayment();
         $currentPayment = $payment->getMethod();
         $payment->setMethod('buckaroo_magento2_payperemail');
-        $order->save();
+        $this->orderRepository->save($order);
 
         try {
             $commandExecutor = $this->commandManagerPool->get('buckaroo');

@@ -180,6 +180,7 @@ class CreateInvoice
             return false;
         }
 
+        $this->registry->unregister('current_invoice');
         $this->registry->register('current_invoice', $invoice);
         $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 
@@ -207,8 +208,10 @@ class CreateInvoice
 
         /** @var Invoice $invoice */
         foreach ($order->getInvoiceCollection() as $invoice) {
-            $invoice->setTransactionId($transactionKey);
-            $this->invoiceRepository->save($invoice);
+            if (empty($invoice->getTransactionId())) {
+                $invoice->setTransactionId($transactionKey);
+                $this->invoiceRepository->save($invoice);
+            }
 
             if ($this->groupTransaction->isGroupTransaction($order->getIncrementId())) {
                 $this->logger->addDebug(__METHOD__ . '|3| - Set invoice state PAID group transaction');

@@ -225,11 +225,6 @@ define(
                 type: 'buckaroo_magento2_mbway',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_mbway}
-            },
-            {
-                type: 'buckaroo_magento2_knaken',
-                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/default',
-                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_knaken}
             }
         );
         /**

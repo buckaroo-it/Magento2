@@ -22,9 +22,23 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 
 class CompanyDataBuilder extends AbstractDataBuilder
 {
+    /**
+     * @var CultureCodeResolver
+     */
+    private $cultureCodeResolver;
+
+    /**
+     * @param CultureCodeResolver $cultureCodeResolver
+     */
+    public function __construct(CultureCodeResolver $cultureCodeResolver)
+    {
+        $this->cultureCodeResolver = $cultureCodeResolver;
+    }
+
     /**
      * @inheritdoc
      */
@@ -35,12 +49,12 @@ class CompanyDataBuilder extends AbstractDataBuilder
         $billingAddress = $this->getOrder()->getBillingAddress();
         $company = $billingAddress->getCompany();
 
-        if (empty($company) || strlen($company) <= 0) {
+        if (empty($company)) {
             return [];
         }
 
         return [
-            'culture' => strtolower($billingAddress->getCountryId()),
+            'culture' => $this->cultureCodeResolver->resolveDebtorCultureForOrder($this->getOrder()),
             'name'    => $billingAddress->getCompany() ?? 'Person'
         ];
     }

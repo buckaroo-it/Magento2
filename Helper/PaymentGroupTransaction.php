@@ -514,12 +514,6 @@ class PaymentGroupTransaction extends AbstractHelper
      */
     public function setGroupTransactionsStatus(string $groupTransactionId, string $status)
     {
-        $this->resourceModel
-            ->getConnection()
-            ->update(
-                $this->resourceModel->getTable('buckaroo_magento2_group_transaction'),
-                ['status' => $status],
-                ['relatedtransaction = ?' => $groupTransactionId]
-            );
+        $this->resourceModel->updateStatusByRelatedTransaction($groupTransactionId, $status);
     }
 }

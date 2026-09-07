@@ -74,14 +74,30 @@ class CultureDataBuilderTest extends TestCase
         $this->assertSame(['buckaroo_culture' => 'nl-NL'], $result);
     }
 
-    public function testBuildFallsBackToDefaultWhenBillingAddressMissing(): void
+    public function testBuildEmitsNothingWhenBillingAddressMissing(): void
     {
         $this->mockStoreLocale('nl_NL');
         $this->orderMock->method('getBillingAddress')->willReturn(null);
 
         $result = $this->builder->build(['payment' => $this->getPaymentDOMock()]);
 
-        $this->assertSame(['buckaroo_culture' => CultureCodeResolver::DEFAULT_CULTURE], $result);
+        $this->assertSame([], $result);
+    }
+
+    public function testBuildEmitsNothingForAnUncuratedCountry(): void
+    {
+        $result = $this->buildWith('XK', 'en_US');
+
+        $this->assertSame([], $result);
+    }
+
+    public function testBuildResolvesACountryOnlyTheDebtorMapNames(): void
+    {
+        // The header validator accepts any real culture (BTI-1378 gateway probe),
+        // so the debtor map widens header coverage beyond the Klarna locale enum.
+        $result = $this->buildWith('US', 'en_US');
+
+        $this->assertSame(['buckaroo_culture' => 'en-US'], $result);
     }
 
     public function testBuildToleratesStoreLocaleFailure(): void

@@ -21,208 +21,134 @@
 namespace Buckaroo\Magento2\Test\Unit\Cron;
 
 use Buckaroo\Magento2\Cron\SecondChance;
-use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as ConfigProvider;
-use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection;
 use Buckaroo\Magento2\Logging\Log;
-use Magento\Store\Api\StoreRepositoryInterface;
-use Magento\Store\Model\Store;
+use Buckaroo\Magento2\Model\SecondChance\EnabledStoresProvider;
+use Buckaroo\Magento2\Model\SecondChance\WorkChecker;
+use Buckaroo\Magento2\Model\SecondChanceRepository;
+use Magento\Store\Api\Data\StoreInterface;
+use PHPUnit\Framework\TestCase;
 
-class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
+class SecondChanceTest extends TestCase
 {
-    protected $instanceClass = SecondChance::class;
+    /**
+     * @var EnabledStoresProvider|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $enabledStoresProvider;
 
-    /** @var ConfigProvider|\PHPUnit\Framework\MockObject\MockObject */
-    private $configProvider;
+    /**
+     * @var WorkChecker|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $workChecker;
 
-    /** @var StoreRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
-    private $storeRepository;
-
-    /** @var Log|\PHPUnit\Framework\MockObject\MockObject */
+    /**
+     * @var Log|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $logging;
 
-    /** @var SecondChanceRepository|\PHPUnit\Framework\MockObject\MockObject */
+    /**
+     * @var SecondChanceRepository|\PHPUnit\Framework\MockObject\MockObject
+     */
     private $secondChanceRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        parent::setUp();
-
-        $this->configProvider = $this->getFakeMock(ConfigProvider::class)->getMock();
-        $this->storeRepository = $this->getFakeMock(StoreRepositoryInterface::class)->getMock();
-        $this->logging = $this->getFakeMock(Log::class)->getMock();
-        $this->secondChanceRepository = $this->getFakeMock(SecondChanceRepository::class)->getMock();
+        $this->enabledStoresProvider = $this->createMock(EnabledStoresProvider::class);
+        $this->workChecker = $this->createMock(WorkChecker::class);
+        $this->logging = $this->createMock(Log::class);
+        $this->secondChanceRepository = $this->createMock(SecondChanceRepository::class);
     }
 
-    public function testExecuteWithEnabledStores()
+    public function testEmptyEnabledStoreListExitsImmediately(): void
     {
-        $store1 = $this->getFakeMock(Store::class)->getMock();
-        $store2 = $this->getFakeMock(Store::class)->getMock();
-        $store3 = $this->getFakeMock(Store::class)->getMock();
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([]);
+        $this->workChecker->expects($this->never())->method('hasProcessableItems');
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceCollection');
+        $this->logging->expects($this->never())->method('addDebug');
+        $this->logging->expects($this->never())->method('addError');
 
-        $store1->method('getId')->willReturn(1);
-        $store2->method('getId')->willReturn(2);
-        $store3->method('getId')->willReturn(3);
+        $instance = $this->createInstance();
 
-        $stores = [$store1, $store2, $store3];
-
-        $this->storeRepository->method('getList')
-            ->willReturn($stores);
-
-        // Store 1: SecondChance enabled
-        $this->configProvider->method('isSecondChanceEnabled')
-            ->willReturnCallback(function ($arg1, $arg2 = null) {
-                    static $callCount = 0;
-                    $callCount++;
-                    // TODO: Implement proper argument checking based on call count
-                    // Original withConsecutive args: [$store1], [$store2], [$store3]
-                    return null;
-            })
-            ->willReturnOnConsecutiveCalls(true, false, true);
-
-        // Should process steps 2 and 1 for enabled stores
-        $this->secondChanceRepository->method('getSecondChanceCollection')
-            ->willReturnCallback(function ($arg1, $arg2 = null) {
-                    unset($arg1, $arg2); // Suppress unused parameter warnings
-                    static $callCount = 0;
-                    $callCount++;
-                    // TODO: Implement proper argument checking based on call count
-                    // Original withConsecutive args: [2, $store1], [1, $store1], [2, $store3], [1, $store3]
-                    return null;
-            });
-
-        $this->logging->method('addDebug')
-            ->willReturnCallback(function ($message, $context = null) {
-                // Use the parameters to avoid PHPMD warnings
-                if (strpos($message, 'Starting SecondChance') !== false) {
-                    return true;
-                }
-                // Use context parameter if provided
-                if ($context !== null) {
-                    // Process context if needed
-                }
-                return null;
-            });
-
-        $instance = $this->getInstance([
-            'configProvider' => $this->configProvider,
-            'storeRepository' => $this->storeRepository,
-            'logging' => $this->logging,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
-
-        $result = $instance->execute();
-        $this->assertInstanceOf(SecondChance::class, $result);
+        $this->assertSame($instance, $instance->execute());
     }
 
-    public function testExecuteWithNoEnabledStores()
+    public function testIdleRunDoesNotProcessOrLog(): void
     {
-        $store1 = $this->getFakeMock(Store::class)->getMock();
-        $store2 = $this->getFakeMock(Store::class)->getMock();
+        $store = $this->createMock(StoreInterface::class);
+        $stores = [$store];
 
-        $stores = [$store1, $store2];
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn($stores);
+        $this->workChecker->expects($this->once())
+            ->method('hasProcessableItems')
+            ->with($stores)
+            ->willReturn(false);
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceCollection');
+        $this->logging->expects($this->never())->method('addDebug');
+        $this->logging->expects($this->never())->method('addError');
 
-        $this->storeRepository->method('getList')
-            ->willReturn($stores);
+        $instance = $this->createInstance();
 
-        // Both stores have SecondChance disabled
-        $this->configProvider->method('isSecondChanceEnabled')
-            ->willReturnCallback(function ($arg1, $arg2 = null) {
-                    unset($arg1, $arg2); // Suppress unused parameter warnings
-                    static $callCount = 0;
-                    $callCount++;
-                    // TODO: Implement proper argument checking based on call count
-                    // Original withConsecutive args: [$store1], [$store2]
-                    return null;
-            })
-            ->willReturnOnConsecutiveCalls(false, false);
-
-        // Should not process any collections
-        $this->secondChanceRepository->expects($this->never())
-            ->method('getSecondChanceCollection');
-
-        $this->logging->method('addDebug')
-            ->willReturnCallback(function ($message, $context = null) {
-                // Use the parameters to avoid PHPMD warnings
-                if (strpos($message, 'Starting SecondChance') !== false) {
-                    return true;
-                }
-                // Use context parameter if provided
-                if ($context !== null) {
-                    // Process context if needed
-                }
-                return null;
-            });
-
-        $instance = $this->getInstance([
-            'configProvider' => $this->configProvider,
-            'storeRepository' => $this->storeRepository,
-            'logging' => $this->logging,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
-
-        $result = $instance->execute();
-        $this->assertInstanceOf(SecondChance::class, $result);
+        $this->assertSame($instance, $instance->execute());
     }
 
-    public function testExecuteWithEmptyStoreList()
+    public function testProcessesSecondStepBeforeFirstStep(): void
     {
-        $this->storeRepository->method('getList')
-            ->willReturn([]);
+        $store = $this->createMock(StoreInterface::class);
+        $stores = [$store];
+        $calls = [];
 
-        $this->configProvider->expects($this->never())
-            ->method('isSecondChanceEnabled');
-
-        $this->secondChanceRepository->expects($this->never())
-            ->method('getSecondChanceCollection');
-
-        $this->logging->method('addDebug')
-            ->willReturnCallback(function ($message, $context = null) {
-                // Use the parameters to avoid PHPMD warnings
-                if (strpos($message, 'Starting SecondChance') !== false) {
-                    return true;
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn($stores);
+        $this->workChecker->method('hasProcessableItems')->with($stores)->willReturn(true);
+        $this->secondChanceRepository->expects($this->exactly(2))
+            ->method('getSecondChanceCollection')
+            ->willReturnCallback(
+                function ($step, $processedStore) use (&$calls): void {
+                    $calls[] = [$step, $processedStore];
                 }
-                // Use context parameter if provided
-                if ($context !== null) {
-                    // Process context if needed
-                }
-                return null;
-            });
+            );
+        $this->logging->expects($this->never())->method('addError');
 
-        $instance = $this->getInstance([
-            'configProvider' => $this->configProvider,
-            'storeRepository' => $this->storeRepository,
-            'logging' => $this->logging,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
+        $instance = $this->createInstance();
 
-        $result = $instance->execute();
-        $this->assertInstanceOf(SecondChance::class, $result);
+        $this->assertSame($instance, $instance->execute());
+        $this->assertSame([
+            [Collection::STEP_SECOND_EMAIL, $store],
+            [Collection::STEP_FIRST_EMAIL, $store],
+        ], $calls);
     }
 
-    public function testExecuteStepProcessingOrder()
+    public function testProcessingErrorIsLoggedAndNextStepStillRuns(): void
     {
-        $store = $this->getFakeMock(Store::class)->getMock();
+        $store = $this->createMock(StoreInterface::class);
         $store->method('getId')->willReturn(1);
 
-        $this->storeRepository->method('getList')
-            ->willReturn([$store]);
+        $this->enabledStoresProvider->method('getEnabledStores')->willReturn([$store]);
+        $this->workChecker->method('hasProcessableItems')->willReturn(true);
+        $this->secondChanceRepository->expects($this->exactly(2))
+            ->method('getSecondChanceCollection')
+            ->willReturnCallback(
+                function ($step): void {
+                    if ($step === Collection::STEP_SECOND_EMAIL) {
+                        throw new \RuntimeException('Processing failed');
+                    }
+                }
+            );
+        $this->logging->expects($this->once())
+            ->method('addError')
+            ->with($this->stringContains('Processing failed'));
 
-        $this->configProvider->method('isSecondChanceEnabled')
-            ->with($store)
-            ->willReturn(true);
+        $instance = $this->createInstance();
 
-        // Mock empty collections for both step 2 and step 1
-        $this->secondChanceRepository->method('getSecondChanceCollection')
-            ->willReturn(null);
+        $this->assertSame($instance, $instance->execute());
+    }
 
-        $instance = $this->getInstance([
-            'configProvider' => $this->configProvider,
-            'storeRepository' => $this->storeRepository,
-            'logging' => $this->logging,
-            'secondChanceRepository' => $this->secondChanceRepository,
-        ]);
-
-        $result = $instance->execute();
-        $this->assertInstanceOf(SecondChance::class, $result);
+    private function createInstance(): SecondChance
+    {
+        return new SecondChance(
+            $this->enabledStoresProvider,
+            $this->workChecker,
+            $this->logging,
+            $this->secondChanceRepository
+        );
     }
 }

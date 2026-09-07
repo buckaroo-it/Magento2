@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Response;
 
+use Magento\Sales\Api\Data\OrderPaymentInterface;
+
 class AuthorizeTransactionIdHandler extends TransactionIdHandler
 {
     /**
@@ -46,9 +48,13 @@ class AuthorizeTransactionIdHandler extends TransactionIdHandler
     /**
      * Whether parent transaction should be closed
      *
+     * @param OrderPaymentInterface $payment
+     *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function shouldCloseParentTransaction(): bool
+    protected function shouldCloseParentTransaction(OrderPaymentInterface $payment): bool
     {
         return false;
     }

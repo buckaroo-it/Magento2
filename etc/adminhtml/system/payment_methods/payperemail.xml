@@ -107,9 +107,9 @@
             </field>
 
             <field id="send_mail" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Send Payment Email</label>
-                <comment><![CDATA[Buckaroo sends an email to the customer with the payment procedures.]]></comment>
-                <tooltip>Set to 'No' leaves the customer uninformed on the payment obligations.</tooltip>
+                <label>Buckaroo Sends Payment Email</label>
+                <comment><![CDATA[Set to 'Yes' to let Buckaroo email the payment link and payment procedures to the customer. Set to 'No' if you send the payment link to the customer yourself; Buckaroo will then send nothing.]]></comment>
+                <tooltip>Set to 'No' only when you distribute the payment link yourself, otherwise the customer is left uninformed on the payment obligations.</tooltip>
                 <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 <config_path>payment/buckaroo_magento2_payperemail/send_mail</config_path>
             </field>

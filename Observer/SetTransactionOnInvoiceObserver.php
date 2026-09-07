@@ -92,7 +92,9 @@ class SetTransactionOnInvoiceObserver implements ObserverInterface
         $order = $observer->getEvent()->getOrder();
         $payment = $order->getPayment();
 
-        $amount = $invoice->getGrandTotal();
+        // Magento's payment state commands treat $amount as a BASE amount (they format it
+        // with the base currency and compare it to base_grand_total for capture finality)
+        $amount = $invoice->getBaseGrandTotal();
         $paymentMethod = $payment->getMethod();
         if ($this->checkPaymentType->isBuckarooMethod($paymentMethod) &&
             $this->isInvoiceCreatedAfterShipment($payment) &&

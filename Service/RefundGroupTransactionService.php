@@ -363,7 +363,7 @@ class RefundGroupTransactionService
             ) {
                 $order->setAdjustmentNegative(0);
             }
-            if ($this->amountLeftToRefund == $order->getBaseGrandTotal() && $groupTransactionAmount > 0) {
+            if (abs($this->amountLeftToRefund - $order->getBaseGrandTotal()) < 0.01 && $groupTransactionAmount > 0) {
                 return $this->amountLeftToRefund - $groupTransactionAmount;
             }
 

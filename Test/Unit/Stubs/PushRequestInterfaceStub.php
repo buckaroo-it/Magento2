@@ -24,6 +24,8 @@ interface PushRequestInterfaceStub extends \Buckaroo\Magento2\Api\Data\PushReque
 
     public function getPrimaryService(...$args);
 
+    public function getRelatedtransactionPartialpayment(...$args);
+
     public function getRelatedtransactionRefund(...$args);
 
     public function getSchemekey(...$args);

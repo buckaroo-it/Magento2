@@ -127,7 +127,7 @@ class LogCleaner
         try {
             $this->resourceConnection->getConnection()->delete(
                 $this->resource->getMainTable(),
-                ['time <= date_sub(now(),interval ' . $retentionPeriod . ' second)']
+                ['time <= date_sub(now(), interval ? second)' => $retentionPeriod]
             );
         } catch (\Exception $e) {
             $this->logger->addError(sprintf(

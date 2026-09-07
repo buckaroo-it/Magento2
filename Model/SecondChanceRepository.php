@@ -29,17 +29,32 @@ use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as Seco
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\Transfer;
 use Exception;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Customer\Model\AddressFactory;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
 use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
+use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\App\Area;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Mail\Template\TransportBuilder;
+use Magento\Framework\Math\Random;
 use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Translate\Inline\StateInterface;
+use Magento\Payment\Helper\Data;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Address\Renderer;
+use Magento\Sales\Model\Order\Email\Container\ShipmentIdentity;
+use Magento\Sales\Model\OrderFactory;
+use Magento\SalesSequence\Model\Manager;
 use Magento\Store\Model\StoreManagerInterface;
 use Buckaroo\Magento2\Api\Data\SecondChanceInterface;
 use Magento\Catalog\Model\Product\Type;
@@ -52,6 +67,16 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
  */
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {
+    /**
+     * How long a record keeps retrying while its order still carries a placeholder email.
+     *
+     * Express checkout methods place the order with a placeholder address and replace it
+     * moments later, so a short retry window is needed. Past that the address is never going
+     * to change, and without a cut-off the record would be re-examined - and logged - on
+     * every cron run for the rest of its life.
+     */
+    private const PLACEHOLDER_EMAIL_GRACE_HOURS = 1;
+
     /**
      * @var SecondChanceFactory
      */
@@ -118,52 +143,52 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     protected $configProvider;
 
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
+     * @var DateTime
      */
     protected $dateTime;
 
     /**
-     * @var \Magento\Framework\Math\Random
+     * @var Random
      */
     protected $mathRandom;
 
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     protected $orderFactory;
 
     /**
-     * @var \Magento\Customer\Model\AddressFactory
+     * @var AddressFactory
      */
     protected $addressFactory;
 
     /**
-     * @var \Magento\CatalogInventory\Api\StockRegistryInterface
+     * @var StockRegistryInterface
      */
     protected $stockRegistry;
 
     /**
-     * @var \Magento\Framework\Translate\Inline\StateInterface
+     * @var StateInterface
      */
     protected $inlineTranslation;
 
     /**
-     * @var \Magento\Framework\Mail\Template\TransportBuilder
+     * @var TransportBuilder
      */
     protected $transportBuilder;
 
     /**
-     * @var \Magento\Sales\Model\Order\Address\Renderer
+     * @var Renderer
      */
     protected $addressRenderer;
 
     /**
-     * @var \Magento\Payment\Helper\Data
+     * @var Data
      */
     protected $paymentHelper;
 
     /**
-     * @var \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity
+     * @var ShipmentIdentity
      */
     protected $identityContainer;
 
@@ -178,43 +203,49 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     protected $checkoutSession;
 
     /**
-     * @var \Magento\Quote\Model\QuoteFactory
+     * @var QuoteFactory
      */
     protected $quoteFactory;
 
     /**
-     * @var \Magento\SalesSequence\Model\Manager
+     * @var Manager
      */
     protected $orderIncrementIdChecker;
 
     /**
-     * @param ResourceSecondChance                                        $resource
-     * @param SecondChanceFactory                                         $secondChanceFactory
-     * @param SecondChanceInterfaceFactory                                $dataSecondChanceFactory
-     * @param SecondChanceCollectionFactory                               $secondChanceCollectionFactory
-     * @param SecondChanceSearchResultsInterfaceFactory                   $searchResultsFactory
-     * @param DataObjectHelper                                            $dataObjectHelper
-     * @param DataObjectProcessor                                         $dataObjectProcessor
-     * @param StoreManagerInterface                                       $storeManager
-     * @param CollectionProcessorInterface                                $collectionProcessor
-     * @param JoinProcessorInterface                                      $extensionAttributesJoinProcessor
-     * @param ExtensibleDataObjectConverter                               $extensibleDataObjectConverter
-     * @param \Buckaroo\Magento2\Logging\Log                              $logging
-     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance        $configProvider
-     * @param \Magento\Framework\Math\Random                              $mathRandom
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime                 $dateTime
-     * @param \Magento\Sales\Model\OrderFactory                           $orderFactory
-     * @param \Magento\Customer\Model\AddressFactory                      $addressFactory
-     * @param \Magento\CatalogInventory\Api\StockRegistryInterface        $stockRegistry
-     * @param \Magento\Framework\Translate\Inline\StateInterface          $inlineTranslation
-     * @param \Magento\Framework\Mail\Template\TransportBuilder           $transportBuilder
-     * @param \Magento\Sales\Model\Order\Address\Renderer                 $addressRenderer
-     * @param \Magento\Payment\Helper\Data                                $paymentHelper
-     * @param \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer
-     * @param QuoteRecreateService                                        $quoteRecreate
-     * @param \Magento\Checkout\Model\Session                             $checkoutSession
-     * @param \Magento\Quote\Model\QuoteFactory                           $quoteFactory
-     * @param \Magento\SalesSequence\Model\Manager                        $orderIncrementIdChecker
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
+     * @param ResourceSecondChance                                 $resource
+     * @param SecondChanceFactory                                  $secondChanceFactory
+     * @param SecondChanceInterfaceFactory                         $dataSecondChanceFactory
+     * @param SecondChanceCollectionFactory                        $secondChanceCollectionFactory
+     * @param SecondChanceSearchResultsInterfaceFactory            $searchResultsFactory
+     * @param DataObjectHelper                                     $dataObjectHelper
+     * @param DataObjectProcessor                                  $dataObjectProcessor
+     * @param StoreManagerInterface                                $storeManager
+     * @param CollectionProcessorInterface                         $collectionProcessor
+     * @param JoinProcessorInterface                               $extensionAttributesJoinProcessor
+     * @param ExtensibleDataObjectConverter                        $extensibleDataObjectConverter
+     * @param \Buckaroo\Magento2\Logging\Log                       $logging
+     * @param \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider
+     * @param Random                                               $mathRandom
+     * @param DateTime                                             $dateTime
+     * @param OrderFactory                                         $orderFactory
+     * @param AddressFactory                                       $addressFactory
+     * @param StockRegistryInterface                               $stockRegistry
+     * @param StateInterface                                       $inlineTranslation
+     * @param TransportBuilder                                     $transportBuilder
+     * @param Renderer                                             $addressRenderer
+     * @param Data                                                 $paymentHelper
+     * @param ShipmentIdentity                                     $identityContainer
+     * @param QuoteRecreateService                                 $quoteRecreate
+     * @param \Magento\Checkout\Model\Session                      $checkoutSession
+     * @param QuoteFactory                                         $quoteFactory
+     * @param Manager                                              $orderIncrementIdChecker
+     * @param CartRepositoryInterface                              $cartRepository
      */
     public function __construct(
         ResourceSecondChance $resource,
@@ -230,20 +261,21 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         ExtensibleDataObjectConverter $extensibleDataObjectConverter,
         \Buckaroo\Magento2\Logging\Log $logging,
         \Buckaroo\Magento2\Model\ConfigProvider\SecondChance $configProvider,
-        \Magento\Framework\Math\Random $mathRandom,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Customer\Model\AddressFactory $addressFactory,
-        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry,
-        \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
-        \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
-        \Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
-        \Magento\Payment\Helper\Data $paymentHelper,
-        \Magento\Sales\Model\Order\Email\Container\ShipmentIdentity $identityContainer,
+        Random $mathRandom,
+        DateTime $dateTime,
+        OrderFactory $orderFactory,
+        AddressFactory $addressFactory,
+        StockRegistryInterface $stockRegistry,
+        StateInterface $inlineTranslation,
+        TransportBuilder $transportBuilder,
+        Renderer $addressRenderer,
+        Data $paymentHelper,
+        ShipmentIdentity $identityContainer,
         QuoteRecreateService $quoteRecreate,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Quote\Model\QuoteFactory $quoteFactory,
-        \Magento\SalesSequence\Model\Manager $orderIncrementIdChecker
+        QuoteFactory $quoteFactory,
+        Manager $orderIncrementIdChecker,
+        CartRepositoryInterface $cartRepository
     ) {
         $this->resource                         = $resource;
         $this->secondChanceFactory              = $secondChanceFactory;
@@ -272,6 +304,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->checkoutSession                  = $checkoutSession;
         $this->quoteFactory                     = $quoteFactory;
         $this->orderIncrementIdChecker          = $orderIncrementIdChecker;
+        $this->cartRepository                   = $cartRepository;
     }
 
     /**
@@ -329,7 +362,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $criteria)
+    public function getList(SearchCriteriaInterface $criteria)
     {
         $collection = $this->secondChanceCollectionFactory->create();
 
@@ -400,25 +433,32 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * Delete older records based on configuration
      *
      * @param mixed $store
+     * @return int
      */
     public function deleteOlderRecords($store)
     {
-        $days = $this->configProvider->getSecondChanceDeleteAfterDays($store);
-        if ($days <= 0) {
-            return;
+        if (!$this->configProvider->isRecordPruningEnabled($store)) {
+            return 0;
         }
 
-        $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('store_id', $store->getId());
-        $collection->addFieldToFilter('created_at', ['lt' => date('Y-m-d H:i:s', strtotime('-' . $days . ' days'))]);
+        $collection = $this->secondChanceCollectionFactory->create()
+            ->addStoreFilter((int) $store->getId())
+            ->addRemovableFilter(
+                $this->configProvider->getSecondChanceDeleteAfterDays($store),
+                $this->configProvider->getReminderWindowHours($store)
+            );
 
+        $deletedRecords = 0;
         foreach ($collection as $item) {
             try {
                 $this->resource->delete($item);
+                $deletedRecords++;
             } catch (Exception $e) {
                 $this->logging->addError('Error deleting SecondChance record: ' . $e->getMessage());
             }
         }
+
+        return $deletedRecords;
     }
 
     /**
@@ -599,7 +639,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $this->checkoutSession->setQuoteId($quote->getId());
 
                 // Save quote after session is set to ensure proper context
-                $quote->save();
+                $this->cartRepository->save($quote);
             }
         }
 
@@ -618,26 +658,13 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function getSecondChanceCollection($step, $store)
     {
-        $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('store_id', $store->getId());
-
-        if ($step == 1) {
-            $collection->addFieldToFilter('status', 'pending');
-            // For step 1: Check delay from when the order was created
-            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
-            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
-            // Use <= for instant processing when delay is 0
-            $operator = ($delay == 0) ? 'lteq' : 'lt';
-            $collection->addFieldToFilter('created_at', [$operator => $delayDate]);
-        } else {
-            $collection->addFieldToFilter('status', 'step1_sent');
-            // For step 2: Check delay from when the FIRST email was sent
-            $delay = $this->configProvider->getSecondChanceDelay($step, $store);
-            $delayDate = date('Y-m-d H:i:s', strtotime('-' . $delay . ' hours'));
-            // Use <= for instant processing when delay is 0
-            $operator = ($delay == 0) ? 'lteq' : 'lt';
-            $collection->addFieldToFilter('first_email_sent', [$operator => $delayDate]);
+        if (!$this->configProvider->isEmailStepEnabled($step, $store)) {
+            return;
         }
+
+        $collection = $this->secondChanceCollectionFactory->create()
+            ->addStoreFilter((int) $store->getId())
+            ->addStepDueFilter((int) $step, $this->configProvider->getSecondChanceDelay($step, $store));
 
         $limit = $this->configProvider->getSecondChanceEmailLimit($store);
         if ($limit > 0) {
@@ -646,16 +673,6 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         foreach ($collection as $item) {
             try {
-
-                // Check if this step email is enabled
-                if ($step == 1 && !$this->configProvider->isFirstEmailEnabled($store)) {
-                    continue;
-                }
-
-                if ($step == 2 && !$this->configProvider->isSecondEmailEnabled($store)) {
-                    continue;
-                }
-
                 // Load the base order (without suffixes) for processing
                 $baseOrderId = $this->getBaseOrderId($item->getOrderId());
                 $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
@@ -699,6 +716,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 // Validate order email is not a placeholder before sending
                 $orderEmail = $order->getCustomerEmail();
                 if ($this->isPlaceholderEmail($orderEmail)) {
+                    if ($this->isPastPlaceholderEmailGrace($item)) {
+                        $this->setFinalStatus($item, 'placeholder_email');
+                        continue;
+                    }
+
                     $this->logging->addDebug('SecondChance email skipped - order still has placeholder email', [
                         'order_id' => $order->getIncrementId(),
                         'email' => $orderEmail,
@@ -849,7 +871,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $transport = $this->transportBuilder
                 ->setTemplateIdentifier($templateId)
                 ->setTemplateOptions([
-                    'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
+                    'area' => Area::AREA_FRONTEND,
                     'store' => $store->getId(),
                 ])
                 ->setTemplateVars($templateVars)
@@ -1025,9 +1047,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         $streakSeconds = $this->configProvider->getStreakMinutes($store) * 60;
-        $createdAt     = strtotime((string)$item->getCreatedAt());
+        $createdAt     = $this->toGmtTimestamp($item->getCreatedAt());
 
-        if ($createdAt === false) {
+        if ($createdAt === null) {
             return false;
         }
 
@@ -1043,7 +1065,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             ['gt' => $item->getCreatedAt()]
         );
         // Only within the streak window
-        $streakCutoff = date('Y-m-d H:i:s', $createdAt + $streakSeconds);
+        $streakCutoff = gmdate('Y-m-d H:i:s', $createdAt + $streakSeconds);
         $collection->addFieldToFilter('created_at', ['lteq' => $streakCutoff]);
         $collection->setPageSize(1);
 
@@ -1072,23 +1094,67 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             return true;
         }
 
-        // List of known placeholder patterns used in express checkout methods
-        $placeholderPatterns = [
-            'no-reply@example.com',
-            'guest@example.com',
-        ];
-
         $lowerEmail = strtolower(trim($email));
 
-        // Check exact matches
-        if (in_array($lowerEmail, $placeholderPatterns)) {
-            return true;
-        }
-
-        if (strpos($lowerEmail, '@example.com') !== false) {
-            return true;
+        // Domains reserved for documentation and testing (RFC 2606). Express checkout methods
+        // place orders against one of these until the real address is known, and nothing sent
+        // to them can ever be delivered.
+        foreach (['@example.com', '@example.net', '@example.org'] as $reservedDomain) {
+            if (str_ends_with($lowerEmail, $reservedDomain)) {
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /**
+     * Check whether a record waited long enough for its order to receive a real email address.
+     *
+     * @param mixed $item
+     * @return bool
+     */
+    private function isPastPlaceholderEmailGrace($item): bool
+    {
+        $createdAt = $this->toGmtTimestamp($item->getCreatedAt());
+        if ($createdAt === null) {
+            return false;
+        }
+
+        $grace = self::PLACEHOLDER_EMAIL_GRACE_HOURS * 3600;
+
+        return $this->dateTime->gmtTimestamp() - $grace > $createdAt;
+    }
+
+    /**
+     * Read a GMT date string from this table back into a UTC timestamp.
+     *
+     * `created_at` and the e-mail timestamps are written with `DateTime::gmtDate()`, so they must be
+     * parsed as UTC. Plain `strtotime()` interprets them in PHP's *default* timezone instead, which
+     * skews any comparison against `gmtTimestamp()` by that offset. The store's configured timezone
+     * is irrelevant here — `app/bootstrap.php` pins the PHP default to UTC for every web, CLI and
+     * cron entry point, so `strtotime()` happens to be correct at runtime. It is NOT correct
+     * wherever that pin is absent or temporarily lifted: the unit suite pins
+     * `America/Los_Angeles` (8h skew), `Timezone::scopeTimeStamp()` flips the default mid-call,
+     * and standalone scripts may bootstrap differently. Parsing as UTC removes the dependency.
+     *
+     * @param  string|null $value
+     * @return int|null    null when the value is empty or unparsable
+     */
+    private function toGmtTimestamp($value): ?int
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        try {
+            return (new \DateTimeImmutable($value, new \DateTimeZone('UTC')))->getTimestamp();
+        } catch (\Exception $e) {
+            $this->logging->addDebug(
+                'SecondChance: unparsable GMT date "' . $value . '": ' . $e->getMessage()
+            );
+            return null;
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace Buckaroo\Magento2\Model\Push;
 
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\SepaDirectDebit;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Transfer;
@@ -12,7 +13,7 @@ use Magento\Sales\Model\Order;
 class TransferProcessor extends DefaultProcessor
 {
     /**
-     * Get the payment details (amount, description, force state) for the push.
+     * Get the payment details (amount, description) for the push.
      *
      * @param string $message
      * @return array
@@ -28,11 +29,6 @@ class TransferProcessor extends DefaultProcessor
             $amountCurrency = $this->getPaymentCurrencyCode();
         }
 
-        /**
-         * force state eventhough this can lead to a transition of the order
-         * like new -> processing
-         */
-        $forceState = false;
         $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
@@ -44,13 +40,11 @@ class TransferProcessor extends DefaultProcessor
             $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
             $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
                 . ' has been authorized. Please create an invoice to capture the authorized amount.';
-            $forceState = true;
         }
 
         return [
             'amount'      => $amount,
-            'description' => $description,
-            'forceState'  => $forceState
+            'description' => $description
         ];
     }
 
@@ -79,12 +73,15 @@ class TransferProcessor extends DefaultProcessor
             ], true)
         ));
 
+        if ($this->settlesOrderWithInvoiceOnPayment((float)$amount)) {
+            return true;
+        }
+
         $saveInvoice = true;
 
         if (($paymentDetails['amount'] < $this->order->getTotalDue())
             || (($paymentDetails['amount'] == $this->order->getTotalDue()) && ($this->order->getTotalPaid() > 0))
         ) {
-            $paymentDetails['forceState'] = true;
             if ($amount < $this->order->getTotalDue()) {
                 $paymentDetails['state'] = Order::STATE_NEW;
                 $paymentDetails['newStatus'] = $this->orderStatusFactory->get(
@@ -95,7 +92,7 @@ class TransferProcessor extends DefaultProcessor
             }
 
             $this->order->setTotalDue($this->order->getTotalDue() - $amount);
-            $this->order->setBaseTotalDue($this->order->getTotalDue() - $amount);
+            $this->order->setBaseTotalDue($this->order->getBaseTotalDue() - $amount);
 
             $totalPaid = $this->order->getTotalPaid() + $amount;
             $this->order->setTotalPaid(
@@ -109,18 +106,42 @@ class TransferProcessor extends DefaultProcessor
             );
 
             $this->orderRequestService->saveAndReloadOrder();
-
-            if (!$this->orderRequestService->updateTotalOnOrder($this->order)) {
-                $this->logger->addError(sprintf(
-                    '[TRANSFER] | [%s:%s] - Failed to update order totals in DB | order: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $this->order->getIncrementId()
-                ));
-            }
         }
 
         return $saveInvoice;
+    }
+
+    /**
+     * Whether this payment settles the order while invoices are created on payment.
+     *
+     * Magento only creates an invoice for a capture it considers final, and it decides that by
+     * comparing the captured amount against the order's base total due. Deducting the instalment
+     * from the running totals first makes the payment that settles the order read as a partial
+     * capture, so Magento flags the payment as fraudulent and creates no invoice at all. When the
+     * Invoice Handling setting asks for an invoice on payment, the totals are therefore left to
+     * registerCaptureNotification(); on shipment the running totals are still updated here,
+     * because no invoice is created to account for the payment.
+     *
+     * @param float $amount
+     *
+     * @throws LocalizedException
+     *
+     * @return bool
+     */
+    private function settlesOrderWithInvoiceOnPayment(float $amount): bool
+    {
+        return $amount >= (float)$this->order->getTotalDue()
+            && $this->detectInvoiceHandlingMode() == InvoiceHandlingOptions::PAYMENT;
+    }
+
+    /**
+     * Bank transfer has no authorize/capture flow, so a transfer push is never a capture.
+     *
+     * @return bool
+     */
+    protected function isCaptureTransaction(): bool
+    {
+        return false;
     }
 
     /**

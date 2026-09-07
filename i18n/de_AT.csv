@@ -67,7 +67,7 @@
 "Bank Transfer","Banküberweisung"
 "Enable Bank Transfer","Banküberweisung aktivieren"
 "Send payment instruction email","Zahlungsanweisung per E-Mail senden"
-"Buckaroo sends an email to the customer with the payment procedures.","Eine E-Mail mit den Zahlungsanweisungen wird von Buckaroo gesendet."
+"Set to 'Yes' to let Buckaroo email the payment link and payment procedures to the customer. Set to 'No' if you send the payment link to the customer yourself; Buckaroo will then send nothing.","Auf 'Ja' setzen, damit Buckaroo dem Kunden den Zahlungslink und die Zahlungsanweisungen per E-Mail sendet. Auf 'Nein' setzen, wenn Sie den Zahlungslink selbst an den Kunden senden; Buckaroo sendet dann nichts."
 "Set to 'No' the customer is informed once online.","Bei der Auswahl 'Nein' wird der Kunde einmalig nach Abschluss der Bestellung informiert."
 "Due date (in days)","Fälligkeitsdatum (in Tagen)"
 "The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.","Die Anzahl der Tage nach dem Bestelldatum, in denen der Kunde die Zahlung abschließen muss. Nach Ablauf dieser Frist wird die Bestellung storniert. Sie können dieses Fälligkeitsdatum in der Vorlage der Überweisungs-E-Mail hinzufügen."

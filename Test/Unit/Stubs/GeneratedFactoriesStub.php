@@ -124,3 +124,137 @@ namespace Magento\MediaStorage\Model\File {
         }
     }
 }
+
+namespace Buckaroo\Magento2\Model {
+    if (!class_exists(\Buckaroo\Magento2\Model\GiftcardFactory::class)) {
+        class GiftcardFactory
+        {
+            /**
+             * @param array $data
+             * @return Giftcard|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+
+    if (!class_exists(\Buckaroo\Magento2\Model\SecondChanceFactory::class)) {
+        class SecondChanceFactory
+        {
+            /**
+             * @param array $data
+             * @return SecondChance|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Buckaroo\Magento2\Model\ResourceModel\SecondChance {
+    if (!class_exists(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Buckaroo\Magento2\Model\ResourceModel\Giftcard {
+    if (!class_exists(\Buckaroo\Magento2\Model\ResourceModel\Giftcard\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Customer\Model {
+    if (!class_exists(\Magento\Customer\Model\AddressFactory::class)) {
+        class AddressFactory
+        {
+            /**
+             * @param array $data
+             * @return Address|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Framework\DB {
+    if (!class_exists(\Magento\Framework\DB\TransactionFactory::class)) {
+        class TransactionFactory
+        {
+            /**
+             * @param array $data
+             * @return Transaction|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Quote\Model {
+    if (!class_exists(\Magento\Quote\Model\QuoteFactory::class)) {
+        class QuoteFactory
+        {
+            /**
+             * @param array $data
+             * @return Quote|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Tax\Model\ResourceModel\Sales\Order\Tax {
+    if (!class_exists(\Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}

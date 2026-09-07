@@ -70,7 +70,7 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
             ->with($incrementId)
             ->willReturn($serviceAction);
 
-        if ($serviceAction === 'payRemainder') {
+        if ($expectedResult !== []) {
             $this->payReminderServiceMock->method('getOriginalTransactionKey')
                 ->with($this->orderMock)
                 ->willReturn($originalTransactionKey);
@@ -91,6 +91,17 @@ class OriginalTransactionKeyDataBuilderTest extends AbstractDataBuilderTest
                 '5EC466B0FFC745028BD74DFC9FBBFE38',
                 ['originalTransactionKey' => '5EC466B0FFC745028BD74DFC9FBBFE38']
             ],
+            [
+                'payRemainderEncrypted',
+                '5EC466B0FFC745028BD74DFC9FBBFE38',
+                ['originalTransactionKey' => '5EC466B0FFC745028BD74DFC9FBBFE38']
+            ],
+            [
+                'payRemainderWithToken',
+                '5EC466B0FFC745028BD74DFC9FBBFE38',
+                ['originalTransactionKey' => '5EC466B0FFC745028BD74DFC9FBBFE38']
+            ],
+            ['payWithToken', '', []],
             ['otherAction', '', []],
         ];
     }

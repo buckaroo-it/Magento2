@@ -66,9 +66,13 @@ class CultureDataBuilder extends AbstractDataBuilder
             $countryId = $billingAddress->getCountryId();
         }
 
-        return [
-            self::CULTURE_KEY => $this->cultureCodeResolver->resolve($countryId, $this->getStoreLocale($order)),
-        ];
+        $culture = $this->cultureCodeResolver->resolveForHeader($countryId, $this->getStoreLocale($order));
+
+        if ($culture === null) {
+            return [];
+        }
+
+        return [self::CULTURE_KEY => $culture];
     }
 
     /**

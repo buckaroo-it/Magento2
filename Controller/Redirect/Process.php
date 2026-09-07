@@ -460,8 +460,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         } elseif (in_array($statusCode, [
             BuckarooStatusCode::ORDER_FAILED,
             BuckarooStatusCode::FAILED,
+            BuckarooStatusCode::VALIDATION_FAILURE,
+            BuckarooStatusCode::TECHNICAL_ERROR,
             BuckarooStatusCode::REJECTED,
-            BuckarooStatusCode::CANCELLED_BY_USER
+            BuckarooStatusCode::CANCELLED_BY_USER,
+            BuckarooStatusCode::CANCELLED_BY_MERCHANT
         ])) {
             $result = $this->handleFailed($statusCode);
         }
@@ -661,7 +664,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected function redirectSuccessApplePay(): void
     {
         if ($this->redirectRequest->hasPostData('payment_method', 'applepay')
-            && $this->redirectRequest->hasPostData('status_code', '190')
+            && $this->redirectRequest->hasPostData('status_code', (string)BuckarooStatusCode::SUCCESS)
             && $this->redirectRequest->hasPostData('test', 'true')
         ) {
             $this->checkoutSession
@@ -1007,6 +1010,19 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         $url = $this->accountConfig->getFailureRedirect($store);
 
+        // Fragment URLs (for example: checkout#payment) must use a raw redirect; Magento's _redirect()
+        // would treat them as route paths and produce a noroute.
+        if ($url && strpos($url, '#') !== false) {
+            // Strip trailing slash from the path only, not from the fragment part.
+            [$path, $fragment] = explode('#', $url, 2);
+            $url = rtrim($path, '/') . '#' . $fragment;
+            if (!preg_match('#^https?://#', $url)) {
+                $url = rtrim($this->_url->getBaseUrl(), '/') . '/' . ltrim($url, '/');
+            }
+            $this->getResponse()->setRedirect($url);
+            return $this->getResponse();
+        }
+
         return $this->handleProcessedResponse($url ?: 'checkout');
     }
 
@@ -1039,7 +1055,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             __LINE__
         ));
 
-        return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+        // Raw redirect to guarantee no trailing slash after the fragment (checkout/#payment/ causes 404).
+        $checkoutUrl = rtrim($this->_url->getUrl('checkout', ['_query' => ['bk_e' => 1]]), '/') . '#payment';
+        $this->getResponse()->setRedirect($checkoutUrl);
+        return $this->getResponse();
     }
 
     /**
@@ -1180,7 +1199,6 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     {
         try {
             $quote->setIsActive(true);
-            $quote->collectTotals();
             $this->cartRepository->save($quote);
 
             $this->checkoutSession->replaceQuote($quote);

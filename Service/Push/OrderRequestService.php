@@ -25,7 +25,6 @@ use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -58,11 +57,6 @@ class OrderRequestService
     private $orderEmailService;
 
     /**
-     * @var ResourceConnection
-     */
-    protected $resourceConnection;
-
-    /**
      * @var KlarnaKpOrderService
      */
     private $klarnaKpOrderService;
@@ -87,7 +81,6 @@ class OrderRequestService
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface $transaction
      * @param OrderEmailService $orderEmailService
-     * @param ResourceConnection $resourceConnection
      * @param KlarnaKpOrderService $klarnaKpOrderService
      * @param KlarnaMorOrderService $klarnaMorOrderService
      * @param OrderCommentHistoryService $orderCommentHistoryService
@@ -98,7 +91,6 @@ class OrderRequestService
         BuckarooLoggerInterface $logger,
         TransactionInterface $transaction,
         OrderEmailService $orderEmailService,
-        ResourceConnection $resourceConnection,
         KlarnaKpOrderService $klarnaKpOrderService,
         KlarnaMorOrderService $klarnaMorOrderService,
         OrderCommentHistoryService $orderCommentHistoryService,
@@ -108,7 +100,6 @@ class OrderRequestService
         $this->logger = $logger;
         $this->transaction = $transaction;
         $this->orderEmailService = $orderEmailService;
-        $this->resourceConnection = $resourceConnection;
         $this->klarnaKpOrderService = $klarnaKpOrderService;
         $this->klarnaMorOrderService = $klarnaMorOrderService;
         $this->orderCommentHistoryService = $orderCommentHistoryService;
@@ -323,22 +314,22 @@ class OrderRequestService
     }
 
     /**
-     * Updates the order state and add a comment.
+     * Updates the order state and status, adds the comment and saves the order once.
+     *
+     * This is the one place a push is meant to move an order. Callers must not set a state of their
+     * own beforehand: an intermediate save between that write and this call would commit a state the
+     * push has not settled on yet.
      *
      * @param string $orderState
      * @param string $newStatus
      * @param string $description
-     * @param bool   $force
-     * @param bool   $dontSaveOrderUponSuccessPush
      *
      * @throws \Exception
      */
     public function updateOrderStatus(
         string $orderState,
         string $newStatus,
-        string $description,
-        bool $force = false,
-        bool $dontSaveOrderUponSuccessPush = false
+        string $description
     ): void {
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Updates the order state and add a comment | data: %s',
@@ -353,26 +344,8 @@ class OrderRequestService
 
         // Always set the order state - this is crucial for admin dropdown
         $this->order->setState($orderState);
-
-        if ($this->order->getState() == $orderState || $force) {
-            if ($dontSaveOrderUponSuccessPush) {
-                $this->order->setStatus($newStatus);
-                $this->order->addCommentToStatusHistory($description)
-                    ->setIsCustomerNotified(false)
-                    ->setStatus($newStatus);
-                $this->orderRepository->save($this->order);
-            } else {
-                $this->order->addCommentToStatusHistory($description, $newStatus);
-                $this->orderRepository->save($this->order);
-            }
-        } else {
-            if ($dontSaveOrderUponSuccessPush) {
-                $this->orderCommentHistoryService->add($this->order, $description);
-            } else {
-                $this->order->addCommentToStatusHistory($description);
-                $this->orderRepository->save($this->order);
-            }
-        }
+        $this->order->addCommentToStatusHistory($description, $newStatus);
+        $this->orderRepository->save($this->order);
 
         $this->logger->addDebug(sprintf(
             '[ORDER] | [Service] | [%s:%s] - Order state and status updated successfully | finalState: %s | finalStatus: %s',
@@ -409,35 +382,6 @@ class OrderRequestService
     public function sendInvoiceEmail(Invoice $invoice, bool $forceSyncMode = false): bool
     {
         return $this->orderEmailService->sendInvoiceEmail($invoice, $forceSyncMode);
-    }
-
-    /**
-     * Update the persisted order totals directly in the sales_order table.
-     *
-     * @param Order $order
-     *
-     * @return bool
-     */
-    public function updateTotalOnOrder($order)
-    {
-
-        try {
-            $connection = $this->resourceConnection->getConnection();
-            $connection->update(
-                $connection->getTableName('sales_order'),
-                [
-                    'total_due'       => $order->getTotalDue(),
-                    'base_total_due'  => $order->getBaseTotalDue(),
-                    'total_paid'      => $order->getTotalPaid(),
-                    'base_total_paid' => $order->getBaseTotalPaid(),
-                ],
-                $connection->quoteInto('entity_id = ?', $order->getId())
-            );
-
-            return true;
-        } catch (\Exception $exception) {
-            return false;
-        }
     }
 
     /**

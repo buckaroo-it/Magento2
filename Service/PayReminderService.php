@@ -24,22 +24,27 @@ namespace Buckaroo\Magento2\Service;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Magento\Sales\Model\Order;
 
+/**
+ * Shared instance: all memoized state is keyed by order increment id so that
+ * requests touching multiple orders (PayLink batches, mass refunds, API flows)
+ * never leak one order's remainder or service action into another.
+ */
 class PayReminderService
 {
     /**
-     * @var float
+     * @var float[] keyed by order increment id
      */
-    private $payRemainder;
+    private $payRemainder = [];
 
     /**
-     * @var string
+     * @var string[] keyed by order increment id
      */
-    private $serviceAction;
+    private $serviceAction = [];
 
     /**
-     * @var float
+     * @var float[] keyed by order increment id
      */
-    private $alreadyPaid;
+    private $alreadyPaid = [];
 
     /**
      * @var PaymentGroupTransaction
@@ -66,11 +71,7 @@ class PayReminderService
      */
     public function isPayRemainder(Order $order): bool
     {
-        $alreadyPaid = $this->getAlreadyPaid($order->getIncrementId());
-        if ($alreadyPaid > 0) {
-            return true;
-        }
-        return false;
+        return $this->getAlreadyPaid($order->getIncrementId()) > 0;
     }
 
     /**
@@ -82,23 +83,26 @@ class PayReminderService
      */
     public function getAlreadyPaid(?string $incrementId = null): float
     {
-        if (empty($this->alreadyPaid)) {
-            $this->setAlreadyPaid($this->paymentGroupTransaction->getAlreadyPaid($incrementId));
+        $key = (string)$incrementId;
+
+        if (!isset($this->alreadyPaid[$key])) {
+            $this->setAlreadyPaid($this->paymentGroupTransaction->getAlreadyPaid($incrementId), $incrementId);
         }
 
-        return $this->alreadyPaid;
+        return $this->alreadyPaid[$key];
     }
 
     /**
-     * Set the amount already paid
+     * Set the amount already paid for the given order
      *
      * @param float $alreadyPaid
+     * @param string|null $incrementId
      *
      * @return $this
      */
-    public function setAlreadyPaid(float $alreadyPaid): PayReminderService
+    public function setAlreadyPaid(float $alreadyPaid, ?string $incrementId = null): PayReminderService
     {
-        $this->alreadyPaid = $alreadyPaid;
+        $this->alreadyPaid[(string)$incrementId] = $alreadyPaid;
         return $this;
     }
 
@@ -111,25 +115,32 @@ class PayReminderService
      */
     public function getPayRemainder(Order $order): float
     {
-        if (empty($this->payRemainder)) {
-            $alreadyPaid = $this->getAlreadyPaid($order->getIncrementId());
+        $incrementId = (string)$order->getIncrementId();
 
-            if ($alreadyPaid > 0) {
-                $this->setPayRemainder($this->getPayRemainderAmount((float)$order->getGrandTotal(), $alreadyPaid));
-            }
+        if (!isset($this->payRemainder[$incrementId])) {
+            $alreadyPaid = $this->getAlreadyPaid($incrementId);
+
+            $remainder = $alreadyPaid > 0
+                ? $this->getPayRemainderAmount((float)$order->getGrandTotal(), $alreadyPaid)
+                : 0.0;
+
+            $this->setPayRemainder($remainder, $incrementId);
         }
 
-        return $this->payRemainder;
+        return $this->payRemainder[$incrementId];
     }
 
     /**
-     * Set the amount that should be paid
+     * Set the amount that should be paid for the given order
      *
      * @param mixed $payRemainder
+     * @param string|null $incrementId
+     *
+     * @return $this
      */
-    public function setPayRemainder($payRemainder): PayReminderService
+    public function setPayRemainder($payRemainder, ?string $incrementId = null): PayReminderService
     {
-        $this->payRemainder = $payRemainder;
+        $this->payRemainder[(string)$incrementId] = (float)$payRemainder;
 
         return $this;
     }
@@ -179,26 +190,27 @@ class PayReminderService
         string $serviceAction = 'pay',
         string $newServiceAction = 'payRemainder'
     ): string {
-        if (empty($this->serviceAction)) {
+        if (!isset($this->serviceAction[$incrementId])) {
             $alreadyPaid = $this->getAlreadyPaid($incrementId);
 
             if ($alreadyPaid > 0) {
                 $serviceAction = $newServiceAction;
             }
 
-            $this->setServiceAction($serviceAction);
+            $this->setServiceAction($serviceAction, $incrementId);
         }
 
-        return $this->serviceAction;
+        return $this->serviceAction[$incrementId];
     }
 
     /**
-     * Set service action
+     * Set service action for the given order
      *
      * @param string $serviceAction
+     * @param string|null $incrementId
      */
-    public function setServiceAction(string $serviceAction): void
+    public function setServiceAction(string $serviceAction, ?string $incrementId = null): void
     {
-        $this->serviceAction = $serviceAction;
+        $this->serviceAction[(string)$incrementId] = $serviceAction;
     }
 }
