@@ -17,31 +17,41 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
+declare(strict_types=1);
 
-namespace Buckaroo\Magento2\Controller\CredentialsChecker;
+namespace Buckaroo\Magento2\Controller\Adminhtml\CredentialsChecker;
 
-use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
-use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Exception;
-use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\App\Action\Action;
-use Magento\Framework\App\Action\Context;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Encryption\EncryptorInterface;
 
+/**
+ * Validates the configured Buckaroo credentials from the admin configuration screen.
+ *
+ * This action relays merchant credentials to the Buckaroo API and must therefore never be
+ * reachable from the storefront: it lives in the adminhtml area and is guarded by the
+ * Buckaroo configuration ACL resource.
+ */
 class Index extends Action implements HttpPostActionInterface
 {
     /**
-     * @var ConfigProviderInterface
+     * ACL resource required to validate credentials.
      */
-    protected $accountConfig;
+    public const ADMIN_RESOURCE = 'Buckaroo_Magento2::configuration';
 
     /**
-     * @var Encryptor
+     * Credential type for the secret key.
+     */
+    private const CREDENTIAL_SECRET_KEY = 'secretKey';
+
+    /**
+     * @var EncryptorInterface
      */
     private $encryptor;
 
@@ -56,32 +66,25 @@ class Index extends Action implements HttpPostActionInterface
     private $client;
 
     /**
-     * Check Credentials in Admin
-     *
-     * @param Context          $context
-     * @param Factory          $configProviderFactory
-     * @param Encryptor        $encryptor
-     * @param Account          $configProviderAccount
-     * @param BuckarooAdapter  $client
-     *
-     * @throws BuckarooException
+     * @param Context            $context
+     * @param EncryptorInterface $encryptor
+     * @param Account            $configProviderAccount
+     * @param BuckarooAdapter    $client
      */
     public function __construct(
         Context $context,
-        Factory $configProviderFactory,
-        Encryptor $encryptor,
+        EncryptorInterface $encryptor,
         Account $configProviderAccount,
         BuckarooAdapter $client
     ) {
         parent::__construct($context);
-        $this->accountConfig = $configProviderFactory->get('account');
         $this->encryptor = $encryptor;
         $this->configProviderAccount = $configProviderAccount;
         $this->client = $client;
     }
 
     /**
-     * Check Buckaroo Credentials Secret Key and Merchant Key
+     * Check the Buckaroo secret key and merchant key
      *
      * @throws Exception
      *
@@ -89,25 +92,27 @@ class Index extends Action implements HttpPostActionInterface
      */
     public function execute(): Json
     {
+        $secretKey = (string)$this->getRequest()->getParam('secretKey', '');
+        $merchantKey = (string)$this->getRequest()->getParam('merchantKey', '');
 
-        $params = $this->getRequest()->getParams();
-        if (empty($params) || empty($params['secretKey']) || empty($params['merchantKey'])) {
+        if ($secretKey === '' || $merchantKey === '') {
             return $this->doResponse([
                 'success' => false,
                 'error_message' => __('Failed to start validation process due to lack of data')
             ]);
         }
 
-        $secretKey = $this->resolveCredential($params['secretKey'], 'secretKey');
-        $merchantKey = $this->resolveCredential($params['merchantKey'], 'merchantKey');
-
-        return $this->validateCredentials($merchantKey, $secretKey);
+        return $this->validateCredentials(
+            $this->resolveCredential($merchantKey, 'merchantKey'),
+            $this->resolveCredential($secretKey, self::CREDENTIAL_SECRET_KEY)
+        );
     }
 
     /**
      * Resolves the provided credential by checking if it contains any non-asterisk characters.
-     * If it contains any real characters, the raw credential is returned.
-     * Otherwise, the credential is decrypted from the stored configuration.
+     *
+     * The configuration form renders stored encrypted values as asterisks, so an all-asterisk
+     * input means "use the value already stored for this scope".
      *
      * @param string $credential The raw credential input.
      * @param string $type       The type of the credential ('secretKey' or 'merchantKey').
@@ -118,14 +123,19 @@ class Index extends Action implements HttpPostActionInterface
      */
     private function resolveCredential(string $credential, string $type): string
     {
-        return preg_match('/[^\*]/', $credential) ? $credential :
-            $this->encryptor->decrypt($this->configProviderAccount->{"get{$type}"}());
+        if (preg_match('/[^\*]/', $credential)) {
+            return $credential;
+        }
+
+        $storedCredential = $type === self::CREDENTIAL_SECRET_KEY
+            ? $this->configProviderAccount->getSecretKey()
+            : $this->configProviderAccount->getMerchantKey();
+
+        return (string)$this->encryptor->decrypt((string)$storedCredential);
     }
 
     /**
      * Validates the credentials by sending them to the Buckaroo client for confirmation.
-     * If the credentials are valid, a success response is generated.
-     * Otherwise, an error message is returned stating the credentials are invalid.
      *
      * @param string $merchantKey The merchant key to validate.
      * @param string $secretKey   The secret key to validate.
@@ -137,19 +147,17 @@ class Index extends Action implements HttpPostActionInterface
     private function validateCredentials(string $merchantKey, string $secretKey): Json
     {
         if ($this->client->confirmCredential($merchantKey, $secretKey)) {
-            return $this->doResponse([
-                'success' => true
-            ]);
-        } else {
-            return $this->doResponse([
-                'success' => false,
-                'error_message' => 'The credentials are not valid!'
-            ]);
+            return $this->doResponse(['success' => true]);
         }
+
+        return $this->doResponse([
+            'success' => false,
+            'error_message' => __('The credentials are not valid!')
+        ]);
     }
 
     /**
-     * Set Response on resultJson
+     * Set response on resultJson
      *
      * @param array $response
      *
@@ -157,7 +165,6 @@ class Index extends Action implements HttpPostActionInterface
      */
     private function doResponse(array $response): Json
     {
-        $this->_actionFlag->set('', self::FLAG_NO_POST_DISPATCH, '1');
         /** @var Json $result */
         $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         return $result->setData($response);

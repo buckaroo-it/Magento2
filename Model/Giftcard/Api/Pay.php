@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
@@ -57,24 +58,32 @@ class Pay implements PayWithGiftcardInterface
     protected $payResponseFactory;
 
     /**
+     * @var AttemptLimit
+     */
+    private $attemptLimit;
+
+    /**
      * @param GiftcardRequest                $giftcardRequest
      * @param GiftcardResponse               $giftcardResponse
      * @param QuoteIdMaskFactory             $quoteIdMaskFactory
      * @param CartRepositoryInterface        $cartRepository
      * @param PayResponseSetInterfaceFactory $payResponseFactory
+     * @param AttemptLimit                   $attemptLimit
      */
     public function __construct(
         GiftcardRequest $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        PayResponseSetInterfaceFactory $payResponseFactory
+        PayResponseSetInterfaceFactory $payResponseFactory,
+        AttemptLimit $attemptLimit
     ) {
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
+        $this->attemptLimit = $attemptLimit;
     }
 
     /**
@@ -92,11 +101,17 @@ class Pay implements PayWithGiftcardInterface
 
         try {
             $quote = $this->getQuote($cartId);
+            $this->attemptLimit->assertWithinLimit($quote);
 
-            return $this->getResponse(
-                $quote,
-                $this->build($quote, $giftcardId, $payment)->send()
-            );
+            try {
+                return $this->getResponse(
+                    $quote,
+                    $this->build($quote, $giftcardId, $payment)->send()
+                );
+            } catch (ApiException $th) {
+                $this->attemptLimit->registerFailedAttempt($quote);
+                throw $th;
+            }
         } catch (ApiException $th) {
             throw $th;
         } catch (NoQuoteException $th) {

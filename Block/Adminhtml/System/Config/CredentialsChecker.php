@@ -66,6 +66,16 @@ class CredentialsChecker extends Field
     }
 
     /**
+     * Get the ACL-protected admin URL used to validate the credentials
+     *
+     * @return string
+     */
+    public function getAjaxUrl(): string
+    {
+        return $this->getUrl('buckaroo/credentialschecker/index');
+    }
+
+    /**
      * Return element html
      *
      * @param AbstractElement $element
