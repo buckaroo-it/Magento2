@@ -54,6 +54,9 @@ define(
                         return true;
                     }
                 );
+
+                // The QR has been requested; remove the loading overlay so it no longer covers the code.
+                $('#buckaroo_magento2_mrcash_loader').hide();
             },
 
             cancelPayment: function () {
