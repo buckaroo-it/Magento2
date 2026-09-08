@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
  * Covers resolveForDebtor(), used by the Credit Management request builders.
  *
  * The expectations below were verified against the Buckaroo test gateway with
- * AddOrUpdateDebtor (BTI-1367): "za" and "na" return 491 Validation failure,
+ * AddOrUpdateDebtor: "za" and "na" return 491 Validation failure,
  * while "en-ZA", "en-NA", "en" and "nl-NL" all return 190 Success.
  */
 class DebtorCultureResolverTest extends TestCase

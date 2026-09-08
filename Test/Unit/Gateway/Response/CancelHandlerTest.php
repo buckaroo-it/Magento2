@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Response\CancelHandler;
+use Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState;
 
 class CancelHandlerTest extends AbstractResponseHandlerTest
 {
@@ -30,20 +31,28 @@ class CancelHandlerTest extends AbstractResponseHandlerTest
      */
     private $cancelHandler;
 
+    /**
+     * @var ReservationCancellationState|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $cancellationStateMock;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cancelHandler = new CancelHandler();
+        $this->cancellationStateMock = $this->createMock(ReservationCancellationState::class);
+        $this->cancelHandler = new CancelHandler($this->cancellationStateMock);
     }
 
     /**
+     * The flag has to be persisted, not just set on this payment instance: the caller that
+     * considers cancelling the same reservation next is usually holding a different one.
      */
     public function testHandle(): void
     {
-        $this->orderPaymentMock
+        $this->cancellationStateMock
             ->expects($this->once())
-            ->method('setAdditionalInformation')
-            ->with('voided_by_buckaroo', true);
+            ->method('markCancelled')
+            ->with($this->orderPaymentMock);
 
         $this->cancelHandler->handle(['payment' => $this->getPaymentDOMock()], $this->getTransactionResponse());
     }

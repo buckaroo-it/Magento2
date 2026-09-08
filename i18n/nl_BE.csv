@@ -85,7 +85,7 @@
 "Bank Transfer","Overboeking"
 "Enable Bank Transfer","Overboeking inschakelen"
 "Send payment instruction email","Stuur een e-mail met betaalinstructies"
-"Buckaroo sends an email to the customer with the payment procedures.","Vanuit Buckaroo wordt een e-mail verstuurd met de betaalinstructies."
+"Set to 'Yes' to let Buckaroo email the payment link and payment procedures to the customer. Set to 'No' if you send the payment link to the customer yourself; Buckaroo will then send nothing.","Zet op 'Ja' om Buckaroo de betaallink en betaalinstructies naar de klant te laten mailen. Zet op 'Nee' als u de betaallink zelf naar de klant stuurt; Buckaroo verstuurt dan niets."
 "Set to 'No' the customer is informed once online.","Bij de selectie 'Nee' wordt de klant eenmalig geinformeerd na het afronden van de order."
 "Due date (in days)","Verloop van termijn (in dagen)"
 "The amount of days after the order date in which the customer has to complete the payment. After this period order will be cancelled. You can add this due date in the template of the Transfer email.","Het aantal dagen na de orderdatum waarbinnen de klant de betaling moet hebben voldaan. Na deze periode wordt de bestelling geannuleerd. U kunt deze vervaldatum opnemen in de template van de overboekingsemail"

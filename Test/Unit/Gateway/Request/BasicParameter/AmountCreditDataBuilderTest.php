@@ -25,9 +25,11 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Data\Order\OrderAdapter;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\AmountCreditDataBuilder;
+use Buckaroo\Magento2\Service\Refund\RefundCapResolver;
 use Buckaroo\Magento2\Service\RefundGroupTransactionService;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
+use InvalidArgumentException;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ConverterException;
@@ -52,6 +54,39 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
      */
     private $amountCreditDataBuilder;
 
+    /**
+     * @var RefundCapResolver|MockObject
+     */
+    private $refundCapResolverMock;
+
+    /**
+     * The amount is validated again AFTER it has been resolved. The check at the top of build()
+     * only sees the figure Magento handed in, but setRefundAmount() can replace it with the credit
+     * memo's own grand total and the group-transaction branch can drive it below zero without
+     * throwing. The gateway answers a non-positive amount with statuscode 491, so it must be
+     * refused in Magento instead.
+     */
+    public function testANegativeResolvedAmountIsRefusedBeforeItReachesTheGateway(): void
+    {
+        $creditmemoMock = $this->createMock(Creditmemo::class);
+        $creditmemoMock->method('getGrandTotal')->willReturn(-10.90);
+
+        // The transaction is in the order currency and the order is not in the base currency, so
+        // setRefundAmount() swaps in the credit memo's own grand total.
+        $this->orderMock->method('getIncrementId')->willReturn('300000009');
+        $this->orderMock->method('getOrderCurrencyCode')->willReturn('EUR');
+        $this->orderMock->method('getBaseCurrencyCode')->willReturn('USD');
+        $this->transactionCurrencyResolverMock->method('resolve')->willReturn('EUR');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Credit Amount must be greater than 0');
+
+        $this->amountCreditDataBuilder->build([
+            'payment' => $this->getSalesPaymentDOMock($creditmemoMock),
+            'amount' => 19.10,
+        ]);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -60,9 +95,14 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
 
         $this->refundGroupServiceMock = $this->createMock(RefundGroupTransactionService::class);
 
+        // The cap only ever lowers the amount; these subjects are not capped.
+        $this->refundCapResolverMock = $this->createMock(RefundCapResolver::class);
+        $this->refundCapResolverMock->method('resolveCappedAmount')->willReturnArgument(2);
+
         $this->amountCreditDataBuilder = new AmountCreditDataBuilder(
             $this->transactionCurrencyResolverMock,
-            $this->refundGroupServiceMock
+            $this->refundGroupServiceMock,
+            $this->refundCapResolverMock
         );
     }
 
@@ -167,7 +207,7 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
-     * refundGroupTransactions() returns the CLAMPED remainder (group-transaction
+     * RefundGroupTransactions() returns the CLAMPED remainder (group-transaction
      * deduction and total-order ceiling applied). The builder must consume that
      * return value - reading the raw amountLeftToRefund property discards the
      * clamps and can over-refund the primary payment method.

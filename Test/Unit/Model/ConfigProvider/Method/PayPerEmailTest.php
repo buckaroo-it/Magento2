@@ -157,6 +157,41 @@ class PayPerEmailTest extends BaseTest
     }
 
     /**
+     * The B2B flag must be read from the store passed in, not from the current scope, so that pushes
+     * and admin actions evaluate the setting of the store the order was placed against.
+     */
+    public function testIsEnabledB2BReadsTheGivenStore()
+    {
+        $storeId = 3;
+
+        $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
+        $scopeConfigMock->expects($this->once())
+            ->method('getValue')
+            ->with('payment/buckaroo_magento2_payperemail/enable_b2b', ScopeInterface::SCOPE_STORE, $storeId)
+            ->willReturn('1');
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertTrue($instance->isEnabledB2B($storeId));
+    }
+
+    /**
+     * Without a store the getter keeps its old behaviour and falls back to the current scope.
+     */
+    public function testIsEnabledB2BFallsBackToTheCurrentScope()
+    {
+        $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
+        $scopeConfigMock->expects($this->once())
+            ->method('getValue')
+            ->with('payment/buckaroo_magento2_payperemail/enable_b2b', ScopeInterface::SCOPE_STORE, null)
+            ->willReturn('0');
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertFalse($instance->isEnabledB2B());
+    }
+
+    /**
      *
      */
     public static function isVisibleForAreaCodeProvider()

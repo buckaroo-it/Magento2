@@ -620,7 +620,8 @@ class Push
     {
         $includesTax = $this->scopeConfig->getValue(
             static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            StoreId::normalize($this->order->getStoreId())
         );
 
         if ($includesTax) {

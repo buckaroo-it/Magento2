@@ -225,6 +225,41 @@ class CultureCodeResolver
     }
 
     /**
+     * Resolve the culture code for the Buckaroo "Culture" HTTP header.
+     *
+     * The header is validated globally, before any method logic: an unknown value
+     * fails the whole request with a 400, so this must never emit a code it has not
+     * been shown to accept. Gateway probing (BTI-1378) shows the validator accepts
+     * any real language or culture code and rejects only unknown ones, which makes
+     * both curated maps safe here — unlike {@see self::resolve()}, which is narrowed
+     * to the closed locale enum the Klarna body parameters validate against.
+     *
+     * ICU-derived cultures are deliberately excluded: they are real combinations but
+     * unverified against this validator, and the cost of guessing wrong is a failed
+     * payment rather than a mistranslated page.
+     *
+     * Returns null when the billing country names no curated culture, so the caller
+     * can leave the header alone rather than replace a working value with a guess.
+     *
+     * @param string|null $countryId  Billing address country id (ISO 3166-1 alpha-2)
+     * @param string|null $localeHint Locale to disambiguate multi-language countries (e.g. "fr_BE")
+     *
+     * @return string|null Culture code, or null when the country is not curated
+     */
+    public function resolveForHeader(?string $countryId, ?string $localeHint = null): ?string
+    {
+        $country = strtoupper(trim((string)$countryId));
+
+        $curated = self::COUNTRY_CULTURES[$country] ?? self::DEBTOR_COUNTRY_CULTURES[$country] ?? null;
+
+        if ($curated === null) {
+            return null;
+        }
+
+        return $this->pickCulture($curated, $this->extractLanguage($localeHint));
+    }
+
+    /**
      * Resolve a culture for a region the curated maps do not name, using ICU data.
      *
      * ICU lists every language it knows per region but gives no way to rank them —

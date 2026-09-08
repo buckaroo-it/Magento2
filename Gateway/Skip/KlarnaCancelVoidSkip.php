@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
+use Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState;
 
 /**
  * Skip the CancelReservation command when no reservation reference exists.
@@ -38,11 +39,20 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
     private BuckarooLoggerInterface $logger;
 
     /**
-     * @param BuckarooLoggerInterface $logger
+     * @var ReservationCancellationState
      */
-    public function __construct(BuckarooLoggerInterface $logger)
-    {
+    private ReservationCancellationState $cancellationState;
+
+    /**
+     * @param BuckarooLoggerInterface      $logger
+     * @param ReservationCancellationState $cancellationState
+     */
+    public function __construct(
+        BuckarooLoggerInterface $logger,
+        ReservationCancellationState $cancellationState
+    ) {
         $this->logger = $logger;
+        $this->cancellationState = $cancellationState;
     }
 
     /**
@@ -57,6 +67,21 @@ class KlarnaCancelVoidSkip implements SkipCommandInterface
         $payment   = $paymentDO->getPayment();
         $order     = $payment->getOrder();
         $methodCode = (string)$payment->getMethod();
+
+        // Both the payment void during order cancellation and CancelRemainingReservation end up
+        // here, so this is the only place that reliably sees a release the other one performed.
+        if ($this->cancellationState->isCancelled($payment)) {
+            $this->logger->addDebug(sprintf(
+                '[SKIP_CANCEL_RESERVATION - %s] | [KlarnaCancelVoidSkip] | [%s:%s] - '
+                . 'Skipping CancelReservation: reservation already released. Order: %s.',
+                $methodCode,
+                __METHOD__,
+                __LINE__,
+                $order ? $order->getIncrementId() : 'N/A'
+            ));
+
+            return true;
+        }
 
         $reservationReference = $this->getReservationReference($order, $payment, $methodCode);
 

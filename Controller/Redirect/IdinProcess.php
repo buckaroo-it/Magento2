@@ -35,6 +35,7 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Customer;
+use Magento\Customer\Model\CustomerRegistry;
 use Magento\Customer\Model\ResourceModel\CustomerFactory;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
@@ -62,6 +63,11 @@ class IdinProcess extends Process implements HttpPostActionInterface
     protected $spamLimitService;
 
     /**
+     * @var CustomerRegistry
+     */
+    private $customerRegistry;
+
+    /**
      * @param Context $context
      * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
@@ -81,6 +87,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param CustomerRegistry $customerRegistry
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -102,7 +109,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
         CustomerFactory $customerFactory,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
-        OrderPaymentRepositoryInterface $paymentRepository
+        OrderPaymentRepositoryInterface $paymentRepository,
+        CustomerRegistry $customerRegistry
     ) {
         parent::__construct(
             $context,
@@ -126,16 +134,29 @@ class IdinProcess extends Process implements HttpPostActionInterface
         );
 
         $this->customerResourceFactory = $customerFactory;
+        $this->customerRegistry = $customerRegistry;
     }
 
     /**
      * Process the iDIN redirect request and verify the customer.
+     *
+     * The iDIN outcome decides whether an age restricted checkout may continue, so the request
+     * must be proven to come from Buckaroo (signature) and to belong to the iDIN verification
+     * this session started. Without both checks any anonymous POST can mark itself as verified.
      *
      * @return ResponseInterface
      * @throws \Exception
      */
     public function execute(): ResponseInterface
     {
+        if (!$this->isRequestAuthentic()) {
+            $this->addErrorMessage(
+                __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+            );
+
+            return $this->handleProcessedResponse('checkout');
+        }
+
         // Initialize the order, quote, payment
         if ($this->redirectRequest->hasPostData('primary_service', 'IDIN')) {
             if ($this->setCustomerIDIN()) {
@@ -155,6 +176,39 @@ class IdinProcess extends Process implements HttpPostActionInterface
     }
 
     /**
+     * Verify the redirect request was issued by Buckaroo for this session
+     *
+     * @throws \Exception
+     *
+     * @return bool
+     */
+    private function isRequestAuthentic(): bool
+    {
+        if (count($this->redirectRequest->getData()) === 0) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Empty iDIN redirect request',
+                __METHOD__,
+                __LINE__
+            ));
+
+            return false;
+        }
+
+        if (!$this->redirectRequest->validate()) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Signature validation failed',
+                __METHOD__,
+                __LINE__
+            ));
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * Set consumer bin IDIN on customer
      *
      * @throws \Exception
@@ -163,39 +217,95 @@ class IdinProcess extends Process implements HttpPostActionInterface
      */
     private function setCustomerIDIN(): bool
     {
-        if (!empty($this->redirectRequest->getServiceIdinConsumerbin())
-            && !empty($this->redirectRequest->getServiceIdinIseighteenorolder())
-            && $this->redirectRequest->getServiceIdinIseighteenorolder() == 'True'
-        ) {
-            $this->checkoutSession->setCustomerIDIN($this->redirectRequest->getServiceIdinConsumerbin());
-            $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
-            $idinCid = $this->redirectRequest->getAdditionalInformation('idin_cid');
-            if (!empty($idinCid)) {
-                try {
-                    /** @var Customer $customerNew */
-                    $customerNew = $this->customerRepository->getById((int)$idinCid);
-                } catch (\Exception $e) {
-                    $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $idinCid));
-                    $this->logger->addError(sprintf(
-                        '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
-                        __METHOD__,
-                        __LINE__,
-                        $e->getMessage()
-                    ));
-                    return false;
-                }
-                $customerData = $customerNew->getDataModel();
-                $customerData->setCustomAttribute('buckaroo_idin', $this->redirectRequest->getServiceIdinConsumerbin());
-                $customerData->setCustomAttribute('buckaroo_idin_iseighteenorolder', 1);
-                $customerNew->updateData($customerData);
+        $consumerBin = $this->redirectRequest->getServiceIdinConsumerbin();
 
-                $customerResource = $this->customerResourceFactory->create();
-                $customerResource->saveAttribute($customerNew, 'buckaroo_idin');
-                $customerResource->saveAttribute($customerNew, 'buckaroo_idin_iseighteenorolder');
-            }
+        if (empty($consumerBin)
+            || empty($this->redirectRequest->getServiceIdinIseighteenorolder())
+            || $this->redirectRequest->getServiceIdinIseighteenorolder() != 'True'
+        ) {
+            return false;
+        }
+
+        $customerId = $this->getVerifiedCustomerId();
+
+        if ($customerId === false) {
+            return false;
+        }
+
+        $this->checkoutSession->setCustomerIDIN($consumerBin);
+        $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
+
+        if ($customerId === null) {
             return true;
         }
-        return false;
+
+        return $this->persistIdinOnCustomer($customerId, (string)$consumerBin);
+    }
+
+    /**
+     * Resolve the customer the verification belongs to
+     *
+     * Returns null for a guest verification (session only) and false when the signed customer id
+     * contradicts the logged in customer.
+     *
+     * @return int|null|false
+     */
+    private function getVerifiedCustomerId()
+    {
+        $sessionCustomerId = (int)$this->customerSession->getCustomerId();
+        $requestCustomerId = (int)$this->redirectRequest->getAdditionalInformation('idin_cid');
+
+        if ($requestCustomerId > 0 && $sessionCustomerId > 0 && $requestCustomerId !== $sessionCustomerId) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - iDIN customer id %s does not match session customer %s',
+                __METHOD__,
+                __LINE__,
+                $requestCustomerId,
+                $sessionCustomerId
+            ));
+
+            return false;
+        }
+
+        if ($sessionCustomerId > 0) {
+            return $sessionCustomerId;
+        }
+
+        return $requestCustomerId > 0 ? $requestCustomerId : null;
+    }
+
+    /**
+     * Store the iDIN result on the customer account
+     *
+     * @param int    $customerId
+     * @param string $consumerBin
+     *
+     * @return bool
+     */
+    private function persistIdinOnCustomer(int $customerId, string $consumerBin): bool
+    {
+        try {
+            /** @var Customer $customer */
+            $customer = $this->customerRegistry->retrieve((string)$customerId);
+            $customer->setData('buckaroo_idin', $consumerBin);
+            $customer->setData('buckaroo_idin_iseighteenorolder', 1);
+
+            $customerResource = $this->customerResourceFactory->create();
+            $customerResource->saveAttribute($customer, 'buckaroo_idin');
+            $customerResource->saveAttribute($customer, 'buckaroo_idin_iseighteenorolder');
+        } catch (\Exception $e) {
+            $this->addErrorMessage(__('Unfortunately customer was not find by IDIN id: "%1"!', $customerId));
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - Customer was not find by IDIN id | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

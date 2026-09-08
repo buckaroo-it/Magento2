@@ -265,9 +265,39 @@ class PayPerEmailProcessor extends DefaultProcessor
                 || !empty($this->pushRequest->getAdditionalInformation('frompaylink')))
             && $this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
         ) {
+            // Every push for a PayLink carries the PayLink marker, the group transaction that closes
+            // it included. Once an earlier push has told us what the consumer actually paid with,
+            // stamping PayLink back over that costs the order its online refund, so the resolved
+            // method wins.
+            if ($this->hasResolvedActualPaymentMethod()) {
+                $this->logger->addDebug(sprintf(
+                    '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Keeping already resolved payment'
+                    . ' method %s instead of overwriting it with PayLink | order: %s',
+                    __METHOD__,
+                    __LINE__,
+                    (string)$this->payment->getMethod(),
+                    $this->order->getIncrementId()
+                ));
+
+                return;
+            }
+
             $this->payment->setMethod('buckaroo_magento2_payperemail');
             $this->orderRepository->save($this->order);
         }
+    }
+
+    /**
+     * Whether an earlier push already recorded a payment method that Magento can resolve.
+     *
+     * @return bool
+     */
+    private function hasResolvedActualPaymentMethod(): bool
+    {
+        $storedMethod = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+
+        return !empty($storedMethod)
+            && $this->paymentMethodCodeResolver->resolve((string)$storedMethod) !== null;
     }
 
     /**
@@ -335,16 +365,13 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         $transactionMethod = $this->pushRequest->getTransactionMethod();
         if (!empty($transactionMethod) && strtolower($transactionMethod) !== 'payperemail') {
-            $transactionMethod = strtolower($transactionMethod);
-            $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
-            return true;
+            return $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, strtolower($transactionMethod));
         }
 
         if ($isPayPerEmailOrder && !empty($transactionKey) && $transactionKey !== $payPerEmailKey) {
             $transactionMethod = $this->deriveActualPaymentMethodFromPush();
             if ($transactionMethod !== null) {
-                $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
-                return true;
+                return $this->saveActualPaymentMethodAndKeyForRefund($transactionKey, $transactionMethod);
             }
         }
 
@@ -357,24 +384,14 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param string $transactionKey
      * @param string $transactionMethod
      *
-     * @return void
+     * @return bool
      * @throws LocalizedException
      */
-    private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): void
+    private function saveActualPaymentMethodAndKeyForRefund(string $transactionKey, string $transactionMethod): bool
     {
-        $this->payment->setAdditionalInformation(
-            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD,
-            $transactionMethod
-        );
-        $this->payment->setAdditionalInformation(
-            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
-            $transactionKey
-        );
         $methodCode = $this->paymentMethodCodeResolver->resolve($transactionMethod);
 
-        if ($methodCode !== null) {
-            $this->payment->setMethod($methodCode);
-        } else {
+        if ($methodCode === null) {
             $this->logger->addWarning(sprintf(
                 '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - No payment method registered for service'
                 . ' %s; leaving the order method unchanged | order: %s',
@@ -383,9 +400,23 @@ class PayPerEmailProcessor extends DefaultProcessor
                 $transactionMethod,
                 $this->order->getIncrementId()
             ));
+
+            return false;
         }
 
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD,
+            $transactionMethod
+        );
+        $this->payment->setAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_TRANSACTION_KEY,
+            $transactionKey
+        );
+        $this->payment->setMethod($methodCode);
+
         $this->orderRepository->save($this->order);
+
+        return true;
     }
 
     /**
@@ -395,14 +426,19 @@ class PayPerEmailProcessor extends DefaultProcessor
      */
     private function deriveActualPaymentMethodFromPush(): ?string
     {
-        if (method_exists($this->pushRequest, 'getPrimaryService')) {
-            $primary = $this->pushRequest->getPrimaryService();
-            if (!empty($primary) && strtolower((string) $primary) !== 'payperemail') {
-                return strtolower((string) $primary);
-            }
+        $service = $this->findServiceInPushData();
+
+        if ($service !== null) {
+            return $service;
         }
 
-        return $this->findServiceInPushData();
+        $storedMethod = $this->payment->getAdditionalInformation(BuckarooAdapter::BUCKAROO_ACTUAL_PAYMENT_METHOD);
+
+        if (!empty($storedMethod) && $this->paymentMethodCodeResolver->resolve((string)$storedMethod) !== null) {
+            return strtolower((string)$storedMethod);
+        }
+
+        return null;
     }
 
     /**
@@ -423,12 +459,21 @@ class PayPerEmailProcessor extends DefaultProcessor
         }
 
         foreach (array_keys($data) as $key) {
-            if (preg_match('/^brq_service_([a-z0-9]+)_/i', (string) $key, $m)) {
-                $service = strtolower($m[1]);
-                if ($service !== 'payperemail' && $service !== 'paylink') {
-                    return $service;
-                }
+            if (!preg_match('/^brq_service_([a-z0-9]+)_/i', (string)$key, $matches)) {
+                continue;
             }
+
+            $service = strtolower($matches[1]);
+
+            if ($service === 'payperemail' || $service === 'paylink') {
+                continue;
+            }
+
+            if ($this->paymentMethodCodeResolver->resolve($service) === null) {
+                continue;
+            }
+
+            return $service;
         }
 
         return null;

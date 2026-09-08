@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Command;
 
+use Buckaroo\Magento2\Gateway\Helper\GatewayFailureDescription;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
@@ -314,13 +315,21 @@ class GatewayCommand implements CommandInterface
             $failsDescription = (string)($result->getFailsDescription()[0] ?? '');
             $messages[] = $failsDescription;
 
-            if ($failsDescription === '') {
-                $this->logger->critical('Payment Error: gateway returned an empty failure description');
+            if (GatewayFailureDescription::isUninformative($failsDescription)) {
+                $this->logger->critical(sprintf(
+                    'Payment Error: gateway returned a failure description without a reason. '
+                    . 'description: "%s", error_codes: %s',
+                    $failsDescription,
+                    implode(', ', array_map('strval', $result->getErrorCodes()))
+                ));
             }
         }
 
-       $messages = array_values(array_filter($messages, static function ($message) {
-            return trim((string)$message) !== '';
+        // A description that carries no reason must not reach the shopper: keeping it would
+        // leave the fallback below unused and show text such as
+        // "An error occurred while processing the transaction: ." at checkout.
+        $messages = array_values(array_filter($messages, static function ($message) {
+            return !GatewayFailureDescription::isUninformative((string)$message);
         }));
 
         $errorMessage = '';
@@ -330,7 +339,7 @@ class GatewayCommand implements CommandInterface
             }
             $errorMessage = rtrim($errorMessage);
         } else {
-            $errorMessage = 'Transaction has been declined. Please try again later.';
+            $errorMessage = GatewayFailureDescription::STANDARD_DECLINE_MESSAGE;
         }
 
         throw new CommandException(__($errorMessage));

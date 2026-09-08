@@ -39,4 +39,9 @@ class InvoiceStub extends \Magento\Sales\Model\Order\Invoice
     {
         return null;
     }
+
+    public function getCustomerBalanceAmount(...$args)
+    {
+        return null;
+    }
 }

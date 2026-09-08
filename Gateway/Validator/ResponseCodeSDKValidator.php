@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\GatewayFailureDescription;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\Transaction\Status\Response;
@@ -30,6 +31,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Psr\Log\LoggerInterface;
 
 class ResponseCodeSDKValidator extends AbstractValidator
 {
@@ -49,18 +51,26 @@ class ResponseCodeSDKValidator extends AbstractValidator
     protected $request;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param Data                   $helper
      * @param Http                   $request
      * @param ResultInterfaceFactory $resultFactory
+     * @param LoggerInterface        $logger
      */
     public function __construct(
         Data $helper,
         Http $request,
-        ResultInterfaceFactory $resultFactory
+        ResultInterfaceFactory $resultFactory,
+        LoggerInterface $logger
     ) {
         parent::__construct($resultFactory);
         $this->helper = $helper;
         $this->request = $request;
+        $this->logger = $logger;
     }
 
     /**
@@ -179,15 +189,20 @@ class ResponseCodeSDKValidator extends AbstractValidator
             $methodInstanceClass::$requestOnVoid = false;
         }
 
-        $message = !empty($this->transaction->getSomeError()) ?
-            $this->transaction->getSomeError()
-            : 'Gateway rejected the transaction.';
+        $message = trim((string)$this->transaction->getSomeError());
 
         if ($statusCode === 690
             && strpos($message, "deliveryCustomer.address.countryCode") !== false
         ) {
             $message = "Pay rejected: It is not allowed to specify another country " .
                 "for the invoice and delivery address for Afterpay transactions.";
+        } elseif (GatewayFailureDescription::isUninformative($message)) {
+            // Plaza can decline with a description that carries no reason, e.g. SubCode
+            // S996 "An error occurred while processing the transaction: .". Hand an empty
+            // description to the gateway command so the shopper gets the standard decline
+            // message, and log the raw response so support can still diagnose the decline.
+            $this->logRejectionWithoutReason($message);
+            $message = '';
         }
 
         $fraudMessage = $this->getFailureMessageOnFraud();
@@ -196,6 +211,26 @@ class ResponseCodeSDKValidator extends AbstractValidator
         }
 
         return $this->createResult(false, [__($message)], [$statusCode]);
+    }
+
+    /**
+     * Record a decline the gateway gave no reason for, so support can still trace it.
+     *
+     * @param string $rawDescription
+     *
+     * @return void
+     */
+    private function logRejectionWithoutReason(string $rawDescription): void
+    {
+        $this->logger->critical(sprintf(
+            'Buckaroo gateway declined the transaction without a failure reason. '
+            . 'status_code: %s, sub_code: %s, raw_description: "%s", transaction_key: %s, invoice: %s',
+            (string)$this->transaction->getStatusCode(),
+            (string)$this->transaction->getSubStatusCode(),
+            $rawDescription,
+            (string)($this->transaction['Key'] ?? ''),
+            (string)($this->transaction['Invoice'] ?? '')
+        ));
     }
 
     /**

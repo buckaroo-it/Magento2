@@ -66,6 +66,44 @@ class CredentialsChecker extends Field
     }
 
     /**
+     * Get the ACL-protected admin URL used to validate the credentials
+     *
+     * @return string
+     */
+    public function getAjaxUrl(): string
+    {
+        return $this->getUrl('buckaroo/credentialschecker/index', $this->getScopeParams());
+    }
+
+    /**
+     * The configuration scope currently selected in the store switcher.
+     *
+     * The button validates whatever credentials that scope resolves to, so the scope has to travel
+     * with the request. Without it the controller falls back to the default scope and a merchant
+     * with per-store-view credentials gets a verdict about the wrong Buckaroo account.
+     *
+     * @return array
+     */
+    private function getScopeParams(): array
+    {
+        $params = [];
+
+        $storeId = $this->getRequest()->getParam('store');
+        if ($storeId !== null && $storeId !== '') {
+            $params['store'] = $storeId;
+
+            return $params;
+        }
+
+        $websiteId = $this->getRequest()->getParam('website');
+        if ($websiteId !== null && $websiteId !== '') {
+            $params['website'] = $websiteId;
+        }
+
+        return $params;
+    }
+
+    /**
      * Return element html
      *
      * @param AbstractElement $element

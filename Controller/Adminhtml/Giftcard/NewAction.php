@@ -30,6 +30,21 @@ use Magento\Framework\Controller\ResultInterface;
 class NewAction extends Action implements HttpGetActionInterface
 {
     /**
+     * ACL resource required to manage Buckaroo giftcards.
+     */
+    public const ADMIN_RESOURCE = 'Buckaroo_Magento2::buckaroo_giftcards';
+
+    /**
+     * Restrict giftcard creation to users granted the giftcard ACL resource.
+     *
+     * @return bool
+     */
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed(self::ADMIN_RESOURCE);
+    }
+
+    /**
      * New action
      *
      * @return ResultInterface

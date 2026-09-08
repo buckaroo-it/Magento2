@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\ResourceModel\Order\Handler;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
@@ -68,7 +69,7 @@ class State extends \Magento\Sales\Model\ResourceModel\Order\Handler\State
             $order->getPayment()->getMethod() == 'buckaroo_magento2_payperemail'
         ) {
             $config = $this->configProviderMethodFactory->get(PayPerEmail::CODE);
-            if ($config->isEnabledB2B($order->getStore())
+            if ($config->isEnabledB2B(StoreId::normalize($order->getStoreId()))
                 && $order->getState() == Order::STATE_PROCESSING
                 && $order->getInvoiceCollection() && $order->getInvoiceCollection()->getFirstItem()
                 && $order->getInvoiceCollection()->getFirstItem()->getState() == 1

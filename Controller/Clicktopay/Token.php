@@ -25,7 +25,9 @@ namespace Buckaroo\Magento2\Controller\Clicktopay;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay as ClicktopayConfig;
 use Buckaroo\Magento2\Service\OauthTokenService;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -33,6 +35,16 @@ use Magento\Framework\Encryption\EncryptorInterface;
 class Token implements HttpPostActionInterface
 {
     private const SCOPE = 'clicktopay:save';
+
+    /**
+     * Header the storefront sends so this proxy only serves genuine checkout AJAX requests.
+     */
+    private const FRONTEND_ORIGIN_HEADER = 'X-Requested-From';
+
+    /**
+     * Expected value of the frontend-origin header.
+     */
+    private const FRONTEND_ORIGIN_VALUE = 'MagentoFrontend';
 
     /**
      * @var JsonFactory
@@ -60,24 +72,40 @@ class Token implements HttpPostActionInterface
     private EncryptorInterface $encryptor;
 
     /**
+     * @var Http
+     */
+    private Http $request;
+
+    /**
+     * @var CheckoutSession
+     */
+    private CheckoutSession $checkoutSession;
+
+    /**
      * @param JsonFactory             $resultJsonFactory
      * @param ClicktopayConfig        $config
      * @param OauthTokenService       $tokenService
      * @param BuckarooLoggerInterface $logger
      * @param EncryptorInterface      $encryptor
+     * @param Http                    $request
+     * @param CheckoutSession         $checkoutSession
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
         ClicktopayConfig $config,
         OauthTokenService $tokenService,
         BuckarooLoggerInterface $logger,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        Http $request,
+        CheckoutSession $checkoutSession
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->config            = $config;
         $this->tokenService      = $tokenService;
         $this->logger            = $logger;
         $this->encryptor         = $encryptor;
+        $this->request           = $request;
+        $this->checkoutSession   = $checkoutSession;
     }
 
     /**
@@ -90,6 +118,16 @@ class Token implements HttpPostActionInterface
      */
     public function execute(): Json
     {
+        // This endpoint spends the merchant's Click to Pay credentials, so it must only serve a
+        // genuine storefront checkout request: reject anything without an active quote or a valid
+        // form key. Without this an anonymous caller can mint OAuth tokens on the merchant's behalf.
+        if (!$this->isTrustedCheckoutRequest()) {
+            $this->logger->addError('[ClicktoPay] Token proxy: rejected untrusted request');
+            $result = $this->resultJsonFactory->create();
+            $result->setHttpResponseCode(403);
+            return $result->setData(['error' => 'Unauthorized request']);
+        }
+
         // Both credentials are stored encrypted (obscure fields with the Encrypted backend
         // model), so scopeConfig returns ciphertext. Decrypt them before authenticating.
         $clientId     = $this->decryptCredential((string) $this->config->getClientId());
@@ -107,6 +145,22 @@ class Token implements HttpPostActionInterface
 
         $result = $this->resultJsonFactory->create();
         return $result->setData($token);
+    }
+
+    /**
+     * Only serve genuine storefront checkout AJAX requests.
+     *
+     * Mirrors the hosted-fields token proxy (CredentialsChecker\GetToken): the caller must send
+     * the storefront origin header and hold an active checkout quote. This keeps an anonymous,
+     * session-less request from minting OAuth tokens on the merchant's credentials without relying
+     * on a form key, which is unreliable for cached checkout AJAX.
+     *
+     * @return bool
+     */
+    private function isTrustedCheckoutRequest(): bool
+    {
+        return $this->request->getHeader(self::FRONTEND_ORIGIN_HEADER) === self::FRONTEND_ORIGIN_VALUE
+            && (bool) $this->checkoutSession->getQuoteId();
     }
 
     /**

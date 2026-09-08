@@ -22,16 +22,31 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Model\Service\Order\ReservationCancellationState;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 
 class CancelHandler implements HandlerInterface
 {
+    /**
+     * @var ReservationCancellationState
+     */
+    private ReservationCancellationState $cancellationState;
+
+    /**
+     * @param ReservationCancellationState $cancellationState
+     */
+    public function __construct(ReservationCancellationState $cancellationState)
+    {
+        $this->cancellationState = $cancellationState;
+    }
+
     /**
      * @inheritdoc
      */
     public function handle(array $handlingSubject, array $response)
     {
         $payment = SubjectReader::readPayment($handlingSubject)->getPayment();
-        $payment->setAdditionalInformation('voided_by_buckaroo', true);
+
+        $this->cancellationState->markCancelled($payment);
     }
 }

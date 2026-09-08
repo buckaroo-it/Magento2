@@ -141,11 +141,13 @@ class AfterpayHandler extends AbstractArticlesHandler
                 continue;
             }
 
+            $itemQty = (float)$item->getTotalQty();
+
             $article = $this->getArticleArrayLine(
                 $item->getName(),
                 $this->getIdentifier($item),
-                $item->getTotalQty(),
-                $this->calculateProductPrice($item),
+                $itemQty,
+                $this->getDiscountedProductPrice($item, $this->getUnitDiscount($item, $itemQty)),
                 $this->getItemTax($item),
                 $this->getProductImageUrl($item)
             );
@@ -196,91 +198,5 @@ class AfterpayHandler extends AbstractArticlesHandler
             'price'         => round($this->normalizeAmount($articleUnitPrice), 2),
             'imageUrl'      => $imageUrl
         ];
-    }
-
-    /**
-     * Get additional discount lines such as reward points or gift cards
-     *
-     * @return array
-     */
-    protected function getAdditionalLines(): array
-    {
-        $articles = [];
-
-        $rewardLine = $this->getRewardLine();
-        if (!empty($rewardLine)) {
-            $articles[] = $rewardLine;
-        }
-
-        $giftCardLine = $this->getGiftCardLine();
-        if (!empty($giftCardLine)) {
-            $articles[] = $giftCardLine;
-        }
-
-        return ['articles' => $articles];
-    }
-
-    /**
-     * Get the reward points discount line
-     *
-     * @return array
-     */
-    public function getRewardLine()
-    {
-        try {
-            $discount = (float)$this->getOrder()->getData('reward_currency_amount');
-
-            if ($discount <= 0) {
-                return [];
-            }
-
-            $this->buckarooLog->addDebug(__METHOD__ . '|Reward points discount found: ' . $discount);
-
-            return $this->getArticleArrayLine(
-                'Discount Reward Points',
-                5,
-                1,
-                -$discount,
-                0
-            );
-        } catch (\Error $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . '|reward_currency_amount not available - Adobe Commerce reward points may not be installed');
-            return [];
-        } catch (\Exception $e) {
-            $this->buckarooLog->addError(__METHOD__ . '|Error getting reward points amount: ' . $e->getMessage());
-            return [];
-        }
-    }
-
-    /**
-     * Get the gift card discount line
-     *
-     * @return array
-     */
-    public function getGiftCardLine(): array
-    {
-        try {
-            $discount = (float)$this->getOrder()->getData('gift_cards_amount');
-
-            if ($discount <= 0) {
-                return [];
-            }
-
-            $this->buckarooLog->addDebug(__METHOD__ . '|Gift card discount found: ' . $discount);
-
-            return $this->getArticleArrayLine(
-                'Discount Gift Card',
-                6,
-                1,
-                -$discount,
-                0
-            );
-        } catch (\Error $e) {
-            $this->buckarooLog->addDebug(__METHOD__ . '|gift_cards_amount not available - Adobe Commerce gift cards may not be installed');
-            return [];
-        } catch (\Exception $e) {
-            $this->buckarooLog->addError(__METHOD__ . '|Error getting gift card amount: ' . $e->getMessage());
-            return [];
-        }
     }
 }

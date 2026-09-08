@@ -22,7 +22,7 @@ namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Serialize\Serializer\Json;
 
 class MyParcelNLBuckarooPlugin
@@ -33,7 +33,7 @@ class MyParcelNLBuckarooPlugin
     protected $checkoutSession;
 
     /**
-     * @var RequestInterface
+     * @var Http
      */
     protected $request;
 
@@ -49,13 +49,13 @@ class MyParcelNLBuckarooPlugin
 
     /**
      * @param Session                 $checkoutSession
-     * @param RequestInterface        $request
+     * @param Http                    $request
      * @param Json                    $json
      * @param BuckarooLoggerInterface $logger
      */
     public function __construct(
         Session $checkoutSession,
-        RequestInterface $request,
+        Http $request,
         Json $json,
         BuckarooLoggerInterface $logger
     ) {
@@ -70,25 +70,36 @@ class MyParcelNLBuckarooPlugin
      */
     public function beforeGetFromDeliveryOptions()
     {
-        // @codingStandardsIgnoreLine
-        if ($result = file_get_contents('php://input')) {
-            if ($jsonDecoded = $this->json->unserialize($result)) {
-                $this->logger->addDebug(sprintf(
-                    '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
-                    __METHOD__,
-                    __LINE__,
-                    var_export($jsonDecoded, true)
-                ));
-                if (!empty($jsonDecoded['deliveryOptions']) &&
-                    !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
-                    ($jsonDecoded['deliveryOptions'][0]['deliveryType'] == 'pickup') &&
-                    !empty($jsonDecoded['deliveryOptions'][0]['pickupLocation'])
-                ) {
-                    $this->checkoutSession->setMyParcelNLBuckarooData(
-                        $this->json->serialize($jsonDecoded['deliveryOptions'][0]['pickupLocation'])
-                    );
-                }
-            }
+        $body = $this->request->getContent();
+        if (empty($body)) {
+            return;
+        }
+
+        try {
+            $jsonDecoded = $this->json->unserialize($body);
+        } catch (\InvalidArgumentException $e) {
+            return;
+        }
+
+        if (!is_array($jsonDecoded) || empty($jsonDecoded['deliveryOptions'][0])) {
+            return;
+        }
+
+        $this->logger->addDebug(sprintf(
+            '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($jsonDecoded, true)
+        ));
+
+        $deliveryOption = $jsonDecoded['deliveryOptions'][0];
+        if (!empty($deliveryOption['deliveryType'])
+            && $deliveryOption['deliveryType'] === 'pickup'
+            && !empty($deliveryOption['pickupLocation'])
+        ) {
+            $this->checkoutSession->setMyParcelNLBuckarooData(
+                $this->json->serialize($deliveryOption['pickupLocation'])
+            );
         }
     }
 }

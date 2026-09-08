@@ -207,6 +207,7 @@ define(
                     return $.ajax({
                         url: window.BASE_URL + 'buckaroo/clicktopay/token',
                         method: 'POST',
+                        headers: { 'X-Requested-From': 'MagentoFrontend' },
                         data: { form_key: window.FORM_KEY }
                     }).then(function (response) {
                         var expiresIn = parseInt(response.expires_in, 10) || 0;
