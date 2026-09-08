@@ -49,7 +49,8 @@ class Pay extends Template
         if ($transactionKey === null) {
             $transactionKey = '';
         }
-        $transactionKey = preg_replace('/[^0-9]/', '', $transactionKey);
+
+        $transactionKey = preg_replace('/[^\w]/', '', $transactionKey);
         return $transactionKey;
     }
 }
