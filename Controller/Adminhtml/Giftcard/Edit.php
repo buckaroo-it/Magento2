@@ -34,6 +34,11 @@ use Magento\Framework\View\Result\PageFactory;
 class Edit extends Action implements HttpGetActionInterface
 {
     /**
+     * ACL resource required to manage Buckaroo giftcards.
+     */
+    public const ADMIN_RESOURCE = 'Buckaroo_Magento2::buckaroo_giftcards';
+
+    /**
      * @var PageFactory
      */
     protected $resultPageFactory;
@@ -76,9 +81,17 @@ class Edit extends Action implements HttpGetActionInterface
     }
 
     /**
-     * Edit Giftcard
+     * Restrict giftcard management to users granted the giftcard ACL resource.
      *
-     * @throws LocalizedException
+     * @return bool
+     */
+    protected function _isAllowed()
+    {
+        return $this->_authorization->isAllowed(self::ADMIN_RESOURCE);
+    }
+
+    /**
+     * Render the giftcard edit form
      *
      * @return ResponseInterface|Page
      */
