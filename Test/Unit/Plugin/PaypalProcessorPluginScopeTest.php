@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Plugin;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Buckaroo\Magento2\Plugin\PaypalProcessorPlugin;
 use Magento\Sales\Model\Order;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,9 +33,7 @@ use PHPUnit\Framework\TestCase;
  */
 class PaypalProcessorPluginScopeTest extends TestCase
 {
-    /**
-     * @dataProvider eligibilityProvider
-     */
+    #[DataProvider('eligibilityProvider')]
     public function testEligibilityStatusIsReadInTheOrderStore(string $type, string $method): void
     {
         $order = $this->createMock(Order::class);

@@ -135,7 +135,6 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param bool   $secondChanceEnabled
      * @param string $paymentMethod
      * @param int    $expectedCalls
-     *
      */
     #[DataProvider('createSecondChanceProvider')]
     public function testCreateSecondChance($secondChanceEnabled, $paymentMethod, $expectedCalls)
@@ -279,7 +278,6 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param array $orderItems
      * @param array $stockData
      * @param bool  $expectedResult
-     *
      */
     #[DataProvider('checkOrderProductsIsInStockProvider')]
     public function testCheckOrderProductsIsInStock($orderItems, $stockData, $expectedResult)
@@ -633,11 +631,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @dataProvider placeholderEmailProvider
      *
      * @param string $email
      * @param bool   $expected
      */
+    #[DataProvider('placeholderEmailProvider')]
     public function testIsPlaceholderEmail(string $email, bool $expected): void
     {
         $instance = $this->getInstance();
@@ -660,11 +658,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @dataProvider placeholderGraceProvider
      *
      * @param int  $ageSeconds
      * @param bool $expected
      */
+    #[DataProvider('placeholderGraceProvider')]
     public function testIsPastPlaceholderEmailGrace(int $ageSeconds, bool $expected): void
     {
         $now = 1700000000;

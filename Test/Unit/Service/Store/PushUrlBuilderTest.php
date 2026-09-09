@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Service\Store;
 
 use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
+use Buckaroo\Magento2\Service\Store\StoreUrlBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\Store;
@@ -53,7 +54,11 @@ class PushUrlBuilderTest extends TestCase
         $this->urlBuilder->method('getDirectUrl')->willReturnCallback(fn($p) => self::BASE . $p);
 
         $this->storeManager = $this->createMock(StoreManagerInterface::class);
-        $this->pushUrlBuilder = new PushUrlBuilder($this->urlBuilder, $this->storeManager);
+        // A real StoreUrlBuilder over the mocked collaborators: the point of these tests is the
+        // composed URL, so stubbing the composition away would leave them asserting nothing.
+        $this->pushUrlBuilder = new PushUrlBuilder(
+            new StoreUrlBuilder($this->urlBuilder, $this->storeManager)
+        );
     }
 
     private function store(string $code, string $baseUrl = self::BASE): Store

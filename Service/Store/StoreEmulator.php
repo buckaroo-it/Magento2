@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Service\Store;
 use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Framework\App\Area;
 use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Runs a callback with a given store emulated as the frontend.
@@ -47,18 +48,25 @@ class StoreEmulator
     private Emulation $appEmulation;
 
     /**
-     * @param Emulation $appEmulation
+     * @var StoreManagerInterface
      */
-    public function __construct(Emulation $appEmulation)
+    private StoreManagerInterface $storeManager;
+
+    /**
+     * @param Emulation             $appEmulation
+     * @param StoreManagerInterface $storeManager
+     */
+    public function __construct(Emulation $appEmulation, StoreManagerInterface $storeManager)
     {
         $this->appEmulation = $appEmulation;
+        $this->storeManager = $storeManager;
     }
 
     /**
      * Execute $callback with $store emulated, restoring the previous environment afterward
      *
-     * When no usable store is given, the callback still runs, just without emulation, so callers
-     * never have to branch on that themselves.
+     * When no usable store is given - or the ambient store is already the target - the callback
+     * still runs, just without emulation, so callers never have to branch on that themselves.
      *
      * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      * @param callable                                               $callback
@@ -71,7 +79,7 @@ class StoreEmulator
     {
         $storeId = StoreId::normalize($store);
 
-        if ($storeId === null) {
+        if ($storeId === null || $this->isAlreadyCurrent($storeId)) {
             return $callback();
         }
 
@@ -81,6 +89,27 @@ class StoreEmulator
             return $callback();
         } finally {
             $this->appEmulation->stopEnvironmentEmulation();
+        }
+    }
+
+    /**
+     * Whether the ambient store is already the one we would emulate
+     *
+     * Emulation re-initialises the store, locale, design and translations, so running it when it
+     * would change nothing is pure cost and pure risk - and on a single-store install that is
+     * every single push. Skipping keeps this a no-op there while leaving the multi-store behaviour
+     * untouched. A store we cannot resolve is treated as "not current", so we still emulate.
+     *
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    private function isAlreadyCurrent(int $storeId): bool
+    {
+        try {
+            return (int)$this->storeManager->getStore()->getId() === $storeId;
+        } catch (\Throwable $exception) {
+            return false;
         }
     }
 }

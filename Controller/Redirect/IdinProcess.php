@@ -207,7 +207,6 @@ class IdinProcess extends Process implements HttpPostActionInterface
         return true;
     }
 
-
     /**
      * Set consumer bin IDIN on customer
      *

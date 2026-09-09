@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider as MethodConfigProvider;
+use Buckaroo\Magento2\Test\Unit\Stubs\MethodConfigProviderStub;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -54,10 +55,10 @@ class AccountOrderStatusScopeTest extends TestCase
 
     private function methodProvider(bool $active, ?string $success, ?string $failed): MethodConfigProvider
     {
-        $provider = $this->getMockBuilder(MethodConfigProvider::class)
+        $provider = $this->getMockBuilder(MethodConfigProviderStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getActiveStatus', 'getOrderStatusSuccess', 'getOrderStatusFailed'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $provider->method('getActiveStatus')->with(2)->willReturn($active);
         $provider->method('getOrderStatusSuccess')->with(2)->willReturn($success);
         $provider->method('getOrderStatusFailed')->with(2)->willReturn($failed);

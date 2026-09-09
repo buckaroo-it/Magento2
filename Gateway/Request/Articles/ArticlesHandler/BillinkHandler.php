@@ -36,6 +36,8 @@ class BillinkHandler extends AbstractArticlesHandler
     }
 
     /**
+     * Suppress the store credit line
+     *
      * Billink prices every discount on the item lines, so a store credit line is suppressed for
      * the same reason the global discount line is.
      *

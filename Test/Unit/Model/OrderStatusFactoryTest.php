@@ -29,6 +29,7 @@ use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Buckaroo\Magento2\Test\Unit\Stubs\MethodConfigProviderStub;
 use PHPUnit\Framework\TestCase;
 
 class OrderStatusFactoryTest extends TestCase
@@ -126,10 +127,10 @@ class OrderStatusFactoryTest extends TestCase
      */
     public function testMethodStatusOverridesTheAccountStatusAndIsAlsoStoreScoped(): void
     {
-        $methodConfig = $this->getMockBuilder(AbstractConfigProvider::class)
+        $methodConfig = $this->getMockBuilder(MethodConfigProviderStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getActiveStatus', 'getOrderStatusSuccess'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $methodConfig->expects($this->once())->method('getActiveStatus')->with(2)->willReturn(true);
         $methodConfig->expects($this->once())->method('getOrderStatusSuccess')->with(2)->willReturn('fraud');
 
@@ -146,10 +147,10 @@ class OrderStatusFactoryTest extends TestCase
 
     public function testFallsBackToTheAccountStatusWhenTheMethodStatusIsInactive(): void
     {
-        $methodConfig = $this->getMockBuilder(AbstractConfigProvider::class)
+        $methodConfig = $this->getMockBuilder(MethodConfigProviderStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getActiveStatus', 'getOrderStatusSuccess'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $methodConfig->method('getActiveStatus')->with(2)->willReturn(false);
 
         $this->configProviderFactory->method('has')->willReturn(true);

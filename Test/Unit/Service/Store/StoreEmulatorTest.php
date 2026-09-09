@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Store;
 use Buckaroo\Magento2\Service\Store\StoreEmulator;
 use Magento\Framework\App\Area;
 use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class StoreEmulatorTest extends TestCase
@@ -35,6 +36,11 @@ class StoreEmulatorTest extends TestCase
     private $emulation;
 
     /**
+     * @var StoreManagerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $storeManager;
+
+    /**
      * @var StoreEmulator
      */
     private $storeEmulator;
@@ -42,7 +48,21 @@ class StoreEmulatorTest extends TestCase
     protected function setUp(): void
     {
         $this->emulation = $this->createMock(Emulation::class);
-        $this->storeEmulator = new StoreEmulator($this->emulation);
+
+        // Ambient store 1 throughout, so the tests below exercise the cross-store path. The
+        // "already current" case sets its own expectation.
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->storeManager->method('getStore')->willReturn($this->storeWithId(1));
+
+        $this->storeEmulator = new StoreEmulator($this->emulation, $this->storeManager);
+    }
+
+    private function storeWithId(int $id): \Magento\Store\Model\Store
+    {
+        $store = $this->createMock(\Magento\Store\Model\Store::class);
+        $store->method('getId')->willReturn($id);
+
+        return $store;
     }
 
     public function testEmulatesTheFrontendAreaForTheGivenStoreAndStopsAfterwards(): void
@@ -91,5 +111,35 @@ class StoreEmulatorTest extends TestCase
         $this->storeEmulator->emulate(2, function () {
             throw new \RuntimeException('boom');
         });
+    }
+
+    /**
+     * Emulation re-initialises store, locale, design and translations. On a single-store install
+     * the target is always the ambient store, so doing it on every push is cost and risk for no
+     * behaviour change.
+     */
+    public function testSkipsEmulationWhenTheAmbientStoreIsAlreadyTheTarget(): void
+    {
+        $this->emulation->expects($this->never())->method('startEnvironmentEmulation');
+        $this->emulation->expects($this->never())->method('stopEnvironmentEmulation');
+
+        $this->assertSame('ran', $this->storeEmulator->emulate(1, fn() => 'ran'));
+    }
+
+    /**
+     * If we cannot tell what the ambient store is, emulating is the safe answer.
+     */
+    public function testEmulatesWhenTheAmbientStoreCannotBeResolved(): void
+    {
+        $storeManager = $this->createMock(StoreManagerInterface::class);
+        $storeManager->method('getStore')->willThrowException(new \RuntimeException('no store'));
+        $storeEmulator = new StoreEmulator($this->emulation, $storeManager);
+
+        $this->emulation->expects($this->once())
+            ->method('startEnvironmentEmulation')
+            ->with(2, Area::AREA_FRONTEND, true);
+        $this->emulation->expects($this->once())->method('stopEnvironmentEmulation');
+
+        $this->assertSame('ran', $storeEmulator->emulate(2, fn() => 'ran'));
     }
 }

@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\ReturnUrlDataBuilder;
 use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
+use Buckaroo\Magento2\Service\Store\StoreUrlBuilder;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
@@ -47,6 +48,11 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     private $urlBuilderMock;
 
     /**
+     * @var StoreUrlBuilder|MockObject
+     */
+    private $storeUrlBuilderMock;
+
+    /**
      * @var PushUrlBuilder|MockObject
      */
     private $pushUrlBuilderMock;
@@ -64,10 +70,13 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
 
         $this->pushUrlBuilderMock = $this->createMock(PushUrlBuilder::class);
 
+        $this->storeUrlBuilderMock = $this->createMock(StoreUrlBuilder::class);
+
         $this->returnUrlDataBuilder = new ReturnUrlDataBuilder(
             $this->urlBuilderMock,
             $this->formKeyMock,
-            $this->pushUrlBuilderMock
+            $this->pushUrlBuilderMock,
+            $this->storeUrlBuilderMock
         );
     }
 
@@ -82,12 +91,9 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
         $this->formKeyMock->method('getFormKey')
             ->willReturn($formKey);
 
-        $this->urlBuilderMock->expects($this->atLeastOnce())->method('getDirectUrl')
+        $this->storeUrlBuilderMock->expects($this->once())->method('getUrl')
+            ->with($storeId, 'buckaroo/redirect/process')
             ->willReturn('http://example.com/buckaroo/redirect/process');
-
-        $this->urlBuilderMock->method('setScope')
-            ->with($storeId)
-            ->willReturnSelf();
 
         $this->pushUrlBuilderMock->expects($this->once())
             ->method('getPushUrl')

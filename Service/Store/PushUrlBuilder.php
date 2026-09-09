@@ -21,12 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Store;
 
-use Buckaroo\Magento2\Helper\StoreId;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\Store;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Builds the push URL handed to the gateway, and the URLs a push signature may be verified against.
@@ -48,23 +44,16 @@ class PushUrlBuilder
     public const PUSH_PATH = 'V1/buckaroo/push';
 
     /**
-     * @var UrlInterface
+     * @var StoreUrlBuilder
      */
-    private UrlInterface $urlBuilder;
+    private StoreUrlBuilder $storeUrlBuilder;
 
     /**
-     * @var StoreManagerInterface
+     * @param StoreUrlBuilder $storeUrlBuilder
      */
-    private StoreManagerInterface $storeManager;
-
-    /**
-     * @param UrlInterface          $urlBuilder
-     * @param StoreManagerInterface $storeManager
-     */
-    public function __construct(UrlInterface $urlBuilder, StoreManagerInterface $storeManager)
+    public function __construct(StoreUrlBuilder $storeUrlBuilder)
     {
-        $this->urlBuilder = $urlBuilder;
-        $this->storeManager = $storeManager;
+        $this->storeUrlBuilder = $storeUrlBuilder;
     }
 
     /**
@@ -125,11 +114,8 @@ class PushUrlBuilder
      * The base URL has to come from the store the order belongs to, not from the ambient one. On a
      * setup where each website has its own domain the push is delivered to that website's host, and
      * the signature covers the URL the gateway called - so a URI rebuilt against the default
-     * store's host would not match and the push would be rejected.
-     *
-     * UrlInterface::getDirectUrl() cannot do this: passing ['_scope' => $storeId] does not change
-     * the host it resolves. Asking the store for its own base URL does, and still honours
-     * web/url/use_store, which puts the store code in the base path.
+     * store's host would not match and the push would be rejected. StoreUrlBuilder carries the
+     * detail of why UrlInterface cannot do this.
      *
      * @param StoreInterface|null $store
      * @param string              $path
@@ -138,13 +124,7 @@ class PushUrlBuilder
      */
     private function buildUrl(?StoreInterface $store, string $path): string
     {
-        // getBaseUrl() lives on the concrete Store model, not on StoreInterface. StoreManager
-        // always hands back the concrete one; fall back to the ambient URL if that ever changes.
-        if (!$store instanceof Store) {
-            return $this->urlBuilder->getDirectUrl($path);
-        }
-
-        return rtrim((string)$store->getBaseUrl(UrlInterface::URL_TYPE_LINK), '/') . '/' . $path;
+        return $this->storeUrlBuilder->buildForStore($store, $path);
     }
 
     /**
@@ -156,15 +136,7 @@ class PushUrlBuilder
      */
     private function resolveStore($store): ?StoreInterface
     {
-        $storeId = StoreId::normalize($store);
-
-        try {
-            return $storeId === null
-                ? $this->storeManager->getStore()
-                : $this->storeManager->getStore($storeId);
-        } catch (NoSuchEntityException $exception) {
-            return null;
-        }
+        return $this->storeUrlBuilder->resolveStore($store);
     }
 
     /**

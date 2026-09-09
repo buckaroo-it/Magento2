@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
+use Buckaroo\Magento2\Service\Store\StoreUrlBuilder;
 use Laminas\Uri\UriFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
@@ -56,20 +57,28 @@ class ReturnUrlDataBuilder implements BuilderInterface
     private $pushUrlBuilder;
 
     /**
+     * @var StoreUrlBuilder
+     */
+    private $storeUrlBuilder;
+
+    /**
      * TransactionBuilder constructor.
      *
-     * @param UrlInterface   $urlBuilder
-     * @param FormKey        $formKey
-     * @param PushUrlBuilder $pushUrlBuilder
+     * @param UrlInterface    $urlBuilder
+     * @param FormKey         $formKey
+     * @param PushUrlBuilder  $pushUrlBuilder
+     * @param StoreUrlBuilder $storeUrlBuilder
      */
     public function __construct(
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        PushUrlBuilder $pushUrlBuilder
+        PushUrlBuilder $pushUrlBuilder,
+        StoreUrlBuilder $storeUrlBuilder
     ) {
         $this->pushUrlBuilder = $pushUrlBuilder;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
+        $this->storeUrlBuilder = $storeUrlBuilder;
     }
 
     /**
@@ -112,10 +121,13 @@ class ReturnUrlDataBuilder implements BuilderInterface
         }
 
         if ($this->returnUrl === null) {
-            $url = $this->urlBuilder->getDirectUrl(
-                'buckaroo/redirect/process',
-                ['_scope' => $order->getStoreId()]
-            ) . '?form_key=' . $this->getFormKey() . $this->getStoreParam($order);
+            // Built from the order store's OWN base URL, not from getDirectUrl()'s ambient one.
+            // During a frontend placeOrder the two are the same, but a PayPerEmail or PayLink order
+            // is created in the admin, where the ambient store is the admin's - and ['_scope' => id]
+            // does not change the host getDirectUrl() resolves. On a per-domain setup that returned
+            // the shopper to the default store's domain, where their session does not exist.
+            $url = $this->storeUrlBuilder->getUrl($order->getStoreId(), 'buckaroo/redirect/process')
+                . '?form_key=' . $this->getFormKey() . $this->getStoreParam($order);
 
             $this->setReturnUrl($url);
         }

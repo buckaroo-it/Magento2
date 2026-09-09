@@ -267,13 +267,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getSpecificCountry($store = null)
     {
-        $configuredSpecificCountry = trim((string)$this->getConfigFromXpath(static::SPECIFIC_COUNTRY, $store));
+        $configuredSpecificCountry = trim((string)$this->getMethodConfigValue(static::SPECIFIC_COUNTRY, $store));
 
-        //if the country config is null in the store get the config value from the global('default') settings
-        if (empty($configuredSpecificCountry)) {
-            $configuredSpecificCountry = $this->scopeConfig->getValue(
-                static::SPECIFIC_COUNTRY
-            );
+        // Only rescue an empty list from the default scope when this scope actually restricts
+        // countries. Doing it unconditionally overrode a merchant who had deliberately cleared the
+        // list for a website or store view: the global restriction silently stayed in force and
+        // the method vanished from that store's checkout with no error and no log line.
+        if ($configuredSpecificCountry === '' && $this->getAllowSpecific($store)) {
+            $configuredSpecificCountry = trim((string)$this->getMethodConfigValue(static::SPECIFIC_COUNTRY));
         }
 
         if (empty($configuredSpecificCountry)) {
@@ -292,7 +293,7 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
      */
     public function getAllowSpecific($store = null)
     {
-        return $this->getConfigFromXpath(static::ALLOW_SPECIFIC, $store);
+        return $this->getMethodConfigValue(static::ALLOW_SPECIFIC, $store);
     }
 
     /**

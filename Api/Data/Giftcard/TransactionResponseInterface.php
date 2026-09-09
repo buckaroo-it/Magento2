@@ -60,7 +60,14 @@ interface TransactionResponseInterface
     /**
      * Set data
      *
+     * Magento's webapi TypeProcessor reflects over every public method of a data interface and
+     * refuses to serialise the response unless each one declares a return type, so this annotation
+     * is load bearing rather than decorative - without it any REST call returning this interface
+     * fails with "Method's return type must be specified using @return annotation".
+     *
      * @param array $data
+     *
+     * @return $this
      */
     public function addData(array $data);
 }

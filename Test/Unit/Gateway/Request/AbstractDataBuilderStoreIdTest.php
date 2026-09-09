@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
+use Buckaroo\Magento2\Test\Unit\Stubs\AbstractDataBuilderStub;
 use Magento\Sales\Model\Order;
 use PHPUnit\Framework\TestCase;
 
@@ -33,9 +34,7 @@ class AbstractDataBuilderStoreIdTest extends TestCase
 {
     private function builderForOrder(?Order $order): AbstractDataBuilder
     {
-        $builder = $this->getMockBuilder(AbstractDataBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $builder = new AbstractDataBuilderStub();
 
         $property = new \ReflectionProperty(AbstractDataBuilder::class, 'order');
         $property->setAccessible(true);

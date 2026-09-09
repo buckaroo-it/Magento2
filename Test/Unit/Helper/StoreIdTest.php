@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Helper;
 
 use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Store\Api\Data\StoreInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class StoreIdTest extends TestCase
@@ -33,9 +34,8 @@ class StoreIdTest extends TestCase
      * strict comparison on a store id unreliable. Normalising has to close that without ever
      * turning an unusable value into 0 - store 0 is the admin store, and silently targeting it
      * would resolve configuration against the wrong scope.
-     *
-     * @dataProvider scalarProvider
      */
+    #[DataProvider('scalarProvider')]
     public function testNormalisesScalars($input, ?int $expected): void
     {
         $this->assertSame($expected, StoreId::normalize($input));

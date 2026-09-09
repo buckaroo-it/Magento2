@@ -271,7 +271,8 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
         $shipment = $this->getFakeMock('Magento\\Sales\\Model\\Order\\Shipment')->getMock();
         $shipment->method('getOrderId')->willReturn(1);
 
-        $event = $this->getFakeMock('Magento\\Framework\\Event')->addMethods(['getShipment'])->getMock();
+        $event = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\EventStub::class)
+            ->onlyMethods(['getShipment'])->getMock();
         $event->method('getShipment')->willReturn($shipment);
         $observer = $this->getFakeMock('Magento\\Framework\\Event\\Observer')->getMock();
         $observer->method('getEvent')->willReturn($event);
