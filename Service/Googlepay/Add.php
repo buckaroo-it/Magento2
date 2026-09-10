@@ -122,8 +122,10 @@ class Add
                 // Get Shipping Address From Request using wallet data
                 $shippingAddressRequest = $this->googlepayFormatData->getShippingAddressObject($request['wallet']);
 
-                // Add Shipping Address on Quote (only once)
-                $this->quoteService->addAddressToQuote($shippingAddressRequest);
+                // Add the shipping address to the quote. The wallet only supplies
+                // locality/postcode/country while the shopper is still
+                // choosing, so the remaining fields Magento requires have to be filled in.
+                $this->quoteService->addAddressToQuote($shippingAddressRequest, true);
 
                 // Get Shipping Methods from the updated quote
                 $shippingMethods = $this->quoteService->getAvailableShippingMethods();

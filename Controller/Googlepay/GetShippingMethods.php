@@ -92,7 +92,7 @@ class GetShippingMethods extends AbstractGooglepay
             $this->initializeQuote($postValues, $addressData);
 
             $shippingAddressRequest = $this->googlepayFormatData->getShippingAddressObject($addressData);
-            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+            $this->quoteService->addAddressToQuote($shippingAddressRequest, true);
             $this->quoteService->setPaymentMethod(Googlepay::CODE);
 
             $shippingMethodsResult = $this->getShippingMethodsForQuote();
