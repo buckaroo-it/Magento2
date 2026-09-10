@@ -26,6 +26,7 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -48,6 +49,11 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @var \Magento\Quote\Model\MaskedQuoteIdToQuoteId
      */
     protected $maskedQuoteIdToQuoteId;
+
+    /**
+     * @var ChangeQuoteControlInterface
+     */
+    private $changeQuoteControl;
 
     /**
      * @var \Magento\Quote\Api\CartManagementInterface
@@ -95,6 +101,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderUpdateFactory $orderUpdateFactory
      * @param Log $logger
+     * @param ChangeQuoteControlInterface $changeQuoteControl
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
@@ -105,7 +113,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
         OrderUpdateFactory $orderUpdateFactory,
-        Log $logger
+        Log $logger,
+        ChangeQuoteControlInterface $changeQuoteControl
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteManagement = $quoteManagement;
@@ -116,6 +125,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->orderRepository = $orderRepository;
         $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
+        $this->changeQuoteControl = $changeQuoteControl;
     }
 
     /**
@@ -363,6 +373,13 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote = $this->quoteRepository->get(
             $this->maskedQuoteIdToQuoteId->execute($cart_id)
         );
+
+        if (!$this->changeQuoteControl->isAllowed($quote)) {
+            throw new NoSuchEntityException(
+                __('No such entity with cartId = %1', $cart_id)
+            );
+        }
+
         return $quote;
     }
 }

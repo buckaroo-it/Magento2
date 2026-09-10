@@ -28,10 +28,12 @@ use Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory;
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
@@ -73,9 +75,19 @@ class OrderCreateTest extends BaseTest
             'orderRepository'        => $this->getFakeMock(OrderRepositoryInterface::class)->getMock(),
             'orderUpdateFactory'     => $this->getFakeMock(OrderUpdateFactory::class)->getMock(),
             'logger'                 => $this->getFakeMock(Log::class)->getMock(),
+            'changeQuoteControl'     => $this->makeChangeQuoteControl(true),
         ];
 
         return $this->getObject(OrderCreate::class, array_merge($defaults, $overrides));
+    }
+
+    /** A ChangeQuoteControl that allows or denies every quote. */
+    private function makeChangeQuoteControl(bool $allowed): ChangeQuoteControlInterface
+    {
+        $mock = $this->getFakeMock(ChangeQuoteControlInterface::class)->getMock();
+        $mock->method('isAllowed')->willReturn($allowed);
+
+        return $mock;
     }
 
     /** Invoke a protected/private method via reflection. */
@@ -356,5 +368,48 @@ class OrderCreateTest extends BaseTest
         ]);
 
         $this->callMethod($instance, 'createOrder', ['paypal-order-id-123', 'masked-cart-id']);
+    }
+
+    // -------------------------------------------------------------------------
+    // getQuote() honours the ChangeQuoteControl decision for the resolved cart
+    // -------------------------------------------------------------------------
+
+    public function testGetQuoteReturnsQuoteWhenChangeQuoteControlAllows(): void
+    {
+        $quoteMock = $this->getFakeMock(Quote::class)->getMock();
+
+        $maskedMock = $this->getFakeMock(MaskedQuoteIdToQuoteId::class)->getMock();
+        $maskedMock->method('execute')->willReturn(42);
+
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
+        $repoMock->method('get')->with(42)->willReturn($quoteMock);
+
+        $instance = $this->makeOrderCreate([
+            'maskedQuoteIdToQuoteId' => $maskedMock,
+            'quoteRepository'        => $repoMock,
+            'changeQuoteControl'     => $this->makeChangeQuoteControl(true),
+        ]);
+
+        $this->assertSame($quoteMock, $this->callMethod($instance, 'getQuote', ['masked-cart-id']));
+    }
+
+    public function testGetQuoteThrowsWhenChangeQuoteControlDenies(): void
+    {
+        $quoteMock = $this->getFakeMock(Quote::class)->getMock();
+
+        $maskedMock = $this->getFakeMock(MaskedQuoteIdToQuoteId::class)->getMock();
+        $maskedMock->method('execute')->willReturn(42);
+
+        $repoMock = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
+        $repoMock->method('get')->with(42)->willReturn($quoteMock);
+
+        $instance = $this->makeOrderCreate([
+            'maskedQuoteIdToQuoteId' => $maskedMock,
+            'quoteRepository'        => $repoMock,
+            'changeQuoteControl'     => $this->makeChangeQuoteControl(false),
+        ]);
+
+        $this->expectException(NoSuchEntityException::class);
+        $this->callMethod($instance, 'getQuote', ['masked-cart-id']);
     }
 }

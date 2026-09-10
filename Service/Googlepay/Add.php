@@ -102,8 +102,7 @@ class Add
             }
 
             // Get Cart (empty it first)
-            $cartHash = $request['id'] ?? null;
-            $this->quoteService->getEmptyQuote($cartHash);
+            $this->quoteService->getEmptyQuote();
 
             // Add product to cart
             $product = $this->googlepayFormatData->getProductObject($request['product']);
