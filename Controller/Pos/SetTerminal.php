@@ -109,7 +109,7 @@ class SetTerminal extends Action implements HttpGetActionInterface
             var_export($params, true)
         ));
 
-        if (!empty($params['id'])) {
+        if (!empty($params['id']) && $this->isValidTerminalId($params['id'])) {
             $metadata = $this->cookieMetadataFactory
                 ->createPublicCookieMetadata()
                 ->setPath('/')
@@ -124,5 +124,17 @@ class SetTerminal extends Action implements HttpGetActionInterface
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         return $resultRedirect->setPath('');
+    }
+
+    /**
+     * Is the supplied value shaped like a POS terminal identifier
+     *
+     * @param mixed $terminalId
+     *
+     * @return bool
+     */
+    private function isValidTerminalId($terminalId): bool
+    {
+        return is_string($terminalId) && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $terminalId) === 1;
     }
 }
