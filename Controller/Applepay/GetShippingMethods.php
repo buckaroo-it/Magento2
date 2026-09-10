@@ -80,8 +80,7 @@ class GetShippingMethods extends AbstractApplepay
             try {
                 // Get Cart
                 $this->logger->addDebug(__METHOD__ . '|1.1|');
-                $cartHash = $postValues['id'] ?? null;
-                $this->quoteService->getQuote($cartHash);
+                $this->quoteService->getQuote();
 
                 // Process shipping address from Apple Pay wallet data.
                 $shippingAddressRequest = $this->applePayFormatData->getShippingAddressObject($postValues['wallet']);
