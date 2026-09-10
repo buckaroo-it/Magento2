@@ -1,0 +1,102 @@
+rules:
+  # ---------------------------------------------------------------------------
+  # A quote resolved from a request-supplied cart identifier must be checked
+  # against the caller before it is read or mutated.
+  #
+  # Magento wires ChangeQuoteControl onto the cart repository in the webapi_rest
+  # and webapi_soap areas only (AccessChangeQuoteControl / Authorization plugins),
+  # so code running in the frontend area gets no protection from it and must do
+  # the check itself.
+  #
+  # Guest checkout APIs, where Magento itself treats the masked id as the
+  # credential, are annotated with `nosemgrep` at the call site.
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-cart-mask-resolved-without-access-check
+    languages: [php]
+    severity: ERROR
+    message: >-
+      A masked cart id is resolved here without validating that the caller may act on the
+      resulting quote. Either resolve the quote from the checkout session, or call
+      ChangeQuoteControlInterface::isAllowed($quote) before reading or mutating it.
+    patterns:
+      - pattern-either:
+          - pattern: $THIS->maskedQuoteIdToQuoteId->execute(...)
+          - pattern: $THIS->quoteIdMaskFactory->create()->load($ID, 'masked_id')
+      - pattern-not-inside: |
+          function $F($...ARGS) {
+            ...
+            if (!$T->changeQuoteControl->isAllowed(...)) { ... }
+            ...
+          }
+
+  # ---------------------------------------------------------------------------
+  # Controllers must not establish an authenticated customer session. Restoring a
+  # cart or order context does not require authenticating anyone. See
+  # Controller/Checkout/SecondChance for the expected pattern (send the shopper to
+  # the login page instead).
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-no-customer-login-in-controller
+    languages: [php]
+    severity: ERROR
+    paths:
+      include:
+        - "**/Controller/**"
+    message: >-
+      Controllers must not put a customer into an authenticated session. Restore the quote
+      or order context without calling setCustomerDataAsLoggedIn()/setCustomerAsLoggedIn().
+    pattern-either:
+      - pattern: $S->setCustomerDataAsLoggedIn(...)
+      - pattern: $S->setCustomerAsLoggedIn(...)
+
+  # ---------------------------------------------------------------------------
+  # Advisory. Values taken from the request should be validated before they are
+  # persisted in a cookie that later drives gateway behaviour.
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-request-value-into-public-cookie
+    languages: [php]
+    severity: WARNING
+    message: >-
+      A request-supplied value is written into a public cookie. Validate its format (and,
+      where a source of truth exists, check it against configured values) before persisting it.
+    pattern-either:
+      - pattern: $C->setPublicCookie($NAME, $PARAMS[$KEY], ...)
+      - pattern: $C->setPublicCookie($NAME, $REQ->getParam(...), ...)
+
+  # ---------------------------------------------------------------------------
+  # Advisory. Magento enforces the form key on POST only, so a controller that also
+  # accepts GET runs its GET variant without that check.
+  #
+  # Known, accepted exceptions: Redirect/Process (and subclasses) are deliberately
+  # CsrfAware and compensated by the gateway signature; Mrcash/Pay validates the
+  # form key itself inside the action.
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-controller-accepts-both-get-and-post
+    languages: [php]
+    severity: WARNING
+    paths:
+      include:
+        - "**/Controller/**"
+    message: >-
+      This controller implements both HttpGetActionInterface and HttpPostActionInterface.
+      The form key is only enforced on POST, so the GET variant is unprotected. Drop
+      HttpGetActionInterface unless the action is genuinely read-only, or validate the
+      form key inside the action.
+    pattern-regex: >-
+      class\s+\w+[^{]*implements[^{]*(HttpGetActionInterface[^{]*HttpPostActionInterface|HttpPostActionInterface[^{]*HttpGetActionInterface)
+
+  # ---------------------------------------------------------------------------
+  # Advisory. A grid column rendered with the raw-HTML cell template displays its
+  # value as HTML. The column's PHP class must escape any request- or
+  # gateway-derived content before it reaches this cell (see
+  # Ui/Component/Listing/Columns/Nicelog), or it is a stored-XSS sink in the admin.
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-ui-grid-raw-html-cell
+    languages: [generic]
+    severity: WARNING
+    paths:
+      include:
+        - "**/ui_component/*.xml"
+    message: >-
+      This grid column renders its value as raw HTML (ui/grid/cells/html). Ensure the
+      backing column class escapes any request- or gateway-derived content before display.
+    pattern: ui/grid/cells/html
