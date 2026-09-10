@@ -94,7 +94,7 @@ class IndexTest extends TestCase
         $this->clientMock->expects($this->never())->method('confirmCredential');
         $this->jsonResultMock->expects($this->once())
             ->method('setData')
-            ->with($this->callback(static fn ($data): bool => $data['success'] === false));
+            ->with($this->callback(static fn ($data) => $data['success'] === false));
 
         // Act
         $this->assertSame($this->jsonResultMock, $this->controller->execute());
