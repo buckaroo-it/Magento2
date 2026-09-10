@@ -119,7 +119,7 @@ class KlarnaMorOrderService
                 'sop.parent_id = so.entity_id',
                 ['entity_id']
             )
-            ->where('sop.additional_information LIKE ?', '%' . $pushKey . '%')
+            ->where('sop.additional_information LIKE ?', '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $pushKey) . '%')
             ->limit(1);
 
         $orderId = $connection->fetchOne($select);
