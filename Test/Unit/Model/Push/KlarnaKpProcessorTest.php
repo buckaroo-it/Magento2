@@ -33,6 +33,11 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     private $klarnakpConfigMock;
     private $escaperMock;
     private $orderRepositoryMock;
+
+    /**
+     * @var \Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private $reservationNumberStoreMock;
     private $paymentRepositoryMock;
     private $orderManagementMock;
 
@@ -56,6 +61,9 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->klarnakpConfigMock = $this->getFakeMock('Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp')->getMock();
         $this->escaperMock = $this->getFakeMock('Magento\Framework\Escaper')->getMock();
         $this->orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
+        $this->reservationNumberStoreMock = $this->createMock(
+            \Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore::class
+        );
         $this->paymentRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class);
         $this->orderManagementMock = $this->createMock(\Magento\Sales\Api\OrderManagementInterface::class);
 
@@ -103,6 +111,7 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             'transactionRepository' => $this->createMock(\Magento\Sales\Api\TransactionRepositoryInterface::class),
             'searchCriteriaBuilder' => $this->createMock(\Magento\Framework\Api\SearchCriteriaBuilder::class),
             'orderManagement'       => $this->orderManagementMock,
+            'reservationNumberStore' => $this->reservationNumberStoreMock,
         ]);
     }
 
@@ -282,12 +291,14 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $orderMock = $this->getFakeMock(OrderStub::class)->getMock();
         $orderMock->method('getIncrementId')->willReturn('100000001');
-        $orderMock->expects($this->once())
-            ->method('setBuckarooReservationNumber')
-            ->with('RESERVATION-1')
-            ->willReturnSelf();
+
+        // The number is handed to the store, which owns all three copies of it. The processor
+        // must no longer write the order row itself - a full order save is what loses it.
         $orderMock->expects($this->never())->method('save');
-        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
+        $this->orderRepositoryMock->expects($this->never())->method('save');
+        $this->reservationNumberStoreMock->expects($this->once())
+            ->method('save')
+            ->with($orderMock, 'RESERVATION-1');
 
         $this->setProperty('pushRequest', $pushRequest, $instance);
         $this->setProperty('order', $orderMock, $instance);

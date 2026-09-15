@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -148,6 +149,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected $lockManager;
 
     /**
+     * @var ReservationNumberStore
+     */
+    private ReservationNumberStore $reservationNumberStore;
+
+    /**
      * @var SpamLimitService
      */
     protected $spamLimitService;
@@ -186,6 +192,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * @param OrderRepositoryInterface $orderRepository
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param ReservationNumberStore $reservationNumberStore
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -206,9 +213,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         SpamLimitService $spamLimitService,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
-        OrderPaymentRepositoryInterface $paymentRepository
+        OrderPaymentRepositoryInterface $paymentRepository,
+        ReservationNumberStore $reservationNumberStore
     ) {
         parent::__construct($context);
+        $this->reservationNumberStore = $reservationNumberStore;
         $this->orderRepository = $orderRepository;
         $this->cartRepository = $cartRepository;
         $this->paymentRepository = $paymentRepository;
@@ -540,8 +549,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         if (empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve) {
             $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
-            $this->order->setBuckarooReservationNumber($reservationNumber);
-            $this->orderRepository->save($this->order);
+
+            $this->reservationNumberStore->save($this->order, (string)$reservationNumber);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',

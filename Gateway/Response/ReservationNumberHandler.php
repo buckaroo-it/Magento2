@@ -23,11 +23,11 @@ namespace Buckaroo\Magento2\Gateway\Response;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\Transaction\Status\Response;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order\Payment;
 
 class ReservationNumberHandler implements HandlerInterface
 {
@@ -37,20 +37,20 @@ class ReservationNumberHandler implements HandlerInterface
     private $logger;
 
     /**
-     * @var OrderRepositoryInterface
+     * @var ReservationNumberStore
      */
-    private $orderRepository;
+    private ReservationNumberStore $reservationNumberStore;
 
     /**
-     * @param BuckarooLoggerInterface  $logger
-     * @param OrderRepositoryInterface $orderRepository
+     * @param BuckarooLoggerInterface $logger
+     * @param ReservationNumberStore  $reservationNumberStore
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
-        OrderRepositoryInterface $orderRepository
+        ReservationNumberStore $reservationNumberStore
     ) {
         $this->logger = $logger;
-        $this->orderRepository = $orderRepository;
+        $this->reservationNumberStore = $reservationNumberStore;
     }
 
     /**
@@ -64,10 +64,10 @@ class ReservationNumberHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response)
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
-        /** @var OrderPaymentInterface $payment */
+        /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        /** @var TransactionResponse $transaction */
+        /** @var TransactionResponse $transactionResponse */
         $transactionResponse = SubjectReader::readTransactionResponse($response);
 
         if ($payment->getMethod() == 'buckaroo_magento2_klarnakp') {
@@ -99,8 +99,7 @@ class ReservationNumberHandler implements HandlerInterface
 
             if (isset($serviceParameters['klarnakp_reservationnumber'])) {
                 $reservationNumber = $serviceParameters['klarnakp_reservationnumber'];
-                $order->setBuckarooReservationNumber($reservationNumber);
-                $this->orderRepository->save($order);
+                $this->reservationNumberStore->save($order, (string)$reservationNumber);
 
                 $this->logger->addDebug(sprintf(
                     '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number for order %s: %s',
