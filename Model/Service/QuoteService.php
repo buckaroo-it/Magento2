@@ -46,6 +46,8 @@ class QuoteService
      */
     protected $quoteBuilderInterfaceFactory;
     /**
+     * Retained for constructor backward-compatibility.
+     *
      * @var MaskedQuoteIdToQuoteIdInterface
      */
     private $maskedQuoteIdToQuoteId;
@@ -109,54 +111,41 @@ class QuoteService
     }
 
     /**
-     * Get checkout quote instance by cart Hash
+     * Get the checkout quote instance for the current session
      *
-     * @param int|string|null $cartHash
+     * The quote is resolved from the checkout session.
      *
      * @throws NoSuchEntityException
      *
      * @return CartInterface
      */
-    public function getQuote($cartHash = null)
+    public function getQuote()
     {
         if ($this->quote instanceof Quote) {
             return $this->quote;
         }
 
-        if ($cartHash) {
-            try {
-                $cartId = $this->maskedQuoteIdToQuoteId->execute($cartHash);
-                $this->quote = $this->cartRepository->get($cartId);
-            } catch (NoSuchEntityException $exception) {
-                throw new NoSuchEntityException(
-                    __('Could not find a cart with ID "%masked_cart_id"', ['masked_cart_id' => $cartHash])
-                );
-            }
-        } else {
-            try {
-                $this->quote = $this->checkoutSession->getQuote();
-            } catch (\Exception $exception) {
-                throw new NoSuchEntityException(
-                    __('Could not get checkout quote instance by current session')
-                );
-            }
+        try {
+            $this->quote = $this->checkoutSession->getQuote();
+        } catch (\Exception $exception) {
+            throw new NoSuchEntityException(
+                __('Could not get checkout quote instance by current session')
+            );
         }
 
         return $this->quote;
     }
 
     /**
-     * Get empty checkout quote instance by cart Hash
-     *
-     * @param int|string|null $cartHash
+     * Get the current session's checkout quote, emptied of its items
      *
      * @throws NoSuchEntityException
      *
      * @return CartInterface
      */
-    public function getEmptyQuote($cartHash)
+    public function getEmptyQuote()
     {
-        $this->quote = $this->getQuote($cartHash);
+        $this->quote = $this->getQuote();
         $this->quote->removeAllItems();
         return $this->quote;
     }

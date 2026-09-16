@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Service\SpamLimitService;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -107,6 +108,7 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
      * @param FormKeyValidator $formKeyValidator
+     * @param ReservationNumberStore $reservationNumberStore
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -130,7 +132,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         SpamLimitService $spamLimitService,
         CartRepositoryInterface $cartRepository,
         OrderPaymentRepositoryInterface $paymentRepository,
-        FormKeyValidator $formKeyValidator
+        FormKeyValidator $formKeyValidator,
+        ReservationNumberStore $reservationNumberStore
     ) {
         parent::__construct(
             $context,
@@ -150,7 +153,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $spamLimitService,
             $orderRepository,
             $cartRepository,
-            $paymentRepository
+            $paymentRepository,
+            $reservationNumberStore
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;

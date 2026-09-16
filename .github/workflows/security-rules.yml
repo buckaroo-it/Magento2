@@ -1,0 +1,30 @@
+name: Security rules
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    name: Semgrep (Buckaroo security rules)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v5
+
+      # Blocking: ERROR-severity rules only (missing cart-access check, customer
+      # login inside a controller). --error makes semgrep exit non-zero on a match.
+      - name: Security rules (blocking)
+        run: semgrep --config .semgrep/buckaroo-security.yml --severity=ERROR --error --metrics=off .
+
+      # Advisory: WARNING-severity rules. Reported for review, never fails the build,
+      # because they have known legitimate exceptions in this codebase.
+      - name: Security rules (advisory)
+        if: always()
+        continue-on-error: true
+        run: semgrep --config .semgrep/buckaroo-security.yml --severity=WARNING --metrics=off .

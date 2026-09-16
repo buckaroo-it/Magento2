@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
@@ -88,6 +89,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
      * @param CustomerRegistry $customerRegistry
+     * @param ReservationNumberStore $reservationNumberStore
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -110,7 +112,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
         OrderPaymentRepositoryInterface $paymentRepository,
-        CustomerRegistry $customerRegistry
+        CustomerRegistry $customerRegistry,
+        ReservationNumberStore $reservationNumberStore
     ) {
         parent::__construct(
             $context,
@@ -130,7 +133,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
             $spamLimitService,
             $orderRepository,
             $cartRepository,
-            $paymentRepository
+            $paymentRepository,
+            $reservationNumberStore
         );
 
         $this->customerResourceFactory = $customerFactory;

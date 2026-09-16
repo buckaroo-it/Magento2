@@ -29,7 +29,6 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
@@ -38,7 +37,7 @@ use Magento\Quote\Model\Quote;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionInterface
+class Giftcard extends Action implements HttpPostActionInterface
 {
     /**
      * @var BuckarooLoggerInterface
