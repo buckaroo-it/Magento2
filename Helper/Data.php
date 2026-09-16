@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Business;
@@ -363,7 +364,10 @@ class Data extends AbstractHelper
      */
     public function getOrderStatusByState($order, $orderState)
     {
-        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
+        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData(
+            'order_status',
+            StoreId::normalize($order->getStoreId())
+        );
         $states = $order->getConfig()->getStateStatuses($orderState);
 
         if (!$orderStatus || !array_key_exists($orderStatus, $states)) {

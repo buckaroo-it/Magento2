@@ -142,4 +142,24 @@ class StoreEmulatorTest extends TestCase
 
         $this->assertSame('ran', $storeEmulator->emulate(2, fn() => 'ran'));
     }
+
+    /**
+     * Store::getId() returns a STRING off the sales_order/store row. If the comparison in
+     * isAlreadyCurrent() loses its (int) cast, '1' === 1 is false and emulation runs on every
+     * single-store push - the exact cost the guard exists to avoid. The other tests build the
+     * ambient store with an int id, so only this one would catch it.
+     */
+    public function testTreatsAStringAmbientStoreIdAsEqual(): void
+    {
+        $storeManager = $this->createMock(StoreManagerInterface::class);
+        $store = $this->createMock(\Magento\Store\Model\Store::class);
+        $store->method('getId')->willReturn('1');
+        $storeManager->method('getStore')->willReturn($store);
+
+        $storeEmulator = new StoreEmulator($this->emulation, $storeManager);
+
+        $this->emulation->expects($this->never())->method('startEnvironmentEmulation');
+
+        $this->assertSame('ran', $storeEmulator->emulate(1, fn() => 'ran'));
+    }
 }

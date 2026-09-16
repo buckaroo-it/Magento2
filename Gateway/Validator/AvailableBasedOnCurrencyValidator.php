@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Service\TransactionCurrencyResolver;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
@@ -62,12 +63,14 @@ class AvailableBasedOnCurrencyValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
-        $quoteCurrency = SubjectReader::readQuote($validationSubject)->getCurrency();
+        $quote = SubjectReader::readQuote($validationSubject);
+        $quoteCurrency = $quote->getCurrency();
 
         try {
             $isValid = $this->transactionCurrencyResolver->isCurrencyAllowed(
                 $quoteCurrency->getQuoteCurrencyCode(),
-                $paymentMethodInstance
+                $paymentMethodInstance,
+                StoreId::normalize($quote->getStoreId())
             );
         } catch (\Exception $e) {
             return $this->createResult(false, [__($e->getMessage())]);

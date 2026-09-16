@@ -186,7 +186,7 @@ class CreateCombinedInvoice
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->getAllowedServices($order->getPayment()),
+                '_'    => $this->getAllowedServices($order->getPayment(), $storeId),
                 'Name' => 'AllowedServices',
             ]
         ];
@@ -224,12 +224,12 @@ class CreateCombinedInvoice
      * Get allowed services
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     *
+     * @param int|null $storeId
      * @return string
      */
-    private function getAllowedServices($payment): string
+    private function getAllowedServices($payment, ?int $storeId = null): string
     {
-        $allowedServices = $this->configProvider->getPaymentMethod();
+        $allowedServices = $this->configProvider->getPaymentMethod($storeId);
 
         if (!is_string($allowedServices)) {
             return '';

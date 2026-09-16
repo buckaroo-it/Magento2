@@ -59,7 +59,7 @@ class StoreId
         }
 
         if ($store instanceof StoreInterface) {
-            return (int)$store->getId();
+            return self::normalize($store->getId());
         }
 
         if (is_int($store)) {

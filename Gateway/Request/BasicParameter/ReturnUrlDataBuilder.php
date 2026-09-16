@@ -42,6 +42,13 @@ class ReturnUrlDataBuilder implements BuilderInterface
     protected $returnUrl = null;
 
     /**
+     * Order the cached $returnUrl was built for.
+     *
+     * @var string|null
+     */
+    private $returnUrlOrderKey = null;
+
+    /**
      * @var FormKey
      */
     private $formKey;
@@ -117,10 +124,11 @@ class ReturnUrlDataBuilder implements BuilderInterface
         $returnUrl = $this->getReturnUrlFromPayment($order);
         if ($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
+            $this->returnUrlOrderKey = $this->getOrderKey($order);
             return $this->returnUrl;
         }
 
-        if ($this->returnUrl === null) {
+        if ($this->returnUrl === null || $this->returnUrlOrderKey !== $this->getOrderKey($order)) {
             // Built from the order store's OWN base URL, not from getDirectUrl()'s ambient one.
             // During a frontend placeOrder the two are the same, but a PayPerEmail or PayLink order
             // is created in the admin, where the ambient store is the admin's - and ['_scope' => id]
@@ -130,9 +138,27 @@ class ReturnUrlDataBuilder implements BuilderInterface
                 . '?form_key=' . $this->getFormKey() . $this->getStoreParam($order);
 
             $this->setReturnUrl($url);
+            $this->returnUrlOrderKey = $this->getOrderKey($order);
         }
 
         return $this->returnUrl;
+    }
+
+    /**
+     * Identity of the order the cached return URL belongs to
+     *
+     * Falls back to the object hash when the order has no id yet, which keeps a not-yet-saved order
+     * from colliding with another one.
+     *
+     * @param Order $order
+     *
+     * @return string
+     */
+    private function getOrderKey(Order $order): string
+    {
+        $id = (string)($order->getEntityId() ?? $order->getIncrementId());
+
+        return $id !== '' ? $id : spl_object_hash($order);
     }
 
     /**

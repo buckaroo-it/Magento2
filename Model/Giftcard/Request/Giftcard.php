@@ -534,12 +534,14 @@ class Giftcard implements GiftcardInterface
      * Get request mode
      *
      * @return int
+     * @throws NoSuchEntityException
      */
     protected function getMode(): int
     {
         $active = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_giftcards/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->getStoreId()
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }

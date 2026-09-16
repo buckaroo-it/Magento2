@@ -31,6 +31,7 @@ class PushSDKTest extends TestCase
 {
     private const STORE_URI     = 'https://example.com/rest/second_store/V1/buckaroo/push';
     private const LEGACY_URI    = 'https://example.com/rest/V1/buckaroo/push';
+    private const STORE_ID      = 2;
 
     /**
      * @var BuckarooAdapter|\PHPUnit\Framework\MockObject\MockObject
@@ -56,7 +57,12 @@ class PushSDKTest extends TestCase
         $request->method('getHeader')->willReturn('hmac ...');
 
         $this->pushUrlBuilder = $this->createMock(PushUrlBuilder::class);
+        // Constrained on purpose: without ->with() the candidate URIs would be rebuilt against the
+        // AMBIENT store (the default view, since the push route carries no store cookie), the
+        // signed URI would never match, and every push to a non-default store would be rejected -
+        // with this test still green.
         $this->pushUrlBuilder->method('getCandidateUris')
+            ->with(self::STORE_ID)
             ->willReturn([self::STORE_URI, self::LEGACY_URI]);
 
         $this->validator = new PushSDK($this->adapter, $request, $this->pushUrlBuilder);

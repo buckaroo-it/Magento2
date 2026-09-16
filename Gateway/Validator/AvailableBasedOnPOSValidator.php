@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Data as BuckarooHelper;
@@ -101,11 +102,13 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
 
         $quote = SubjectReader::readQuote($validationSubject);
 
-        if ($paymentMethodCode !== Pospayment::CODE && $this->pospaymentConfiguration->getActive()) {
+        $storeId = StoreId::normalize($quote->getStoreId());
+
+        if ($paymentMethodCode !== Pospayment::CODE && $this->pospaymentConfiguration->getActive($storeId)) {
             $posPaymentMethodInstance = $this->paymentHelper->getMethodInstance(Pospayment::CODE);
             if ($posPaymentMethodInstance->isAvailable($quote)) {
                 $isValid = false;
-                if ($this->checkPosOtherPaymentMethods($paymentMethodCode)) {
+                if ($this->checkPosOtherPaymentMethods($paymentMethodCode, $storeId)) {
                     $isValid = true;
                 }
             }
@@ -118,12 +121,12 @@ class AvailableBasedOnPOSValidator extends AbstractValidator
      * Check if payment method should be display with POS
      *
      * @param string $paymentMethodCode
-     *
+     * @param int|null $storeId
      * @return bool
      */
-    private function checkPosOtherPaymentMethods(string $paymentMethodCode): bool
+    private function checkPosOtherPaymentMethods(string $paymentMethodCode, ?int $storeId = null): bool
     {
-        $otherPaymentMethods = $this->pospaymentConfiguration->getOtherPaymentMethods();
+        $otherPaymentMethods = $this->pospaymentConfiguration->getOtherPaymentMethods($storeId);
         if ($otherPaymentMethods && in_array(
             $this->customerHelper->getBuckarooMethod($paymentMethodCode),
             explode(',', $otherPaymentMethods)

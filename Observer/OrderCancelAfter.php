@@ -204,7 +204,7 @@ class OrderCancelAfter implements ObserverInterface
      */
     private function sendCancelResponse($key, $storeId = null)
     {
-        $active = $this->configProviderPPE->getActive();
+        $active = $this->configProviderPPE->getActive($storeId);
         $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
         $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($storeId));

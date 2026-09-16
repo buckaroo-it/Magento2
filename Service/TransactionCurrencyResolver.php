@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Payment\Model\MethodInterface;
@@ -65,7 +66,9 @@ class TransactionCurrencyResolver
     {
         $orderCurrency = $order->getOrderCurrencyCode();
 
-        return $this->isCurrencyAllowed($orderCurrency, $methodInstance) ? $orderCurrency : null;
+        return $this->isCurrencyAllowed($orderCurrency, $methodInstance, StoreId::normalize($order->getStoreId()))
+            ? $orderCurrency
+            : null;
     }
 
     /**
@@ -73,27 +76,32 @@ class TransactionCurrencyResolver
      *
      * @param string|null     $currencyCode
      * @param MethodInterface $methodInstance
+     * @param int|null        $storeId
      *
      * @throws Exception
      *
      * @return bool
      */
-    public function isCurrencyAllowed(?string $currencyCode, MethodInterface $methodInstance): bool
-    {
+    public function isCurrencyAllowed(
+        ?string $currencyCode,
+        MethodInterface $methodInstance,
+        ?int $storeId = null
+    ): bool {
         return $currencyCode !== null
-            && in_array($currencyCode, $this->getAllowedCurrencies($methodInstance));
+            && in_array($currencyCode, $this->getAllowedCurrencies($methodInstance, $storeId));
     }
 
     /**
      * Get the currencies the payment method is allowed to transact in.
      *
      * @param MethodInterface $methodInstance
+     * @param int|null        $storeId
      *
      * @throws Exception
      *
      * @return array
      */
-    public function getAllowedCurrencies(MethodInterface $methodInstance): array
+    public function getAllowedCurrencies(MethodInterface $methodInstance, ?int $storeId = null): array
     {
         $method = $methodInstance->getCode();
         if (!$method) {
@@ -102,6 +110,6 @@ class TransactionCurrencyResolver
             );
         }
 
-        return $this->configProviderMethodFactory->get($method)->getAllowedCurrencies();
+        return $this->configProviderMethodFactory->get($method)->getAllowedCurrencies($storeId);
     }
 }

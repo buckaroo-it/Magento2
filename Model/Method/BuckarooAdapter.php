@@ -255,6 +255,28 @@ class BuckarooAdapter extends Adapter
     }
 
     /**
+     * Read a method config value in the store the payment belongs to
+     *
+     * The parent resolves $storeId === null against the ambient store. For an order payment that
+     * is the wrong store in every context that matters: an admin capture or refund runs in the
+     * admin scope, a push runs on a REST route with no store cookie, and cron has no store at all.
+     * Callers all over the module ask for getConfigData('field') without a store - the store is
+     * simply not in their hands - so defaulting it here closes the whole class of bug at once
+     * rather than at each call site.
+     *
+     * An explicit $storeId still wins, so callers that do know better are unaffected.
+     *
+     * @param string   $field
+     * @param int|null $storeId
+     *
+     * @return mixed
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        return parent::getConfigData($field, $storeId ?? $this->getResolvedStoreId());
+    }
+
+    /**
      * Resolve the current store to its integer id when possible.
      *
      * Magento only calls setStore() on a *quote* payment. An *order* payment never gets one, so

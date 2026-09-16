@@ -252,26 +252,32 @@ class Creditcards extends AbstractConfigProvider
     /**
      * Get the hosted fields client id from configuration.
      *
+     * @param null|int|string $store
+     *
      * @return mixed
      */
-    public function getHostedFieldsClientId()
+    public function getHostedFieldsClientId($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_ID,
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
     }
 
     /**
      * Get the hosted fields client secret from configuration.
      *
+     * @param null|int|string $store
+     *
      * @return mixed
      */
-    public function getHostedFieldsClientSecret()
+    public function getHostedFieldsClientSecret($store = null)
     {
         return $this->scopeConfig->getValue(
             self::XPATH_CREDITCARDS_HOSTED_FIELDS_CLIENT_SECRET,
-            ScopeInterface::SCOPE_STORE
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
     }
 

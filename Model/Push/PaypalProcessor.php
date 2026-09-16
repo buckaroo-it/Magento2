@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -147,8 +148,9 @@ class PaypalProcessor extends DefaultProcessor
 
         if ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && $this->order->getPayment()->getMethod() == PaypalConfig::CODE) {
-            $newSellersProtectionStatus = $this->paypalConfig->getSellersProtectionIneligible();
-            if ($this->paypalConfig->getSellersProtection() && !empty($newSellersProtectionStatus)) {
+            $storeId = StoreId::normalize($this->order->getStoreId());
+            $newSellersProtectionStatus = $this->paypalConfig->getSellersProtectionIneligible($storeId);
+            if ($this->paypalConfig->getSellersProtection($storeId) && !empty($newSellersProtectionStatus)) {
                 $newStatus = $newSellersProtectionStatus;
             }
         }

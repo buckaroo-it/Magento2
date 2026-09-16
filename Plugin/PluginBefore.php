@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayLink;
@@ -90,7 +91,7 @@ class PluginBefore
             $state = $order->getState();
             $config = $this->configProviderMethodFactory->get('paylink');
             $this->request = $context->getRequest();
-            if ($config->getActive() != '0' &&
+            if ($config->getActive(StoreId::normalize($order->getStoreId())) != '0' &&
                 $this->request->getFullActionName() == 'sales_order_view' &&
                 $state == 'new' &&
                 ($order->getPayment()->getMethod() != PayLink::CODE)

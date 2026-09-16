@@ -24,7 +24,6 @@ namespace Buckaroo\Magento2\Test\Unit\Controller\Redirect;
 use Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2;
 use Buckaroo\Magento2\Controller\Redirect\Process;
 use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Sales\Model\Order;
 

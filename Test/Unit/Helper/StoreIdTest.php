@@ -64,4 +64,32 @@ class StoreIdTest extends TestCase
 
         $this->assertSame(3, StoreId::normalize($store));
     }
+
+    /**
+     * The object branch has to honour the same guarantee as the scalar one. An unsaved or partially
+     * built Store - which $order->getStore() can hand back - has a null id, and (int)null is 0,
+     * which is the ADMIN store. Silently resolving configuration, credentials and URLs against
+     * admin scope is the worst possible failure here, so it must come back as null instead.
+     */
+    #[DataProvider('storeObjectProvider')]
+    public function testNormalisesStoreObjectsWithoutEverYieldingAdminScope($id, ?int $expected): void
+    {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn($id);
+
+        $this->assertSame($expected, StoreId::normalize($store));
+    }
+
+    public static function storeObjectProvider(): array
+    {
+        return [
+            'saved store, int id'    => [3, 3],
+            'saved store, string id' => ['3', 3],
+            'unsaved store, null id' => [null, null],
+            'empty string id'        => ['', null],
+            'whitespace id'          => ['   ', null],
+            'non-numeric id'         => ['default', null],
+            'store 0 is admin and stays 0 when genuinely asked for' => [0, 0],
+        ];
+    }
 }

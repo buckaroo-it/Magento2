@@ -21,6 +21,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Exception;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\PaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -70,11 +73,17 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     protected $paymentInformationManagement;
 
     /**
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
      * @param BuckarooResponseDataInterface       $buckarooResponseData
      * @param LoggerInterface                     $logger
      * @param Factory                             $configProviderMethodFactory
      * @param OrderRepositoryInterface            $orderRepository
      * @param MagentoPaymentInformationManagement $paymentInformationManagement
+     * @param CartRepositoryInterface             $cartRepository
      *
      * @codeCoverageIgnore
      */
@@ -83,13 +92,15 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
         LoggerInterface $logger,
         Factory $configProviderMethodFactory,
         OrderRepositoryInterface $orderRepository,
-        MagentoPaymentInformationManagement $paymentInformationManagement
+        MagentoPaymentInformationManagement $paymentInformationManagement,
+        CartRepositoryInterface $cartRepository
     ) {
         $this->buckarooResponseData = $buckarooResponseData;
         $this->logger = $logger;
         $this->configProviderMethodFactory = $configProviderMethodFactory;
         $this->orderRepository = $orderRepository;
         $this->paymentInformationManagement = $paymentInformationManagement;
+        $this->cartRepository = $cartRepository;
     }
 
     /**
@@ -108,7 +119,7 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
         PaymentInterface $paymentMethod,
         ?AddressInterface $billingAddress = null
     ): string {
-        $this->checkSpecificCountry($paymentMethod, $billingAddress);
+        $this->checkSpecificCountry($paymentMethod, $billingAddress, $this->resolveStoreId($cartId));
 
         try {
             $orderId = $this->paymentInformationManagement->savePaymentInformationAndPlaceOrder($cartId, $paymentMethod, $billingAddress);
@@ -140,20 +151,26 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
     /**
      * Check if the payment method is available for the given billing address country.
      *
-     * @param PaymentInterface      $paymentMethod
+     * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
-     *
+     * @param int|null $storeId
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
-    {
+    public function checkSpecificCountry(
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress,
+        ?int $storeId = null
+    ) {
         $paymentMethodCode = $this->normalizePaymentMethodCode($paymentMethod->getMethod());
 
-        $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
+        $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)
+            ->getAllowSpecific($storeId);
 
         if ($configAllowSpecific == 1) {
             $countryId = ($billingAddress === null) ? null : $billingAddress->getCountryId();
-            $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
+            $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)
+                ->getSpecificCountry($storeId);
 
             if (!in_array($countryId, $configSpecificCountry)) {
                 throw new LocalizedException(
@@ -202,5 +219,28 @@ class PaymentInformationManagement implements PaymentInformationManagementInterf
             return $order->getPayment()->getAdditionalInformation(BuckarooAdapter::PAYMENT_ATTEMPTS_REACHED_MESSAGE);
         }
         return null;
+    }
+
+    /**
+     * Store the cart belongs to, for scoping the country restriction
+     *
+     * This runs on the REST checkout route, which carries no store cookie, so the ambient store is
+     * the default store view rather than the shopper's. Reading the restriction there rejects a
+     * perfectly valid billing country - or lets through one the store forbids.
+     *
+     * Falls back to null (ambient) if the cart cannot be loaded, so a failure here degrades to the
+     * previous behaviour instead of blocking checkout.
+     *
+     * @param int|string $cartId
+     *
+     * @return int|null
+     */
+    private function resolveStoreId($cartId): ?int
+    {
+        try {
+            return StoreId::normalize($this->cartRepository->get((int)$cartId)->getStoreId());
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 }

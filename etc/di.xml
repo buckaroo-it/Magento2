@@ -761,6 +761,11 @@
         Optional constructor arguments are NOT autowired by the object manager, so this has to be
         declared explicitly - same as appEmulation above.
     -->
+    <type name="Buckaroo\Magento2\Service\Sales\Quote\Recreate">
+        <arguments>
+            <argument name="secondChanceConfig" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\SecondChance</argument>
+        </arguments>
+    </type>
     <type name="Buckaroo\Magento2\Model\Push">
         <arguments>
             <argument name="storeEmulator" xsi:type="object">Buckaroo\Magento2\Service\Store\StoreEmulator</argument>

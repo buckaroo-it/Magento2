@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Store;
 use Buckaroo\Magento2\Service\Store\StoreUrlBuilder;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -141,6 +142,50 @@ class StoreUrlBuilderTest extends TestCase
         $this->assertSame(
             'https://ambient.example.com/some/path',
             $this->storeUrlBuilder->buildForStore(null, 'some/path')
+        );
+    }
+
+    /**
+     * The URL type is load bearing: URL_TYPE_LINK honours web/url/use_store, which decides whether
+     * the store code appears in the base path - and that path is part of the SIGNED push URL.
+     * Swapping it for URL_TYPE_WEB or _DIRECT_LINK changes the signature input.
+     */
+    public function testAsksTheStoreForItsLinkUrlSpecifically(): void
+    {
+        $store = $this->createMock(Store::class);
+        $store->expects($this->once())
+            ->method('getBaseUrl')
+            ->with(UrlInterface::URL_TYPE_LINK)
+            ->willReturn(self::STORE_2_BASE);
+        $this->storeManager->method('getStore')->willReturn($store);
+
+        $this->storeUrlBuilder->getUrl(2, 'buckaroo/redirect/process');
+    }
+
+    /**
+     * The trailing-slash case is covered elsewhere; this is the other half. Without it, a plain
+     * concatenation passes the whole suite while emitting a URL with no separator.
+     */
+    public function testJoinsCorrectlyWhenTheBaseUrlHasNoTrailingSlash(): void
+    {
+        $this->storeManager->method('getStore')->willReturn($this->store('https://store2.example.com'));
+
+        $this->assertSame(
+            'https://store2.example.com/buckaroo/redirect/process',
+            $this->storeUrlBuilder->getUrl(2, 'buckaroo/redirect/process')
+        );
+    }
+
+    /**
+     * getBaseUrl() is on the concrete Store model, not on StoreInterface. The documented contract
+     * is to degrade to the ambient URL rather than fatal, so pass a StoreInterface that is NOT a
+     * Store - passing null would not exercise the instanceof check at all.
+     */
+    public function testFallsBackToTheAmbientUrlForANonStoreStoreInterface(): void
+    {
+        $this->assertSame(
+            'https://ambient.example.com/some/path',
+            $this->storeUrlBuilder->buildForStore($this->createMock(StoreInterface::class), 'some/path')
         );
     }
 }

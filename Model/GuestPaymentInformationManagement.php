@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model;
 
+use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Api\GuestPaymentInformationManagementInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -131,13 +133,13 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
         ?AddressInterface $billingAddress = null
     ) {
 
-        $this->checkSpecificCountry($paymentMethod, $billingAddress);
-
         // Guest checkout: the masked cart id is the credential by Magento convention.
         // nosemgrep: buckaroo-cart-mask-resolved-without-access-check
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         /** @var Quote $quote */
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+
+        $this->checkSpecificCountry($paymentMethod, $billingAddress, StoreId::normalize($quote->getStoreId()));
         $quote->reserveOrderId();
 
         $orderId = $this->guestPaymentInformationManagement->savePaymentInformationAndPlaceOrder(
@@ -164,20 +166,26 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
     /**
      * Check if the payment method is allowed for the given billing address country.
      *
-     * @param PaymentInterface      $paymentMethod
+     * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
-     *
+     * @param int|null $storeId
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function checkSpecificCountry(PaymentInterface $paymentMethod, ?AddressInterface $billingAddress)
-    {
+    public function checkSpecificCountry(
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress,
+        ?int $storeId = null
+    ) {
         $paymentMethodCode = $this->normalizePaymentMethodCode($paymentMethod->getMethod());
 
-        $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)->getAllowSpecific();
+        $configAllowSpecific = $this->configProviderMethodFactory->get($paymentMethodCode)
+            ->getAllowSpecific($storeId);
 
         if ($configAllowSpecific == 1) {
             $countryId = ($billingAddress === null) ? null : $billingAddress->getCountryId();
-            $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)->getSpecificCountry();
+            $configSpecificCountry = $this->configProviderMethodFactory->get($paymentMethodCode)
+                ->getSpecificCountry($storeId);
 
             if (!in_array($countryId, $configSpecificCountry)) {
                 throw new LocalizedException(

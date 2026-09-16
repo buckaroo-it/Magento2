@@ -337,7 +337,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         $failedStatuses = $this->buckarooStatusCode->getFailedStatuses();
         if (!empty($this->pushRequest->getTransactionMethod())
             && in_array($this->pushTransactionType->getStatusKey(), $failedStatuses)
-            && $this->configPayPerEmail->getEnabledCronCancelPPE()
+            && $this->configPayPerEmail->getEnabledCronCancelPPE($this->getOrderStoreId())
         ) {
             return true;
         }
