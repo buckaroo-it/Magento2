@@ -667,7 +667,6 @@
                 <payment_action>order</payment_action>
                 <can_capture_partial>1</can_capture_partial>
                 <available_in_backend>0</available_in_backend>
-                <financial_warning>1</financial_warning>
                 <customer_type>both</customer_type>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
