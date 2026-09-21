@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Model\Config\Source\Enablemode;
+use Buckaroo\Magento2\Model\Config\Source\PaypalButtonShape;
 use Magento\Store\Model\ScopeInterface;
 
 class Paypal extends AbstractConfigProvider
@@ -148,9 +149,10 @@ class Paypal extends AbstractConfigProvider
      */
     public function getButtonShape($store = null): string
     {
-        return $this->getMethodConfigValue(self::EXPRESS_BUTTON_IS_ROUNDED, $store) === "1"
-            ? 'pill'
-            : 'rect';
+        $isRounded = (string)$this->getMethodConfigValue(self::EXPRESS_BUTTON_IS_ROUNDED, $store)
+            === (string)PaypalButtonShape::SHAPE_ROUNDED;
+
+        return $isRounded ? 'pill' : 'rect';
     }
 
     /**

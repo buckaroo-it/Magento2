@@ -113,7 +113,7 @@ define([
                 },
                 style: {
                     color: this.buttonColor,
-                    shape: this.buttonShape === '1' ? 'pill' : 'rect'
+                    shape: this.buttonShape === '1' || this.buttonShape === 'pill' ? 'pill' : 'rect'
                 }
             }).render(container).then(function () {
                 self.hasRendered = true;

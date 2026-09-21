@@ -153,4 +153,43 @@ class PaypalTest extends BaseTest
 
         $this->assertEquals($expected, $result);
     }
+
+    public static function getButtonShapeProvider()
+    {
+        return [
+            'rounded as string' => ['1', 'pill'],
+            'rounded as int' => [1, 'pill'],
+            'rectangular as string' => ['0', 'rect'],
+            'rectangular as int' => [0, 'rect'],
+            'null defaults to rectangular' => [null, 'rect'],
+            'empty string defaults to rectangular' => ['', 'rect'],
+        ];
+    }
+
+    /**
+     * @param mixed $value
+     * @param string $expected
+     */
+    #[DataProvider('getButtonShapeProvider')]
+    public function testGetButtonShape($value, $expected)
+    {
+        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
+            ->getMock();
+
+        $scopeConfigMock->method('getValue')
+            ->with(
+                sprintf(
+                    self::DEFAULT_PATH_PATTERN,
+                    Paypal::CODE,
+                    Paypal::EXPRESS_BUTTON_IS_ROUNDED
+                ),
+                ScopeInterface::SCOPE_STORE,
+                null
+            )
+            ->willReturn($value);
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertSame($expected, $instance->getButtonShape());
+    }
 }
