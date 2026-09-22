@@ -19,6 +19,12 @@ use Magento\Framework\Webapi\Request;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Wires the full push-validation delegation stack (adapter + SDK config + JSON/HMAC),
+ * so a high collaborator count is inherent to what it exercises.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class PushSdkSignatureTest extends BaseTest
 {
     private const WEBSITE = 'test-website';
