@@ -23,9 +23,9 @@ namespace Buckaroo\Magento2\Test\Unit\Controller\Redirect;
 
 use Buckaroo\Magento2\Controller\Redirect\Process;
 use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2;
 
 /**
  * Covers Process::setCustomerAndRestoreQuote(): the quote is restored against the checkout
@@ -52,9 +52,8 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
         $customerSession->method('isLoggedIn')->willReturn(false);
         $customerSession->expects($this->never())->method('setCustomerDataAsLoggedIn');
 
-        $checkoutSession = $this->getFakeMock(CheckoutSession::class)
-            ->addMethods(['getLastRealOrderId', 'setLastRealOrderId'])
-            ->onlyMethods(['restoreQuote'])
+        $checkoutSession = $this->getFakeMock(SessionStub2::class)
+            ->onlyMethods(['getLastRealOrderId', 'setLastRealOrderId', 'restoreQuote'])
             ->getMock();
         $checkoutSession->method('getLastRealOrderId')->willReturn(null);
         $checkoutSession->expects($this->once())->method('setLastRealOrderId')->with('000000001');
@@ -78,8 +77,8 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
             ->getMock();
         $customerSession->expects($this->never())->method('setCustomerDataAsLoggedIn');
 
-        $checkoutSession = $this->getFakeMock(CheckoutSession::class)
-            ->addMethods(['setLastRealOrderId'])
+        $checkoutSession = $this->getFakeMock(SessionStub2::class)
+            ->onlyMethods(['setLastRealOrderId'])
             ->getMock();
         $checkoutSession->expects($this->never())->method('setLastRealOrderId');
 

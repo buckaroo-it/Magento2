@@ -12,6 +12,7 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -20,9 +21,8 @@ class ResponseCodeSDKValidatorTest extends TestCase
     /**
      * The gateway description holds no reason, so it must be handed over empty for the
      * gateway command to replace with the standard decline message, and logged as critical.
-     *
-     * @dataProvider descriptionWithoutReasonProvider
      */
+    #[DataProvider('descriptionWithoutReasonProvider')]
     public function testDeclineWithoutReasonIsBlankedAndLogged(string $gatewayDescription): void
     {
         $resultFactory = $this->createMock(ResultInterfaceFactory::class);

@@ -44,4 +44,9 @@ class InvoiceStub extends \Magento\Sales\Model\Order\Invoice
     {
         return null;
     }
+
+    public function getTotalRefunded(...$args)
+    {
+        return null;
+    }
 }
