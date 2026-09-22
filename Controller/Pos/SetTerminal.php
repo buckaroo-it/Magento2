@@ -27,14 +27,14 @@ use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class SetTerminal extends Action implements HttpGetActionInterface
+class SetTerminal extends Action implements HttpPostActionInterface
 {
     /**
      * @var array
