@@ -633,11 +633,10 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @dataProvider placeholderEmailProvider
-     *
      * @param string $email
      * @param bool   $expected
      */
+    #[DataProvider('placeholderEmailProvider')]
     public function testIsPlaceholderEmail(string $email, bool $expected): void
     {
         $instance = $this->getInstance();
@@ -660,11 +659,10 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * @dataProvider placeholderGraceProvider
-     *
      * @param int  $ageSeconds
      * @param bool $expected
      */
+    #[DataProvider('placeholderGraceProvider')]
     public function testIsPastPlaceholderEmailGrace(int $ageSeconds, bool $expected): void
     {
         $now = 1700000000;

@@ -271,8 +271,9 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
         $shipment = $this->getFakeMock('Magento\\Sales\\Model\\Order\\Shipment')->getMock();
         $shipment->method('getOrderId')->willReturn(1);
 
-        $event = $this->getFakeMock('Magento\\Framework\\Event')->addMethods(['getShipment'])->getMock();
-        $event->method('getShipment')->willReturn($shipment);
+        // Event::getShipment() is a DataObject magic getter; a real Event carrying the data
+        // avoids mocking a non-existent method (MockBuilder::addMethods() removed in PHPUnit 12).
+        $event = new \Magento\Framework\Event(['shipment' => $shipment]);
         $observer = $this->getFakeMock('Magento\\Framework\\Event\\Observer')->getMock();
         $observer->method('getEvent')->willReturn($event);
 
