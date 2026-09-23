@@ -30,6 +30,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
+use Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -181,11 +182,12 @@ class RefundCapResolverTest extends TestCase
      */
     private function getInvoiceMock(float $totalRefunded)
     {
-        // getTotalRefunded() is a DataObject magic getter, so it must be declared on the mock.
-        $invoiceMock = $this->getMockBuilder(Invoice::class)
+        // getTotalRefunded() is a DataObject magic getter; InvoiceStub declares it as a real
+        // method so it can be doubled via onlyMethods() (MockBuilder::addMethods() was removed
+        // in PHPUnit 12).
+        $invoiceMock = $this->getMockBuilder(InvoiceStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'getIncrementId', 'getGrandTotal'])
-            ->addMethods(['getTotalRefunded'])
+            ->onlyMethods(['getId', 'getIncrementId', 'getGrandTotal', 'getTotalRefunded'])
             ->getMock();
         $invoiceMock->method('getId')->willReturn(7);
         $invoiceMock->method('getIncrementId')->willReturn('100000007');

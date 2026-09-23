@@ -33,18 +33,16 @@
             <config_path>buckaroo_magento2/account/active</config_path>
         </field>
 
-        <field id="merchant_key" translate="label comment tooltip" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="merchant_key" translate="label comment" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Store Key</label>
-            <comment><![CDATA[Enter your Buckaroo store key.]]></comment>
-            <tooltip>The Store key can be retrieved in the Buckaroo Plaza under Settings > Websites. For support contact Buckaroo.</tooltip>
+            <comment><![CDATA[Find this in Buckaroo Plaza under Settings → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">API Keys</a>.]]></comment>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/merchant_key</config_path>
         </field>
 
-        <field id="secret_key" translate="label comment tooltip" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+        <field id="secret_key" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Secret Key</label>
-            <comment><![CDATA[Enter your Buckaroo Secret Key.]]></comment>
-            <tooltip>The Secret Key can be retrieved in the Buckaroo Plaza under Settings > Secret Key. For support contact Buckaroo.</tooltip>
+            <comment><![CDATA[Find this in Buckaroo Plaza under Settings → <a href="https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys" target="_blank">API Keys</a>.]]></comment>
             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
             <config_path>buckaroo_magento2/account/secret_key</config_path>
         </field>

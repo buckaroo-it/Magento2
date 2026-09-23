@@ -119,6 +119,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
+                // Guest checkout: the masked cart id is the credential by Magento convention.
+                // nosemgrep: buckaroo-cart-mask-resolved-without-access-check
                 $quoteId = $this->maskedQuoteIdToQuoteId->execute($cartId);
                 $billingAddress = $this->cartRepository->getActive($quoteId)->getBillingAddress();
             }
@@ -152,6 +154,8 @@ if (class_exists('\Onestepcheckout\Iosc\Plugin\GuestSaveManager')) {
             ?AddressInterface $billingAddress = null
         ) {
             if ($billingAddress == null) {
+                // Guest checkout: the masked cart id is the credential by Magento convention.
+                // nosemgrep: buckaroo-cart-mask-resolved-without-access-check
                 $quoteId = $this->maskedQuoteIdToQuoteId->execute($cartId);
                 $billingAddress = $this->cartRepository->getActive($quoteId)->getBillingAddress();
             }

@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Controller\Mrcash\Process;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
@@ -109,7 +110,8 @@ class ProcessTest extends TestCase
             $this->createMock(SpamLimitService::class),
             $this->createMock(CartRepositoryInterface::class),
             $this->createMock(OrderPaymentRepositoryInterface::class),
-            $this->formKeyValidatorMock
+            $this->formKeyValidatorMock,
+            $this->createMock(ReservationNumberStore::class)
         );
     }
 

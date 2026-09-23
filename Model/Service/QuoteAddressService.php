@@ -105,8 +105,9 @@ class QuoteAddressService
         $address->setCity($shippingAddress->getCity());
         $address->setRegion($shippingAddress->getState());
 
-        // Fill any missing fields on both shipping and billing addresses.
-        // Skip for Google Pay as it always provides complete address data.
+        // Fill any missing fields on both shipping and billing addresses. Express wallets
+        // (Apple Pay and Google Pay) only supply locality/postcode/country while the shopper is
+        // still choosing a shipping option, so callers in those flows pass true.
         if ($fillMissingFields) {
             $this->maybeFillAnyMissingAddressFields($shippingAddress, $cart);
         }
@@ -138,12 +139,41 @@ class QuoteAddressService
     protected function maybeFillShippingAddressFields(Quote $quote): void
     {
         $address = $quote->getShippingAddress();
-        if ($address->getId() === null) {
+
+        // Express wallets only supply locality/postcode/country, so the remaining required
+        // fields are filled with placeholders. Each field is filled only when it is empty, so
+        // this stays correct when the wallet sends a new address for an already saved quote
+        // address (the shopper changing address in the payment sheet).
+        $this->fillPlaceholderAddressFields($address);
+
+        $quote->setShippingAddress($address);
+    }
+
+    /**
+     * Fill the fields Magento requires for quote validation, without overwriting real data.
+     *
+     * @param \Magento\Quote\Model\Quote\Address $address
+     */
+    private function fillPlaceholderAddressFields($address): void
+    {
+        if (!$address->getFirstname()) {
             $address->setFirstname('unknown');
+        }
+
+        if (!$address->getLastname()) {
             $address->setLastname('unknown');
+        }
+
+        if (!$address->getEmail()) {
             $address->setEmail('no-reply@example.com');
+        }
+
+        if (!array_filter((array)$address->getStreet())) {
             $address->setStreet('unknown');
-            $quote->setShippingAddress($address);
+        }
+
+        if (!$address->getTelephone()) {
+            $address->setTelephone('0000000000');
         }
     }
 
@@ -236,17 +266,26 @@ class QuoteAddressService
         Quote $quote
     ): void {
         $address = $quote->getBillingAddress();
-        if ($address->getId() === null) {
-            $address->setFirstname('unknown');
-            $address->setLastname('unknown');
-            $address->setEmail('no-reply@example.com');
-            $address->setStreet('unknown');
+
+        $this->fillPlaceholderAddressFields($address);
+
+        if (!$address->getCountryId()) {
             $address->setCountryId($shippingAddress->getCountryCode());
-            $address->setPostcode($shippingAddress->getPostalCode());
-            $address->setCity($shippingAddress->getCity());
-            $address->setRegion($shippingAddress->getState());
-            $quote->setBillingAddress($address);
         }
+
+        if (!$address->getPostcode()) {
+            $address->setPostcode($shippingAddress->getPostalCode());
+        }
+
+        if (!$address->getCity()) {
+            $address->setCity($shippingAddress->getCity());
+        }
+
+        if (!$address->getRegion()) {
+            $address->setRegion($shippingAddress->getState());
+        }
+
+        $quote->setBillingAddress($address);
     }
 
     /**

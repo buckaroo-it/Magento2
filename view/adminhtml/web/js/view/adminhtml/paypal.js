@@ -35,6 +35,13 @@ define([
         },
 
         /**
+         * Funding sources, mirroring the storefront SDK call in js/lib/buckaroo-sdk.js so the
+         * preview cannot show a button the shopper is never offered. Keep the two in sync.
+         */
+        fundingParams: 'disable-funding=credit,card,bancontact,blik,eps,giropay,ideal,' +
+            'mercadopago,mybank,p24,sepa,sofort,venmo&enable-funding=paylater',
+
+        /**
          * Initialize component
          */
         initialize: function () {
@@ -67,7 +74,7 @@ define([
         requirePayPal: function (callback) {
             const e = document.createElement("script");
             const clientTestIp = 'AfHztAEfaf3f76tNy8j_Z86w5y-fGbqbBt04PXppVFtJatje79gVSB27DwBENnyFgfhFvKzgJbegNpHv';
-            e.src = `https://www.paypal.com/sdk/js?client-id=${clientTestIp}`;
+            e.src = `https://www.paypal.com/sdk/js?client-id=${clientTestIp}&${this.fundingParams}`;
             e.type = "text/javascript";
             e.addEventListener("load", callback);
             document.getElementsByTagName("head")[0].appendChild(e);

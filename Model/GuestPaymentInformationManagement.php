@@ -133,6 +133,8 @@ class GuestPaymentInformationManagement implements GuestPaymentInformationManage
 
         $this->checkSpecificCountry($paymentMethod, $billingAddress);
 
+        // Guest checkout: the masked cart id is the credential by Magento convention.
+        // nosemgrep: buckaroo-cart-mask-resolved-without-access-check
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         /** @var Quote $quote */
         $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());

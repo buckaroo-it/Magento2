@@ -86,10 +86,10 @@ class MyParcelNLBuckarooPlugin
         }
 
         $this->logger->addDebug(sprintf(
-            '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | deliveryOptions: %s',
+            '[MyParcelNL] | [Plugin] | [%s:%s] - Set Pickup Location | fields: %s',
             __METHOD__,
             __LINE__,
-            var_export($jsonDecoded, true)
+            var_export(array_keys($jsonDecoded), true)
         ));
 
         $deliveryOption = $jsonDecoded['deliveryOptions'][0];

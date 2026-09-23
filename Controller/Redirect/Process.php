@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
@@ -116,6 +117,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     protected $customerSession;
 
     /**
+     * Retained for constructor backward-compatibility.
+     *
      * @var CustomerRepositoryInterface
      */
     protected $customerRepository;
@@ -144,6 +147,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * @var LockManagerWrapper
      */
     protected $lockManager;
+
+    /**
+     * @var ReservationNumberStore
+     */
+    private ReservationNumberStore $reservationNumberStore;
 
     /**
      * @var SpamLimitService
@@ -184,6 +192,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
      * @param OrderRepositoryInterface $orderRepository
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param ReservationNumberStore $reservationNumberStore
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -204,9 +213,11 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         SpamLimitService $spamLimitService,
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
-        OrderPaymentRepositoryInterface $paymentRepository
+        OrderPaymentRepositoryInterface $paymentRepository,
+        ReservationNumberStore $reservationNumberStore
     ) {
         parent::__construct($context);
+        $this->reservationNumberStore = $reservationNumberStore;
         $this->orderRepository = $orderRepository;
         $this->cartRepository = $cartRepository;
         $this->paymentRepository = $paymentRepository;
@@ -538,8 +549,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
 
         if (empty($this->order->getBuckarooReservationNumber()) && $isKlarnaKpReserve) {
             $reservationNumber = $this->redirectRequest->getServiceKlarnakpReservationnumber();
-            $this->order->setBuckarooReservationNumber($reservationNumber);
-            $this->orderRepository->save($this->order);
+
+            $this->reservationNumberStore->save($this->order, (string)$reservationNumber);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [REDIRECT] | [%s:%s] - Saved reservation number from redirect for order %s: %s',
@@ -1062,56 +1073,40 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
     }
 
     /**
-     * Set customer if it is set on order and not on session and restore quote
+     * Restore the quote for the returning shopper
+     *
+     * Quote restoration runs against the current checkout session and does not modify the
+     * customer session.
      *
      * @param string $status
      */
     protected function setCustomerAndRestoreQuote(string $status): void
     {
-        // Handle customer login if needed (only for registered customers who aren't logged in)
-        if (!$this->customerSession->isLoggedIn() && $this->order->getCustomerId() > 0) {
+        // Subclasses (e.g. IdinProcess) can reach this without an order set.
+        if ($this->order === null || !$this->order->getIncrementId()) {
+            return;
+        }
+
+        if ($this->checkoutSession->getLastRealOrderId()) {
+            return;
+        }
+
+        $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
+
+        // For success or when we want to restore failed quotes
+        if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
+            $this->checkoutSession->restoreQuote();
             $this->logger->addDebug(sprintf(
-                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Customer is not logged in',
-                $this->payment->getMethod(),
+                '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
+                $this->payment?->getMethod(),
                 __METHOD__,
                 __LINE__,
                 $status
             ));
-            try {
-                $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                $this->customerSession->setCustomerDataAsLoggedIn($customer);
-            } catch (Exception $e) {
-                $this->logger->addError(sprintf(
-                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout ' .
-                    '- Could not load customer | [ERROR]: %s',
-                    $this->payment->getMethod(),
-                    __METHOD__,
-                    __LINE__,
-                    $status,
-                    $e->getMessage()
-                ));
-            }
         }
 
-        // Handle session setup and quote restoration for all scenarios
-        if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
-            $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
-
-            // For success or when we want to restore failed quotes
-            if ($status == 'success' || !$this->getSkipHandleFailedRecreate()) {
-                $this->checkoutSession->restoreQuote();
-                $this->logger->addDebug(sprintf(
-                    '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
-                    $this->payment->getMethod(),
-                    __METHOD__,
-                    __LINE__,
-                    $status
-                ));
-            }
-
-            if ($status == 'failed') {
-                $this->setSkipHandleFailedRecreate();
-            }
+        if ($status == 'failed') {
+            $this->setSkipHandleFailedRecreate();
         }
     }
 

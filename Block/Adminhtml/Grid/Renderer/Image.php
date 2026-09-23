@@ -68,7 +68,7 @@ class Image extends AbstractRenderer
             }
 
             $mediaDirectory = $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
-            return '<img src="' . $mediaDirectory . $img . '" width="50" >';
+            return '<img src="' . $this->escapeHtmlAttr($mediaDirectory . $img) . '" width="50" >';
         }
 
         return '';
