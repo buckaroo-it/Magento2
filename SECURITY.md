@@ -13,7 +13,7 @@ If you believe you have discovered a security vulnerability in this project, ple
 
 The preferred way to report a vulnerability is through GitHub's private vulnerability reporting for this repository. This allows you to provide vulnerability details directly and securely to the maintainers.
 
-You can also report a vulnerability by email at [support@buckaroo.nl](mailto:support@buckaroo.nl) if private vulnerability reporting is not suitable for your situation.
+You can also report a vulnerability by email at [security@buckaroo.nl](mailto:security@buckaroo.nl) if private vulnerability reporting is not suitable for your situation.
 
 Please do not report security vulnerabilities through public GitHub issues, pull requests, or other public channels.
 
