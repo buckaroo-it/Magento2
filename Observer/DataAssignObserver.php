@@ -107,7 +107,6 @@ class DataAssignObserver extends AbstractDataAssignObserver
     private $termsConditionDepends = [
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay2::CODE,
-        \Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna::CODE,
         \Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp::CODE,
     ];

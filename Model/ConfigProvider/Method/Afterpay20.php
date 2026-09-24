@@ -46,7 +46,6 @@ class Afterpay20 extends AbstractConfigProvider
         return  $this->fullConfig([
             'sendEmail'            => $this->hasOrderEmail(),
             'is_b2b'               => $this->getCustomerType() !== AfterpayCustomerType::CUSTOMER_TYPE_B2C,
-            'showFinancialWarning' => $this->canShowFinancialWarning(),
         ]);
     }
 
