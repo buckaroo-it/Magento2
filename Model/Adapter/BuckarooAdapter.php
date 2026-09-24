@@ -322,58 +322,54 @@ class BuckarooAdapter
         bool $skipActiveCheck = false,
         ?bool $originalTransactionWasTest = null
     ): string {
-        $clientMode = Config::TEST_MODE;
-
         if ($accountMode == 0) {
             throw new Exception(__('The Buckaroo Module is OFF'));
         }
 
-        if ($accountMode == 1) {
-            $clientMode = Config::LIVE_MODE;
+        $clientMode = Config::LIVE_MODE;
 
-            // For post-transaction operations, use stored transaction mode if available
-            if ($skipActiveCheck && $originalTransactionWasTest !== null) {
-                $clientMode = $originalTransactionWasTest ? Config::TEST_MODE : Config::LIVE_MODE;
+        // For post-transaction operations, use stored transaction mode if available
+        if ($skipActiveCheck && $originalTransactionWasTest !== null) {
+            $clientMode = $originalTransactionWasTest ? Config::TEST_MODE : Config::LIVE_MODE;
 
-                $this->logger->addDebug(sprintf(
-                    '[SDK] | [Adapter] | [%s:%s] - Post-transaction operation: Using stored transaction mode "%s" for %s in store ID: %s',
+            $this->logger->addDebug(sprintf(
+                '[SDK] | [Adapter] | [%s:%s] - Post-transaction operation: Using stored transaction mode "%s" for %s in store ID: %s',
+                __METHOD__,
+                __LINE__,
+                $clientMode,
+                $paymentMethod,
+                $storeId
+            ));
+
+            return $clientMode;
+        }
+
+        if ($paymentMethod) {
+            /** @var  AbstractConfigProvider $configProviderPaymentMethod */
+            $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
+            $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
+
+            // Only validate if payment method is active when NOT skipping active check
+            if (!$skipActiveCheck && $isActivePaymentMethod == Enablemode::ENABLE_OFF) {
+                $this->logger->addError(sprintf(
+                    '[SDK] | [Adapter] | [%s:%s] - Payment method %s is not active in store ID: %s. ' .
+                    'Ensure payment method is enabled in the store where the order was placed.',
                     __METHOD__,
                     __LINE__,
-                    $clientMode,
                     $paymentMethod,
                     $storeId
                 ));
-
-                return $clientMode;
+                throw new Exception(__(
+                    'Payment method %1 is not active in store ID %2. Enable it in Stores > Configuration for this store view.',
+                    $paymentMethod,
+                    $storeId
+                ));
             }
 
-            if ($paymentMethod) {
-                /** @var  AbstractConfigProvider $configProviderPaymentMethod */
-                $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
-                $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
-
-                // Only validate if payment method is active when NOT skipping active check
-                if (!$skipActiveCheck && $isActivePaymentMethod == Enablemode::ENABLE_OFF) {
-                    $this->logger->addError(sprintf(
-                        '[SDK] | [Adapter] | [%s:%s] - Payment method %s is not active in store ID: %s. ' .
-                        'Ensure payment method is enabled in the store where the order was placed.',
-                        __METHOD__,
-                        __LINE__,
-                        $paymentMethod,
-                        $storeId
-                    ));
-                    throw new Exception(__(
-                        'Payment method %1 is not active in store ID %2. Enable it in Stores > Configuration for this store view.',
-                        $paymentMethod,
-                        $storeId
-                    ));
-                }
-
-                // Check and preserve TEST mode setting from current configuration
-                // This handles cases where stored mode is not available (old orders)
-                if ($isActivePaymentMethod == Enablemode::ENABLE_TEST) {
-                    $clientMode = Config::TEST_MODE;
-                }
+            // Check and preserve TEST mode setting from current configuration
+            // This handles cases where stored mode is not available (old orders)
+            if ($isActivePaymentMethod == Enablemode::ENABLE_TEST) {
+                $clientMode = Config::TEST_MODE;
             }
         }
 

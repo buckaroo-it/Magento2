@@ -41,42 +41,20 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
     }
 
     /**
+     * Translate the 1.x account mode to the 2.x "Enabled" switch.
+     *
+     * 1.x stored Off/Test/Live as 0/1/2; 2.x stores No/Yes as 0/1. Only the legacy 2 needs rewriting,
+     * so the update is conditional: every scope keeps its own value and nothing is inserted.
+     *
      * @inheritdoc
      */
     public function apply()
     {
-        $this->moduleDataSetup->startSetup();
-
-        $connection = $this->moduleDataSetup->getConnection();
-
-        $path = 'buckaroo_magento2/account/active';
-        $valueToUpdate = '1';
-
-        $select = $connection->select()
-            ->from($this->moduleDataSetup->getTable('core_config_data'))
-            ->where('path = ?', $path);
-
-        $data = $connection->fetchRow($select);
-
-        if ($data) {
-            $connection->update(
-                $this->moduleDataSetup->getTable('core_config_data'),
-                ['value' => $valueToUpdate],
-                ['path = ?' => $path]
-            );
-        } else {
-            $connection->insert(
-                $this->moduleDataSetup->getTable('core_config_data'),
-                [
-                    'scope' => 'default',
-                    'scope_id' => 0,
-                    'path' => $path,
-                    'value' => $valueToUpdate
-                ]
-            );
-        }
-
-        $this->moduleDataSetup->endSetup();
+        $this->moduleDataSetup->getConnection()->update(
+            $this->moduleDataSetup->getTable('core_config_data'),
+            ['value' => '1'],
+            ['path = ?' => 'buckaroo_magento2/account/active', 'value = ?' => '2']
+        );
 
         return $this;
     }
