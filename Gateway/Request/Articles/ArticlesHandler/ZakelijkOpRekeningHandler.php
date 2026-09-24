@@ -51,9 +51,9 @@ class ZakelijkOpRekeningHandler extends CapayableIn3Handler
         }
 
         return [
-            'identifier' => $articleId,
+            'identifier' => (string)$articleId,
             'description' => $articleDescription,
-            'quantity' => $articleQuantity,
+            'quantity' => (int)$articleQuantity,
             'price' => $price,
             'vatPercentage' => $vatPercentage,
             'vatAmount' => $vatAmount,
