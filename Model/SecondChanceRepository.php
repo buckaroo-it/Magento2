@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Api\Data\SecondChanceSearchResultsInterfaceFactory;
 use Buckaroo\Magento2\Api\SecondChanceRepositoryInterface;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance as ResourceSecondChance;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
+use Buckaroo\Magento2\Model\SecondChance\FollowUpOrderFinder;
 use Buckaroo\Magento2\Model\Method\PayPerEmail;
 use Buckaroo\Magento2\Model\Method\Transfer;
 use Exception;
@@ -76,6 +77,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * every cron run for the rest of its life.
      */
     private const PLACEHOLDER_EMAIL_GRACE_HOURS = 1;
+
+    /**
+     * How long a newer order that is still waiting for its payment result holds back a reminder.
+     *
+     * With "send after 0 hours" the cron can run while the customer is still paying the order that replaced the
+     * abandoned one. Past this window that payment is not going to complete, so the reminder goes out after all.
+     */
+    private const FOLLOW_UP_PAYMENT_GRACE_HOURS = 1;
 
     /**
      * @var SecondChanceFactory
@@ -218,6 +227,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private $cartRepository;
 
     /**
+     * @var FollowUpOrderFinder
+     */
+    private $followUpOrderFinder;
+
+    /**
      * @param ResourceSecondChance                                 $resource
      * @param SecondChanceFactory                                  $secondChanceFactory
      * @param SecondChanceInterfaceFactory                         $dataSecondChanceFactory
@@ -246,6 +260,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param QuoteFactory                                         $quoteFactory
      * @param Manager                                              $orderIncrementIdChecker
      * @param CartRepositoryInterface                              $cartRepository
+     * @param FollowUpOrderFinder                                  $followUpOrderFinder
      */
     public function __construct(
         ResourceSecondChance $resource,
@@ -275,7 +290,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         \Magento\Checkout\Model\Session $checkoutSession,
         QuoteFactory $quoteFactory,
         Manager $orderIncrementIdChecker,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        FollowUpOrderFinder $followUpOrderFinder
     ) {
         $this->resource                         = $resource;
         $this->secondChanceFactory              = $secondChanceFactory;
@@ -305,6 +321,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->quoteFactory                     = $quoteFactory;
         $this->orderIncrementIdChecker          = $orderIncrementIdChecker;
         $this->cartRepository                   = $cartRepository;
+        $this->followUpOrderFinder              = $followUpOrderFinder;
     }
 
     /**
@@ -709,7 +726,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
-                if ($this->hasPaidOrderSinceAbandonment($item, $store)) {
+                if ($this->hasFollowUpOrder($item, $order, $store)) {
                     continue;
                 }
 
@@ -990,37 +1007,51 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * Check whether the customer has already placed a paid order after the cart was abandoned
+     * Check whether a newer order from the customer makes the reminder unnecessary, for good or for now
+     *
+     * A paid follow-up order closes the record. A follow-up order that is still waiting for its payment result
+     * only postpones the reminder to a later run: on browser back the previous order is cancelled - and its
+     * record written - while the customer is still paying the new one, and with "send after 0 hours" the cron
+     * would otherwise send the reminder during that payment.
      *
      * @param \Buckaroo\Magento2\Model\SecondChance $item
-     * @param mixed $store
+     * @param Order                                 $order the abandoned (base) order
+     * @param mixed                                 $store
      *
      * @return bool  true = reminder should be skipped
      * @throws LocalizedException
      */
-    private function hasPaidOrderSinceAbandonment($item, $store): bool
+    private function hasFollowUpOrder($item, $order, $store): bool
     {
         if (!$this->configProvider->isPaidOrderCheckEnabled($store)) {
             return false;
         }
 
-        $customerEmail = $item->getCustomerEmail();
-        if (empty($customerEmail) || $this->isPlaceholderEmail($customerEmail)) {
+        $customerEmail = (string) $item->getCustomerEmail();
+        if ($this->isPlaceholderEmail($customerEmail)) {
             return false;
         }
 
-        $paidOrders = $this->orderFactory->create()->getCollection()
-            ->addFieldToFilter('customer_email', $customerEmail)
-            ->addFieldToFilter('state', ['in' => ['processing', 'complete']])
-            ->addFieldToFilter('created_at', ['gt' => $item->getCreatedAt()])
-            ->setPageSize(1);
-
-        if ($paidOrders->getSize() > 0) {
+        $paidOrder = $this->followUpOrderFinder->getPaidOrder($customerEmail, $order);
+        if ($paidOrder !== null) {
             $this->logging->addDebug(
                 'SecondChance suppressed — customer already paid (email: ' . $customerEmail .
-                ', order: ' . $item->getOrderId() . ')'
+                ', order: ' . $item->getOrderId() . ', paid order: ' . $paidOrder->getIncrementId() . ')'
             );
             $this->setFinalStatus($item, 'customer_paid');
+            return true;
+        }
+
+        $unpaidOrder = $this->followUpOrderFinder->getOrderAwaitingPayment(
+            $customerEmail,
+            $order,
+            self::FOLLOW_UP_PAYMENT_GRACE_HOURS * 3600
+        );
+        if ($unpaidOrder !== null) {
+            $this->logging->addDebug(
+                'SecondChance postponed — customer is still paying a newer order (email: ' . $customerEmail .
+                ', order: ' . $item->getOrderId() . ', newer order: ' . $unpaidOrder->getIncrementId() . ')'
+            );
             return true;
         }
 

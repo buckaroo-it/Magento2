@@ -258,3 +258,20 @@ namespace Magento\Tax\Model\ResourceModel\Sales\Order\Tax {
         }
     }
 }
+
+namespace Magento\Sales\Model\ResourceModel\Order {
+    if (!class_exists(\Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
