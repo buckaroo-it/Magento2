@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Buckaroo\Magento2\Model\SecondChanceFactory;
+use Buckaroo\Magento2\Model\SecondChance\FollowUpOrderFinder;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance as ResourceSecondChance;
 use Buckaroo\Magento2\Model\ResourceModel\SecondChance\CollectionFactory as SecondChanceCollectionFactory;
 use Buckaroo\Magento2\Api\Data\SecondChanceInterfaceFactory;
@@ -678,6 +679,105 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $method->setAccessible(true);
 
         $this->assertSame($expected, $method->invoke($instance, $item));
+    }
+
+    /**
+     * BTI-1602: a paid follow-up order closes the record, however close its creation time is to the record's.
+     */
+    public function testPaidFollowUpOrderClosesTheRecord(): void
+    {
+        $abandonedOrder = $this->getFakeMock(Order::class, true);
+        $paidOrder = $this->getFakeMock(Order::class, true);
+        $paidOrder->method('getIncrementId')->willReturn('4003683258');
+
+        $finder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $finder->expects($this->once())->method('getPaidOrder')
+            ->with('klant@buckaroo.nl', $abandonedOrder)
+            ->willReturn($paidOrder);
+        $finder->expects($this->never())->method('getOrderAwaitingPayment');
+
+        $item = $this->getSecondChanceRecord();
+        $item->expects($this->once())->method('setStatus')->with('customer_paid');
+
+        $this->assertTrue($this->invokeFollowUpCheck($finder, $item, $abandonedOrder));
+    }
+
+    /**
+     * BTI-1602: with "send after 0 hours" the cron can run while the customer is still paying the order that
+     * replaced the abandoned one. The reminder waits for the next run instead of going out during the payment.
+     */
+    public function testFollowUpOrderStillBeingPaidPostponesTheReminder(): void
+    {
+        $abandonedOrder = $this->getFakeMock(Order::class, true);
+        $unpaidOrder = $this->getFakeMock(Order::class, true);
+        $unpaidOrder->method('getIncrementId')->willReturn('4003683258');
+
+        $finder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $finder->method('getPaidOrder')->willReturn(null);
+        $finder->expects($this->once())->method('getOrderAwaitingPayment')
+            ->with('klant@buckaroo.nl', $abandonedOrder, 3600)
+            ->willReturn($unpaidOrder);
+
+        $item = $this->getSecondChanceRecord();
+        $item->expects($this->never())->method('setStatus');
+
+        $this->assertTrue($this->invokeFollowUpCheck($finder, $item, $abandonedOrder));
+    }
+
+    public function testNoFollowUpOrderLetsTheReminderThrough(): void
+    {
+        $finder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $finder->method('getPaidOrder')->willReturn(null);
+        $finder->method('getOrderAwaitingPayment')->willReturn(null);
+
+        $item = $this->getSecondChanceRecord();
+        $item->expects($this->never())->method('setStatus');
+
+        $this->assertFalse($this->invokeFollowUpCheck($finder, $item, $this->getFakeMock(Order::class, true)));
+    }
+
+    public function testFollowUpCheckDoesNothingWhenThePaidOrderCheckIsDisabled(): void
+    {
+        $finder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $finder->expects($this->never())->method('getPaidOrder');
+        $finder->expects($this->never())->method('getOrderAwaitingPayment');
+
+        $this->assertFalse(
+            $this->invokeFollowUpCheck($finder, $this->getSecondChanceRecord(), $this->getFakeMock(Order::class, true), false)
+        );
+    }
+
+    /**
+     * @param FollowUpOrderFinder|\PHPUnit\Framework\MockObject\MockObject $finder
+     * @param \Buckaroo\Magento2\Model\SecondChance                          $item
+     * @param Order                                                          $abandonedOrder
+     * @param bool                                                           $checkEnabled
+     * @return bool
+     */
+    private function invokeFollowUpCheck($finder, $item, $abandonedOrder, bool $checkEnabled = true): bool
+    {
+        $configProvider = $this->getFakeMock(ConfigProvider::class, true);
+        $configProvider->method('isPaidOrderCheckEnabled')->willReturn($checkEnabled);
+
+        $instance = $this->getInstance([
+            'configProvider'      => $configProvider,
+            'followUpOrderFinder' => $finder,
+            'resource'            => $this->getFakeMock(ResourceSecondChance::class, true),
+        ]);
+
+        return (new \ReflectionMethod($instance, 'hasFollowUpOrder'))->invoke($instance, $item, $abandonedOrder, 1);
+    }
+
+    /**
+     * @return \Buckaroo\Magento2\Model\SecondChance|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getSecondChanceRecord()
+    {
+        $item = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $item->method('getOrderId')->willReturn('4003683235');
+        $item->method('getCustomerEmail')->willReturn('klant@buckaroo.nl');
+
+        return $item;
     }
 
     public function testIsPastPlaceholderEmailGraceHandlesAnUnparsableDate(): void
