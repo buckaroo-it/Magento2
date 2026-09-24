@@ -56,6 +56,8 @@
 
         <include path="Buckaroo_Magento2::system/payment_methods/capayable_in3.xml"/>
 
+        <include path="Buckaroo_Magento2::system/payment_methods/zakelijk_op_rekening.xml"/>
+
         <include path="Buckaroo_Magento2::system/payment_methods/alipay.xml"/>
 
         <include path="Buckaroo_Magento2::system/payment_methods/wechatpay.xml"/>
