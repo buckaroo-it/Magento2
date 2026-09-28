@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin\Sales\Order;
 
 use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Tax\Model\Config as TaxConfig;
 
 /**
  * Keep a credit memo's refundable shipping within what its own invoice charged.
@@ -39,6 +40,19 @@ use Magento\Sales\Model\Order\Creditmemo;
 class ClampCreditmemoShippingToInvoice
 {
     /**
+     * @var TaxConfig
+     */
+    private $taxConfig;
+
+    /**
+     * @param TaxConfig $taxConfig
+     */
+    public function __construct(TaxConfig $taxConfig)
+    {
+        $this->taxConfig = $taxConfig;
+    }
+
+    /**
      * Clamp every shipping field before any total collector reads one.
      *
      * @param Creditmemo $creditmemo
@@ -53,11 +67,15 @@ class ClampCreditmemoShippingToInvoice
             return null;
         }
 
+        $requestIncludesTax = $this->taxConfig->displaySalesShippingInclTax($creditmemo->getOrder()->getStoreId());
+
         // Every field has to be clamped, not just the amount: Total\Discount treats a shipping
         // amount of 0 as "not set" and falls back to base_shipping_incl_tax, which toCreditmemo()
         // seeded from the order, so zeroing one field moves the wrong number one field along.
         $fields = [
-            'BaseShippingAmount'     => (float)$invoice->getBaseShippingAmount(),
+            'BaseShippingAmount'     => (float)($requestIncludesTax
+                ? $invoice->getBaseShippingInclTax()
+                : $invoice->getBaseShippingAmount()),
             'ShippingAmount'         => (float)$invoice->getShippingAmount(),
             'BaseShippingInclTax'    => (float)$invoice->getBaseShippingInclTax(),
             'ShippingInclTax'        => (float)$invoice->getShippingInclTax(),
