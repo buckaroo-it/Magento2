@@ -34,6 +34,16 @@ class CredentialsChecker extends Field
         return parent::render($element);
     }
 
+    /**
+     * ACL-protected admin URL that validates the credentials
+     *
+     * @return string
+     */
+    public function getAjaxUrl()
+    {
+        return $this->getUrl('buckaroo/credentialschecker/index');
+    }
+
     public function getHtml()
     {
         return $this->getLayout()->createBlock(\Magento\Backend\Block\Widget\Button::class)->setData([

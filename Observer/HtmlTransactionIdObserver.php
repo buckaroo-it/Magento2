@@ -21,6 +21,8 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Escaper;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -36,14 +38,22 @@ class HtmlTransactionIdObserver implements ObserverInterface
     private $transactionRepository;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * Example constructor injection if you want your own logger:
      * (If you already have a logger property, just reuse that.)
      * @param TransactionRepositoryInterface $transactionRepository
+     * @param Escaper|null                   $escaper
      */
     public function __construct(
-        TransactionRepositoryInterface $transactionRepository
+        TransactionRepositoryInterface $transactionRepository,
+        ?Escaper $escaper = null
     ) {
         $this->transactionRepository = $transactionRepository;
+        $this->escaper = $escaper ?? ObjectManager::getInstance()->get(Escaper::class);
     }
     /**
      * Update txn_id to a link for the plaza transaction
@@ -74,9 +84,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
                 $transaction->setData(
                     'html_txn_id',
                     sprintf(
-                        '<a href="https://plaza.buckaroo.nl/Transaction/DataRequest/Details/%s" target="_blank">%s</a>',
-                        $txnId,
-                        $transaction->getTxnId()
+                        '<a href="%s" target="_blank">%s</a>',
+                        $this->escaper->escapeUrl(
+                            'https://plaza.buckaroo.nl/Transaction/DataRequest/Details/' . $txnId
+                        ),
+                        $this->escaper->escapeHtml($transaction->getTxnId())
                     )
                 );
                 return;
@@ -84,9 +96,11 @@ class HtmlTransactionIdObserver implements ObserverInterface
             $transaction->setData(
                 'html_txn_id',
                 sprintf(
-                    '<a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=%s" target="_blank">%s</a>',
-                    $txnId,
-                    $transaction->getTxnId()
+                    '<a href="%s" target="_blank">%s</a>',
+                    $this->escaper->escapeUrl(
+                        'https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=' . $txnId
+                    ),
+                    $this->escaper->escapeHtml($transaction->getTxnId())
                 )
             );
         }
