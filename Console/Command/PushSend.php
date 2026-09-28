@@ -63,7 +63,7 @@ class PushSend extends Command
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->appState->setAreaCode('global');
         $this->pushValidator = \Magento\Framework\App\ObjectManager::getInstance()->get(Push::class);
@@ -116,12 +116,14 @@ class PushSend extends Command
                 $responses[] = $this->asyncHttpClient->request($request);
             } catch (\Exception $e) {
                 $output->writeln($e->getMessage());
-                return false;
+                return 1;
             }
         }
 
         foreach ($responses as $response) {
             $output->writeln($response->get()->getBody());
         }
+
+        return 0;
     }
 }

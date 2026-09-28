@@ -114,25 +114,31 @@ class Push implements ValidatorInterface
      * Generate/calculate the signature with the buckaroo config value and check if thats equal to the signature
      * received from the push
      *
-     * @param            $postData
-     * @param mixed      $originalPostData
+     * @param array $originalPostData Raw request data, original key casing preserved
+     * @param array $postData The same data with lower-cased keys
      * @param null|mixed $store
      *
      * @return bool
+     * @throws Exception
      */
     public function validateSignature($originalPostData, $postData, $store = null)
     {
-        if (!isset($postData['brq_signature'])) {
+        if (!is_array($originalPostData) || !is_array($postData)) {
             return false;
         }
 
-        $signature = $this->calculateSignature($originalPostData, $store);
-
-        if ($signature !== $postData['brq_signature']) {
+        // Consumers read keys case-insensitively. Reject ambiguous names before authenticating them.
+        if (count(array_change_key_case($originalPostData, CASE_LOWER)) !== count($originalPostData)) {
+            $this->logging->addDebug(__METHOD__ . '|Rejected: parameter names that differ only in case');
             return false;
         }
 
-        return true;
+        $receivedSignature = $postData['brq_signature'] ?? null;
+        if (!is_string($receivedSignature) || trim($receivedSignature) === '') {
+            return false;
+        }
+
+        return hash_equals($this->calculateSignature($originalPostData, $store), trim($receivedSignature));
     }
 
     /**
@@ -148,12 +154,12 @@ class Push implements ValidatorInterface
     {
         ksort($postData, SORT_FLAG_CASE | SORT_STRING);
 
+        // Sign every brq/add/cust parameter regardless of casing, keeping the original key names.
         $data = array_filter($postData, function ($key) {
-            $acceptable_top_level = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
+            $key = strtolower((string) $key);
 
-            return (
-                $key != 'brq_signature' && $key != 'BRQ_SIGNATURE') &&
-                in_array(explode('_', $key)[0], $acceptable_top_level);
+            return $key !== 'brq_signature'
+                && in_array(explode('_', $key)[0], ['brq', 'add', 'cust'], true);
         }, ARRAY_FILTER_USE_KEY);
 
         $data = array_map(function ($value, $key) {

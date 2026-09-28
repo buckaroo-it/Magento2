@@ -490,6 +490,17 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1_3|');
 
+        // Nothing below may act on an unsigned push: the group transaction branches cancel (and can create)
+        // orders, and the refund branch creates credit memos.
+        if (!$this->validator->validateSignature(
+            $this->originalPostData,
+            $this->postData,
+            $this->getSignatureStore()
+        )) {
+            $this->logging->addDebug('Invalid push signature');
+            throw new Exception(__('Signature from push is incorrect'));
+        }
+
         if ($this->isFailedGroupTransaction()) {
             $this->handleGroupTransactionFailed();
             return true;
@@ -2491,6 +2502,41 @@ class Push implements PushInterface
     {
         $this->logging->addDebug(__METHOD__ . '|1|');
         return $this->isPayPerEmailB2BModePush();
+    }
+
+    /**
+     * Store whose secret signs the push.
+     *
+     * That is the store of the order the push belongs to. A push sent before the order is placed (for example a
+     * giftcard group transaction) belongs to the quote that reserved the order id. Otherwise the current store.
+     * A fresh order instance is used, so the lookup does not leave data on $this->order.
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface|null
+     */
+    private function getSignatureStore()
+    {
+        $orderIncrementId = (string)$this->getOrderIncrementId();
+        if ($orderIncrementId !== '') {
+            $order = $this->objectManager->create(Order::class)->loadByIncrementId($orderIncrementId);
+            if ($order->getId()) {
+                return $order->getStore();
+            }
+        }
+
+        try {
+            return $this->getOrderByTransactionKey()->getStore();
+        } catch (\Throwable $e) {
+            $this->logging->addDebug(__METHOD__ . '|No order by transaction key: ' . $e->getMessage());
+        }
+
+        if ($orderIncrementId !== '') {
+            $quote = $this->getQuoteByReservedOrderId($orderIncrementId);
+            if ($quote && $quote->getId()) {
+                return $quote->getStore();
+            }
+        }
+
+        return null;
     }
 
     private function getOrderIncrementId()
