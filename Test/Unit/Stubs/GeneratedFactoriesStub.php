@@ -275,3 +275,20 @@ namespace Magento\Sales\Model\ResourceModel\Order {
         }
     }
 }
+
+namespace Magento\Sales\Model\ResourceModel\Order\Creditmemo {
+    if (!class_exists(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
