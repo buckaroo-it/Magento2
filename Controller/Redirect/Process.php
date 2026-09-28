@@ -50,6 +50,8 @@ use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Buckaroo\Magento2\Model\Method\AbstractMethod;
 use Buckaroo\Magento2\Model\Service\Order as OrderService;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Validator\Push as PushValidator;
+use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\SalesRule\Model\CouponFactory;
@@ -61,6 +63,13 @@ class Process extends Action
      * @var array
      */
     protected $response;
+
+    /**
+     * Request parameters with their original key casing, used for signature validation
+     *
+     * @var array
+     */
+    protected $originalResponse = [];
 
     /**
      * @var Order $order
@@ -114,6 +123,12 @@ class Process extends Action
      * @var CustomerSession
      */
     public $customerSession;
+
+    /**
+     * Retained for constructor backward-compatibility.
+     *
+     * @var CustomerRepositoryInterface
+     */
     protected $customerRepository;
     protected $_sessionFactory;
 
@@ -133,6 +148,11 @@ class Process extends Action
      * @var LockManagerWrapper
      */
     protected $lockManager;
+
+    /**
+     * @var PushValidator
+     */
+    protected $pushValidator;
 
     /**
      * @param  Context                     $context
@@ -155,6 +175,7 @@ class Process extends Action
      * @param  ManagerInterface            $eventManager
      * @param  Recreate                    $quoteRecreate
      * @param  LockManagerWrapper          $lockManager
+     * @param  PushValidator|null          $pushValidator
      * @throws Exception
      */
     public function __construct(
@@ -177,7 +198,8 @@ class Process extends Action
         OrderService                $orderService,
         ManagerInterface            $eventManager,
         Recreate                    $quoteRecreate,
-        LockManagerWrapper          $lockManager
+        LockManagerWrapper          $lockManager,
+        ?PushValidator              $pushValidator = null
     ) {
         parent::__construct($context);
         $this->helper = $helper;
@@ -202,6 +224,7 @@ class Process extends Action
         $this->eventManager = $eventManager;
         $this->quoteRecreate = $quoteRecreate;
         $this->lockManager = $lockManager;
+        $this->pushValidator = $pushValidator ?? ObjectManager::getInstance()->get(PushValidator::class);
 
         // @codingStandardsIgnoreStart
         if (interface_exists("\Magento\Framework\App\CsrfAwareActionInterface")) {
@@ -226,8 +249,8 @@ class Process extends Action
         try {
             $this->logger->addDebug(__METHOD__ . '|' . var_export($this->getRequest()->getParams(), true));
 
-            $this->response = $this->getRequest()->getParams();
-            $this->response = array_change_key_case($this->response, CASE_LOWER);
+            $this->originalResponse = $this->getRequest()->getParams();
+            $this->response = array_change_key_case($this->originalResponse, CASE_LOWER);
 
             $orderIncrementID = $this->getOrderIncrementId();
             if (empty($orderIncrementID)) {
@@ -267,6 +290,17 @@ class Process extends Action
          * Check if there is a valid response. If not, redirect to home.
          */
         if (count($this->response) === 0 || !array_key_exists('brq_statuscode', $this->response)) {
+            return $this->handleProcessedResponse('/');
+        }
+
+        // Everything below acts on the request data, so it must be signed by Buckaroo.
+        if (!$this->pushValidator->validateSignature(
+            $this->originalResponse,
+            $this->response,
+            $this->getSignatureStore()
+        )) {
+            $this->logger->addError(__METHOD__ . '|Signature validation failed');
+            $this->addErrorMessage(__('Could not process the request.'));
             return $this->handleProcessedResponse('/');
         }
 
@@ -624,6 +658,41 @@ class Process extends Action
      *
      * @return string|null
      */
+    /**
+     * Store whose secret signs the return.
+     *
+     * That is the store of the order the return belongs to, resolved the same way as loadOrder(), or the current
+     * store when there is no order (iDIN) or it cannot be found.
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface|null
+     */
+    private function getSignatureStore()
+    {
+        try {
+            $orderIncrementId = $this->getOrderIncrementId();
+            if ($orderIncrementId) {
+                $order = $this->_objectManager->create(Order::class)->loadByIncrementId($orderIncrementId);
+                if ($order->getId()) {
+                    return $order->getStore();
+                }
+            }
+
+            $trxId = $this->response['brq_datarequest'] ?? ($this->response['brq_transactions'] ?? '');
+            if (!empty($trxId)) {
+                $order = $this->_objectManager->create(Order\Payment\Transaction::class)
+                    ->load($trxId, 'txn_id')
+                    ->getOrder();
+                if ($order && $order->getId()) {
+                    return $order->getStore();
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->logger->addDebug(__METHOD__ . '|' . $e->getMessage());
+        }
+
+        return null;
+    }
+
     protected function getOrderIncrementId(): ?string
     {
         $brqOrderId = null;
@@ -750,8 +819,8 @@ class Process extends Action
                 $this->logger->addDebug('not isLoggedIn');
                 $this->logger->addDebug('getCustomerId > 0');
                 try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
+                    // The customer session is not modified here: logging in from the order data
+                    // would hand the account to whoever presents the return request.
                     if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                         $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
@@ -779,9 +848,7 @@ class Process extends Action
             if ($this->order->getCustomerId() > 0) {
                 $this->logger->addDebug('getCustomerId > 0');
                 try {
-                    $customer = $this->customerRepository->getById($this->order->getCustomerId());
-                    $this->customerSession->setCustomerDataAsLoggedIn($customer);
-
+                    // The customer session is not modified here, see redirectFailure().
                     if (!$this->checkoutSession->getLastRealOrderId() && $this->order->getIncrementId()) {
                         $this->checkoutSession->setLastRealOrderId($this->order->getIncrementId());
                         $this->logger->addDebug(__METHOD__ . '|setLastRealOrderId|');
@@ -830,6 +897,18 @@ class Process extends Action
             && isset($this->response['brq_service_idin_iseighteenorolder'])
             && $this->response['brq_service_idin_iseighteenorolder'] == 'True'
         ) {
+            $requestCustomerId = (int)($this->response['add_idin_cid'] ?? 0);
+            $sessionCustomerId = (int)$this->customerSession->getCustomerId();
+            if ($requestCustomerId > 0 && $requestCustomerId !== $sessionCustomerId) {
+                $this->logger->addError(sprintf(
+                    '%s|iDIN customer id %s does not match session customer %s',
+                    __METHOD__,
+                    $requestCustomerId,
+                    $sessionCustomerId
+                ));
+                return false;
+            }
+
             $this->checkoutSession->setCustomerIDIN($this->response['brq_service_idin_consumerbin']);
             $this->checkoutSession->setCustomerIDINIsEighteenOrOlder(true);
             if (isset($this->response['add_idin_cid']) && !empty($this->response['add_idin_cid'])) {
