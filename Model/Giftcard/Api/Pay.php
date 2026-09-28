@@ -25,6 +25,8 @@ use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
+use Magento\Framework\App\ObjectManager;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
@@ -59,6 +61,11 @@ class Pay implements PayWithGiftcardInterface
     protected $payResponseFactory;
 
     /**
+     * @var ChangeQuoteControlInterface
+     */
+    private $changeQuoteControl;
+
+    /**
      * @var Log
      */
     private $logger;
@@ -70,7 +77,8 @@ class Pay implements PayWithGiftcardInterface
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
         PayResponseSetInterfaceFactory $payResponseFactory,
-        Log $logger
+        Log $logger,
+        ?ChangeQuoteControlInterface $changeQuoteControl = null
     ) {
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
@@ -78,6 +86,8 @@ class Pay implements PayWithGiftcardInterface
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
         $this->logger = $logger;
+        $this->changeQuoteControl = $changeQuoteControl
+            ?? ObjectManager::getInstance()->get(ChangeQuoteControlInterface::class);
     }
     /**
      * @inheritDoc
@@ -152,9 +162,16 @@ class Pay implements PayWithGiftcardInterface
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
-            return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+            $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         } catch (\Throwable $th) {
-            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
+            throw new NoQuoteException((string)__("The cart isn't active."), 0, $th);
         }
+
+        // A masked cart id is not proof of access to a customer's cart.
+        if (!$this->changeQuoteControl->isAllowed($quote)) {
+            throw new NoQuoteException((string)__("The cart isn't active."));
+        }
+
+        return $quote;
     }
 }

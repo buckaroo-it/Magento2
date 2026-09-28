@@ -26,6 +26,8 @@ use Magento\Quote\Model\Quote;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
+use Magento\Framework\App\ObjectManager;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Api\Data\Giftcard\GetTransactionsResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory;
@@ -48,6 +50,11 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
     protected $groupTransaction;
 
     /**
+     * @var ChangeQuoteControlInterface
+     */
+    private $changeQuoteControl;
+
+    /**
      * @var \Buckaroo\Magento2\Api\Data\Giftcard\TransactionResponseInterfaceFactory
      */
     protected $trResponseFactory;
@@ -60,12 +67,15 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
         CartRepositoryInterface $cartRepository,
         PaymentGroupTransaction $groupTransaction,
         TransactionResponseInterfaceFactory $trResponseFactory,
-        ?string $cartId = null
+        ?string $cartId = null,
+        ?ChangeQuoteControlInterface $changeQuoteControl = null
     ) {
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->groupTransaction = $groupTransaction;
         $this->trResponseFactory = $trResponseFactory;
+        $this->changeQuoteControl = $changeQuoteControl
+            ?? ObjectManager::getInstance()->get(ChangeQuoteControlInterface::class);
         $this->quote = $this->getQuote($cartId);
     }
     /**
@@ -132,9 +142,16 @@ class GetTransactionsResponse extends DataObject implements GetTransactionsRespo
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
-            return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+            $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         } catch (\Throwable $th) {
-            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
+            throw new NoQuoteException((string)__("The cart isn't active."), 0, $th);
         }
+
+        // A masked cart id is not proof of access to a customer's cart.
+        if (!$this->changeQuoteControl->isAllowed($quote)) {
+            throw new NoQuoteException((string)__("The cart isn't active."));
+        }
+
+        return $quote;
     }
 }

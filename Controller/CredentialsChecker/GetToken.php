@@ -27,6 +27,8 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\HTTP\Client\Curl;
@@ -40,6 +42,11 @@ class GetToken extends Action
     protected $store;
     protected $curlClient;
 
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
@@ -47,7 +54,8 @@ class GetToken extends Action
         Creditcards $configProviderCreditcard,
         EncryptorInterface $encryptor,
         StoreManagerInterface $storeManager,
-        Curl $curlClient
+        Curl $curlClient,
+        ?CheckoutSession $checkoutSession = null
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->logger = $logger;
@@ -55,6 +63,7 @@ class GetToken extends Action
         $this->encryptor = $encryptor;
         $this->store = $storeManager->getStore();
         $this->curlClient = $curlClient;
+        $this->checkoutSession = $checkoutSession ?? ObjectManager::getInstance()->get(CheckoutSession::class);
         parent::__construct($context);
     }
 
@@ -126,7 +135,8 @@ class GetToken extends Action
 
         // Validate the request origin
         $requestOrigin = $this->getRequest()->getHeader('X-Requested-From');
-        if ($requestOrigin !== 'MagentoFrontend') {
+        // The header alone is trivial to send; only a shopper with an active cart is at the card form.
+        if ($requestOrigin !== 'MagentoFrontend' || !$this->checkoutSession->getQuoteId()) {
             return $result->setHttpResponseCode(403)->setData([
                 'error' => true,
                 'message' => 'Unauthorized request',

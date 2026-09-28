@@ -38,6 +38,11 @@ class QuoteService
 
     private $quoteBuilderInterfaceFactory;
 
+    /**
+     * Retained for constructor backward-compatibility.
+     *
+     * @var MaskedQuoteIdToQuoteIdInterface
+     */
     private $maskedQuoteIdToQuoteId;
 
     private $cartRepository;
@@ -84,11 +89,16 @@ class QuoteService
     }
 
     /**
-     * Retrieve the checkout quote instance.
+     * Retrieve the checkout quote of the current session.
      *
-     * @param  int|string|null       $cartHash
+     * The quote always comes from the checkout session. A cart id supplied by the request is not proof that the
+     * caller owns that cart, so it is ignored.
+     *
+     * @param  int|string|null       $cartHash Ignored, retained for backward compatibility
      * @throws NoSuchEntityException
      * @return Quote
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getQuote($cartHash = null): Quote
     {
@@ -96,36 +106,27 @@ class QuoteService
             return $this->quote;
         }
 
-        if ($cartHash) {
-            try {
-                $cartId = (int)$this->maskedQuoteIdToQuoteId->execute((string)$cartHash);
-                $this->quote = $this->cartRepository->get($cartId);
-            } catch (NoSuchEntityException $exception) {
-                throw new NoSuchEntityException(
-                    __('Could not find a cart with ID "%masked_cart_id"', ['masked_cart_id' => $cartHash])
-                );
-            }
-        } else {
-            try {
-                $this->quote = $this->checkoutSession->getQuote();
-            } catch (\Exception $exception) {
-                throw new NoSuchEntityException(__('Could not get checkout quote instance by current session'));
-            }
+        try {
+            $this->quote = $this->checkoutSession->getQuote();
+        } catch (\Exception $exception) {
+            throw new NoSuchEntityException(__('Could not get checkout quote instance by current session'));
         }
 
         return $this->quote;
     }
 
     /**
-     * Retrieve an empty quote by removing all items.
+     * Retrieve the current session's quote, emptied of its items.
      *
-     * @param  int|string|null       $cartHash
+     * @param  int|string|null       $cartHash Ignored, retained for backward compatibility
      * @throws NoSuchEntityException
      * @return Quote
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getEmptyQuote($cartHash): Quote
+    public function getEmptyQuote($cartHash = null): Quote
     {
-        $this->quote = $this->getQuote($cartHash);
+        $this->quote = $this->getQuote();
         $this->quote->removeAllItems();
         return $this->quote;
     }

@@ -69,8 +69,7 @@ class Add
     {
         try {
             // Get Cart (empty it first)
-            $cartHash = $request['id'] ?? null;
-            $this->quoteService->getEmptyQuote($cartHash);
+            $this->quoteService->getEmptyQuote();
 
             // Add product to cart
             $product = $this->applePayFormatData->getProductObject($request['product']);

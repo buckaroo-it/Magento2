@@ -26,10 +26,14 @@ use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Exception;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
@@ -63,8 +67,26 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
 
     private $storeManager;
     private $urlBuilder;
+
+    /**
+     * Retained for constructor backward-compatibility.
+     */
     private $formKey;
+
+    /**
+     * Retained for constructor backward-compatibility.
+     */
     private $helper;
+
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
+    /**
+     * @var CustomerSession
+     */
+    private $customerSession;
 
     /**
      * @param Context            $context
@@ -76,6 +98,8 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
      * @param UrlInterface                  $urlBuilder
      * @param FormKey             $formKey
      * @param Data                   $helper
+     * @param CheckoutSession|null   $checkoutSession
+     * @param CustomerSession|null   $customerSession
      *
      * @throws \Buckaroo\Magento2\Exception
      */
@@ -88,7 +112,9 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         StoreManagerInterface $storeManager,
         UrlInterface $urlBuilder,
         FormKey $formKey,
-        Data $helper
+        Data $helper,
+        ?CheckoutSession $checkoutSession = null,
+        ?CustomerSession $customerSession = null
     ) {
         parent::__construct($context);
         $this->logger             = $logger;
@@ -99,6 +125,8 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         $this->urlBuilder         = $urlBuilder;
         $this->formKey            = $formKey;
         $this->helper             = $helper;
+        $this->checkoutSession    = $checkoutSession ?? ObjectManager::getInstance()->get(CheckoutSession::class);
+        $this->customerSession    = $customerSession ?? ObjectManager::getInstance()->get(CustomerSession::class);
     }
 
     /**
@@ -114,7 +142,7 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
 
         if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {
             $this->order->loadByIncrementId($params['orderId']);
-            if ($this->order->getId()) {
+            if ($this->order->getId() && $this->isOrderOwnedByCurrentVisitor()) {
                 $store = $this->order->getStore();
                 $url = '';
 
@@ -123,15 +151,7 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
                 }
 
                 if (in_array($this->order->getState(), ['canceled', 'closed'])) {
-                    $returnUrl = $this->urlBuilder->setScope($this->storeManager->getStore()->getStoreId());
-                    $url = $returnUrl->getRouteUrl('buckaroo/redirect/process') . '?form_key=' . $this->formKey->getFormKey();
-                    $extraData = [
-                        'brq_invoicenumber' => $params['orderId'],
-                        'brq_ordernumber' => $params['orderId'],
-                        'brq_statuscode' => $this->helper->getStatusCode('BUCKAROO_MAGENTO2_ORDER_FAILED'),
-                    ];
-
-                    $url = $url . '&'. http_build_query($extraData);
+                    $url = $this->handleFailedOrder($store);
                 }
 
                 $response = ['success' => 'true', 'redirect' => $url];
@@ -144,5 +164,56 @@ class CheckOrderStatus extends \Magento\Framework\App\Action\Action
         $resultJson = $this->resultJsonFactory->create();
 
         return $resultJson->setData($response);
+    }
+
+    /**
+     * Only the visitor who placed the order may poll its status.
+     *
+     * @return bool
+     */
+    private function isOrderOwnedByCurrentVisitor()
+    {
+        $sessionCustomerId = $this->customerSession->getCustomerId();
+
+        if ($sessionCustomerId !== null && $this->order->getCustomerId() !== null) {
+            return (int)$sessionCustomerId === (int)$this->order->getCustomerId();
+        }
+
+        return (string)$this->checkoutSession->getLastRealOrderId() === (string)$this->order->getIncrementId();
+    }
+
+    /**
+     * Give the shopper their cart back and send them to the failure page.
+     *
+     * This used to hop through buckaroo/redirect/process with unsigned brq_* parameters, which that
+     * controller now rejects because it only acts on data signed by Buckaroo.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface $store
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function handleFailedOrder($store)
+    {
+        if ((string)$this->checkoutSession->getLastRealOrderId() === (string)$this->order->getIncrementId()) {
+            try {
+                $this->checkoutSession->restoreQuote();
+            } catch (\Throwable $e) {
+                $this->logger->addError(__METHOD__ . '|Could not restore the quote: ' . $e->getMessage());
+            }
+        }
+
+        $this->messageManager->addErrorMessage(
+            // phpcs:ignore Generic.Files.LineLength.TooLong
+            __('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')
+        );
+
+        $urlBuilder = $this->urlBuilder->setScope($this->storeManager->getStore()->getStoreId());
+
+        if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
+            return $urlBuilder->getUrl('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+        }
+
+        return $urlBuilder->getUrl($this->accountConfig->getFailureRedirect($store));
     }
 }
