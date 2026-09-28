@@ -19,7 +19,7 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\Magento2\Controller\CredentialsChecker;
+namespace Buckaroo\Magento2\Controller\Adminhtml\CredentialsChecker;
 
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\GatewayInterface;
@@ -30,14 +30,26 @@ use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ValidatorFactory;
-use Magento\Framework\App\Action\Context;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\UrlInterface;
 
-class Index extends \Magento\Framework\App\Action\Action
+/**
+ * Validates the configured Buckaroo credentials from the admin configuration screen.
+ *
+ * This action relays the stored merchant credentials to Buckaroo, so it must never be reachable from the storefront.
+ * It lives in the adminhtml area behind the Buckaroo configuration ACL resource.
+ */
+class Index extends \Magento\Backend\App\Action implements HttpPostActionInterface
 {
+    /**
+     * ACL resource required to validate credentials
+     */
+    public const ADMIN_RESOURCE = 'Sales_Buckaroo::configuration';
+
     /**
      * @var array
      */

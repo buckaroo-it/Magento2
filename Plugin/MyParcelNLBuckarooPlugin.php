@@ -64,7 +64,10 @@ class MyParcelNLBuckarooPlugin
         if ($result = file_get_contents('php://input')) {
             if ($jsonDecoded = $this->json->unserialize($result)) {
 
-                $this->logger->addDebug(__METHOD__ . '|2|' . var_export($jsonDecoded, true));
+                // Field names only: the delivery options carry the customer's pickup address.
+                $this->logger->addDebug(
+                    __METHOD__ . '|2|' . var_export(is_array($jsonDecoded) ? array_keys($jsonDecoded) : [], true)
+                );
 
                 if (!empty($jsonDecoded['deliveryOptions']) &&
                     !empty($jsonDecoded['deliveryOptions'][0]['deliveryType']) &&
