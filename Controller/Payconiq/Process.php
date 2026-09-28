@@ -25,6 +25,8 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -50,6 +52,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      */
     protected $lockManager;
 
+    /**
+     * @var FormKeyValidator
+     */
+    private $formKeyValidator;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Buckaroo\Magento2\Helper\Data $helper,
@@ -72,7 +79,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         TransactionRepositoryInterface $transactionRepository,
         \Magento\Framework\Event\ManagerInterface $eventManager,
         \Buckaroo\Magento2\Service\Sales\Quote\Recreate $quoteRecreate,
-        LockManagerWrapper $lockManagerWrapper
+        LockManagerWrapper $lockManagerWrapper,
+        ?FormKeyValidator $formKeyValidator = null
     ) {
         parent::__construct(
             $context,
@@ -99,9 +107,16 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
 
         $this->searchCriteriaBuilder  = $searchCriteriaBuilder;
         $this->transactionRepository  = $transactionRepository;
+        $this->formKeyValidator       = $formKeyValidator ?? ObjectManager::getInstance()->get(FormKeyValidator::class);
     }
 
     /**
+     * Cancel the payment from the storefront Payconiq / Bancontact QR page
+     *
+     * Only the cancel button and the browser back button on that page call this action. It therefore requires the
+     * session's form key and only cancels the order that the current session placed. A transaction key alone is
+     * not proof of ownership. The form key is accepted on GET as well, because the back button navigates here.
+     *
      * @throws LocalizedException
      * @throws Exception
      * @return ResponseInterface|ResultInterface
@@ -113,8 +128,25 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             return;
         }
 
+        if (!$this->formKeyValidator->validate($this->getRequest())) {
+            $this->logger->addError(__METHOD__ . '|Rejected cancel request: invalid form key');
+            $this->_forward('defaultNoRoute');
+            return;
+        }
+
         $transaction = $this->getTransaction();
         $this->order = $transaction->getOrder();
+
+        if (!$this->isOrderOwnedByCurrentSession()) {
+            $this->logger->addError(sprintf(
+                '%s|Rejected cancel request: order %s was not placed by this session',
+                __METHOD__,
+                $this->order->getIncrementId()
+            ));
+            $this->addErrorMessage(__('Could not process the request.'));
+            return $this->handleProcessedResponse('checkout', ['_fragment' => 'payment', '_query' => ['bk_e' => 1]]);
+        }
+
         $this->quote->load($this->order->getQuoteId());
 
         // @codingStandardsIgnoreStart
@@ -127,6 +159,25 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         // @codingStandardsIgnoreEnd
 
         return $this->_response;
+    }
+
+    /**
+     * The order must be the one this session placed, and belong to the logged in customer (if any).
+     *
+     * A guest order has no customer id, so comparing customer ids alone would let any anonymous session cancel
+     * any guest order.
+     *
+     * @return bool
+     */
+    private function isOrderOwnedByCurrentSession()
+    {
+        if ((int)$this->customerSession->getCustomerId() !== (int)$this->order->getCustomerId()) {
+            return false;
+        }
+
+        $lastRealOrderId = $this->checkoutSession->getLastRealOrderId();
+
+        return !empty($lastRealOrderId) && (string)$lastRealOrderId === (string)$this->order->getIncrementId();
     }
 
     /**

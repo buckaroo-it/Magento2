@@ -82,7 +82,9 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
     {
         $this->logger->addDebug(__METHOD__.'|1|'.var_export($this->getRequest()->getParams(), true));
 
-        if (($params = $this->getRequest()->getParams()) && !empty($params['id'])) {
+        if (($params = $this->getRequest()->getParams()) && !empty($params['id'])
+            && $this->isValidTerminalId($params['id'])
+        ) {
             $metadata = $this->cookieMetadataFactory
                 ->createPublicCookieMetadata()
                 ->setPath('/')
@@ -97,5 +99,17 @@ class SetTerminal extends \Magento\Framework\App\Action\Action
 
         $redirectUrl = $this->storemanager->getStore()->getBaseUrl();
         $this->_redirect($redirectUrl);
+    }
+
+    /**
+     * Is the supplied value shaped like a POS terminal identifier
+     *
+     * @param mixed $terminalId
+     *
+     * @return bool
+     */
+    private function isValidTerminalId($terminalId)
+    {
+        return is_string($terminalId) && preg_match('/^[A-Za-z0-9_-]{1,64}$/', $terminalId) === 1;
     }
 }
