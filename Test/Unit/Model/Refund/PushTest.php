@@ -93,7 +93,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $configRefundMock->expects($this->once())->method('getAllowPush')->willReturn(true);
 
         $orderMock = $this->getFakeMock(Order::class)->setMethods(['canCreditmemo'])->getMock();
-        $orderMock->expects($this->exactly(2))->method('canCreditmemo')->willReturn(false);
+        $orderMock->expects($this->once())->method('canCreditmemo')->willReturn(false);
 
         $instance = $this->getInstance(['configRefund' => $configRefundMock]);
 

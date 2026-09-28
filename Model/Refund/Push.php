@@ -130,7 +130,8 @@ class Push
             );
         }
 
-        if (!$signatureValidation && !$this->order->canCreditmemo()) {
+        // An unsigned push must never create a credit memo, whether or not the order can take one.
+        if (!$signatureValidation) {
             $debugMessage = 'Validation incorrect: ' . PHP_EOL;
             //phpcs:ignore:Magento2.Functions.DiscouragedFunction
             $debugMessage .= print_r(
