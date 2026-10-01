@@ -40,7 +40,6 @@ var config = {
             "buckaroo/googlepay/handlers/order-handler": "Buckaroo_Magento2/js/view/checkout/googlepay/handlers/order-handler",
             "buckaroo/mrcash/pay": "Buckaroo_Magento2/js/view/checkout/mrcash/pay",
             "BuckarooClientSideEncryption": "//static.buckaroo.nl/script/ClientSideEncryption001.js",
-            "BuckarooHostedFieldsSdkAlpha": "//hostedfields-externalapi.alpha.buckaroo.aws/v1/sdk",
             "BuckarooHostedFieldsSdk": "//hostedfields-externalapi.prod-pci.buckaroo.io/v1/sdk",
             "buckaroo/checkout/common": "Buckaroo_Magento2/js/view/checkout/common",
             "buckaroo/checkout/datepicker": "Buckaroo_Magento2/js/view/checkout/datepicker",
