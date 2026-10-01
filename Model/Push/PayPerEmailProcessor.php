@@ -635,13 +635,12 @@ class PayPerEmailProcessor extends DefaultProcessor
     protected function invoiceShouldBeSaved(array &$paymentDetails): bool
     {
         if (!$this->isPayPerEmailB2BModePushInitial && $this->isPayPerEmailB2BModePush()) {
-            //Fix for suspected fraud when the order currency does not match with the payment's currency
-            $amount = $this->payment->isSameCurrency() && $this->payment->isCaptureFinal($this->order->getGrandTotal())
-                ? $this->order->getGrandTotal()
-                : $this->order->getBaseTotalDue();
-            $this->payment->registerCaptureNotification($amount);
-            $this->order->setState('complete');
-            $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
+            $this->payment->registerCaptureNotification($this->resolveCaptureNotificationAmount());
+            // A payment that does not settle the order is held for review by the default processor
+            if (!$this->payment->getIsFraudDetected()) {
+                $this->order->setState('complete');
+                $this->order->addCommentToStatusHistory($paymentDetails['description'], 'complete');
+            }
 
             if ($transactionKey = $this->getTransactionKey()) {
                 foreach ($this->order->getInvoiceCollection() as $invoice) {

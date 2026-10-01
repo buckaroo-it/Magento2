@@ -257,6 +257,141 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * Buckaroo charges, and reports, the order currency, while Magento registers a capture in the
+     * base currency. A payment that covers the amount due in the order currency must therefore
+     * settle the base amount due, a partial one must be converted, and an amount in a currency that
+     * was never charged must not count towards the order at all.
+     *
+     * @param float  $pushedAmount
+     * @param string $pushedCurrency
+     * @param string $orderCurrency
+     * @param float  $expected
+     */
+    #[DataProvider('captureNotificationCurrencyProvider')]
+    public function testCaptureNotificationAmountIsExpressedInTheBaseCurrency(
+        float $pushedAmount,
+        string $pushedCurrency,
+        string $orderCurrency,
+        float $expected
+    ): void {
+        $multiCurrency = $orderCurrency !== 'EUR';
+
+        $this->helperMock->method('areEqualAmounts')
+            ->willReturnCallback(function ($first, $second) {
+                return abs((float)$first - (float)$second) < 0.00001;
+            });
+
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAmount')->willReturn($pushedAmount);
+        $pushRequestMock->method('getCurrency')->willReturn($pushedCurrency);
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('isSameCurrency')->willReturn(true);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getBaseCurrencyCode')->willReturn('EUR');
+        $orderMock->method('getOrderCurrencyCode')->willReturn($orderCurrency);
+        $orderMock->method('getBaseToOrderRate')->willReturn($multiCurrency ? 1.1 : 1.0);
+        $orderMock->method('getTotalDue')->willReturn($multiCurrency ? 110.00 : 100.00);
+        $orderMock->method('getBaseTotalDue')->willReturn(100.00);
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $this->assertEqualsWithDelta(
+            $expected,
+            $this->invokeArgs('resolveCaptureNotificationAmount', [], $instance),
+            0.00001
+        );
+    }
+
+    public static function captureNotificationCurrencyProvider(): array
+    {
+        return [
+            'single currency amount is used as is'                 => [100.00, 'EUR', 'EUR', 100.00],
+            'single currency partial amount is used as is'         => [50.00, 'EUR', 'EUR', 50.00],
+            'full payment in the order currency settles base due'  => [110.00, 'USD', 'USD', 100.00],
+            'partial payment in the order currency is converted'   => [55.00, 'USD', 'USD', 50.00],
+            'amount reported in the base currency is used as is'   => [100.00, 'EUR', 'USD', 100.00],
+            'lower case currency code is the same currency'        => [110.00, 'usd', 'USD', 100.00],
+            'amount in a currency that was not charged is ignored' => [110.00, 'GBP', 'USD', 0.00],
+            'single currency order paid in another currency'       => [100.00, 'USD', 'EUR', 0.00],
+        ];
+    }
+
+    /**
+     * Magento creates no invoice for a success push that does not settle the order and flags the
+     * payment as suspected fraud instead. The order must then stay in payment review rather than
+     * read as paid, while a push that settles the order still moves it to processing.
+     *
+     * @param bool   $isFraudDetected
+     * @param string $expectedState
+     * @param string $expectedStatus
+     */
+    #[DataProvider('succeededPushSettlementProvider')]
+    public function testSucceededPushOnlyMovesTheOrderToProcessingWhenItSettlesTheOrder(
+        bool $isFraudDetected,
+        string $expectedState,
+        string $expectedStatus
+    ): void {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods([
+                'setBuckarooReservationNumber',
+                'getPaymentDetails',
+                'setSpecificPaymentDetails',
+                'isCaptureTransaction',
+                'canPushInvoice',
+                'saveInvoice',
+                'processSucceededPushAuthorization',
+                'formatCommentAmount',
+            ])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('getPaymentDetails')->willReturn(['amount' => 53.24, 'description' => 'paid in full']);
+        $instance->method('isCaptureTransaction')->willReturn(false);
+        $instance->method('canPushInvoice')->willReturn(true);
+        $instance->method('formatCommentAmount')->willReturn('EUR 26.62');
+        $instance->expects($this->once())->method('saveInvoice')->willReturn(true);
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAmount')->willReturn(26.62);
+        $pushRequestMock->method('getCurrency')->willReturn('EUR');
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getIsFraudDetected')->willReturn($isFraudDetected);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getIncrementId')->willReturn('300000015');
+
+        $this->orderRequestServiceMock->expects($this->once())
+            ->method('updateOrderStatus')
+            ->with($expectedState, $expectedStatus, $this->anything());
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+        $this->setProperty('orderRequestService', $this->orderRequestServiceMock, $instance);
+        $this->setProperty('logger', $this->loggerMock, $instance);
+
+        $this->assertTrue($this->invokeArgs('applySucceededPush', ['processing', 'Success'], $instance));
+        $this->assertTrue($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
+
+    public static function succeededPushSettlementProvider(): array
+    {
+        return [
+            'underpaid push is held in payment review' => [true, Order::STATE_PAYMENT_REVIEW, Order::STATUS_FRAUD],
+            'settling push moves the order on'         => [false, Order::STATE_PROCESSING, 'processing'],
+        ];
+    }
+
+    /**
      * Recording the push message must not move the order. An intermediate save later in the push
      * would commit that state, so the order would sit in processing before the push has decided
      * anything, long enough for a warehouse integration to pick it up.
