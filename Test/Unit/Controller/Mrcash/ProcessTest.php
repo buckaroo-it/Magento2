@@ -87,7 +87,7 @@ class ProcessTest extends TestCase
         $contextMock->method('getMessageManager')->willReturn($this->createMock(MessageManagerInterface::class));
 
         $requestPushFactoryMock = $this->createMock(RequestPushFactory::class);
-        $requestPushFactoryMock->method('create')->willReturn($this->createMock(PushRequestInterface::class));
+        $requestPushFactoryMock->method('createFromFormPost')->willReturn($this->createMock(PushRequestInterface::class));
 
         $this->controller = new Process(
             $contextMock,
