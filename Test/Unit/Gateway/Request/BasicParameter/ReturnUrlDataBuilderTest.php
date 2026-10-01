@@ -60,6 +60,7 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
+     * The return URL carries no form key; the return route does not use one.
      */
     public function testBuild(): void
     {
@@ -95,10 +96,10 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
 
         $this->assertEquals(
             [
-                'returnURL'       => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLError'  => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLCancel' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
-                'returnURLReject' => 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey,
+                'returnURL'       => 'http://example.com/buckaroo/redirect/process',
+                'returnURLError'  => 'http://example.com/buckaroo/redirect/process',
+                'returnURLCancel' => 'http://example.com/buckaroo/redirect/process',
+                'returnURLReject' => 'http://example.com/buckaroo/redirect/process',
                 'pushURL'         => $pushUrl,
                 'pushURLFailure'  => $pushUrl
             ],

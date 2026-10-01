@@ -205,6 +205,9 @@ class Giftcard implements GiftcardInterface
         if ($this->quote === null) {
             throw new GiftcardException("Quote is required");
         }
+        if (!$this->isAllowedGiftcard($this->cardId)) {
+            throw new GiftcardException("Giftcard is not allowed");
+        }
 
         $transferO = $this->transferFactory->create(
             $this->getBody()
@@ -218,6 +221,24 @@ class Giftcard implements GiftcardInterface
         } catch (ConverterException $e) {
             throw new GiftcardException($e->getMessage());
         }
+    }
+
+    /**
+     * Whether the merchant allows this giftcard in the quote's store
+     *
+     * @param string $cardId
+     *
+     * @return bool
+     */
+    private function isAllowedGiftcard(string $cardId): bool
+    {
+        $allowed = (string)$this->scopeConfig->getValue(
+            'payment/buckaroo_magento2_giftcards/allowed_giftcards',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->quote->getStoreId()
+        );
+
+        return in_array($cardId, array_map('trim', explode(',', $allowed)), true);
     }
 
     /**

@@ -101,10 +101,11 @@ class ReturnUrlDataBuilder implements BuilderInterface
         }
 
         if ($this->returnUrl === null) {
+            // The return route does not use a form key
             $url = $this->urlBuilder->getDirectUrl(
                 'buckaroo/redirect/process',
                 ['_scope' => $order->getStoreId()]
-            ) . '?form_key=' . $this->getFormKey();
+            );
 
             $this->setReturnUrl($url);
         }

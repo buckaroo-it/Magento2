@@ -37,7 +37,7 @@ class AccountTest extends BaseTest
     public function testGetConfig()
     {
         $expectedKeys = [
-            'active', 'secret_key', 'merchant_key', 'transaction_label',
+            'active', 'transaction_label',
             'order_confirmation_email', 'order_confirmation_email_sync', 'invoice_email', 'success_redirect', 'failure_redirect', 'failure_redirect_to_checkout', 'cancel_on_failed', 'cancel_on_browser_back',
             'debug_types', 'log_handler', 'log_retention', 'payment_fee_label', 'order_status_new',
             'order_status_pending', 'order_status_success', 'order_status_failed', 'create_order_before_transaction',
@@ -52,6 +52,17 @@ class AccountTest extends BaseTest
 
         $resultKeys = array_keys($result);
         $this->assertEmpty(array_merge(array_diff($expectedKeys, $resultKeys), array_diff($resultKeys, $expectedKeys)));
+    }
+
+    /**
+     * Credentials are read server-side only, never through this config.
+     */
+    public function testGetConfigCarriesNoAccountKeys()
+    {
+        $result = $this->getInstance()->getConfig();
+
+        $this->assertArrayNotHasKey('secret_key', $result);
+        $this->assertArrayNotHasKey('merchant_key', $result);
     }
     public function testParsedLabelAll()
     {

@@ -20,7 +20,6 @@
 
 namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
-use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Cart;
@@ -151,17 +150,5 @@ class Idin extends Template
         }
 
         return $result;
-    }
-
-    /**
-     * Get idin account config
-     *
-     * @throws Exception
-     *
-     * @return false|string
-     */
-    public function getAccountConfig()
-    {
-        return json_encode($this->idinConfigProvider->getConfig());
     }
 }

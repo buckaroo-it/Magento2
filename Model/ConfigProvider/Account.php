@@ -101,8 +101,6 @@ class Account extends AbstractConfigProvider
     {
         return [
             'active'                            => $this->getActive($store),
-            'secret_key'                        => $this->getSecretKey($store),
-            'merchant_key'                      => $this->getMerchantKey($store),
             'transaction_label'                 => $this->getTransactionLabel($store),
             'order_confirmation_email'          => $this->getOrderConfirmationEmail($store),
             'order_confirmation_email_sync'     => $this->getOrderConfirmationEmailSync($store),

@@ -3727,8 +3727,18 @@
             <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
             <argument name="infoBlockType" xsi:type="string">Buckaroo\Magento2\Block\Info\Creditcard</argument>
             <argument name="valueHandlerPool" xsi:type="object">CreditcardValueHandlerPool</argument>
-            <argument name="validatorPool" xsi:type="object">BuckarooValidatorPool</argument>
+            <argument name="validatorPool" xsi:type="object">CreditcardValidatorPool</argument>
             <argument name="commandPool" xsi:type="object">CreditcardGatewayCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CreditcardValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
+                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\AllowedCreditcardTypeValidator</item>
+            </argument>
         </arguments>
     </virtualType>
 
