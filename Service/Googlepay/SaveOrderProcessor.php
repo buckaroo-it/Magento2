@@ -182,6 +182,9 @@ class SaveOrderProcessor
      */
     private function setQuoteShippingMethod(Quote $quote, array $payload)
     {
+        // Collect the rates for the address the order is placed with, as Apple Pay does
+        $quote->getShippingAddress()->setCollectShippingRates(true)->collectShippingRates();
+
         if (!empty($payload['extra']['shippingMethod']['identifier'])) {
             $quote->getShippingAddress()
                 ->setShippingMethod($payload['extra']['shippingMethod']['identifier']);
@@ -201,7 +204,6 @@ class SaveOrderProcessor
     {
         $this->logger->addDebug('[GooglePay SaveOrderProcessor] No shipping method in payload, auto-selecting...');
         $shippingAddress = $quote->getShippingAddress();
-        $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
         $shippingRates = $shippingAddress->getAllShippingRates();
 
         if (!empty($shippingRates)) {
