@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
@@ -41,7 +42,8 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             'identifier' => $articleId,
             'description' => $articleDescription,
             'quantity' => $articleQuantity,
-            'price' => floor($articleUnitPrice * 100) / 100
+            // round first: 19.99 * 100 is 1998.9999... in floating point and would floor to 19.98
+            'price' => floor(round($articleUnitPrice * 100, 4)) / 100
         ];
     }
 
@@ -87,6 +89,52 @@ class CapayableIn3Handler extends AbstractArticlesHandler
 
         $articles = $this->absorbRoundingResidual($articles, (float)$order->getGrandTotal());
 
+        return $this->reconcileWithGrandTotal($articles, (float)$order->getGrandTotal());
+    }
+
+    /**
+     * In3 is charged the sum of the article lines, so that sum has to equal the order total.
+     *
+     * Unit prices are rounded down, so the lines can fall short; the shortfall is carried on an
+     * adjustment line, because In3 accepts no negative prices. Lines that cannot be made to add up
+     * to the total, or more lines than one request may carry, refuse the payment.
+     *
+     * @param array $articles
+     * @param float $grandTotal
+     *
+     * @throws BuckarooException
+     *
+     * @return array
+     */
+    private function reconcileWithGrandTotal(array $articles, float $grandTotal): array
+    {
+        $residual = round($grandTotal - $this->sumArticleLines($articles), 2);
+
+        if ($residual > 0.01 && count($articles['articles']) < self::MAX_ARTICLE_COUNT) {
+            $articles['articles'][] = $this->getArticleArrayLine(
+                (string)$this->getAdjustmentLabel(),
+                self::ADJUSTMENT_IDENTIFIER,
+                1,
+                $residual
+            );
+            $residual = round($grandTotal - $this->sumArticleLines($articles), 2);
+        }
+
+        if (abs($residual) > 0.01 || count($articles['articles']) > self::MAX_ARTICLE_COUNT) {
+            $this->buckarooLog->addError(sprintf(
+                '[%s] In3 article lines cannot represent order %s: %d lines, %.2f off the total of %.2f',
+                __METHOD__,
+                $this->getOrder()->getIncrementId(),
+                count($articles['articles']),
+                $residual,
+                $grandTotal
+            ));
+
+            throw new BuckarooException(
+                __('This order cannot be paid with In3. Please choose another payment method.')
+            );
+        }
+
         return $articles;
     }
 
@@ -99,7 +147,6 @@ class CapayableIn3Handler extends AbstractArticlesHandler
     protected function getItemsLinesWithDiscount(): array
     {
         $articles = [];
-        $count = 1;
         $bundleProductQty = 0;
 
         $quote = $this->getQuote();
@@ -135,12 +182,6 @@ class CapayableIn3Handler extends AbstractArticlesHandler
             );
 
             $articles[] = $article;
-
-            if ($count >= self::MAX_ARTICLE_COUNT) {
-                break;
-            }
-
-            $count++;
         }
 
         return $articles;
