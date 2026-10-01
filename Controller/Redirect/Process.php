@@ -235,7 +235,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->lockManager = $lockManager;
         $this->spamLimitService = $spamLimitService;
 
-        $this->redirectRequest = $requestPushFactory->create();
+        $this->redirectRequest = $requestPushFactory->createFromFormPost();
     }
 
     /**

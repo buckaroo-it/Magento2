@@ -208,6 +208,23 @@ namespace Magento\Customer\Model {
     }
 }
 
+namespace Magento\Customer\Model\ResourceModel {
+    if (!class_exists(\Magento\Customer\Model\ResourceModel\CustomerFactory::class)) {
+        class CustomerFactory
+        {
+            /**
+             * @param array $data
+             * @return Customer|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
 namespace Magento\Framework\DB {
     if (!class_exists(\Magento\Framework\DB\TransactionFactory::class)) {
         class TransactionFactory
