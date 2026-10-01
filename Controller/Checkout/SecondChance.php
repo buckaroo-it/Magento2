@@ -29,9 +29,15 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class SecondChance extends Action
 {
+    /**
+     * Format of the tokens generated for Second Chance links
+     */
+    private const TOKEN_PATTERN = '/\A[A-Za-z0-9]{32}\z/';
+
     /**
      * @var Log
      */
@@ -91,6 +97,9 @@ class SecondChance extends Action
         }
 
         try {
+            if (!$this->isWellFormedToken($token)) {
+                throw new NoSuchEntityException(__('Invalid token.'));
+            }
             $this->secondChanceRepository->getSecondChanceByToken($token);
         } catch (Exception $e) {
             $this->logger->addWarning('SecondChance: invalid or expired token');
@@ -130,6 +139,17 @@ class SecondChance extends Action
         );
 
         return $this->handleRedirect('checkout', ['_query' => $utmParams, '_fragment' => 'payment']);
+    }
+
+    /**
+     * Accept only a single string in the generated token format
+     *
+     * @param mixed $token
+     * @return bool
+     */
+    private function isWellFormedToken($token): bool
+    {
+        return is_string($token) && preg_match(self::TOKEN_PATTERN, $token) === 1;
     }
 
     /**

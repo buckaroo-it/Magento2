@@ -579,8 +579,17 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $secondChance->method('getId')->willReturn(null);
 
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->never())->method('save');
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+        $this->checkoutSession->expects($this->never())->method('replaceQuote');
+        $this->checkoutSession->expects($this->never())->method('clearQuote');
+
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'checkoutSession' => $this->checkoutSession,
         ]);
 
         $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
