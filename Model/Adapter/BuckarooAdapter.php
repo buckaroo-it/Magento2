@@ -465,16 +465,19 @@ class BuckarooAdapter
     /**
      * Validate request
      *
-     * @param mixed $postData
-     * @param mixed $authHeader
-     * @param mixed $uri
+     * @param mixed    $postData
+     * @param mixed    $authHeader
+     * @param mixed    $uri
+     * @param int|null $storeId    Order store id for per-store secret resolution; null = current store
      *
      * @throws Exception
+     *
+     * @return bool
      */
-    public function validate($postData, $authHeader, $uri): bool
+    public function validate($postData, $authHeader = null, $uri = null, ?int $storeId = null): bool
     {
         try {
-            $this->setClientSdk();
+            $this->setClientSdk('', $storeId);
             $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
             $replyHandler->validate();
             return $replyHandler->isValid();
