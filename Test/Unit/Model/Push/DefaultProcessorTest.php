@@ -6,7 +6,10 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
+use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Invoice;
 
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -553,5 +556,198 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->setProperty('pushRequest', $pushRequestMock, $instance);
 
         $this->assertSame($expected, $this->invokeArgs('isPartialPaymentPush', [], $instance));
+    }
+
+    /**
+     * The invoice a capture creates only gets its number when it is saved. Magento has already
+     * linked it to the capture transaction by then, so the invoice email must not depend on the
+     * transaction id being empty, or it goes out without an invoice number.
+     */
+    public function testNewInvoiceIsSavedBeforeItsEmailIsSent(): void
+    {
+        $saved = [];
+        $savedBeforeEmail = null;
+
+        $invoiceMock = $this->getInvoiceMock(null, 'TRX-PUSH');
+
+        $this->configAccountMock->method('getInvoiceEmail')->willReturn(true);
+        $this->orderRequestServiceMock->method('sendInvoiceEmail')
+            ->willReturnCallback(function ($invoice) use (&$saved, &$savedBeforeEmail) {
+                $savedBeforeEmail = in_array($invoice, $saved, true);
+                return true;
+            });
+
+        $instance = $this->getSaveInvoiceInstance([$invoiceMock], $this->getInvoiceRepositoryMock($saved));
+
+        $this->assertTrue($this->invokeArgs('saveInvoice', [], $instance));
+        $this->assertTrue($savedBeforeEmail, 'The invoice must be saved before its email is built');
+    }
+
+    /**
+     * The order save writes the invoice again. Core observers recognise a new invoice by its empty
+     * original data (MSI stock deduction for virtual items, Commerce store credit, gift card and
+     * reward amounts), so after the early save the invoice must record that it exists, or the
+     * order save makes them process it a second time.
+     */
+    public function testSavedInvoiceNoLongerLooksNewToTheOrderSave(): void
+    {
+        $saved = [];
+
+        $invoiceMock = $this->getInvoiceMock(null, 'TRX-PUSH');
+        $invoiceMock->setData('base_customer_balance_amount', 30.00);
+
+        $this->configAccountMock->method('getInvoiceEmail')->willReturn(true);
+
+        $instance = $this->getSaveInvoiceInstance([$invoiceMock], $this->getInvoiceRepositoryMock($saved));
+
+        $this->assertNull($invoiceMock->getOrigData(), 'An unsaved invoice has no original data');
+
+        $this->assertTrue($this->invokeArgs('saveInvoice', [], $instance));
+        $this->assertSame(501, $invoiceMock->getOrigData('entity_id'));
+        $this->assertSame(30.00, $invoiceMock->getOrigData('base_customer_balance_amount'));
+    }
+
+    /**
+     * An invoice keeps the transaction it was created for, so a later capture cannot point the
+     * refund of an earlier invoice at the wrong transaction, and one without a transaction is
+     * stamped with the pushed one. Otherwise a new invoice is only saved early when its email goes
+     * out: without an email the order save stores it once, as before.
+     *
+     * @param int|null $invoiceId
+     * @param string   $transactionId
+     * @param bool     $invoiceEmail
+     * @param bool     $expectStamp
+     * @param int      $expectedSaves
+     */
+    #[DataProvider('invoiceSaveProvider')]
+    public function testInvoiceIsOnlySavedToStampItsTransactionOrToNumberItsEmail(
+        ?int $invoiceId,
+        string $transactionId,
+        bool $invoiceEmail,
+        bool $expectStamp,
+        int $expectedSaves
+    ): void {
+        $saved = [];
+
+        $invoiceMock = $this->getInvoiceMock($invoiceId, $transactionId);
+        $invoiceMock->expects($expectStamp ? $this->once() : $this->never())
+            ->method('setTransactionId')
+            ->with('TRX-PUSH');
+
+        $this->configAccountMock->method('getInvoiceEmail')->willReturn($invoiceEmail);
+
+        $instance = $this->getSaveInvoiceInstance([$invoiceMock], $this->getInvoiceRepositoryMock($saved));
+
+        $this->assertTrue($this->invokeArgs('saveInvoice', [], $instance));
+        $this->assertCount($expectedSaves, $saved);
+    }
+
+    public static function invoiceSaveProvider(): array
+    {
+        return [
+            'new invoice linked to the capture, email on'      => [null, 'TRX-PUSH', true, false, 1],
+            'new invoice linked to the capture, email off'     => [null, 'TRX-PUSH', false, false, 0],
+            'new invoice without a transaction, email on'      => [null, '', true, true, 1],
+            'earlier invoice keeps its own transaction'        => [12, 'TRX-EARLIER', true, false, 0],
+            'earlier invoice without a transaction is stamped' => [12, '', false, true, 1],
+        ];
+    }
+
+    /**
+     * @param int|null $id
+     * @param string   $transactionId
+     *
+     * @return Invoice|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getInvoiceMock(?int $id, string $transactionId)
+    {
+        $invoiceMock = $this->getFakeMock(Invoice::class)
+            ->onlyMethods(['getId', 'getTransactionId', 'setTransactionId', 'getEmailSent'])
+            ->getMock();
+        $invoiceMock->setData('entity_id', $id);
+        $invoiceMock->method('getId')->willReturnCallback(function () use ($invoiceMock) {
+            return $invoiceMock->getData('entity_id');
+        });
+        $invoiceMock->method('getTransactionId')->willReturn($transactionId);
+        $invoiceMock->method('getEmailSent')->willReturn(false);
+
+        return $invoiceMock;
+    }
+
+    /**
+     * An invoice repository that records what it saved and, like the INSERT, gives a new invoice its id.
+     *
+     * @param array $saved
+     *
+     * @return InvoiceRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getInvoiceRepositoryMock(array &$saved)
+    {
+        $invoiceRepositoryMock = $this->getFakeMock(InvoiceRepositoryInterface::class)->getMock();
+        $invoiceRepositoryMock->method('save')
+            ->willReturnCallback(function ($invoice) use (&$saved) {
+                if (!$invoice->getId()) {
+                    $invoice->setData('entity_id', 501);
+                }
+                $saved[] = $invoice;
+                return $invoice;
+            });
+
+        return $invoiceRepositoryMock;
+    }
+
+    /**
+     * A processor that runs saveInvoice() for a capture push in invoice-on-payment mode.
+     *
+     * @param Invoice[] $invoices
+     * @param InvoiceRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject $invoiceRepositoryMock
+     *
+     * @return \Buckaroo\Magento2\Model\Push\DefaultProcessor|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getSaveInvoiceInstance(array $invoices, $invoiceRepositoryMock)
+    {
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('canInvoice')->willReturn(true);
+        $orderMock->method('hasInvoices')->willReturn(false);
+        $orderMock->method('getInvoiceCollection')->willReturn($invoices);
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods([
+                'addTransactionData',
+                'detectInvoiceHandlingMode',
+                'resolveCaptureNotificationAmount',
+                'getTransactionKey',
+            ])
+            ->getMock();
+        $instance->method('addTransactionData')->willReturn($paymentMock);
+        $instance->method('detectInvoiceHandlingMode')->willReturn(InvoiceHandlingOptions::PAYMENT);
+        $instance->method('resolveCaptureNotificationAmount')->willReturn(100.00);
+        $instance->method('getTransactionKey')->willReturn('TRX-PUSH');
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+        $this->setProperty('configAccount', $this->configAccountMock, $instance);
+        $this->setProperty('orderRequestService', $this->orderRequestServiceMock, $instance);
+        $this->setProperty('groupTransaction', $this->groupTransactionMock, $instance);
+        $this->setProperty('invoiceRepository', $invoiceRepositoryMock, $instance);
+        $this->setProperty(
+            'paymentRepository',
+            $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')->getMock(),
+            $instance
+        );
+        $this->setProperty(
+            'orderRepository',
+            $this->getFakeMock('Magento\Sales\Api\OrderRepositoryInterface')->getMock(),
+            $instance
+        );
+
+        return $instance;
     }
 }
