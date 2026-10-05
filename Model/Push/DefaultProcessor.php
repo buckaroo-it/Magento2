@@ -1981,6 +1981,7 @@ class DefaultProcessor implements PushProcessorInterface
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->persistNewInvoice($invoice);
                 $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
@@ -1992,6 +1993,29 @@ class DefaultProcessor implements PushProcessorInterface
         $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
+    }
+
+    /**
+     * Save the invoice this push created, so its email shows the invoice number.
+     *
+     * Magento leaves the new invoice to the order save, which comes after the email, and only the
+     * save assigns the number. As in Observer\SendInvoiceMail, the invoice then records that it
+     * exists: the order save writes it again, and core observers that recognise a new invoice by its
+     * empty original data (stock deduction for virtual items, invoiced store credit, gift card and
+     * reward amounts) would otherwise process it twice.
+     *
+     * @param Invoice $invoice
+     *
+     * @return void
+     */
+    private function persistNewInvoice(Invoice $invoice): void
+    {
+        if ($invoice->getId()) {
+            return;
+        }
+
+        $this->invoiceRepository->save($invoice);
+        $invoice->setOrigData();
     }
 
     /**
