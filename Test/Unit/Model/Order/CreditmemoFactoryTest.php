@@ -21,18 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Order;
 
-use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Order\CreditmemoFactory;
-use Magento\Framework\Locale\FormatInterface;
-use Magento\Framework\ObjectManagerInterface;
-use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Sales\Model\Convert\Order as ConvertOrder;
-use Magento\Sales\Model\Convert\OrderFactory;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\CreditmemoValidator;
-use Magento\Sales\Model\Order\Invoice;
-use Magento\Tax\Model\Config as TaxConfig;
 
 /**
  * Core `createByInvoice()` sets each item qty to min() of a float and the invoice item qty, which the
@@ -49,14 +38,14 @@ class CreditmemoFactoryTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         parent::setUp();
 
-        $validator = $this->getFakeMock(CreditmemoValidator::class)->getMock();
+        $validator = $this->getFakeMock('Magento\Sales\Model\Order\CreditmemoValidator')->getMock();
         $validator->method('canRefundItem')->willReturn(true);
-        $localeFormat = $this->getFakeMock(FormatInterface::class)->getMock();
+        $localeFormat = $this->getFakeMock('Magento\Framework\Locale\FormatInterface')->getMock();
 
         // The parent constructor resolves these through ObjectManager::getInstance().
-        $appObjectManager = $this->getFakeMock(ObjectManagerInterface::class)->getMock();
+        $appObjectManager = $this->getFakeMock('Magento\Framework\ObjectManagerInterface')->getMock();
         $appObjectManager->method('get')->willReturnCallback(
-            fn (string $class) => $class === CreditmemoValidator::class ? $validator : $localeFormat
+            fn (string $class) => str_ends_with($class, 'CreditmemoValidator') ? $validator : $localeFormat
         );
         \Magento\Framework\App\ObjectManager::setInstance($appObjectManager);
     }
@@ -71,36 +60,36 @@ class CreditmemoFactoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testCreateByInvoiceStoresTheFullInvoicedQtyAsAFloat(): void
     {
-        $orderItem = $this->getFakeMock(Order\Item::class)
+        $orderItem = $this->getFakeMock('Magento\Sales\Model\Order\Item')
             ->onlyMethods(['getId', 'isDummy', 'getQtyToRefund'])
             ->getMock();
         $orderItem->method('getId')->willReturn(7);
         $orderItem->method('isDummy')->willReturn(false);
         $orderItem->method('getQtyToRefund')->willReturn(1.0);
 
-        $invoiceItem = $this->getFakeMock(Invoice\Item::class)
+        $invoiceItem = $this->getFakeMock('Magento\Sales\Model\Order\Invoice\Item')
             ->onlyMethods(['getOrderItem', 'getQty'])
             ->getMock();
         $invoiceItem->method('getOrderItem')->willReturn($orderItem);
         $invoiceItem->method('getQty')->willReturn('1.0000');
 
-        $order = $this->getFakeMock(Order::class)
+        $order = $this->getFakeMock('Magento\Sales\Model\Order')
             ->onlyMethods(['getCreditmemosCollection', 'getStoreId'])
             ->getMock();
         $order->method('getCreditmemosCollection')->willReturn([]);
         $order->method('getStoreId')->willReturn(1);
 
-        $invoice = $this->getFakeMock(Invoice::class)
+        $invoice = $this->getFakeMock('Magento\Sales\Model\Order\Invoice')
             ->onlyMethods(['getOrder', 'getAllItems', 'getId'])
             ->getMock();
         $invoice->method('getOrder')->willReturn($order);
         $invoice->method('getAllItems')->willReturn([$invoiceItem]);
         $invoice->method('getId')->willReturn(194);
 
-        $creditmemoItem = $this->getFakeMock(Creditmemo\Item::class)->onlyMethods([])->getMock();
+        $creditmemoItem = $this->getFakeMock('Magento\Sales\Model\Order\Creditmemo\Item')->onlyMethods([])->getMock();
 
         $addedItems = [];
-        $creditmemo = $this->getFakeMock(Creditmemo::class)
+        $creditmemo = $this->getFakeMock('Magento\Sales\Model\Order\Creditmemo')
             ->onlyMethods(['setInvoice', 'addItem', 'getAllItems', 'collectTotals'])
             ->getMock();
         $creditmemo->method('addItem')->willReturnCallback(
@@ -115,23 +104,25 @@ class CreditmemoFactoryTest extends \Buckaroo\Magento2\Test\BaseTest
             }
         );
 
-        $convertor = $this->getFakeMock(ConvertOrder::class)
+        $convertor = $this->getFakeMock('Magento\Sales\Model\Convert\Order')
             ->onlyMethods(['toCreditmemo', 'itemToCreditmemoItem'])
             ->getMock();
         $convertor->method('toCreditmemo')->willReturn($creditmemo);
         $convertor->method('itemToCreditmemoItem')->willReturn($creditmemoItem);
 
-        $convertOrderFactory = $this->getFakeMock(OrderFactory::class)->onlyMethods(['create'])->getMock();
+        $convertOrderFactory = $this->getFakeMock('Magento\Sales\Model\Convert\OrderFactory')
+            ->onlyMethods(['create'])
+            ->getMock();
         $convertOrderFactory->method('create')->willReturn($convertor);
 
-        $taxConfig = $this->getFakeMock(TaxConfig::class)->getMock();
+        $taxConfig = $this->getFakeMock('Magento\Tax\Model\Config')->getMock();
         $taxConfig->method('displaySalesShippingInclTax')->willReturn(false);
 
         $factory = new CreditmemoFactory(
             $convertOrderFactory,
             $taxConfig,
-            $this->getFakeMock(BuckarooLoggerInterface::class)->getMock(),
-            $this->getFakeMock(Json::class)->getMock()
+            $this->getFakeMock('Buckaroo\Magento2\Logging\BuckarooLoggerInterface')->getMock(),
+            $this->getFakeMock('Magento\Framework\Serialize\Serializer\Json')->getMock()
         );
 
         $result = $factory->createByInvoice($invoice);
