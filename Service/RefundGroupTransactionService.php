@@ -432,15 +432,9 @@ class RefundGroupTransactionService
                 ));
 
                 // Update refunded amount in database ONLY on success
-                foreach ($groupTransaction as $item) {
-                    $prevRefundAmount = $item->getData('refunded_amount');
-                    $newRefundAmount = $giftCardValue;
-
-                    if ($prevRefundAmount !== null) {
-                        $newRefundAmount += $prevRefundAmount;
-                    }
-                    $item->setData('refunded_amount', $newRefundAmount);
-                    $this->groupTransactionResource->save($item);
+                if ($groupTransaction->getEntityId()) {
+                    $groupTransaction->setRefundedAmount($groupTransaction->getRefundedAmount() + $giftCardValue);
+                    $this->groupTransactionResource->save($groupTransaction);
                 }
             } else {
                 // Refund FAILED - throw exception to prevent credit memo creation

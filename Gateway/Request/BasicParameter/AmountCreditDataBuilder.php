@@ -114,6 +114,14 @@ class AmountCreditDataBuilder implements BuilderInterface
                 $payment->setIsTransactionClosed(true);
                 $payment->setShouldCloseParentTransaction(true);
             }
+
+            // The group transactions refunded every leg themselves; DefaultTransaction skips the
+            // API call for a zero amount and the skip validators/handlers complete the credit memo
+            if (!empty($buildSubject['response']['group_transaction_refund_complete'])) {
+                return [
+                    self::AMOUNT_CREDIT => 0.0
+                ];
+            }
         }
 
         $this->setRefundAmount($order, $payment, $amountAdjustedForGroupTransactions);
