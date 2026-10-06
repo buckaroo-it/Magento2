@@ -29,6 +29,11 @@ use Magento\Sales\Model\Order;
 class CapayableIn3Handler extends AbstractArticlesHandler
 {
     /**
+     * In3 rejects an article identifier longer than 64 characters.
+     */
+    protected const IDENTIFIER_MAX_LENGTH = 64;
+
+    /**
      * @inheritdoc
      */
     public function getArticleArrayLine(
