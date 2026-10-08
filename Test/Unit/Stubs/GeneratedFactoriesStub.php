@@ -58,6 +58,21 @@ namespace Buckaroo\Magento2\Api\Data {
 }
 
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress {
+    if (!class_exists(\Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory::class)) {
+        class QuoteCreateResponseInterfaceFactory
+        {
+            /**
+             * @param array $data
+             * @return QuoteCreateResponseInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+
     if (!class_exists(\Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory::class)) {
         class OrderCreateResponseInterfaceFactory
         {
@@ -75,6 +90,21 @@ namespace Buckaroo\Magento2\Api\Data\PaypalExpress {
 }
 
 namespace Buckaroo\Magento2\Model\PaypalExpress {
+    if (!class_exists(\Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory::class)) {
+        class QuoteBuilderInterfaceFactory
+        {
+            /**
+             * @param array $data
+             * @return QuoteBuilderInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+
     if (!class_exists(\Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory::class)) {
         class OrderUpdateFactory
         {
