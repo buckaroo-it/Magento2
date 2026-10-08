@@ -34,12 +34,28 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
  * written when its order is saved as pending_payment or canceled, which can be long after placement. On browser
  * back it is written while the follow-up order is being placed (GatewayCommand cancels the previous order before
  * the new one is inserted), so both carry the same second.
+ *
+ * An unpaid follow-up only postpones the reminder when it is the replacement checkout for this abandoned order
+ * (payment additional information buckaroo_cancel_order_id). Matching any newer pending order for the same e-mail
+ * blocked reminders on shared QA addresses and leftover pending_payment orders.
  */
 class FollowUpOrderFinder
 {
     private const PAID_STATES = [Order::STATE_PROCESSING, Order::STATE_COMPLETE];
 
     private const AWAITING_PAYMENT_STATES = [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT];
+
+    /**
+     * How many recent unpaid candidates to inspect for a linked replacement checkout.
+     */
+    private const AWAITING_PAYMENT_CANDIDATE_LIMIT = 20;
+
+    /**
+     * Payment additional information key set when a restored quote cancels the previous pending order.
+     *
+     * @see \Buckaroo\Magento2\Observer\RestoreQuote
+     */
+    private const CANCEL_PREVIOUS_ORDER_KEY = 'buckaroo_cancel_order_id';
 
     /**
      * @var CollectionFactory
@@ -75,11 +91,12 @@ class FollowUpOrderFinder
         return $this->getFirstOrder(
             $this->createFollowUpCollection($customerEmail, $abandonedOrder)
                 ->addFieldToFilter('state', ['in' => self::PAID_STATES])
+                ->setPageSize(1)
         );
     }
 
     /**
-     * Get an order the customer placed at or after the abandoned one that is still waiting for its payment result.
+     * Get the replacement checkout for the abandoned order that is still waiting for its payment result.
      *
      * Only an order younger than the grace period counts. An older one is not going to be paid any more, and
      * waiting for it would hold back the reminder until the record is pruned.
@@ -94,13 +111,25 @@ class FollowUpOrderFinder
         OrderInterface $abandonedOrder,
         int $graceSeconds
     ): ?OrderInterface {
+        $abandonedId = (int) $abandonedOrder->getEntityId();
+        if ($abandonedId <= 0) {
+            return null;
+        }
+
         $placedSince = $this->dateTime->gmtDate('Y-m-d H:i:s', $this->dateTime->gmtTimestamp() - $graceSeconds);
 
-        return $this->getFirstOrder(
-            $this->createFollowUpCollection($customerEmail, $abandonedOrder)
-                ->addFieldToFilter('state', ['in' => self::AWAITING_PAYMENT_STATES])
-                ->addFieldToFilter('created_at', ['gteq' => $placedSince])
-        );
+        $collection = $this->createFollowUpCollection($customerEmail, $abandonedOrder)
+            ->addFieldToFilter('state', ['in' => self::AWAITING_PAYMENT_STATES])
+            ->addFieldToFilter('created_at', ['gteq' => $placedSince])
+            ->setPageSize(self::AWAITING_PAYMENT_CANDIDATE_LIMIT);
+
+        foreach ($collection as $order) {
+            if ($this->isReplacementCheckoutForAbandonedOrder($order, $abandonedId)) {
+                return $order;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -115,10 +144,28 @@ class FollowUpOrderFinder
         $collection = $this->orderCollectionFactory->create();
         $collection->addFieldToFilter('customer_email', $customerEmail)
             ->addFieldToFilter('entity_id', ['neq' => $abandonedOrder->getEntityId()])
-            ->addFieldToFilter('created_at', ['gteq' => $abandonedOrder->getCreatedAt()])
-            ->setPageSize(1);
+            ->addFieldToFilter('created_at', ['gteq' => $abandonedOrder->getCreatedAt()]);
 
         return $collection;
+    }
+
+    /**
+     * True when this order was placed after browser-back / restore-quote cancelled the abandoned one.
+     *
+     * @param OrderInterface $order
+     * @param int            $abandonedId
+     * @return bool
+     */
+    private function isReplacementCheckoutForAbandonedOrder(OrderInterface $order, int $abandonedId): bool
+    {
+        $payment = $order->getPayment();
+        if ($payment === null) {
+            return false;
+        }
+
+        $cancelOrderId = $payment->getAdditionalInformation(self::CANCEL_PREVIOUS_ORDER_KEY);
+
+        return $cancelOrderId !== null && (int) $cancelOrderId === $abandonedId;
     }
 
     /**
