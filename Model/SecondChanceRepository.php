@@ -1009,10 +1009,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Check whether a newer order from the customer makes the reminder unnecessary, for good or for now
      *
-     * A paid follow-up order closes the record. A follow-up order that is still waiting for its payment result
-     * only postpones the reminder to a later run: on browser back the previous order is cancelled - and its
-     * record written - while the customer is still paying the new one, and with "send after 0 hours" the cron
-     * would otherwise send the reminder during that payment.
+     * A paid follow-up order closes the record. A replacement checkout that is still waiting for its payment
+     * result (linked via buckaroo_cancel_order_id) only postpones the reminder to a later run: on browser back
+     * the previous order is cancelled - and its record written - while the customer is still paying the new one,
+     * and with "send after 0 hours" the cron would otherwise send the reminder during that payment.
      *
      * @param \Buckaroo\Magento2\Model\SecondChance $item
      * @param Order                                 $order the abandoned (base) order

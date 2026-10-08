@@ -712,8 +712,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * BTI-1602: with "send after 0 hours" the cron can run while the customer is still paying the order that
-     * replaced the abandoned one. The reminder waits for the next run instead of going out during the payment.
+     * BTI-1602: with "send after 0 hours" the cron can run while the customer is still paying the replacement
+     * checkout (buckaroo_cancel_order_id). The reminder waits for the next run instead of going out mid-payment.
      */
     public function testFollowUpOrderStillBeingPaidPostponesTheReminder(): void
     {

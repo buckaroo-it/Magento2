@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\SecondChance;
 use Buckaroo\Magento2\Model\SecondChance\FollowUpOrderFinder;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\ResourceModel\Order\Collection;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -50,10 +51,16 @@ class FollowUpOrderFinderTest extends TestCase
      */
     private $foundOrder;
 
+    /**
+     * @var array<int, Order|MockObject>
+     */
+    private $awaitingCandidates = [];
+
     protected function setUp(): void
     {
         $this->filters = [];
         $this->foundOrder = $this->createMock(Order::class);
+        $this->awaitingCandidates = [];
     }
 
     /**
@@ -86,11 +93,13 @@ class FollowUpOrderFinderTest extends TestCase
     }
 
     /**
-     * A newer order only counts as "still being paid" while it is younger than the grace period.
+     * Only a replacement checkout that cancelled this abandoned order postpones the reminder.
      */
-    public function testOrderAwaitingPaymentIsLimitedToTheGracePeriod(): void
+    public function testOrderAwaitingPaymentRequiresBuckarooCancelLink(): void
     {
-        $this->foundOrder->method('getId')->willReturn(15826141);
+        $linked = $this->createCandidateOrder(15826141, 15826140);
+        $unrelated = $this->createCandidateOrder(15826142, null);
+        $this->awaitingCandidates = [$unrelated, $linked];
 
         $order = $this->createFinder()->getOrderAwaitingPayment(
             'klant@buckaroo.nl',
@@ -98,7 +107,7 @@ class FollowUpOrderFinderTest extends TestCase
             3600
         );
 
-        $this->assertSame($this->foundOrder, $order);
+        $this->assertSame($linked, $order);
         $this->assertSame(
             [
                 ['customer_email', 'klant@buckaroo.nl'],
@@ -111,9 +120,18 @@ class FollowUpOrderFinderTest extends TestCase
         );
     }
 
+    public function testUnrelatedPendingOrderDoesNotPostponeTheReminder(): void
+    {
+        $this->awaitingCandidates = [$this->createCandidateOrder(15826142, null)];
+
+        $this->assertNull(
+            $this->createFinder()->getOrderAwaitingPayment('klant@buckaroo.nl', $this->createAbandonedOrder(), 3600)
+        );
+    }
+
     public function testNoOrderAwaitingPaymentReturnsNull(): void
     {
-        $this->foundOrder->method('getId')->willReturn(null);
+        $this->awaitingCandidates = [];
 
         $this->assertNull(
             $this->createFinder()->getOrderAwaitingPayment('klant@buckaroo.nl', $this->createAbandonedOrder(), 3600)
@@ -133,6 +151,26 @@ class FollowUpOrderFinderTest extends TestCase
     }
 
     /**
+     * @param int      $entityId
+     * @param int|null $cancelOrderId
+     * @return Order|MockObject
+     */
+    private function createCandidateOrder(int $entityId, ?int $cancelOrderId)
+    {
+        $payment = $this->createMock(Payment::class);
+        $payment->method('getAdditionalInformation')
+            ->with('buckaroo_cancel_order_id')
+            ->willReturn($cancelOrderId);
+
+        $order = $this->createMock(Order::class);
+        $order->method('getId')->willReturn($entityId);
+        $order->method('getEntityId')->willReturn($entityId);
+        $order->method('getPayment')->willReturn($payment);
+
+        return $order;
+    }
+
+    /**
      * @return FollowUpOrderFinder
      */
     private function createFinder(): FollowUpOrderFinder
@@ -146,6 +184,7 @@ class FollowUpOrderFinderTest extends TestCase
         );
         $collection->method('setPageSize')->willReturnSelf();
         $collection->method('getFirstItem')->willReturn($this->foundOrder);
+        $collection->method('getIterator')->willReturn(new \ArrayIterator($this->awaitingCandidates));
 
         $collectionFactory = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
