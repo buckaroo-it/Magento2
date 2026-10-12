@@ -191,7 +191,11 @@ class RefundGroupTransactionService
     }
 
     /**
-     * Refund a single giftcard payment (not in group_transaction table)
+     * Refund a single giftcard payment (not in group_transaction table).
+     *
+     * The subject is passed by reference so a completed refund is visible to
+     * AmountCreditDataBuilder. A copy would drop the completion flag, and the
+     * builder would refuse the resulting zero amount after Plaza already refunded.
      *
      * @param array $buildSubject
      * @param Payment $payment
@@ -200,7 +204,7 @@ class RefundGroupTransactionService
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function refundSingleGiftcard(array $buildSubject, $payment): float
+    private function refundSingleGiftcard(array &$buildSubject, $payment): float
     {
         $servicecode = $payment->getAdditionalInformation('single_giftcard_servicecode');
         $transactionId = $payment->getAdditionalInformation('single_giftcard_transaction_id');
