@@ -193,10 +193,6 @@ class RefundGroupTransactionService
     /**
      * Refund a single giftcard payment (not in group_transaction table).
      *
-     * The subject is passed by reference so a completed refund is visible to
-     * AmountCreditDataBuilder. A copy would drop the completion flag, and the
-     * builder would refuse the resulting zero amount after Plaza already refunded.
-     *
      * @param array $buildSubject
      * @param Payment $payment
      * @return float Amount left to refund (should be 0 after refunding full giftcard amount)
