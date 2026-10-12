@@ -191,7 +191,7 @@ class RefundGroupTransactionService
     }
 
     /**
-     * Refund a single giftcard payment (not in group_transaction table)
+     * Refund a single giftcard payment (not in group_transaction table).
      *
      * @param array $buildSubject
      * @param Payment $payment
@@ -200,7 +200,7 @@ class RefundGroupTransactionService
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function refundSingleGiftcard(array $buildSubject, $payment): float
+    private function refundSingleGiftcard(array &$buildSubject, $payment): float
     {
         $servicecode = $payment->getAdditionalInformation('single_giftcard_servicecode');
         $transactionId = $payment->getAdditionalInformation('single_giftcard_transaction_id');
