@@ -283,7 +283,12 @@ class Recreate
             // Add products to quote
             foreach ($order->getAllVisibleItems() as $orderItem) {
                 try {
-                    $product = $this->productRepository->getById($orderItem->getProductId());
+                    $product = clone $this->productRepository->getById(
+                        (int) $orderItem->getProductId(),
+                        false,
+                        (int) $order->getStoreId()
+                    );
+                    $product->setCustomOptions([]);
                     if ($product->getId()) {
                         $buyRequest = $orderItem->getProductOptionByCode('info_buyRequest');
                         if ($buyRequest) {
