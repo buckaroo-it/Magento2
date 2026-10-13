@@ -117,10 +117,13 @@ class SecondChance extends Action
 
         // Guest order clicked while customer is logged in: log out to preserve the guest flow.
         // Auto-login is a security risk (link reuse, shared inboxes) and would assign a guest
-        // order to the wrong account.
+        // order to the wrong account. logout() destroys the PHP session, which detaches the
+        // checkout storage, so bind a new session before putting the guest quote back.
         if (!$quote->getCustomerId() && $this->customerSession->isLoggedIn()) {
             $this->customerSession->logout();
-            $this->customerSession->regenerateId();
+            $this->checkoutSession->regenerateId();
+            $this->checkoutSession->replaceQuote($quote);
+            $this->checkoutSession->setQuoteId($quote->getId());
         }
 
         if ($quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
@@ -171,7 +174,9 @@ class SecondChance extends Action
         $arguments['_nosid'] = true;
         $url = $this->_url->getUrl($path, $arguments);
         $separator = strpos($url, '?') === false ? '?' : '&';
-        $queryString = $queryParams ? $separator . http_build_query($queryParams) : '';
+        // Pass "&" explicitly. PHP's arg_separator.output is often "&amp;", which
+        // would put a literal amp; into every tracking parameter after the first.
+        $queryString = $queryParams ? $separator . http_build_query($queryParams, '', '&') : '';
 
         return $resultRedirect->setUrl($url . $queryString . $fragment);
     }

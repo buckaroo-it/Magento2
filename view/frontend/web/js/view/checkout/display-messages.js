@@ -16,19 +16,23 @@ define(
             {
                 initialize: function () {
                     this._super();
-                    if (typeof URLSearchParams === 'function') {
-                        var searchParams = new URLSearchParams(window.location.search);
-                        if (searchParams.get('bk_e')) {
-                            var messagesComponent = messagesFactory();
-                            if (messagesComponent && messagesComponent.cookieMessages) {
-                                messagesComponent.cookieMessages.forEach(function (message) {
-                                    if (message.type == 'error') {
-                                        messageList.addErrorMessage({message: $.mage.__($("<textarea></textarea>").html(message.text).text())});
-                                    }
-                                });
-                            }
-                        }
+                    // Checkout removes page.messages, so the restore message only exists in the cookie.
+                    if (typeof URLSearchParams !== 'function' || document.cookie.indexOf('mage-messages') === -1) {
+                        return;
                     }
+                    var messagesComponent = messagesFactory();
+                    if (!messagesComponent || !messagesComponent.cookieMessages) {
+                        return;
+                    }
+                    var showErrors = new URLSearchParams(window.location.search).get('bk_e');
+                    messagesComponent.cookieMessages.forEach(function (message) {
+                        var text = $.mage.__($("<textarea></textarea>").html(message.text).text());
+                        if (message.type == 'success') {
+                            messageList.addSuccessMessage({message: text});
+                        } else if (showErrors && message.type == 'error') {
+                            messageList.addErrorMessage({message: text});
+                        }
+                    });
                 }
             }
         );

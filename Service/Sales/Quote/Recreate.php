@@ -28,6 +28,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Quote\Api\CartManagementInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
@@ -243,11 +244,21 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
-            $oldQuote = $this->cartRepository->get((int)$order->getQuoteId());
-
-            if (!$oldQuote->getId()) {
-                $this->logger->addError('Original quote not found for order: ' . $order->getIncrementId());
-                return null;
+            // The shopper's current cart, captured before this method replaces the session quote.
+            $activeQuoteId = (int) $this->checkoutSession->getQuoteId();
+            // Sign-in merges the guest cart into the customer cart and deletes the original quote.
+            // The order still points at that quote, so recreate from the order when it is gone.
+            $oldQuote = null;
+            try {
+                $loadedQuote = $this->cartRepository->get((int) $order->getQuoteId());
+                if ($loadedQuote->getId()) {
+                    $oldQuote = $loadedQuote;
+                }
+            } catch (NoSuchEntityException $e) {
+                $this->logger->addDebug(
+                    'Second Chance: original quote no longer exists, recreating from the order '
+                    . $order->getIncrementId()
+                );
             }
 
             // Create new quote
@@ -361,7 +372,9 @@ class Recreate
             $this->cartRepository->save($quote);
 
             // Additional merge for custom data (after quote is saved)
-            $this->additionalMerge($oldQuote, $quote, $response);
+            if ($oldQuote) {
+                $this->additionalMerge($oldQuote, $quote, $response);
+            }
 
             // Restore coupon code from original order so Magento re-validates it on collectTotals
             if ($order->getCouponCode()) {
@@ -425,10 +438,12 @@ class Recreate
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
 
-            // Deactivate the original quote to prevent Magento from re-attaching it
-            // after a successful second-chance checkout for logged-in customers.
-            $oldQuote->setIsActive(false);
-            $this->cartRepository->save($oldQuote);
+            // Deactivate the original quote so Magento does not re-attach it after checkout.
+            // Leave it active when it is the shopper's current account cart.
+            if ($oldQuote && (!$activeQuoteId || (int) $oldQuote->getId() !== $activeQuoteId)) {
+                $oldQuote->setIsActive(false);
+                $this->cartRepository->save($oldQuote);
+            }
 
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;
