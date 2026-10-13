@@ -644,3 +644,5 @@
 "Rectangular","Rechthoekig"
 "Rounded","Afgerond"
 "Configure your preferred shape for the PayPal Express button to be displayed.","Configureer de gewenste vorm waarin de PayPal Express-knop wordt weergegeven."
+"This card is not supported for this payment method. Please choose another card.","Deze kaart wordt niet ondersteund voor deze betaalmethode. Kies een andere kaart."
+"The selected card type is not available. Please choose another card.","Het geselecteerde kaarttype is niet beschikbaar. Kies een andere kaart."

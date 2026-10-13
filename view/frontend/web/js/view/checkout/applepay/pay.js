@@ -227,7 +227,10 @@ define(
                     shipmentMethodCallback,
                     shippingContactCallback,
                     requiredBillingContactFields,
-                    requiredShippingContactFields
+                    requiredShippingContactFields,
+                    undefined,
+                    undefined,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.supportedNetworks
                 );
             },
 
@@ -531,6 +534,7 @@ define(
                     "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
                         "applepayTransaction": transactionData,
+                        "applepayCardNetwork": payment && payment.token && payment.token.paymentMethod ? payment.token.paymentMethod.network : '',
                         "billingContact": payment && payment.billingContact ? JSON.stringify(payment.billingContact) : ''
                     }
                 };

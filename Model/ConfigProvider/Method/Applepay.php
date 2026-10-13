@@ -104,6 +104,10 @@ class Applepay extends AbstractConfigProvider
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
+            // Buckaroo does not process American Express, Discover or JCB through Apple Pay
+            'supportedNetworks'            => [
+                'masterCard', 'visa', 'maestro', 'vPay', 'cartesBancaires', 'privateLabel',
+            ],
         ]);
     }
 

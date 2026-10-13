@@ -75,9 +75,16 @@ define(
                     "method": 'buckaroo_magento2_applepay',
                     "po_number": null,
                     "additional_data": {
-                        "applepayTransaction" : transactionData
+                        "applepayTransaction" : transactionData,
+                        "applepayCardNetwork" : this.getCardNetwork()
                     }
                 };
+            },
+
+            getCardNetwork: function () {
+                var token = this.applepayTransaction ? this.applepayTransaction.token : null;
+
+                return token && token.paymentMethod ? token.paymentMethod.network : '';
             },
 
             formatTransactionResponse: function () {

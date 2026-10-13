@@ -110,7 +110,8 @@ class Googlepay extends AbstractConfigProvider
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
             'locale'                       => $this->getCultureCode(),
-            'allowedCardNetworks'          => ['AMEX', 'DISCOVER', 'JCB', 'MASTERCARD', 'VISA'],
+            // Buckaroo does not process American Express, Discover or JCB through Google Pay
+            'allowedCardNetworks'          => ['MASTERCARD', 'VISA'],
         ]);
     }
 
