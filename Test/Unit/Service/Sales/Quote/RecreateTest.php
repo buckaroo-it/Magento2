@@ -356,23 +356,51 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testDuplicateWithMissingOriginalQuote()
     {
         $order = $this->getFakeMock(Order::class)->getMock();
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
 
         $order->method('getIncrementId')->willReturn('000000001');
         $order->method('getQuoteId')->willReturn(999);
+        $order->method('getStoreId')->willReturn(1);
+        $order->method('getCustomerId')->willReturn(null);
+        $order->method('getCustomerEmail')->willReturn('guest@example.com');
+        $order->method('getCustomerFirstname')->willReturn('Guest');
+        $order->method('getCustomerLastname')->willReturn('User');
+        $order->method('getAllVisibleItems')->willReturn([]);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
 
+        $this->quoteFactory->method('create')->willReturn($newQuote);
         $this->cartRepository->method('get')
             ->with(999)
             ->willThrowException(new \Magento\Framework\Exception\NoSuchEntityException());
+        $this->cartRepository->expects($this->exactly(2))->method('save')->with($newQuote);
 
-        $this->logger->method('addError');
+        $this->storeManager->method('getStore')->with(1)->willReturn($store);
+        $store->method('getCode')->willReturn('default');
+        $store->method('getConfig')->with('general/locale/code')->willReturn('en_US');
+
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('getCustomerId')->willReturn(null);
+        $newQuote->method('getCustomerIsGuest')->willReturn(true);
+
+        $this->messageManager->expects($this->never())->method('addErrorMessage');
 
         $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
             'cartRepository' => $this->cartRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
+            'messageManager' => $this->messageManager,
             'logger' => $this->logger,
         ]);
 
         $result = $this->invokeArgs('duplicate', [$order], $instance);
-        $this->assertNull($result);
+        $this->assertEquals($newQuote, $result);
+        $this->assertNull($result->getCustomerId());
+        $this->assertTrue($result->getCustomerIsGuest());
     }
 
     public function testDuplicateWithException()

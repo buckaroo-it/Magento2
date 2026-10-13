@@ -174,7 +174,9 @@ class SecondChance extends Action
         $arguments['_nosid'] = true;
         $url = $this->_url->getUrl($path, $arguments);
         $separator = strpos($url, '?') === false ? '?' : '&';
-        $queryString = $queryParams ? $separator . http_build_query($queryParams) : '';
+        // Pass "&" explicitly. PHP's arg_separator.output is often "&amp;", which
+        // would put a literal amp; into every tracking parameter after the first.
+        $queryString = $queryParams ? $separator . http_build_query($queryParams, '', '&') : '';
 
         return $resultRedirect->setUrl($url . $queryString . $fragment);
     }
