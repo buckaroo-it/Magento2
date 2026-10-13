@@ -25,8 +25,10 @@ use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFa
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as CreditmemoCollectionFactory;
 
 /**
  * Never ask to refund more than the targeted transaction actually took.
@@ -48,17 +50,25 @@ class RefundCapResolver
     private BuckarooLoggerInterface $logger;
 
     /**
+     * @var CreditmemoCollectionFactory
+     */
+    private CreditmemoCollectionFactory $creditmemoCollectionFactory;
+
+    /**
      * Constructor
      *
-     * @param ArticlesHandlerFactory  $articlesHandlerFactory
-     * @param BuckarooLoggerInterface $logger
+     * @param ArticlesHandlerFactory      $articlesHandlerFactory
+     * @param BuckarooLoggerInterface     $logger
+     * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      */
     public function __construct(
         ArticlesHandlerFactory $articlesHandlerFactory,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        CreditmemoCollectionFactory $creditmemoCollectionFactory
     ) {
         $this->articlesHandlerFactory = $articlesHandlerFactory;
         $this->logger = $logger;
+        $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
     }
 
     /**
@@ -74,7 +84,12 @@ class RefundCapResolver
      */
     public function resolveCappedAmount(Order $order, InfoInterface $payment, float $refundAmount): float
     {
-        $invoice = $this->resolveCappedInvoice($payment);
+        if (!$payment instanceof OrderPayment) {
+            return $refundAmount;
+        }
+
+        $creditmemo = $payment->getCreditmemo();
+        $invoice = $this->resolveCappedInvoice($creditmemo);
 
         if ($invoice === null) {
             return $refundAmount;
@@ -89,10 +104,11 @@ class RefundCapResolver
             return $refundAmount;
         }
 
-        $refundable = round($captured - (float)$invoice->getTotalRefunded(), 2);
+        $alreadyRefunded = $this->getAlreadyRefunded($invoice, $creditmemo);
+        $refundable = round($captured - $alreadyRefunded, 2);
         $capped = ($refundable > 0 && $refundAmount > $refundable) ? $refundable : $refundAmount;
 
-        $this->logCap($invoice, $refundAmount, $captured, $refundable, $capped);
+        $this->logCap($invoice, $refundAmount, $captured, $alreadyRefunded, $refundable, $capped);
 
         return $capped;
     }
@@ -100,19 +116,12 @@ class RefundCapResolver
     /**
      * The single invoice the credit memo targets, or null when the cap does not apply.
      *
-     * @param InfoInterface $payment
+     * @param Creditmemo|null $creditmemo
      *
      * @return Invoice|null
      */
-    private function resolveCappedInvoice(InfoInterface $payment): ?Invoice
+    private function resolveCappedInvoice(?Creditmemo $creditmemo): ?Invoice
     {
-        // Only an order payment carries the credit memo; InfoInterface does not declare it.
-        if (!$payment instanceof OrderPayment) {
-            return null;
-        }
-
-        $creditmemo = $payment->getCreditmemo();
-
         if ($creditmemo === null) {
             return null;
         }
@@ -123,11 +132,38 @@ class RefundCapResolver
     }
 
     /**
+     * What earlier credit memos already refunded from this invoice, in the currency the capture was sent in.
+     *
+     * @param Invoice         $invoice
+     * @param Creditmemo|null $current the memo being refunded now
+     *
+     * @return float
+     */
+    private function getAlreadyRefunded(Invoice $invoice, ?Creditmemo $current): float
+    {
+        $creditmemos = $this->creditmemoCollectionFactory->create()
+            ->addFieldToFilter('invoice_id', ['eq' => (int)$invoice->getId()])
+            ->addFieldToFilter('state', ['eq' => Creditmemo::STATE_REFUNDED]);
+
+        if ($current !== null && $current->getId()) {
+            $creditmemos->addFieldToFilter('entity_id', ['neq' => (int)$current->getId()]);
+        }
+
+        $refunded = 0.0;
+        foreach ($creditmemos as $creditmemo) {
+            $refunded += round((float)$creditmemo->getGrandTotal(), 2);
+        }
+
+        return $refunded;
+    }
+
+    /**
      * Record how the cap was resolved, so a lowered refund can be traced back.
      *
      * @param Invoice $invoice
      * @param float   $requested
      * @param float   $captured
+     * @param float   $alreadyRefunded
      * @param float   $refundable
      * @param float   $capped
      *
@@ -137,6 +173,7 @@ class RefundCapResolver
         Invoice $invoice,
         float $requested,
         float $captured,
+        float $alreadyRefunded,
         float $refundable,
         float $capped
     ): void {
@@ -147,7 +184,7 @@ class RefundCapResolver
             $requested,
             (float)$invoice->getGrandTotal(),
             $captured,
-            (float)$invoice->getTotalRefunded(),
+            $alreadyRefunded,
             $refundable,
             $capped
         ));

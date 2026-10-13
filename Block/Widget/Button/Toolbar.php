@@ -51,6 +51,7 @@ class Toolbar
         'buckaroo_magento2_klarnakp',
         'buckaroo_magento2_applepay',
         'buckaroo_magento2_capayablein3',
+        'buckaroo_magento2_zakelijkoprekening',
         'buckaroo_magento2_capayablepostpay',
         'buckaroo_magento2_alipay',
         'buckaroo_magento2_wechatpay',

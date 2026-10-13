@@ -199,6 +199,11 @@ class ExternalEmailProviderPlugin
                 'token' => $secondChance->getToken(),
                 '_scope_to_url' => true
             ]);
+            // Email templates append "&utm_*". A path-style URL has no "?", so those
+            // parameters would be part of the path (.../token/{token}/&utm_source=...).
+            if (!str_contains($checkoutUrl, '?')) {
+                $checkoutUrl .= '?';
+            }
 
             // Get template ID
             $templateId = $this->secondChanceConfig->getSecondChanceEmailTemplate($step, $storeId);

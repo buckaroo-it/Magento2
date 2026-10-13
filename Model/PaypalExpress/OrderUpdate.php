@@ -177,15 +177,19 @@ class OrderUpdate
     /**
      * Update order address with pay response data
      *
+     * A guest's address only holds what the cart estimate or PayPal's shipping callback put on the
+     * quote, so PayPal's data always replaces it. A logged-in customer's address is only replaced
+     * while it still holds placeholder values.
+     *
      * @param mixed $address
+     * @param bool  $isGuest
      *
      * @return mixed
      */
-    public function updateAddress($address)
+    public function updateAddress($address, bool $isGuest = false)
     {
         // Check if address needs updating (has placeholder/temporary values)
-        $needsUpdate = $this->addressNeedsUpdate($address);
-        if (!$needsUpdate) {
+        if (!$isGuest && !$this->addressNeedsUpdate($address)) {
             return $address;
         }
 

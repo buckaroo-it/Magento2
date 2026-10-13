@@ -94,6 +94,10 @@ class IdinDataBuilder implements BuilderInterface
     {
         $returnUrl = $this->getReturnUrl();
 
+        // Kept in the session so the result Buckaroo returns can be tied to the session that asked for it
+        $nonce = bin2hex(random_bytes(16));
+        $this->customerSession->setBuckarooIdinNonce($nonce);
+
         return [
             'payment_method'       => 'idin',
             'returnURL'            => $returnUrl,
@@ -104,7 +108,8 @@ class IdinDataBuilder implements BuilderInterface
             'additionalParameters' => [
                 'service_action_from_magento' => 'verify',
                 'initiated_by_magento' => 1,
-                'idin_cid' => $this->customerSession->getCustomerId()
+                'idin_cid' => $this->customerSession->getCustomerId(),
+                'idin_nonce' => $nonce
             ]
         ];
     }

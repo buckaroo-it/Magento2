@@ -177,6 +177,11 @@ define(
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_capayablein3}
             },
             {
+                type: 'buckaroo_magento2_zakelijkoprekening',
+                component: 'Buckaroo_Magento2/js/view/payment/method-renderer/zakelijkoprekening',
+                config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_zakelijkoprekening}
+            },
+            {
                 type: 'buckaroo_magento2_capayablepostpay',
                 component: 'Buckaroo_Magento2/js/view/payment/method-renderer/capayablepostpay',
                 config: {buckaroo: window.checkoutConfig.payment.buckaroo.buckaroo_magento2_capayablepostpay}

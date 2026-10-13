@@ -1630,21 +1630,7 @@ class DefaultProcessor implements PushProcessorInterface
             // payment review. Forcing STATE_PROCESSING here would hide that: the order would read as
             // paid while no invoice exists and the full amount is still due.
             if ($this->payment->getIsFraudDetected()) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - CAPTURE_FRAUD_DETECTED - keeping order in payment review | order: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $this->order->getIncrementId()
-                ));
-
-                $this->orderRequestService->updateOrderStatus(
-                    Order::STATE_PAYMENT_REVIEW,
-                    Order::STATUS_FRAUD,
-                    $description
-                );
-                $this->dontSaveOrderUponSuccessPush = true;
-
-                return true;
+                return $this->keepOrderInPaymentReview($description);
             }
 
             $this->orderRequestService->updateOrderStatus(
@@ -1670,12 +1656,51 @@ class DefaultProcessor implements PushProcessorInterface
         // Apply and save single giftcard metadata before order status update (redirect payment path)
         $this->applyAndSavePendingSingleGiftcardInfo('redirect');
 
+        // Same as for a capture: a payment that does not settle the order leaves no invoice and the
+        // payment flagged, so the order must not move to processing.
+        if ($this->payment->getIsFraudDetected()) {
+            return $this->keepOrderInPaymentReview(
+                'Payment status : <strong>' . $message . '</strong><br/>'
+                . 'The received amount of '
+                . $this->formatCommentAmount((float)$this->pushRequest->getAmount(), $this->getPaymentCurrencyCode())
+                . ' does not settle the order. The order is held for review.'
+            );
+        }
+
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
             $paymentDetails['description']
         );
         // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
+
+        return true;
+    }
+
+    /**
+     * Keep the order in payment review after Magento flagged the payment as suspected fraud.
+     *
+     * @param string $description
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    private function keepOrderInPaymentReview(string $description): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - FRAUD_DETECTED - keeping order in payment review | order: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId()
+        ));
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_PAYMENT_REVIEW,
+            Order::STATUS_FRAUD,
+            $description
+        );
         $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
@@ -1837,7 +1862,7 @@ class DefaultProcessor implements PushProcessorInterface
         $capturedAmount = $this->pushRequest->getAmount();
 
         if ($isSameCurrency && !empty($capturedAmount)) {
-            return (float)$capturedAmount;
+            return $this->toBaseCurrencyAmount((float)$capturedAmount);
         }
 
         if ($isSameCurrency && $this->payment->isCaptureFinal($this->order->getGrandTotal())) {
@@ -1845,6 +1870,47 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return (float)$this->order->getBaseTotalDue();
+    }
+
+    /**
+     * Express a pushed amount in the base currency, in which Magento registers captures.
+     *
+     * Buckaroo charges and reports the order currency. A payment covering the amount due in that
+     * currency settles the base amount due; a smaller one is converted at the order's rate. An
+     * amount in a currency that is neither the order's nor the base currency counts for nothing.
+     *
+     * @param float $amount
+     *
+     * @return float
+     */
+    private function toBaseCurrencyAmount(float $amount): float
+    {
+        $currency = strtoupper((string)$this->pushRequest->getCurrency());
+        $baseCurrency = strtoupper((string)$this->order->getBaseCurrencyCode());
+
+        if ($currency === '' || $currency === $baseCurrency) {
+            return $amount;
+        }
+
+        if ($currency !== strtoupper((string)$this->order->getOrderCurrencyCode())) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Push currency %s matches neither the order nor the base currency | order: %s',
+                __METHOD__,
+                __LINE__,
+                $currency,
+                $this->order->getIncrementId()
+            ));
+
+            return 0.0;
+        }
+
+        if ($this->helper->areEqualAmounts($amount, (float)$this->order->getTotalDue())) {
+            return (float)$this->order->getBaseTotalDue();
+        }
+
+        $rate = (float)$this->order->getBaseToOrderRate();
+
+        return $rate > 0 ? round($amount / $rate, 2) : 0.0;
     }
 
     /**
@@ -1915,6 +1981,7 @@ class DefaultProcessor implements PushProcessorInterface
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->persistNewInvoice($invoice);
                 $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
@@ -1926,6 +1993,29 @@ class DefaultProcessor implements PushProcessorInterface
         $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
+    }
+
+    /**
+     * Save the invoice this push created, so its email shows the invoice number.
+     *
+     * Magento leaves the new invoice to the order save, which comes after the email, and only the
+     * save assigns the number. As in Observer\SendInvoiceMail, the invoice then records that it
+     * exists: the order save writes it again, and core observers that recognise a new invoice by its
+     * empty original data (stock deduction for virtual items, invoiced store credit, gift card and
+     * reward amounts) would otherwise process it twice.
+     *
+     * @param Invoice $invoice
+     *
+     * @return void
+     */
+    private function persistNewInvoice(Invoice $invoice): void
+    {
+        if ($invoice->getId()) {
+            return;
+        }
+
+        $this->invoiceRepository->save($invoice);
+        $invoice->setOrigData();
     }
 
     /**

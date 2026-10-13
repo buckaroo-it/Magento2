@@ -640,3 +640,7 @@
 "Female","Vrouw"
 "Other","Anders"
 "DD-MM-YYYY or DD/MM/YYYY","bijv. 01/01/1970"
+"Button Shape","Knopvorm"
+"Rectangular","Rechthoekig"
+"Rounded","Afgerond"
+"Configure your preferred shape for the PayPal Express button to be displayed.","Configureer de gewenste vorm waarin de PayPal Express-knop wordt weergegeven."

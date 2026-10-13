@@ -112,6 +112,27 @@ class CreditmemoFactory extends MagentoCreditmemoFactory
     public function createByInvoice(Invoice $invoice, array $data = []): Creditmemo
     {
         $this->initBuckarooFeeData($data, $invoice);
-        return parent::createByInvoice($invoice, $data);
+        $creditmemo = parent::createByInvoice($invoice, $data);
+        $this->castItemQtysToFloat($creditmemo);
+
+        return $creditmemo;
+    }
+
+    /**
+     * Store every creditmemo item qty as a float
+     *
+     * Core takes the item qty from min() of a float and the invoice item qty, which the database returns as a
+     * string. On PHP 8.4+ min() can return that string, and the strict-typed QuantityValidator then throws a
+     * TypeError when refunding through POST /V1/invoice/:id/refund (magento/magento2#40302).
+     *
+     * @param Creditmemo $creditmemo
+     *
+     * @return void
+     */
+    private function castItemQtysToFloat(Creditmemo $creditmemo): void
+    {
+        foreach ($creditmemo->getAllItems() as $item) {
+            $item->setQty((float)$item->getQty());
+        }
     }
 }

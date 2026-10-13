@@ -219,3 +219,7 @@
 "Female","Female"
 "Other","Other"
 "DD-MM-YYYY or DD/MM/YYYY","e.g. 01-01-1970"
+"Button Shape","Button Shape"
+"Rectangular","Rectangular"
+"Rounded","Rounded"
+"Configure your preferred shape for the PayPal Express button to be displayed.","Configure your preferred shape for the PayPal Express button to be displayed."
