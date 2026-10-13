@@ -65,6 +65,7 @@ use Buckaroo\Magento2\Service\Sales\Quote\Recreate as QuoteRecreateService;
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SecondChanceRepository implements SecondChanceRepositoryInterface
 {

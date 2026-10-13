@@ -114,7 +114,9 @@ class HeaderSerializationTest extends TestCase
         $resolver = new CultureCodeResolver();
 
         $rejected = array_map(
-            static fn(string $culture): string => 'Culture: ' . $culture,
+            static function ($culture) {
+                return 'Culture: ' . $culture;
+            },
             array_keys(CultureCodeResolver::HEADER_CULTURE_FALLBACKS)
         );
 
