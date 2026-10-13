@@ -243,6 +243,8 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
+            // The shopper's current cart, captured before this method replaces the session quote.
+            $activeQuoteId = (int) $this->checkoutSession->getQuoteId();
             $oldQuote = $this->cartRepository->get((int)$order->getQuoteId());
 
             if (!$oldQuote->getId()) {
@@ -425,10 +427,12 @@ class Recreate
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
 
-            // Deactivate the original quote to prevent Magento from re-attaching it
-            // after a successful second-chance checkout for logged-in customers.
-            $oldQuote->setIsActive(false);
-            $this->cartRepository->save($oldQuote);
+            // Deactivate the original quote so Magento does not re-attach it after checkout.
+            // Leave it active when it is the shopper's current account cart.
+            if (!$activeQuoteId || (int) $oldQuote->getId() !== $activeQuoteId) {
+                $oldQuote->setIsActive(false);
+                $this->cartRepository->save($oldQuote);
+            }
 
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;

@@ -810,6 +810,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $checkoutUrl = $store->getUrl('buckaroo/checkout/secondchance', [
             'token' => $secondChance->getToken(),
         ]);
+        // Email templates append "&utm_*". A path-style URL has no "?", so those
+        // parameters would be part of the path (.../token/{token}/&utm_source=...).
+        if (!str_contains($checkoutUrl, '?')) {
+            $checkoutUrl .= '?';
+        }
 
         // Get the expected order ID (should be pre-calculated and stored in last_order_id)
         $expectedOrderId = $secondChance->getLastOrderId();

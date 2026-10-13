@@ -77,7 +77,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->cartRepository = $this->getFakeMock(CartRepositoryInterface::class)->getMock();
         $this->cart = $this->getFakeMock(Cart::class)->getMock();
         $this->checkoutSession = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class, false)
-            ->onlyMethods(['replaceQuote', 'setQuoteId', 'unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])->getMock();
+            ->onlyMethods(['replaceQuote', 'setQuoteId', 'getQuoteId', 'unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])->getMock();
+        $this->checkoutSession->method('getQuoteId')->willReturn(null);
         $this->quoteFactory = $this->getFakeMock(QuoteFactory::class)->getMock();
         $this->productFactory = $this->getFakeMock(ProductFactory::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();

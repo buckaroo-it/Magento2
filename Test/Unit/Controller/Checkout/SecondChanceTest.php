@@ -314,7 +314,8 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->customerSession->method('isLoggedIn')->willReturn(true);
 
         $this->customerSession->expects($this->once())->method('logout');
-        $this->customerSession->expects($this->once())->method('regenerateId');
+        $this->customerSession->expects($this->never())->method('regenerateId');
+        $this->checkoutSession->expects($this->once())->method('regenerateId');
         $this->checkoutSession->expects($this->once())->method('replaceQuote')->with($quoteMock);
         $this->checkoutSession->expects($this->once())->method('setQuoteId')->with(123);
 
