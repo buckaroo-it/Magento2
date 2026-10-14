@@ -1522,7 +1522,11 @@ class DefaultProcessor implements PushProcessorInterface
             return $this->processPendingPaymentPush($newStatus, $statusMessage);
         }
 
-        $this->orderRequestService->setOrderNotificationNote($statusMessage);
+
+        if ((int)$this->pushTransactionType->getStatusCode() !== 0) {
+            $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        }
+
         return true;
     }
 
