@@ -45,6 +45,13 @@ class Googlepay extends AbstractConfigProvider
     public const XPATH_GOOGLE_MERCHANT_ID                          = 'google_merchant_id';
 
     /**
+     * Card networks offered in the Google Pay payment sheet.
+     *
+     * Buckaroo does not process American Express, Discover or JCB through Google Pay.
+     */
+    public const ALLOWED_CARD_NETWORKS = ['MASTERCARD', 'VISA'];
+
+    /**
      * @var array
      */
     protected $allowedCurrencies = [
@@ -110,8 +117,7 @@ class Googlepay extends AbstractConfigProvider
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
             'locale'                       => $this->getCultureCode(),
-            // Buckaroo does not process American Express, Discover or JCB through Google Pay
-            'allowedCardNetworks'          => ['MASTERCARD', 'VISA'],
+            'allowedCardNetworks'          => self::ALLOWED_CARD_NETWORKS,
         ]);
     }
 

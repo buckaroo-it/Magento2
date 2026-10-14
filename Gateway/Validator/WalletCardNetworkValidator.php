@@ -21,9 +21,12 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay;
 use Buckaroo\Magento2\Observer\DataAssignObserver;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Model\InfoInterface;
 
 /**
  * Reject an Apple Pay or Google Pay payment made with a card network Buckaroo does not process.
@@ -46,7 +49,7 @@ class WalletCardNetworkValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         $payment = $validationSubject['payment'] ?? null;
-        $network = $payment ? $this->getCardNetwork($payment) : '';
+        $network = $payment instanceof InfoInterface ? $this->getCardNetwork($payment) : '';
 
         if (in_array(strtolower($network), self::UNSUPPORTED_NETWORKS, true)) {
             return $this->createResult(
@@ -59,27 +62,48 @@ class WalletCardNetworkValidator extends AbstractValidator
     }
 
     /**
-     * Read the card network from the Apple Pay or Google Pay payment data
+     * Read the card network from the wallet data of the payment's own method
      *
-     * @param \Magento\Payment\Model\InfoInterface $payment
+     * The quote payment can still hold data of another wallet the shopper tried first, so only the
+     * data of the method being validated is read.
+     *
+     * @param InfoInterface $payment
      *
      * @return string Empty string when no network is known, e.g. in redirect mode
      */
-    private function getCardNetwork($payment): string
+    private function getCardNetwork(InfoInterface $payment): string
     {
-        $applepayNetwork = $payment->getAdditionalInformation(DataAssignObserver::APPLEPAY_CARD_NETWORK);
-        if (is_string($applepayNetwork) && $applepayNetwork !== '') {
-            return $applepayNetwork;
+        switch ($payment->getMethodInstance()->getCode()) {
+            case Applepay::CODE:
+                $network = $payment->getAdditionalInformation(DataAssignObserver::APPLEPAY_CARD_NETWORK);
+                break;
+            case Googlepay::CODE:
+                $network = $this->getGooglepayCardNetwork(
+                    $payment->getAdditionalInformation(DataAssignObserver::GOOGLEPAYPAYMENTDATA)
+                );
+                break;
+            default:
+                $network = '';
         }
 
-        $googlepayPaymentData = $payment->getAdditionalInformation(DataAssignObserver::GOOGLEPAYPAYMENTDATA);
-        if (!is_string($googlepayPaymentData) || $googlepayPaymentData === '') {
+        return is_string($network) ? $network : '';
+    }
+
+    /**
+     * Read the card network from the Google Pay payment data JSON
+     *
+     * @param mixed $paymentData
+     *
+     * @return mixed
+     */
+    private function getGooglepayCardNetwork($paymentData)
+    {
+        if (!is_string($paymentData) || $paymentData === '') {
             return '';
         }
 
-        $paymentData = json_decode($googlepayPaymentData, true);
-        $network = $paymentData['paymentMethodData']['info']['cardNetwork'] ?? '';
+        $paymentData = json_decode($paymentData, true);
 
-        return is_string($network) ? $network : '';
+        return $paymentData['paymentMethodData']['info']['cardNetwork'] ?? '';
     }
 }
