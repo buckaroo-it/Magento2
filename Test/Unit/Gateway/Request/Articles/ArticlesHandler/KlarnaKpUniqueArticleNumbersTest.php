@@ -38,6 +38,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Lines that share a SKU get unique article numbers, the same on the reserve and the capture.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class KlarnaKpUniqueArticleNumbersTest extends TestCase
 {
