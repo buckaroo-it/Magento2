@@ -301,12 +301,7 @@ class Recreate
                     );
                     $product->setCustomOptions([]);
                     if ($product->getId()) {
-                        $buyRequest = $orderItem->getProductOptionByCode('info_buyRequest');
-                        if ($buyRequest) {
-                            $quote->addProduct($product, new \Magento\Framework\DataObject($buyRequest));
-                        } else {
-                            $quote->addProduct($product, $orderItem->getQtyOrdered());
-                        }
+                        $quote->addProduct($product, $orderItem->getBuyRequest());
                     }
                 } catch (\Exception $e) {
                     $this->logger->addError('Error adding product to quote: ' . $e->getMessage());

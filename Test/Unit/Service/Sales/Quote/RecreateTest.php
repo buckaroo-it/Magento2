@@ -186,10 +186,15 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getShippingMethod')->willReturn('flatrate_flatrate');
 
         // Setup order items
-        $orderItem = $this->getFakeMock(Item::class)->getMock();
+        // The stored buyRequest keeps the qty of the first add-to-cart, not the ordered qty.
+        $orderItem = $this->getFakeMock(Item::class)
+            ->onlyMethods(['getProductId', 'getQtyOrdered', 'getProductOptionByCode'])
+            ->getMock();
         $orderItem->method('getProductId')->willReturn(1);
-        $orderItem->method('getQtyOrdered')->willReturn(2);
-        $orderItem->method('getProductOptionByCode')->with('info_buyRequest')->willReturn(['qty' => 2]);
+        $orderItem->method('getQtyOrdered')->willReturn(3.0);
+        $orderItem->method('getProductOptionByCode')
+            ->with('info_buyRequest')
+            ->willReturn(['product' => 1, 'qty' => 1]);
 
         $order->method('getAllVisibleItems')->willReturn([$orderItem]);
 
@@ -243,8 +248,15 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMock();
         $productRepositoryMock->method('getById')->with(1)->willReturn($product);
 
-        $newQuote->method('addProduct')
-            ->with($product, $this->isInstanceOf(\Magento\Framework\DataObject::class));
+        $newQuote->expects($this->once())->method('addProduct')
+            ->with(
+                $product,
+                $this->callback(function ($buyRequest) {
+                    return $buyRequest instanceof \Magento\Framework\DataObject
+                        && $buyRequest->getQty() == 3
+                        && $buyRequest->getProduct() == 1;
+                })
+            );
 
         // Setup addresses
         $quoteBillingAddress->method('importOrderAddress')->with($billingAddress);
