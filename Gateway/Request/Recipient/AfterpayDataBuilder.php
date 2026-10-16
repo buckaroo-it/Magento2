@@ -83,6 +83,8 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
         } else {
             $data['companyName'] = $billingAddress->getCompany();
             $data['identificationNumber'] = $this->getIdentificationNumber();
+            // The SDK company recipient sends the registration number from chamberOfCommerce
+            $data['chamberOfCommerce'] = $this->getIdentificationNumber();
         }
 
         $careOf = $this->resolveCareOf();
