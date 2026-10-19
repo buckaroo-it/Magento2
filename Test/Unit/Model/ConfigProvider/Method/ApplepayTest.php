@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
-use Buckaroo\Magento2\Model\Config\Source\ApplepayButtonType;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -48,12 +47,6 @@ class ApplepayTest extends BaseTest
                 ScopeInterface::SCOPE_STORE,
                 null,
                 'EUR',
-            ],
-            [
-                'payment/buckaroo_magento2_applepay/button_type',
-                ScopeInterface::SCOPE_STORE,
-                null,
-                'subscribe',
             ],
         ]);
 
@@ -115,7 +108,6 @@ class ApplepayTest extends BaseTest
             'storeManager'   => $storeManager,
             'localeResolver' => $localeResolver,
             'account'        => $account,
-            'buttonTypes'    => new ApplepayButtonType(),
         ]);
 
         $result = $instance->getConfig();
@@ -157,34 +149,5 @@ class ApplepayTest extends BaseTest
             ['masterCard', 'visa', 'maestro', 'vPay', 'cartesBancaires', 'privateLabel'],
             $applepay['supportedNetworks']
         );
-
-        // The configured button type reaches the key pay.js reads
-        $this->assertSame('subscribe', $applepay['buttonType']);
-    }
-
-    public static function buttonTypeProvider(): array
-    {
-        // Fallback rules are covered in ApplepayButtonTypeTest; this checks path and delegation
-        return [
-            'offered type'         => ['check-out', 'check-out'],
-            'not offered (donate)' => ['donate', 'buy'],
-        ];
-    }
-
-    /**
-     * @param mixed  $stored
-     * @param string $expected
-     */
-    #[DataProvider('buttonTypeProvider')]
-    public function testGetButtonTypeFallsBackToBuy($stored, string $expected): void
-    {
-        $scopeConfig = $this->createMock(ScopeConfigInterface::class);
-        $scopeConfig->method('getValue')
-            ->with('payment/buckaroo_magento2_applepay/button_type', ScopeInterface::SCOPE_STORE, null)
-            ->willReturn($stored);
-
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfig, 'buttonTypes' => new ApplepayButtonType()]);
-
-        $this->assertSame($expected, $instance->getButtonType());
     }
 }
