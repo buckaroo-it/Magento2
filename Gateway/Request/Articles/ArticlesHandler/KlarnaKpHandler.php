@@ -75,13 +75,25 @@ class KlarnaKpHandler extends AbstractArticlesHandler
         $sent = [];
         foreach ($articles as $article) {
             if (is_array($article) && isset($article['identifier'])) {
-                $sent[(string)$article['identifier']] = true;
+                $sent[] = (string)$article['identifier'];
             }
         }
 
+        return array_values(array_diff($this->getUniqueArticleNumbersOfOrder(), $sent));
+    }
+
+    /**
+     * Unique article numbers of the order's lines whose SKU is also on another line.
+     *
+     * A line without a quote item id gets a number no article line can carry.
+     *
+     * @return string[]
+     */
+    private function getUniqueArticleNumbersOfOrder(): array
+    {
         $orderItems = $this->getOrder()->getAllItems();
         $counts = array_count_values($this->getLineSkus($orderItems));
-        $missing = [];
+        $numbers = [];
 
         foreach ($orderItems as $orderItem) {
             if ($orderItem->getParentItemId() || $orderItem->getParentItem()
@@ -90,13 +102,10 @@ class KlarnaKpHandler extends AbstractArticlesHandler
                 continue;
             }
 
-            $expected = parent::getIdentifier($orderItem) . '-' . (int)$orderItem->getQuoteItemId();
-            if (!(int)$orderItem->getQuoteItemId() || !isset($sent[$expected])) {
-                $missing[] = $expected;
-            }
+            $numbers[] = parent::getIdentifier($orderItem) . '-' . (int)$orderItem->getQuoteItemId();
         }
 
-        return $missing;
+        return $numbers;
     }
 
     /**
