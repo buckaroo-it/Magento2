@@ -593,8 +593,15 @@ define(
                     return;
                 }
 
-                var buttonStyle = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black';
+                var applepayConfig = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay;
+                var buttonStyle = applepayConfig.buttonStyle || 'black';
                 appleButton.setAttribute('buttonstyle', buttonStyle);
+
+                // Missing on pages cached before this setting existed; never write an empty
+                // type, Apple's button throws on type="".
+                if (applepayConfig.buttonType) {
+                    appleButton.setAttribute('type', applepayConfig.buttonType);
+                }
 
                 var paymentRef = this.payment;
                 appleButton.addEventListener('click', function (event) {
