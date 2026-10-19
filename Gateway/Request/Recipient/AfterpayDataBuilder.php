@@ -82,7 +82,10 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
             }
         } else {
             $data['companyName'] = $billingAddress->getCompany();
-            $data['identificationNumber'] = $this->getIdentificationNumber();
+            $registrationNumber = $this->getCompanyRegistrationNumber();
+            $data['identificationNumber'] = $registrationNumber;
+            // The SDK company recipient sends the registration number from chamberOfCommerce
+            $data['chamberOfCommerce'] = $registrationNumber;
         }
 
         $careOf = $this->resolveCareOf();
@@ -178,6 +181,19 @@ class AfterpayDataBuilder extends AbstractRecipientDataBuilder
     protected function getIdentificationNumber()
     {
         return $this->getPayment()->getAdditionalInformation('customer_identificationNumber');
+    }
+
+    /**
+     * Chamber of Commerce number of a business customer.
+     *
+     * The checkout sends it as customer_coc; customer_identificationNumber is used when filled.
+     *
+     * @return mixed
+     */
+    private function getCompanyRegistrationNumber()
+    {
+        return $this->getIdentificationNumber()
+            ?: $this->getPayment()->getAdditionalInformation('customer_coc');
     }
 
     private const DACH_COUNTRY_IDS = ['DE', 'AT', 'CH'];

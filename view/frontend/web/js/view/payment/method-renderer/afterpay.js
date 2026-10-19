@@ -238,8 +238,8 @@ define(
                             "customer_DoB" : this.dateValidate(),
                             "customer_iban": this.bankAccountNumber(),
                             "termsCondition" : this.termsSelected(),
-                            "companyName" : this.companyName(),
-                            "cOCNumber" : this.cocNumber(),
+                            "CompanyName" : this.companyName(),
+                            "COCNumber" : this.cocNumber(),
                             "selectedBusiness" : business
                         }
                     };

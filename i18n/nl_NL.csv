@@ -668,7 +668,7 @@
 "Add here new pair if you want specific value from cookie to be sent on the success page as url param.","Voeg hier een nieuwe paar toe als u wilt dat een specifieke waarde uit de cookie wordt verzonden op de succespagina als url-param."
 "PayLink payment methods","PayLink betaalmethode"
 "Select which payment methods can be used at PayLink.","Selecteer welke betaalmethoden kunnen worden gebruikt bij PayLink."
-"Enable or Disable Paypal Express Buttons","Paypal Express-knoppen in- of uitschakelen."
+"Enable or Disable PayPal Express Buttons","PayPal Express-knoppen in- of uitschakelen."
 "Paypal Express Configuration","Paypal Express Configuratie"
 "Select the PayPal express button style (color)","Selecteer de stijl (kleur) van de PayPal Express-knop"
 "Button Shape","Knopvorm"

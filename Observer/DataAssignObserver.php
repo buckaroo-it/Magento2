@@ -51,6 +51,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
     public const CUSTOMER_VATNUMBER            = 'customer_VATNumber';
     public const CUSTOMER_ORDERAS              = 'customer_orderAs';
     public const CUSTOMER_COCNUMBER            = 'customer_cocnumber';
+    public const CUSTOMER_COC                  = 'customer_coc';
     public const CUSTOMER_COMPANYNAME          = 'customer_companyName';
     public const CARD_TYPE                     = 'card_type';
     public const CUSTOMER_ENCRYPTEDDATA        = 'customer_encrypteddata';
@@ -90,6 +91,7 @@ class DataAssignObserver extends AbstractDataAssignObserver
         self::CUSTOMER_VATNUMBER,
         self::CUSTOMER_ORDERAS,
         self::CUSTOMER_COCNUMBER,
+        self::CUSTOMER_COC,
         self::CUSTOMER_COMPANYNAME,
         self::CARD_TYPE,
         self::CUSTOMER_ENCRYPTEDDATA,
