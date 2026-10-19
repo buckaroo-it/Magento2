@@ -27,7 +27,9 @@ define([
 
         defaults: {
             buttonStyle: '',
-            buttonStyleElement: ''
+            buttonStyleElement: '',
+            buttonType: '',
+            buttonTypeElement: ''
         },
 
         /**
@@ -75,7 +77,8 @@ define([
             const buttonElement = $('apple-pay-button');
             buttonElement.attr('lang', document.firstElementChild.lang);
             buttonElement.attr('buttonStyle', this.buttonStyle);
-            buttonElement.attr('type', "buy");
+            // Never write an empty type: Apple's button throws on type="".
+            buttonElement.attr('type', this.buttonType || 'buy');
         },
 
         /**
@@ -84,11 +87,26 @@ define([
         bindEvents: function () {
             var self = this;
 
-            $('#' + this.buttonStyleElement).change(function () {
-                if ($(this).val() !== self.buttonStyle) {
-                    self.buttonStyle = $(this).val();
-                    self.renderButton();
+            // An overridden template may not pass both ids; "#" alone is an invalid selector.
+            var selector = [this.buttonStyleElement, this.buttonTypeElement]
+                .filter(Boolean)
+                .map(function (id) {
+                    return '#' + id;
+                })
+                .join(', ');
+
+            if (!selector) {
+                return;
+            }
+
+            $(selector).change(function () {
+                if (self.buttonStyleElement) {
+                    self.buttonStyle = $('#' + self.buttonStyleElement).val();
                 }
+                if (self.buttonTypeElement) {
+                    self.buttonType = $('#' + self.buttonTypeElement).val();
+                }
+                self.renderButton();
             });
         }
     });
