@@ -122,16 +122,6 @@
                 </depends>
             </field>
 
-            <field id="button_type" translate="label comment" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Apple Pay Button Type</label>
-                <comment><![CDATA[The call to action on the Apple Pay button on the product page and in the cart. Apple shows the text in the customer's language.]]></comment>
-                <source_model>Buckaroo\Magento2\Model\Config\Source\ApplepayButtonType</source_model>
-                <config_path>payment/buckaroo_magento2_applepay/button_type</config_path>
-                <depends>
-                    <field id="integration_mode">0</field>
-                </depends>
-            </field>
-
             <field id="button_style_preview" translate="label comment" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Button Style Preview</label>
                 <frontend_model>Buckaroo\Magento2\Block\Config\Form\Field\ApplepayButton</frontend_model>
