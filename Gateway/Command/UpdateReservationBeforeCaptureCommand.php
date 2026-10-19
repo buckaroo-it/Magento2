@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Command;
 
+use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler;
@@ -33,7 +34,7 @@ use Magento\Payment\Model\InfoInterface;
  *
  * A reservation without them cannot be partially captured when a SKU is on more than one line.
  * UpdateReservation sends the same lines with unique article numbers, once per reservation.
- * If the update fails, the capture still runs.
+ * If the update fails or its lines are incomplete, it is not used and the capture still runs.
  */
 class UpdateReservationBeforeCaptureCommand implements CommandInterface
 {
@@ -82,49 +83,70 @@ class UpdateReservationBeforeCaptureCommand implements CommandInterface
     {
         $payment = SubjectReader::readPayment($commandSubject)->getPayment();
 
-        if ($this->needsUniqueArticleNumbers($payment)) {
-            $this->updateReservation($commandSubject, $payment);
+        $handler = $this->getHandlerForUpdate($payment);
+        if ($handler !== null) {
+            $this->updateReservation($commandSubject, $payment, $handler);
         }
 
         return $this->captureCommand->execute($commandSubject);
     }
 
     /**
-     * Whether the reservation still shares article numbers between lines.
+     * The KP articles handler when the reservation still shares article numbers between lines.
      *
      * @param InfoInterface $payment
      *
-     * @return bool
+     * @return KlarnaKpHandler|null
+     * @throws Exception
      */
-    private function needsUniqueArticleNumbers(InfoInterface $payment): bool
+    private function getHandlerForUpdate(InfoInterface $payment): ?KlarnaKpHandler
     {
         if ($payment->getAdditionalInformation(KlarnaKpHandler::UNIQUE_ARTICLE_NUMBERS)) {
-            return false;
+            return null;
         }
 
         $handler = $this->articlesHandlerFactory->create((string)$payment->getMethod());
         if (!$handler instanceof KlarnaKpHandler) {
-            return false;
+            return null;
         }
 
         $handler->setOrder($payment->getOrder());
 
-        return $handler->hasDuplicateSku();
+        return $handler->hasDuplicateSku() ? $handler : null;
     }
 
     /**
      * Send UpdateReservation with unique article numbers.
      *
-     * @param array         $commandSubject
-     * @param InfoInterface $payment
+     * The update replaces every line of the reservation, so it is only sent when its lines include
+     * each unique article number the captures will use.
+     *
+     * @param array           $commandSubject
+     * @param InfoInterface   $payment
+     * @param KlarnaKpHandler $handler
      *
      * @return void
      */
-    private function updateReservation(array $commandSubject, InfoInterface $payment): void
+    private function updateReservation(array $commandSubject, InfoInterface $payment, KlarnaKpHandler $handler): void
     {
-        $orderIncrementId = $payment->getOrder()->getIncrementId();
+        $order = $payment->getOrder();
+        $orderIncrementId = $order->getIncrementId();
 
         try {
+            $articles = $handler->getOrderArticlesData($order, $payment)['articles'] ?? [];
+            $missing = $handler->getMissingUniqueArticleNumbers($articles);
+            if (!empty($missing)) {
+                $this->logger->addError(sprintf(
+                    '[KLARNA_KP] | [%s:%s] - Did not update the reservation of order %s: the lines built for it'
+                    . ' do not include %s.',
+                    __METHOD__,
+                    __LINE__,
+                    $orderIncrementId,
+                    implode(', ', $missing)
+                ));
+                return;
+            }
+
             $this->updateReservationCommand->execute($commandSubject);
             $payment->setAdditionalInformation(KlarnaKpHandler::UNIQUE_ARTICLE_NUMBERS, true);
 

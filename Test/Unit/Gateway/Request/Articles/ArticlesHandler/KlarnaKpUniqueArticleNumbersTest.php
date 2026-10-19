@@ -97,6 +97,55 @@ class KlarnaKpUniqueArticleNumbersTest extends TestCase
         $this->assertFalse($withChild->hasDuplicateSku());
     }
 
+    public function testUpdateLinesThatCarryEveryUniqueNumberMissNothing(): void
+    {
+        $handler = $this->handlerForOrder(
+            [$this->orderItem(11, 'A'), $this->orderItem(12, 'A'), $this->orderItem(13, 'B')],
+            false
+        );
+
+        $this->assertSame([], $handler->getMissingUniqueArticleNumbers([
+            ['identifier' => 'A-11'], ['identifier' => 'A-12'], ['identifier' => 'B'],
+        ]));
+    }
+
+    public function testUpdateLinesWithoutTheProductLinesMissEveryUniqueNumber(): void
+    {
+        $handler = $this->handlerForOrder([$this->orderItem(11, 'A'), $this->orderItem(12, 'A')], false);
+
+        $this->assertSame(
+            ['A-11', 'A-12'],
+            $handler->getMissingUniqueArticleNumbers([['identifier' => 'extra-fees']])
+        );
+    }
+
+    public function testUpdateLinesThatStillShareTheSkuMissTheUniqueNumbers(): void
+    {
+        $handler = $this->handlerForOrder([$this->orderItem(11, 'A'), $this->orderItem(12, 'A')], false);
+
+        $this->assertSame(
+            ['A-11', 'A-12'],
+            $handler->getMissingUniqueArticleNumbers([['identifier' => 'A'], ['identifier' => 'A']])
+        );
+    }
+
+    public function testTheCartIsLoadedWhateverStoreTheRequestRunsIn(): void
+    {
+        $quote = $this->createMock(Quote::class);
+        $quoteFactory = $this->createMock(QuoteFactory::class);
+        $quoteFactory->method('create')->willReturn($quote);
+        $quoteResource = $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class);
+        $quoteResource->expects($this->once())->method('loadByIdWithoutStore')->with($quote, 371);
+        $quoteResource->expects($this->never())->method('load');
+
+        $order = $this->createMock(Order::class);
+        $order->method('getQuoteId')->willReturn(371);
+        $handler = $this->makeHandler($quoteFactory, $quoteResource);
+        $handler->setOrder($order);
+
+        $this->assertSame($quote, $handler->getQuote());
+    }
+
     /**
      * @param KlarnaKpHandler $handler
      * @param object          $item
@@ -209,21 +258,24 @@ class KlarnaKpUniqueArticleNumbersTest extends TestCase
     }
 
     /**
+     * @param QuoteFactory|null                              $quoteFactory
+     * @param \Magento\Quote\Model\ResourceModel\Quote|null $quoteResource
+     *
      * @return KlarnaKpHandler
      */
-    private function makeHandler(): KlarnaKpHandler
+    private function makeHandler($quoteFactory = null, $quoteResource = null): KlarnaKpHandler
     {
         return new KlarnaKpHandler(
             $this->createMock(ScopeConfigInterface::class),
             $this->createMock(BuckarooLoggerInterface::class),
-            $this->createMock(QuoteFactory::class),
+            $quoteFactory ?? $this->createMock(QuoteFactory::class),
             $this->createMock(Calculation::class),
             $this->createMock(TaxConfig::class),
             $this->createMock(BuckarooFee::class),
             $this->createMock(SoftwareData::class),
             $this->createMock(ConfigProviderMethodFactory::class),
             $this->createMock(PayReminderService::class),
-            $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class)
+            $quoteResource ?? $this->createMock(\Magento\Quote\Model\ResourceModel\Quote::class)
         );
     }
 }

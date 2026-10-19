@@ -32,7 +32,8 @@ use Magento\Sales\Model\Order\Payment;
 use PHPUnit\Framework\TestCase;
 
 /**
- * A reservation without unique article numbers is updated once before the capture.
+ * A reservation without unique article numbers is updated once before the capture, and only with
+ * lines that carry every unique article number.
  */
 class UpdateReservationBeforeCaptureCommandTest extends TestCase
 {
@@ -80,15 +81,32 @@ class UpdateReservationBeforeCaptureCommandTest extends TestCase
         $this->assertSame(['update', 'capture'], $calls);
     }
 
+    public function testAnUpdateWithoutEveryUniqueNumberIsNotSent(): void
+    {
+        $payment = $this->makePayment(false);
+        $payment->expects($this->never())->method('setAdditionalInformation');
+        $calls = [];
+
+        $command = $this->makeCommand(true, $calls, null, ['SH00088558-6146', 'SH00088558-6147']);
+        $command->execute($this->subjectFor($payment));
+
+        $this->assertSame(['capture'], $calls);
+    }
+
     /**
      * @param bool            $hasDuplicateSku
      * @param array           $calls
      * @param \Exception|null $updateFailure
+     * @param string[]        $missingNumbers
      *
      * @return UpdateReservationBeforeCaptureCommand
      */
-    private function makeCommand(bool $hasDuplicateSku, array &$calls, ?\Exception $updateFailure = null)
-    {
+    private function makeCommand(
+        bool $hasDuplicateSku,
+        array &$calls,
+        ?\Exception $updateFailure = null,
+        array $missingNumbers = []
+    ) {
         $capture = $this->createMock(CommandInterface::class);
         $capture->method('execute')->willReturnCallback(function () use (&$calls) {
             $calls[] = 'capture';
@@ -106,6 +124,8 @@ class UpdateReservationBeforeCaptureCommandTest extends TestCase
 
         $handler = $this->createMock(KlarnaKpHandler::class);
         $handler->method('hasDuplicateSku')->willReturn($hasDuplicateSku);
+        $handler->method('getOrderArticlesData')->willReturn(['articles' => []]);
+        $handler->method('getMissingUniqueArticleNumbers')->willReturn($missingNumbers);
         $factory = $this->createMock(ArticlesHandlerFactory::class);
         $factory->method('create')->willReturn($handler);
 

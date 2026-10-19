@@ -61,6 +61,45 @@ class KlarnaKpHandler extends AbstractArticlesHandler
     }
 
     /**
+     * Unique article numbers of the order that are not among the given article lines.
+     *
+     * UpdateReservation replaces every line of the reservation, so it may only be sent when it
+     * carries each line the captures will ask for.
+     *
+     * @param array $articles
+     *
+     * @return string[]
+     */
+    public function getMissingUniqueArticleNumbers(array $articles): array
+    {
+        $sent = [];
+        foreach ($articles as $article) {
+            if (is_array($article) && isset($article['identifier'])) {
+                $sent[(string)$article['identifier']] = true;
+            }
+        }
+
+        $orderItems = $this->getOrder()->getAllItems();
+        $counts = array_count_values($this->getLineSkus($orderItems));
+        $missing = [];
+
+        foreach ($orderItems as $orderItem) {
+            if ($orderItem->getParentItemId() || $orderItem->getParentItem()
+                || ($counts[(string)$orderItem->getSku()] ?? 0) < 2
+            ) {
+                continue;
+            }
+
+            $expected = parent::getIdentifier($orderItem) . '-' . (int)$orderItem->getQuoteItemId();
+            if (!(int)$orderItem->getQuoteItemId() || !isset($sent[$expected])) {
+                $missing[] = $expected;
+            }
+        }
+
+        return $missing;
+    }
+
+    /**
      * Quote item id of a line whose SKU is also on another line, or null.
      *
      * Quote items are reserved and always get unique numbers. Invoice items are captured and only

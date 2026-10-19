@@ -363,6 +363,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get Quote
      *
+     * The order's cart is loaded whatever store the request runs in: a plain load only finds carts
+     * of the current website, so in the admin store it returns an empty cart.
+     *
      * @throws LocalizedException
      *
      * @return Quote
@@ -371,7 +374,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         if (!$this->quote instanceof Quote) {
             $quote = $this->quoteFactory->create();
-            $this->quoteResource->load($quote, $this->getOrder()->getQuoteId());
+            $this->quoteResource->loadByIdWithoutStore($quote, $this->getOrder()->getQuoteId());
             $this->quote = $quote;
         }
 
