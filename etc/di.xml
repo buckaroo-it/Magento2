@@ -3121,7 +3121,16 @@
             <argument name="validators" xsi:type="array">
                 <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
-                <item name="global" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\WalletCardNetworkValidator</item>
+                <item name="global" xsi:type="string">ApplepayGlobalValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- Apple Pay order checks: card network and, in inline mode, the Apple Pay payment data -->
+    <virtualType name="ApplepayGlobalValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="card_network" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\WalletCardNetworkValidator</item>
+                <item name="payment_data" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\ApplepayPaymentDataValidator</item>
             </argument>
         </arguments>
     </virtualType>
