@@ -227,14 +227,11 @@ class PushTransactionType
                 break;
         }
 
-        // No push shape matched, which happens once a Credit Management invoice key is saved.
-        // The push still carries its own status. Keeping only 190 made every Plaza pending
-        // notification look like response code 0.
-        if (!$statusCode) {
-            $requestStatusCode = (int)$this->pushRequest->getStatusCode();
-            if ($requestStatusCode !== 0) {
-                $statusCode = $requestStatusCode;
-            }
+        if ($this->pushRequest->getStatusCode() !== null
+            && ((int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS)
+            && !$statusCode
+        ) {
+            $statusCode = BuckarooStatusCode::SUCCESS;
         }
 
         return (int)$statusCode;

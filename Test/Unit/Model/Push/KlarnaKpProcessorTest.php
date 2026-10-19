@@ -555,7 +555,6 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         // so this is not a Plaza cancel reservation push.
         $this->preparePlazaCancelPush($instance, 'KNOWN-TRX', ['KNOWN-TRX' => ['C021']]);
 
-        $this->pushTransactionTypeMock->method('getStatusCode')->willReturn(12345);
         $this->pushTransactionTypeMock->method('getStatusKey')->willReturn('BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL');
         $this->pushTransactionTypeMock->method('getStatusMessage')->willReturn('Neutral status message');
         $this->orderStatusFactoryMock->method('get')->willReturn('some_status');
