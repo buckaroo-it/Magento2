@@ -107,6 +107,10 @@
         <plugin name="buckaroo_magento2_keep_shipped_klarna_reservation_open" type="Buckaroo\Magento2\Plugin\Sales\Order\KeepShippedKlarnaReservationOpen" />
     </type>
 
+    <type name="Magento\Sales\Model\Order\Payment\Transaction">
+        <plugin name="buckaroo_magento2_ignore_self_parent_transaction" type="Buckaroo\Magento2\Plugin\Sales\Order\Payment\IgnoreSelfParentTransaction" />
+    </type>
+
     <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
         <plugin name="buckaroo_magento2_prevent_core_order_email" type="Buckaroo\Magento2\Plugin\OrderSender" />
     </type>
