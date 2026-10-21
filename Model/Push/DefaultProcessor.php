@@ -451,6 +451,9 @@ class DefaultProcessor implements PushProcessorInterface
      * transaction key than the stored authorization.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function isCaptureTransaction(): bool
     {
