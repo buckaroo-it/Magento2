@@ -28,6 +28,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Quote\Api\CartManagementInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
@@ -290,6 +291,7 @@ class Recreate
             }
 
             // Add products to quote
+            $unavailableProducts = [];
             foreach ($order->getAllVisibleItems() as $orderItem) {
                 try {
                     $product = clone $this->productRepository->getById(
@@ -298,13 +300,17 @@ class Recreate
                         (int) $order->getStoreId()
                     );
                     $product->setCustomOptions([]);
-                    if ($product->getId()) {
-                        $quote->addProduct($product, $orderItem->getBuyRequest());
+                    // addProduct() returns the reason as a string when it cannot add the product
+                    $result = $quote->addProduct($product, $orderItem->getBuyRequest());
+                    if (is_string($result)) {
+                        throw new LocalizedException(__($result));
                     }
                 } catch (\Exception $e) {
                     $this->logger->addError('Error adding product to quote: ' . $e->getMessage());
+                    $unavailableProducts[] = $orderItem->getName();
                 }
             }
+            $this->notifyUnavailableProducts($unavailableProducts);
 
             // Copy addresses
             if ($order->getBillingAddress()) {
@@ -463,6 +469,26 @@ class Recreate
         $quoteCustomerId = (int) $oldQuote->getCustomerId();
 
         return $quoteCustomerId > 0 && $quoteCustomerId !== (int) $order->getCustomerId();
+    }
+
+    /**
+     * Tell the customer which products of the order could not be added to the restored cart
+     *
+     * @param string[] $productNames
+     * @return void
+     */
+    private function notifyUnavailableProducts(array $productNames): void
+    {
+        if (empty($productNames)) {
+            return;
+        }
+
+        $this->messageManager->addWarningMessage(
+            __(
+                'Some products from your order are no longer available and were not added to your cart: %1',
+                implode(', ', array_unique($productNames))
+            )
+        );
     }
 
     /**
