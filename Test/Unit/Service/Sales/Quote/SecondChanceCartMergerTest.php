@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * BTI-1913 / BTI-1914
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SecondChanceCartMergerTest extends TestCase
 {
@@ -158,8 +160,8 @@ class SecondChanceCartMergerTest extends TestCase
         $requested = [];
         $orderCollection = $this->createMock(OrderCollection::class);
         $orderCollection->method('addFieldToFilter')->willReturnCallback(
-            function ($field, $condition) use (&$requested, $orderCollection) {
-                $requested = $condition['in'];
+            function (...$arguments) use (&$requested, $orderCollection) {
+                $requested = $arguments[1]['in'];
                 return $orderCollection;
             }
         );
