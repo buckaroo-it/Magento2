@@ -244,8 +244,6 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
-            // The shopper's current cart, captured before this method replaces the session quote.
-            $activeQuoteId = (int) $this->checkoutSession->getQuoteId();
             // Sign-in merges the guest cart into the customer cart and deletes the original quote.
             // The order still points at that quote, so recreate from the order when it is gone.
             $oldQuote = null;
@@ -434,8 +432,11 @@ class Recreate
             $this->checkoutSession->setQuoteId($quote->getId());
 
             // Deactivate the original quote so Magento does not re-attach it after checkout.
-            // Leave it active when it is the shopper's current account cart.
-            if ($oldQuote && (!$activeQuoteId || (int) $oldQuote->getId() !== $activeQuoteId)) {
+            // A logged-in customer's failed checkout restores it as their account cart, holding
+            // the same products, which would stay in the cart after the new quote is paid.
+            // Leave it active when it has since become another account's cart: a guest who
+            // signs in afterwards keeps the guest quote, and items added to it, as their cart.
+            if ($oldQuote && !$this->isOtherAccountCart($oldQuote, $order)) {
                 $oldQuote->setIsActive(false);
                 $this->cartRepository->save($oldQuote);
             }
@@ -448,6 +449,20 @@ class Recreate
             $this->messageManager->addErrorMessage($e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Whether the original quote is now the cart of an account other than the order's customer
+     *
+     * @param Quote $oldQuote
+     * @param Order $order
+     * @return bool
+     */
+    private function isOtherAccountCart($oldQuote, $order): bool
+    {
+        $quoteCustomerId = (int) $oldQuote->getCustomerId();
+
+        return $quoteCustomerId > 0 && $quoteCustomerId !== (int) $order->getCustomerId();
     }
 
     /**

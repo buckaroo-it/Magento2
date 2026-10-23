@@ -78,7 +78,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->cart = $this->getFakeMock(Cart::class)->getMock();
         $this->checkoutSession = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class, false)
             ->onlyMethods(['replaceQuote', 'setQuoteId', 'getQuoteId', 'unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])->getMock();
-        $this->checkoutSession->method('getQuoteId')->willReturn(null);
+        // The failed order's quote is the shopper's current cart, as after a failed payment
+        $this->checkoutSession->method('getQuoteId')->willReturn(123);
         $this->quoteFactory = $this->getFakeMock(QuoteFactory::class)->getMock();
         $this->productFactory = $this->getFakeMock(ProductFactory::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -363,6 +364,76 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertEquals('Guest', $result->getCustomerFirstname());
         $this->assertEquals('User', $result->getCustomerLastname());
         $this->assertTrue($result->getCustomerIsGuest());
+    }
+
+    public function testDuplicateKeepsGuestQuoteThatBecameAccountCart()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        // The guest signed in afterwards, so the guest quote is now their account cart
+        $oldQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId', 'setIsActive', 'save', 'getPayment'])
+            ->getMock();
+        $oldQuote->method('getCustomerId')->willReturn(42);
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        // Setup guest order
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->method('getStore')->willReturn($store);
+        $order->method('getStoreId')->willReturn(1);
+        $order->method('getCustomerId')->willReturn(null); // Guest customer
+        $order->method('getCustomerEmail')->willReturn('guest@example.com');
+        $order->method('getCustomerFirstname')->willReturn('Guest');
+        $order->method('getCustomerLastname')->willReturn('User');
+        $order->method('getAllVisibleItems')->willReturn([]);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
+
+        $this->quoteFactory->method('create')
+            ->willReturn($newQuote);
+
+        $this->cartRepository->method('get')->with(123)->willReturn($oldQuote);
+
+        $oldQuote->method('getId')->willReturn(123);
+        $oldQuote->expects($this->never())->method('setIsActive');
+
+        // Setup store manager
+        $this->storeManager->method('getStore')->with(1)->willReturn($store);
+        $this->storeManager->method('setCurrentStore')->with($store);
+        $store->method('getId')->willReturn(1);
+        $store->method('getCode')->willReturn('default');
+        $store->method('getConfig')->with('general/locale/code')->willReturn('en_US');
+
+        // Setup guest quote
+        $newQuote->method('setStore')->with($store);
+        $newQuote->method('setStoreId')->with(1);
+        $newQuote->method('setCustomerEmail')->with('guest@example.com');
+        $newQuote->method('setCustomerFirstname')->with('Guest');
+        $newQuote->method('setCustomerLastname')->with('User');
+        $newQuote->method('setCustomerIsGuest')->with(true);
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('save');
+
+        // Configure getters to return expected values
+        $newQuote->method('getCustomerId')->willReturn(null);
+        $newQuote->method('getCustomerEmail')->willReturn('guest@example.com');
+        $newQuote->method('getCustomerFirstname')->willReturn('Guest');
+        $newQuote->method('getCustomerLastname')->willReturn('User');
+        $newQuote->method('getCustomerIsGuest')->willReturn(true);
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertEquals($newQuote, $result);
     }
 
     public function testDuplicateWithMissingOriginalQuote()
