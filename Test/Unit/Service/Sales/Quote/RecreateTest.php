@@ -294,6 +294,81 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertFalse($result->getCustomerIsGuest());
     }
 
+    /**
+     * BTI-1911: products that cannot be added are named in a notice instead of being left out silently
+     */
+    public function testDuplicateNamesProductsThatAreNoLongerAvailable()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname'])
+            ->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->method('getStoreId')->willReturn(1);
+        $order->method('getCustomerId')->willReturn(null);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
+
+        $items = [];
+        foreach ([1 => 'Joust Duffle Bag', 2 => 'Deleted Bag', 3 => 'Sold Out Bag'] as $productId => $name) {
+            $item = $this->getFakeMock(Item::class)
+                ->onlyMethods(['getProductId', 'getName', 'getBuyRequest'])
+                ->getMock();
+            $item->method('getProductId')->willReturn($productId);
+            $item->method('getName')->willReturn($name);
+            $item->method('getBuyRequest')->willReturn(new \Magento\Framework\DataObject(['qty' => 1]));
+            $items[] = $item;
+        }
+        $order->method('getAllVisibleItems')->willReturn($items);
+
+        $available = $this->getFakeMock(Product::class)->onlyMethods(['getSku', 'setCustomOptions'])->getMock();
+        $available->method('getSku')->willReturn('24-MB01');
+        $soldOut = $this->getFakeMock(Product::class)->onlyMethods(['getSku', 'setCustomOptions'])->getMock();
+        $soldOut->method('getSku')->willReturn('24-MB03');
+        $productRepository = $this->getFakeMock(\Magento\Catalog\Api\ProductRepositoryInterface::class)->getMock();
+        $productRepository->method('getById')->willReturnCallback(
+            function ($productId) use ($available, $soldOut) {
+                if ($productId === 2) {
+                    throw new \Magento\Framework\Exception\NoSuchEntityException(__('Not found'));
+                }
+                return $productId === 3 ? $soldOut : $available;
+            }
+        );
+        $newQuote->method('addProduct')->willReturnCallback(
+            function ($product) {
+                return $product->getSku() === '24-MB03' ? 'Product that you are trying to add is not available.' : null;
+            }
+        );
+
+        $this->quoteFactory->method('create')->willReturn($newQuote);
+        $this->cartRepository->method('get')->willThrowException(
+            new \Magento\Framework\Exception\NoSuchEntityException(__('Gone'))
+        );
+        $this->storeManager->method('getStore')->willReturn($store);
+
+        $this->messageManager->expects($this->once())->method('addWarningMessage')->with(
+            __(
+                'Some products from your order are no longer available and were not added to your cart: %1',
+                'Deleted Bag, Sold Out Bag'
+            )
+        );
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
+            'productRepository' => $productRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
+            'messageManager' => $this->messageManager,
+            'logger' => $this->logger,
+        ]);
+
+        $this->assertSame($newQuote, $this->invokeArgs('duplicate', [$order], $instance));
+    }
+
     public function testDuplicateWithGuestCustomer()
     {
         $order = $this->getFakeMock(Order::class)->getMock();

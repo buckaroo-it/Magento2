@@ -52,6 +52,7 @@
 "Invalid or expired link. Please try again.","Lien invalide ou expiré. Veuillez réessayer."
 "This order has already been paid.","Cette commande a déjà été payée."
 "Your cart has been restored. You can now complete your purchase.","Votre panier a été restauré. Vous pouvez maintenant réessayer de payer votre commande."
+"Some products from your order are no longer available and were not added to your cart: %1","Certains produits de votre commande ne sont plus disponibles et n'ont pas été ajoutés à votre panier : %1"
 "Your iDIN verified succesfully!","Votre iDIN a été vérifié avec succès!"
 "Enable Riverty","Activer Riverty"
 "Control the availability of this payment method.","Contrôler la disponibilité de ce mode de paiement."
