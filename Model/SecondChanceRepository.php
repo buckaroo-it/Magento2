@@ -38,10 +38,12 @@ use Magento\Framework\Api\ExtensionAttribute\JoinProcessorInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\App\Area;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Math\Random;
 use Magento\Framework\Reflection\DataObjectProcessor;
@@ -49,7 +51,9 @@ use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Payment\Helper\Data;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory as QuoteCollectionFactory;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address\Renderer;
@@ -233,6 +237,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private $followUpOrderFinder;
 
     /**
+     * @var QuoteCollectionFactory
+     */
+    private $quoteCollectionFactory;
+
+    /**
      * @param ResourceSecondChance                                 $resource
      * @param SecondChanceFactory                                  $secondChanceFactory
      * @param SecondChanceInterfaceFactory                         $dataSecondChanceFactory
@@ -262,6 +271,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param Manager                                              $orderIncrementIdChecker
      * @param CartRepositoryInterface                              $cartRepository
      * @param FollowUpOrderFinder                                  $followUpOrderFinder
+     * @param QuoteCollectionFactory|null                          $quoteCollectionFactory
      */
     public function __construct(
         ResourceSecondChance $resource,
@@ -292,7 +302,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         QuoteFactory $quoteFactory,
         Manager $orderIncrementIdChecker,
         CartRepositoryInterface $cartRepository,
-        FollowUpOrderFinder $followUpOrderFinder
+        FollowUpOrderFinder $followUpOrderFinder,
+        ?QuoteCollectionFactory $quoteCollectionFactory = null
     ) {
         $this->resource                         = $resource;
         $this->secondChanceFactory              = $secondChanceFactory;
@@ -323,6 +334,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->orderIncrementIdChecker          = $orderIncrementIdChecker;
         $this->cartRepository                   = $cartRepository;
         $this->followUpOrderFinder              = $followUpOrderFinder;
+        $this->quoteCollectionFactory           = $quoteCollectionFactory
+            ?: ObjectManager::getInstance()->get(QuoteCollectionFactory::class);
     }
 
     /**
@@ -566,18 +579,17 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     }
 
     /**
-     * Set available increment ID with suffix (matching original standalone plugin behavior)
+     * Find the first free increment ID with suffix (matching original standalone plugin behavior)
      *
      * @param string $orderId
-     * @param Order  $order
      *
      * @throws Exception
      *
      * @return string|null
      */
-    private function setAvailableIncrementId($orderId, $order)
+    private function getAvailableIncrementId($orderId)
     {
-        $this->logging->addDebug(__METHOD__ . '|setAvailableIncrementId|' . $orderId);
+        $this->logging->addDebug(__METHOD__ . '|getAvailableIncrementId|' . $orderId);
 
         // Loop from 1-100 to find first available increment ID (matching original plugin)
         for ($i = 1; $i < 100; $i++) {
@@ -588,18 +600,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             if (!$existingOrder->getId()) {
                 $this->logging->addDebug(__METHOD__ . '|setReservedOrderId|' . $newOrderId);
 
-                // Set on checkout session quote if available
-                if ($this->checkoutSession->getQuote() && $this->checkoutSession->getQuote()->getId()) {
-                    $this->checkoutSession->getQuote()->setReservedOrderId($newOrderId);
-                    $this->checkoutSession->getQuote()->save();
-                }
-
-                // Set on original quote
-                $quote = $this->quoteFactory->create()->load($order->getQuoteId());
-                if ($quote->getId()) {
-                    $quote->setReservedOrderId($newOrderId)->save();
-                }
-
+                // Only the recreated quote may carry this ID. The session quote and the original
+                // quote stay in the customer's account, and an order placed from them later would
+                // reuse an increment ID that the Second Chance order has already taken.
                 return $newOrderId;
             }
         }
@@ -627,22 +630,24 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             throw new NoSuchEntityException(__('Invalid token.'));
         }
 
+        // Always load the base order (without suffixes) for recreation
+        $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
+        $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
+
+        // The link stays usable after a click, but once the order is paid it must not
+        // rebuild the cart, or the customer could pay for the same products again.
+        if ($order->getId() && $this->followUpOrderFinder->getPaidRecoveryOrder($order)) {
+            $this->setFinalStatus($secondChance, 'order_paid');
+            throw new StateException(__('This order has already been paid.'));
+        }
+
         // Only set final status if not already completed/clicked
         if (!in_array($secondChance->getStatus(), ['completed', 'clicked'])) {
             $this->setFinalStatus($secondChance, 'clicked');
         }
 
-        // Always load the base order (without suffixes) for recreation
-        $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
-        $order = $this->orderFactory->create()->loadByIncrementId($baseOrderId);
         if ($order->getId()) {
-            // Get or calculate the next available order ID with suffix
-            $newOrderId = $secondChance->getLastOrderId();
-
-            if (!$newOrderId) {
-                // Calculate next available suffix based on base order
-                $newOrderId = $this->setAvailableIncrementId($baseOrderId, $order);
-            }
+            $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
 
             // Recreate the quote from the base order
             $quote = $this->quoteRecreate->duplicate($order);
@@ -658,10 +663,74 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
                 // Save quote after session is set to ensure proper context
                 $this->cartRepository->save($quote);
+
+                $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
             }
         }
 
         return $secondChance->getDataModel();
+    }
+
+    /**
+     * Get the increment ID for the order placed from the recreated cart
+     *
+     * The reminder e-mail stores the order ID to use. An order may already hold it,
+     * for example a Second Chance payment still pending, so then take the next free one.
+     *
+     * @param \Buckaroo\Magento2\Model\SecondChance $secondChance
+     * @param string $baseOrderId
+     * @return string|null
+     * @throws Exception
+     */
+    private function getFollowUpOrderId($secondChance, string $baseOrderId): ?string
+    {
+        $orderId = $secondChance->getLastOrderId();
+        if ($orderId && !$this->isIncrementIdUsed($orderId)) {
+            return $orderId;
+        }
+
+        return $this->getAvailableIncrementId($baseOrderId);
+    }
+
+    /**
+     * Whether an order already uses this increment ID
+     *
+     * @param string $incrementId
+     * @return bool
+     */
+    private function isIncrementIdUsed(string $incrementId): bool
+    {
+        return (bool) $this->orderFactory->create()->loadByIncrementId($incrementId)->getId();
+    }
+
+    /**
+     * Deactivate carts restored from the same order by earlier clicks on the link
+     *
+     * Each click recreates the cart with the same reserved order ID. A logged-in customer keeps
+     * the earlier copies in their account, so after paying with the latest one Magento would load
+     * an earlier copy as the customer's cart, with its products and an increment ID already used.
+     *
+     * @param Quote  $quote
+     * @param string $baseOrderId
+     * @return void
+     */
+    private function deactivateEarlierRestoredQuotes(Quote $quote, string $baseOrderId): void
+    {
+        if (!$quote->getCustomerId()) {
+            return;
+        }
+
+        $collection = $this->quoteCollectionFactory->create();
+        $collection->addFieldToFilter('customer_id', ['eq' => (int) $quote->getCustomerId()])
+            ->addFieldToFilter('is_active', ['eq' => 1])
+            ->addFieldToFilter('entity_id', ['neq' => (int) $quote->getId()])
+            ->addFieldToFilter('reserved_order_id', ['like' => $baseOrderId . '-%']);
+
+        foreach ($collection as $earlierQuote) {
+            $earlierQuote->setIsActive(false);
+            $this->cartRepository->save($earlierQuote);
+            $this->logging->addDebug(__METHOD__ . '|deactivated|' . $earlierQuote->getId());
+        }
     }
 
     /**
@@ -820,7 +889,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         // Get the expected order ID (should be pre-calculated and stored in last_order_id)
         $expectedOrderId = $secondChance->getLastOrderId();
         if (!$expectedOrderId) {
-            $expectedOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+            $expectedOrderId = $this->getAvailableIncrementId($secondChance->getOrderId());
         }
 
         $this->logging->addDebug('Second Chance email URL generated', [

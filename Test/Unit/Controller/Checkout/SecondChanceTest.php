@@ -184,6 +184,35 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
+    public function testExecuteWithAlreadyPaidOrder()
+    {
+        $token = 'Zz9yXw8vUt7sRq6pOn5mLk4jIh3gFe2d';
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+
+        $this->secondChanceRepository->method('getSecondChanceByToken')
+            ->with($token)
+            ->willThrowException(
+                new \Magento\Framework\Exception\StateException(__('This order has already been paid.'))
+            );
+
+        $this->messageManager->expects($this->once())
+            ->method('addNoticeMessage')
+            ->with(__('This order has already been paid.'));
+        $this->messageManager->expects($this->never())->method('addErrorMessage');
+        $this->checkoutSession->expects($this->never())->method('getQuote');
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
     public function testExecuteWithNoToken()
     {
         $this->request->method('getParam')->with('token')->willReturn(null);

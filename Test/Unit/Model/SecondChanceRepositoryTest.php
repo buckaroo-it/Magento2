@@ -514,9 +514,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturnSelf();
 
         $quote->method('getId')->willReturn(456);
-        $quote->method('setReservedOrderId')
-            ->with('000000001-1')
-            ->willReturnSelf();
+        // The original quote and the shopper's current cart must not take the new order's ID
+        $quote->expects($this->never())->method('setReservedOrderId');
         $quote->method('save')->willReturnSelf();
 
         // Mock checkout session
@@ -524,9 +523,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturn($checkoutQuote);
 
         $checkoutQuote->method('getId')->willReturn(789);
-        $checkoutQuote->method('setReservedOrderId')
-            ->with('000000001-1')
-            ->willReturnSelf();
+        $checkoutQuote->expects($this->never())->method('setReservedOrderId');
         $checkoutQuote->method('save')->willReturnSelf();
 
         // Mock the quoteRecreate to return a new quote with an ID
@@ -558,6 +555,177 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         // Add proper assertion to verify the result
         $this->assertEquals($secondChance, $result, 'getSecondChanceByToken should return the expected SecondChance object');
+    }
+
+    public function testGetSecondChanceByTokenDeactivatesEarlierRestoredQuotes()
+    {
+        $token = 'test_token';
+        $orderId = '000000001';
+
+        $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
+        $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $order = $this->getFakeMock(Order::class, true);
+        $checkOrder = $this->getFakeMock(Order::class, true);
+
+        $collectionFactory->method('create')->willReturn($collection);
+        $collection->method('addFieldToFilter')->willReturn($collection);
+        $collection->method('getFirstItem')->willReturn($secondChance);
+
+        $secondChance->method('getId')->willReturn(1);
+        $secondChance->method('getOrderId')->willReturn($orderId);
+        $secondChance->method('getDataModel')->willReturn($secondChance);
+
+        $checkOrder->method('loadByIncrementId')->willReturnSelf();
+        $checkOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturnOnConsecutiveCalls($order, $checkOrder);
+
+        $order->method('loadByIncrementId')->with($orderId)->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId', 'setReservedOrderId'])
+            ->getMock();
+        $newQuote->method('getId')->willReturn(999);
+        $newQuote->method('getCustomerId')->willReturn(42);
+        $newQuote->expects($this->once())->method('setReservedOrderId')->with('000000001-1')->willReturnSelf();
+        $this->quoteRecreate->method('duplicate')->with($order)->willReturn($newQuote);
+
+        // A cart restored by an earlier click on the same link
+        $earlierQuote = $this->getFakeMock(\Magento\Quote\Model\Quote::class, true);
+        $earlierQuote->method('getId')->willReturn(998);
+        $earlierQuote->expects($this->once())->method('setIsActive')->with(false)->willReturnSelf();
+
+        $filters = [];
+        $quoteCollection = $this->getFakeMock(\Magento\Quote\Model\ResourceModel\Quote\Collection::class, true);
+        $quoteCollection->method('addFieldToFilter')->willReturnCallback(
+            function ($field, $condition) use (&$filters, $quoteCollection) {
+                $filters[$field] = $condition;
+                return $quoteCollection;
+            }
+        );
+        $quoteCollection->method('getIterator')->willReturn(new \ArrayIterator([$earlierQuote]));
+        $quoteCollectionFactory = $this->getFakeMock(
+            \Magento\Quote\Model\ResourceModel\Quote\CollectionFactory::class,
+            true
+        );
+        $quoteCollectionFactory->method('create')->willReturn($quoteCollection);
+
+        $cartRepository = $this->createMock(\Magento\Quote\Api\CartRepositoryInterface::class);
+        $savedQuotes = [];
+        $cartRepository->method('save')->willReturnCallback(
+            function ($quote) use (&$savedQuotes) {
+                $savedQuotes[] = $quote;
+            }
+        );
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'quoteRecreate' => $this->quoteRecreate,
+            'checkoutSession' => $this->checkoutSession,
+            'cartRepository' => $cartRepository,
+            'quoteCollectionFactory' => $quoteCollectionFactory,
+            'logging' => $this->logging,
+        ]);
+
+        $this->invokeArgs('getSecondChanceByToken', [$token], $instance);
+
+        $this->assertSame(
+            [
+                'customer_id' => ['eq' => 42],
+                'is_active' => ['eq' => 1],
+                'entity_id' => ['neq' => 999],
+                'reserved_order_id' => ['like' => '000000001-%'],
+            ],
+            $filters
+        );
+        $this->assertSame([$newQuote, $earlierQuote], $savedQuotes);
+    }
+
+    public function testGetSecondChanceByTokenRefusesAPaidOrder()
+    {
+        $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
+        $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $order = $this->getFakeMock(Order::class, true);
+
+        $collectionFactory->method('create')->willReturn($collection);
+        $collection->method('addFieldToFilter')->willReturn($collection);
+        $collection->method('getFirstItem')->willReturn($secondChance);
+        $secondChance->method('getId')->willReturn(1);
+        $secondChance->method('getOrderId')->willReturn('000000001');
+        $secondChance->expects($this->once())->method('setStatus')->with('order_paid');
+
+        $this->orderFactory->method('create')->willReturn($order);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+
+        $followUpOrderFinder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $followUpOrderFinder->method('getPaidRecoveryOrder')->with($order)
+            ->willReturn($this->getFakeMock(Order::class, true));
+
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'quoteRecreate' => $this->quoteRecreate,
+            'followUpOrderFinder' => $followUpOrderFinder,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+    }
+
+    public function testGetSecondChanceByTokenSkipsAStoredOrderIdThatIsAlreadyUsed()
+    {
+        $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
+        $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+
+        $collectionFactory->method('create')->willReturn($collection);
+        $collection->method('addFieldToFilter')->willReturn($collection);
+        $collection->method('getFirstItem')->willReturn($secondChance);
+        $secondChance->method('getId')->willReturn(1);
+        $secondChance->method('getOrderId')->willReturn('000000001');
+        $secondChance->method('getDataModel')->willReturn($secondChance);
+        // The reminder e-mail stored -1, but a pending Second Chance payment already uses it
+        $secondChance->method('getLastOrderId')->willReturn('000000001-1');
+
+        $existing = ['000000001' => 123, '000000001-1' => 124];
+        $this->orderFactory->method('create')->willReturnCallback(function () use ($existing) {
+            $order = $this->getFakeMock(Order::class, true);
+            $loaded = null;
+            $order->method('loadByIncrementId')->willReturnCallback(
+                function ($incrementId) use ($order, &$loaded) {
+                    $loaded = $incrementId;
+                    return $order;
+                }
+            );
+            $order->method('getId')->willReturnCallback(function () use (&$loaded, $existing) {
+                return $existing[$loaded] ?? null;
+            });
+            return $order;
+        });
+
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId', 'setReservedOrderId'])
+            ->getMock();
+        $newQuote->method('getId')->willReturn(999);
+        $newQuote->expects($this->once())->method('setReservedOrderId')->with('000000001-2')->willReturnSelf();
+        $this->quoteRecreate->method('duplicate')->willReturn($newQuote);
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'quoteRecreate' => $this->quoteRecreate,
+            'checkoutSession' => $this->checkoutSession,
+            'logging' => $this->logging,
+        ]);
+
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
     }
 
     public function testGetSecondChanceByTokenInvalidToken()

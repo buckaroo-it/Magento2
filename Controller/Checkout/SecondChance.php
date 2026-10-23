@@ -30,6 +30,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 
 class SecondChance extends Action
 {
@@ -96,15 +97,9 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        try {
-            if (!$this->isWellFormedToken($token)) {
-                throw new NoSuchEntityException(__('Invalid token.'));
-            }
-            $this->secondChanceRepository->getSecondChanceByToken($token);
-        } catch (Exception $e) {
-            $this->logger->addWarning('SecondChance: invalid or expired token');
-            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
-            return $this->handleRedirect('checkout/cart');
+        $failedRedirect = $this->restoreCart($token);
+        if ($failedRedirect !== null) {
+            return $failedRedirect;
         }
 
         $quote = $this->checkoutSession->getQuote();
@@ -142,6 +137,31 @@ class SecondChance extends Action
         );
 
         return $this->handleRedirect('checkout', ['_query' => $utmParams, '_fragment' => 'payment']);
+    }
+
+    /**
+     * Restore the cart for the token, or return the redirect when it cannot be restored
+     *
+     * @param mixed $token
+     * @return Redirect|null
+     */
+    private function restoreCart($token): ?Redirect
+    {
+        try {
+            if (!$this->isWellFormedToken($token)) {
+                throw new NoSuchEntityException(__('Invalid token.'));
+            }
+            $this->secondChanceRepository->getSecondChanceByToken($token);
+        } catch (StateException $e) {
+            $this->messageManager->addNoticeMessage($e->getMessage());
+            return $this->handleRedirect('checkout/cart');
+        } catch (Exception $e) {
+            $this->logger->addWarning('SecondChance: invalid or expired token');
+            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
+            return $this->handleRedirect('checkout/cart');
+        }
+
+        return null;
     }
 
     /**
