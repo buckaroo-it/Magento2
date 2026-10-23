@@ -37,6 +37,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -94,6 +95,11 @@ class Recreate
     private $productRepository;
 
     /**
+     * @var SecondChanceCartMerger
+     */
+    private $cartMerger;
+
+    /**
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
@@ -106,6 +112,7 @@ class Recreate
      * @param PaymentHelper $paymentHelper
      * @param ProductRepositoryInterface $productRepository
      * @param SecondChanceConfig|null $secondChanceConfig
+     * @param SecondChanceCartMerger|null $cartMerger
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -118,7 +125,8 @@ class Recreate
         StoreManagerInterface      $storeManager,
         PaymentHelper              $paymentHelper,
         ProductRepositoryInterface $productRepository,
-        ?SecondChanceConfig        $secondChanceConfig = null
+        ?SecondChanceConfig        $secondChanceConfig = null,
+        ?SecondChanceCartMerger    $cartMerger = null
     ) {
         $this->productRepository = $productRepository;
         $this->cartRepository       = $cartRepository;
@@ -130,6 +138,8 @@ class Recreate
         $this->storeManager         = $storeManager;
         $this->paymentHelper        = $paymentHelper;
         $this->secondChanceConfig   = $secondChanceConfig;
+        $this->cartMerger           = $cartMerger
+            ?: ObjectManager::getInstance()->get(SecondChanceCartMerger::class);
     }
 
     /**
@@ -245,6 +255,8 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
+            // The shopper's current cart, captured before this method replaces the session quote.
+            $sessionQuoteId = (int) $this->checkoutSession->getQuoteId();
             // Sign-in merges the guest cart into the customer cart and deletes the original quote.
             // The order still points at that quote, so recreate from the order when it is gone.
             $oldQuote = null;
@@ -311,6 +323,9 @@ class Recreate
                 }
             }
             $this->notifyUnavailableProducts($unavailableProducts);
+
+            // Keep what the shopper added to their cart since the order (BTI-1913)
+            $previousCarts = $this->cartMerger->mergeInto($quote, $order, $sessionQuoteId);
 
             // Copy addresses
             if ($order->getBillingAddress()) {
@@ -446,6 +461,9 @@ class Recreate
                 $oldQuote->setIsActive(false);
                 $this->cartRepository->save($oldQuote);
             }
+
+            // The restored cart is now the shopper's only active cart (BTI-1914)
+            $this->cartMerger->deactivate($previousCarts);
 
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;

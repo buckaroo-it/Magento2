@@ -276,7 +276,17 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('getCustomerLastname')->willReturn('Doe');
         $newQuote->method('getCustomerIsGuest')->willReturn(false);
 
+        // BTI-1913 / BTI-1914: the shopper's current carts are merged, then replaced by the restored cart
+        $previousCart = $this->getFakeMock(Quote::class)->getMock();
+        $cartMerger = $this->getFakeMock(\Buckaroo\Magento2\Service\Sales\Quote\SecondChanceCartMerger::class)
+            ->getMock();
+        $cartMerger->expects($this->once())->method('mergeInto')
+            ->with($newQuote, $order, 123)
+            ->willReturn([$previousCart]);
+        $cartMerger->expects($this->once())->method('deactivate')->with([$previousCart]);
+
         $instance = $this->getInstance([
+            'cartMerger' => $cartMerger,
             'quoteFactory' => $this->quoteFactory,
             'cartRepository' => $this->cartRepository,
             'productRepository' => $productRepositoryMock,
