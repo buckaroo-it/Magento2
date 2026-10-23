@@ -105,7 +105,7 @@ class FollowUpOrderFinder
     {
         $incrementId = (string) $abandonedOrder->getIncrementId();
         $collection = $this->orderCollectionFactory->create();
-        $collection->addFieldToFilter('store_id', (int) $abandonedOrder->getStoreId())
+        $collection->addFieldToFilter('store_id', ['eq' => (int) $abandonedOrder->getStoreId()])
             ->addFieldToFilter('increment_id', [['eq' => $incrementId], ['like' => $incrementId . '-%']])
             ->addFieldToFilter('state', ['in' => self::PAID_STATES])
             ->setPageSize(1);

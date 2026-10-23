@@ -188,7 +188,7 @@ class FollowUpOrderFinderTest extends TestCase
         $this->assertSame($this->foundOrder, $paidOrder);
         $this->assertSame(
             [
-                ['store_id', 2],
+                ['store_id', ['eq' => 2]],
                 ['increment_id', [['eq' => '300000216'], ['like' => '300000216-%']]],
                 ['state', ['in' => [Order::STATE_PROCESSING, Order::STATE_COMPLETE]]],
             ],

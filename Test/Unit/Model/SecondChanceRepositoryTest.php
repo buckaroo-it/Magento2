@@ -633,8 +633,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertSame(
             [
-                'customer_id' => 42,
-                'is_active' => 1,
+                'customer_id' => ['eq' => 42],
+                'is_active' => ['eq' => 1],
                 'entity_id' => ['neq' => 999],
                 'reserved_order_id' => ['like' => '000000001-%'],
             ],

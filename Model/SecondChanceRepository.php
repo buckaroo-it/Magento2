@@ -647,14 +647,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         if ($order->getId()) {
-            // The reminder e-mail stores the order ID to use. An order may already hold it,
-            // for example a Second Chance payment still pending, so then take the next free one.
-            $newOrderId = $secondChance->getLastOrderId();
-
-            if (!$newOrderId || $this->isIncrementIdUsed($newOrderId)) {
-                // Calculate next available suffix based on base order
-                $newOrderId = $this->getAvailableIncrementId($baseOrderId);
-            }
+            $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
 
             // Recreate the quote from the base order
             $quote = $this->quoteRecreate->duplicate($order);
@@ -676,6 +669,27 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         return $secondChance->getDataModel();
+    }
+
+    /**
+     * Get the increment ID for the order placed from the recreated cart
+     *
+     * The reminder e-mail stores the order ID to use. An order may already hold it,
+     * for example a Second Chance payment still pending, so then take the next free one.
+     *
+     * @param \Buckaroo\Magento2\Model\SecondChance $secondChance
+     * @param string $baseOrderId
+     * @return string|null
+     * @throws Exception
+     */
+    private function getFollowUpOrderId($secondChance, string $baseOrderId): ?string
+    {
+        $orderId = $secondChance->getLastOrderId();
+        if ($orderId && !$this->isIncrementIdUsed($orderId)) {
+            return $orderId;
+        }
+
+        return $this->getAvailableIncrementId($baseOrderId);
     }
 
     /**
@@ -707,8 +721,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         $collection = $this->quoteCollectionFactory->create();
-        $collection->addFieldToFilter('customer_id', (int) $quote->getCustomerId())
-            ->addFieldToFilter('is_active', 1)
+        $collection->addFieldToFilter('customer_id', ['eq' => (int) $quote->getCustomerId()])
+            ->addFieldToFilter('is_active', ['eq' => 1])
             ->addFieldToFilter('entity_id', ['neq' => (int) $quote->getId()])
             ->addFieldToFilter('reserved_order_id', ['like' => $baseOrderId . '-%']);
 
@@ -875,7 +889,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         // Get the expected order ID (should be pre-calculated and stored in last_order_id)
         $expectedOrderId = $secondChance->getLastOrderId();
         if (!$expectedOrderId) {
-            $expectedOrderId = $this->setAvailableIncrementId($secondChance->getOrderId(), $order);
+            $expectedOrderId = $this->getAvailableIncrementId($secondChance->getOrderId());
         }
 
         $this->logging->addDebug('Second Chance email URL generated', [
