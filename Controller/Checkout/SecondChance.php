@@ -30,6 +30,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 
 class SecondChance extends Action
 {
@@ -101,6 +102,9 @@ class SecondChance extends Action
                 throw new NoSuchEntityException(__('Invalid token.'));
             }
             $this->secondChanceRepository->getSecondChanceByToken($token);
+        } catch (StateException $e) {
+            $this->messageManager->addNoticeMessage($e->getMessage());
+            return $this->handleRedirect('checkout/cart');
         } catch (Exception $e) {
             $this->logger->addWarning('SecondChance: invalid or expired token');
             $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));

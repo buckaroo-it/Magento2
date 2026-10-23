@@ -173,6 +173,38 @@ class FollowUpOrderFinderTest extends TestCase
     /**
      * @return FollowUpOrderFinder
      */
+    /**
+     * BTI-1859: the abandoned order and its Second Chance orders ("<increment id>-N") count as paid recovery orders.
+     */
+    public function testPaidRecoveryOrderMatchesTheOrderAndItsSecondChanceOrders(): void
+    {
+        $this->foundOrder->method('getId')->willReturn(15826141);
+        $abandonedOrder = $this->createMock(Order::class);
+        $abandonedOrder->method('getIncrementId')->willReturn('300000216');
+        $abandonedOrder->method('getStoreId')->willReturn(2);
+
+        $paidOrder = $this->createFinder()->getPaidRecoveryOrder($abandonedOrder);
+
+        $this->assertSame($this->foundOrder, $paidOrder);
+        $this->assertSame(
+            [
+                ['store_id', 2],
+                ['increment_id', [['eq' => '300000216'], ['like' => '300000216-%']]],
+                ['state', ['in' => [Order::STATE_PROCESSING, Order::STATE_COMPLETE]]],
+            ],
+            $this->filters
+        );
+    }
+
+    public function testNoPaidRecoveryOrder(): void
+    {
+        $this->foundOrder->method('getId')->willReturn(null);
+        $abandonedOrder = $this->createMock(Order::class);
+        $abandonedOrder->method('getIncrementId')->willReturn('300000216');
+
+        $this->assertNull($this->createFinder()->getPaidRecoveryOrder($abandonedOrder));
+    }
+
     private function createFinder(): FollowUpOrderFinder
     {
         $collection = $this->createMock(Collection::class);

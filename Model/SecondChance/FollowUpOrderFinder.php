@@ -96,6 +96,24 @@ class FollowUpOrderFinder
     }
 
     /**
+     * Get a paid order for the abandoned order itself or one of its Second Chance orders (increment ID "<base>-N").
+     *
+     * @param OrderInterface $abandonedOrder
+     * @return OrderInterface|null
+     */
+    public function getPaidRecoveryOrder(OrderInterface $abandonedOrder): ?OrderInterface
+    {
+        $incrementId = (string) $abandonedOrder->getIncrementId();
+        $collection = $this->orderCollectionFactory->create();
+        $collection->addFieldToFilter('store_id', (int) $abandonedOrder->getStoreId())
+            ->addFieldToFilter('increment_id', [['eq' => $incrementId], ['like' => $incrementId . '-%']])
+            ->addFieldToFilter('state', ['in' => self::PAID_STATES])
+            ->setPageSize(1);
+
+        return $this->getFirstOrder($collection);
+    }
+
+    /**
      * Get the replacement checkout for the abandoned order that is still waiting for its payment result.
      *
      * Only an order younger than the grace period counts. An older one is not going to be paid any more, and
