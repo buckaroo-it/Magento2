@@ -110,12 +110,17 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        // Guest order clicked while customer is logged in: log out to preserve the guest flow.
-        // Auto-login is a security risk (link reuse, shared inboxes) and would assign a guest
-        // order to the wrong account. logout() destroys the PHP session, which detaches the
-        // checkout storage, so bind a new session before putting the guest quote back.
-        if (!$quote->getCustomerId() && $this->customerSession->isLoggedIn()) {
+        // Link for a guest order or another customer's order clicked while a customer is logged
+        // in: log out, so a guest order continues as guest and a customer order asks its owner
+        // to sign in below. Auto-login is a security risk (link reuse, shared inboxes) and would
+        // assign the order to the wrong account. logout() destroys the PHP session, which detaches
+        // the customer and checkout storage. regenerateId() binds only its own storage to the new
+        // session, so call it on both: the customer one keeps the sign-in redirect set below.
+        if ($this->customerSession->isLoggedIn()
+            && (int) $quote->getCustomerId() !== (int) $this->customerSession->getCustomerId()
+        ) {
             $this->customerSession->logout();
+            $this->customerSession->regenerateId();
             $this->checkoutSession->regenerateId();
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
