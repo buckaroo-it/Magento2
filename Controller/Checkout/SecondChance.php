@@ -30,6 +30,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 
 class SecondChance extends Action
 {
@@ -96,15 +97,9 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        try {
-            if (!$this->isWellFormedToken($token)) {
-                throw new NoSuchEntityException(__('Invalid token.'));
-            }
-            $this->secondChanceRepository->getSecondChanceByToken($token);
-        } catch (Exception $e) {
-            $this->logger->addWarning('SecondChance: invalid or expired token');
-            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
-            return $this->handleRedirect('checkout/cart');
+        $failedRedirect = $this->restoreCart($token);
+        if ($failedRedirect !== null) {
+            return $failedRedirect;
         }
 
         $quote = $this->checkoutSession->getQuote();
@@ -115,12 +110,17 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        // Guest order clicked while customer is logged in: log out to preserve the guest flow.
-        // Auto-login is a security risk (link reuse, shared inboxes) and would assign a guest
-        // order to the wrong account. logout() destroys the PHP session, which detaches the
-        // checkout storage, so bind a new session before putting the guest quote back.
-        if (!$quote->getCustomerId() && $this->customerSession->isLoggedIn()) {
+        // Link for a guest order or another customer's order clicked while a customer is logged
+        // in: log out, so a guest order continues as guest and a customer order asks its owner
+        // to sign in below. Auto-login is a security risk (link reuse, shared inboxes) and would
+        // assign the order to the wrong account. logout() destroys the PHP session, which detaches
+        // the customer and checkout storage. regenerateId() binds only its own storage to the new
+        // session, so call it on both: the customer one keeps the sign-in redirect set below.
+        if ($this->customerSession->isLoggedIn()
+            && (int) $quote->getCustomerId() !== (int) $this->customerSession->getCustomerId()
+        ) {
             $this->customerSession->logout();
+            $this->customerSession->regenerateId();
             $this->checkoutSession->regenerateId();
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
@@ -142,6 +142,31 @@ class SecondChance extends Action
         );
 
         return $this->handleRedirect('checkout', ['_query' => $utmParams, '_fragment' => 'payment']);
+    }
+
+    /**
+     * Restore the cart for the token, or return the redirect when it cannot be restored
+     *
+     * @param mixed $token
+     * @return Redirect|null
+     */
+    private function restoreCart($token): ?Redirect
+    {
+        try {
+            if (!$this->isWellFormedToken($token)) {
+                throw new NoSuchEntityException(__('Invalid token.'));
+            }
+            $this->secondChanceRepository->getSecondChanceByToken($token);
+        } catch (StateException $e) {
+            $this->messageManager->addNoticeMessage($e->getMessage());
+            return $this->handleRedirect('checkout/cart');
+        } catch (Exception $e) {
+            $this->logger->addWarning('SecondChance: invalid or expired token');
+            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
+            return $this->handleRedirect('checkout/cart');
+        }
+
+        return null;
     }
 
     /**

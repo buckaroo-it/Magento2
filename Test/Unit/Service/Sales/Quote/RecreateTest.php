@@ -78,7 +78,8 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->cart = $this->getFakeMock(Cart::class)->getMock();
         $this->checkoutSession = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class, false)
             ->onlyMethods(['replaceQuote', 'setQuoteId', 'getQuoteId', 'unsLastRealOrderId', 'unsLastOrderId', 'unsLastSuccessQuoteId', 'unsRedirectUrl', 'unsLastQuoteId'])->getMock();
-        $this->checkoutSession->method('getQuoteId')->willReturn(null);
+        // The failed order's quote is the shopper's current cart, as after a failed payment
+        $this->checkoutSession->method('getQuoteId')->willReturn(123);
         $this->quoteFactory = $this->getFakeMock(QuoteFactory::class)->getMock();
         $this->productFactory = $this->getFakeMock(ProductFactory::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
@@ -186,10 +187,15 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $order->method('getShippingMethod')->willReturn('flatrate_flatrate');
 
         // Setup order items
-        $orderItem = $this->getFakeMock(Item::class)->getMock();
+        // The stored buyRequest keeps the qty of the first add-to-cart, not the ordered qty.
+        $orderItem = $this->getFakeMock(Item::class)
+            ->onlyMethods(['getProductId', 'getQtyOrdered', 'getProductOptionByCode'])
+            ->getMock();
         $orderItem->method('getProductId')->willReturn(1);
-        $orderItem->method('getQtyOrdered')->willReturn(2);
-        $orderItem->method('getProductOptionByCode')->with('info_buyRequest')->willReturn(['qty' => 2]);
+        $orderItem->method('getQtyOrdered')->willReturn(3.0);
+        $orderItem->method('getProductOptionByCode')
+            ->with('info_buyRequest')
+            ->willReturn(['product' => 1, 'qty' => 1]);
 
         $order->method('getAllVisibleItems')->willReturn([$orderItem]);
 
@@ -243,8 +249,15 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
             ->getMock();
         $productRepositoryMock->method('getById')->with(1)->willReturn($product);
 
-        $newQuote->method('addProduct')
-            ->with($product, $this->isInstanceOf(\Magento\Framework\DataObject::class));
+        $newQuote->expects($this->once())->method('addProduct')
+            ->with(
+                $product,
+                $this->callback(function ($buyRequest) {
+                    return $buyRequest instanceof \Magento\Framework\DataObject
+                        && $buyRequest->getQty() == 3
+                        && $buyRequest->getProduct() == 1;
+                })
+            );
 
         // Setup addresses
         $quoteBillingAddress->method('importOrderAddress')->with($billingAddress);
@@ -263,7 +276,17 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $newQuote->method('getCustomerLastname')->willReturn('Doe');
         $newQuote->method('getCustomerIsGuest')->willReturn(false);
 
+        // BTI-1913 / BTI-1914: the shopper's current carts are merged, then replaced by the restored cart
+        $previousCart = $this->getFakeMock(Quote::class)->getMock();
+        $cartMerger = $this->getFakeMock(\Buckaroo\Magento2\Service\Sales\Quote\SecondChanceCartMerger::class)
+            ->getMock();
+        $cartMerger->expects($this->once())->method('mergeInto')
+            ->with($newQuote, $order, 123)
+            ->willReturn([$previousCart]);
+        $cartMerger->expects($this->once())->method('deactivate')->with([$previousCart]);
+
         $instance = $this->getInstance([
+            'cartMerger' => $cartMerger,
             'quoteFactory' => $this->quoteFactory,
             'cartRepository' => $this->cartRepository,
             'productRepository' => $productRepositoryMock,
@@ -279,6 +302,81 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertEquals('John', $result->getCustomerFirstname());
         $this->assertEquals('Doe', $result->getCustomerLastname());
         $this->assertFalse($result->getCustomerIsGuest());
+    }
+
+    /**
+     * BTI-1911: products that cannot be added are named in a notice instead of being left out silently
+     */
+    public function testDuplicateNamesProductsThatAreNoLongerAvailable()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'setIsActive', 'collectTotals', 'save', 'addProduct', 'setCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname'])
+            ->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->method('getStoreId')->willReturn(1);
+        $order->method('getCustomerId')->willReturn(null);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
+
+        $items = [];
+        foreach ([1 => 'Joust Duffle Bag', 2 => 'Deleted Bag', 3 => 'Sold Out Bag'] as $productId => $name) {
+            $item = $this->getFakeMock(Item::class)
+                ->onlyMethods(['getProductId', 'getName', 'getBuyRequest'])
+                ->getMock();
+            $item->method('getProductId')->willReturn($productId);
+            $item->method('getName')->willReturn($name);
+            $item->method('getBuyRequest')->willReturn(new \Magento\Framework\DataObject(['qty' => 1]));
+            $items[] = $item;
+        }
+        $order->method('getAllVisibleItems')->willReturn($items);
+
+        $available = $this->getFakeMock(Product::class)->onlyMethods(['getSku', 'setCustomOptions'])->getMock();
+        $available->method('getSku')->willReturn('24-MB01');
+        $soldOut = $this->getFakeMock(Product::class)->onlyMethods(['getSku', 'setCustomOptions'])->getMock();
+        $soldOut->method('getSku')->willReturn('24-MB03');
+        $productRepository = $this->getFakeMock(\Magento\Catalog\Api\ProductRepositoryInterface::class)->getMock();
+        $productRepository->method('getById')->willReturnCallback(
+            function ($productId) use ($available, $soldOut) {
+                if ($productId === 2) {
+                    throw new \Magento\Framework\Exception\NoSuchEntityException(__('Not found'));
+                }
+                return $productId === 3 ? $soldOut : $available;
+            }
+        );
+        $newQuote->method('addProduct')->willReturnCallback(
+            function ($product) {
+                return $product->getSku() === '24-MB03' ? 'Product that you are trying to add is not available.' : null;
+            }
+        );
+
+        $this->quoteFactory->method('create')->willReturn($newQuote);
+        $this->cartRepository->method('get')->willThrowException(
+            new \Magento\Framework\Exception\NoSuchEntityException(__('Gone'))
+        );
+        $this->storeManager->method('getStore')->willReturn($store);
+
+        $this->messageManager->expects($this->once())->method('addWarningMessage')->with(
+            __(
+                'Some products from your order are no longer available and were not added to your cart: %1',
+                'Deleted Bag, Sold Out Bag'
+            )
+        );
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
+            'productRepository' => $productRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
+            'messageManager' => $this->messageManager,
+            'logger' => $this->logger,
+        ]);
+
+        $this->assertSame($newQuote, $this->invokeArgs('duplicate', [$order], $instance));
     }
 
     public function testDuplicateWithGuestCustomer()
@@ -351,6 +449,76 @@ class RecreateTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertEquals('Guest', $result->getCustomerFirstname());
         $this->assertEquals('User', $result->getCustomerLastname());
         $this->assertTrue($result->getCustomerIsGuest());
+    }
+
+    public function testDuplicateKeepsGuestQuoteThatBecameAccountCart()
+    {
+        $order = $this->getFakeMock(Order::class)->getMock();
+        // The guest signed in afterwards, so the guest quote is now their account cart
+        $oldQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId', 'setIsActive', 'save', 'getPayment'])
+            ->getMock();
+        $oldQuote->method('getCustomerId')->willReturn(42);
+        $newQuote = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['setStore', 'setStoreId', 'getBillingAddress', 'getShippingAddress', 'setIsActive', 'collectTotals', 'save', 'setCustomerIsGuest', 'getCustomerIsGuest', 'setCustomerEmail', 'setCustomerFirstname', 'setCustomerLastname', 'getCustomerId', 'getCustomerEmail', 'getCustomerFirstname', 'getCustomerLastname'])->getMock();
+        $store = $this->getFakeMock(Store::class)->getMock();
+
+        // Setup guest order
+        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getQuoteId')->willReturn(123);
+        $order->method('getStore')->willReturn($store);
+        $order->method('getStoreId')->willReturn(1);
+        $order->method('getCustomerId')->willReturn(null); // Guest customer
+        $order->method('getCustomerEmail')->willReturn('guest@example.com');
+        $order->method('getCustomerFirstname')->willReturn('Guest');
+        $order->method('getCustomerLastname')->willReturn('User');
+        $order->method('getAllVisibleItems')->willReturn([]);
+        $order->method('getBillingAddress')->willReturn(null);
+        $order->method('getShippingAddress')->willReturn(null);
+
+        $this->quoteFactory->method('create')
+            ->willReturn($newQuote);
+
+        $this->cartRepository->method('get')->with(123)->willReturn($oldQuote);
+
+        $oldQuote->method('getId')->willReturn(123);
+        $oldQuote->expects($this->never())->method('setIsActive');
+
+        // Setup store manager
+        $this->storeManager->method('getStore')->with(1)->willReturn($store);
+        $this->storeManager->method('setCurrentStore')->with($store);
+        $store->method('getId')->willReturn(1);
+        $store->method('getCode')->willReturn('default');
+        $store->method('getConfig')->with('general/locale/code')->willReturn('en_US');
+
+        // Setup guest quote
+        $newQuote->method('setStore')->with($store);
+        $newQuote->method('setStoreId')->with(1);
+        $newQuote->method('setCustomerEmail')->with('guest@example.com');
+        $newQuote->method('setCustomerFirstname')->with('Guest');
+        $newQuote->method('setCustomerLastname')->with('User');
+        $newQuote->method('setCustomerIsGuest')->with(true);
+        $newQuote->method('setIsActive')->with(true);
+        $newQuote->method('collectTotals');
+        $newQuote->method('save');
+
+        // Configure getters to return expected values
+        $newQuote->method('getCustomerId')->willReturn(null);
+        $newQuote->method('getCustomerEmail')->willReturn('guest@example.com');
+        $newQuote->method('getCustomerFirstname')->willReturn('Guest');
+        $newQuote->method('getCustomerLastname')->willReturn('User');
+        $newQuote->method('getCustomerIsGuest')->willReturn(true);
+
+        $instance = $this->getInstance([
+            'quoteFactory' => $this->quoteFactory,
+            'cartRepository' => $this->cartRepository,
+            'checkoutSession' => $this->checkoutSession,
+            'storeManager' => $this->storeManager,
+            'logger' => $this->logger,
+        ]);
+
+        $result = $this->invokeArgs('duplicate', [$order], $instance);
+        $this->assertEquals($newQuote, $result);
     }
 
     public function testDuplicateWithMissingOriginalQuote()

@@ -44,6 +44,13 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
 
     /**
+     * Card networks offered in the Apple Pay payment sheet.
+     *
+     * Buckaroo does not process American Express, Discover or JCB through Apple Pay.
+     */
+    public const SUPPORTED_NETWORKS = ['masterCard', 'visa', 'maestro', 'vPay', 'cartesBancaires', 'privateLabel'];
+
+    /**
      * @var array
      */
     protected $allowedCurrencies = [
@@ -104,6 +111,7 @@ class Applepay extends AbstractConfigProvider
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
+            'supportedNetworks'            => self::SUPPORTED_NETWORKS,
         ]);
     }
 

@@ -57,7 +57,6 @@ class SaveOrder extends AbstractGooglepay
      * Execute save order action
      *
      * @throws ExpressMethodsException
-     * @throws LocalizedException
      * @return Json
      */
     public function execute(): Json
@@ -68,7 +67,14 @@ class SaveOrder extends AbstractGooglepay
             return $this->commonResponse([], true);
         }
 
-        $data = $this->processor->place($payload);
+        try {
+            $data = $this->processor->place($payload);
+        } catch (LocalizedException $exception) {
+            // The order was not placed, e.g. the card was rejected; return the reason so the shopper sees it
+            $this->logger->addError('[GooglePay] Order could not be placed: ' . $exception->getMessage());
+
+            return $this->commonResponse([], $exception->getMessage());
+        }
 
         return $this->commonResponse($data, false);
     }

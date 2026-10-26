@@ -442,12 +442,18 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check whether this push reports a capture.
      *
-     * A capture is either a capture Magento itself initiated, or a Klarna capture confirmation.
-     * The gateway's transaction_type codes are per card brand (C800 visa, C805 mastercard,
-     * C811 maestro), so they do not identify an action, and mutationtype=Collecting is present on
-     * every money-in push including ordinary pay pushes - neither can be used to detect a capture.
+     * A capture is one Magento itself initiated, a Klarna capture confirmation, or a capture
+     * started in Buckaroo Plaza. Plaza does not send service_action_from_magento=capture: it
+     * collects a new transaction on an order that is already authorized.
+     *
+     * transaction_type is per card brand, and mutationtype=Collecting is also sent for ordinary
+     * pay pushes, so the Plaza check also requires payment action "authorize" and a different
+     * transaction key than the stored authorization.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function isCaptureTransaction(): bool
     {
@@ -457,9 +463,30 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        return $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
+        if ($this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
             && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
-            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
+            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS)
+        ) {
+            return true;
+        }
+
+        if ($this->order === null || $this->payment === null) {
+            return false;
+        }
+
+        $captureKey = (string)$this->pushRequest->getTransactions();
+        $authorizationKey = (string)$this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        return $captureKey !== ''
+            && $authorizationKey !== ''
+            && $captureKey !== $authorizationKey
+            && $this->order->getState() === Order::STATE_PROCESSING
+            && (float)$this->order->getTotalDue() > 0
+            && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
+            && $this->pushRequest->hasPostData('mutationtype', ['Collecting', 'collecting'])
+            && $this->payment->getMethodInstance()->getConfigData('payment_action') === 'authorize';
     }
 
     /**
@@ -1522,7 +1549,10 @@ class DefaultProcessor implements PushProcessorInterface
             return $this->processPendingPaymentPush($newStatus, $statusMessage);
         }
 
-        $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        if ((int)$this->pushTransactionType->getStatusCode() !== 0) {
+            $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        }
+
         return true;
     }
 

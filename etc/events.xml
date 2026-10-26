@@ -68,6 +68,11 @@
                   instance="Buckaroo\Magento2\Observer\CancelReservationOnItemCancel" />
     </event>
 
+    <event name="sales_order_payment_transaction_save_after">
+        <observer name="buckaroo_magento2_detach_self_parented_transaction"
+                  instance="Buckaroo\Magento2\Observer\DetachSelfParentedTransaction" />
+    </event>
+
     <event name="sales_order_payment_transaction_html_txn_id">
         <observer name="paypal_transaction_html" instance="Buckaroo\Magento2\Observer\HtmlTransactionIdObserver"/>
     </event>

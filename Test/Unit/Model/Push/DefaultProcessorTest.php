@@ -111,6 +111,27 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         ];
     }
 
+    public function testResponseCodeZeroDoesNotAddAFailedOrderNote(): void
+    {
+        $instance = $this->getInstance();
+
+        $this->pushTransactionTypeMock->method('getStatusCode')->willReturn(0);
+        $this->pushTransactionTypeMock->method('getStatusKey')->willReturn('BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL');
+        $this->buckarooStatusCodeMock->method('getFailedStatuses')->willReturn([]);
+        $this->buckarooStatusCodeMock->method('getPendingStatuses')->willReturn([]);
+        $this->orderStatusFactoryMock->method('get')->willReturn('pending');
+
+        $pushRequest = $this->getFakeMock(\Buckaroo\Magento2\Api\Data\PushRequestInterface::class)->getMock();
+        $pushRequest->method('getStatusCode')->willReturn('0');
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+        $this->setProperty('order', $this->getFakeMock(Order::class)->getMock(), $instance);
+
+        $this->orderRequestServiceMock->expects($this->never())->method('setOrderNotificationNote');
+        $this->orderRequestServiceMock->expects($this->never())->method('updateOrderStatus');
+
+        $this->assertTrue($this->invoke('processPushByStatus', $instance));
+    }
+
     #[DataProvider('pendingPaymentEmailProvider')]
     public function testShouldSendPendingPaymentEmail(
         bool $emailSent,
