@@ -227,4 +227,22 @@ class PayPerEmailTest extends BaseTest
 
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * Visibility and cancel-on-order-cancel are store-view settings; callers that have the
+     * order or quote pass its store, since admin, cron and push do not run in it.
+     */
+    public function testVisibilityAndCancelReadTheGivenStore()
+    {
+        $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
+        $scopeConfigMock->method('getValue')->willReturnMap([
+            ['payment/buckaroo_magento2_payperemail/visible_front_back', ScopeInterface::SCOPE_STORE, 4, 'backend'],
+            ['payment/buckaroo_magento2_payperemail/cancel_ppe', ScopeInterface::SCOPE_STORE, 4, '1'],
+        ]);
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertTrue($instance->isVisibleForAreaCode('adminhtml', 4));
+        $this->assertSame('1', $instance->getCancelPpe(4));
+    }
 }

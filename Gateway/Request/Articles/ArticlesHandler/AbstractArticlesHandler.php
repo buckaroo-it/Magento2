@@ -810,7 +810,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if ($buckarooFeeLine && $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
-                (string)$this->getServiceCosts(),
+                $this->renderInOrderStoreLocale(fn() => $this->getServiceCosts()),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -898,14 +898,15 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      *
      * @return string
      */
-    private function renderInOrderStoreLocale(callable $render): string
+    protected function renderInOrderStoreLocale(callable $render): string
     {
         $order = $this->order ?? null;
         if ($order === null || $this->appEmulation === null) {
             return (string)$render();
         }
 
-        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND, true);
+        // Not forced: skipped when the order's store and frontend area are already current
+        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND);
 
         try {
             return (string)$render();
@@ -1039,7 +1040,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (count($vatGroups) <= 1) {
             $vatRate = !empty($vatGroups) ? (float)array_key_first($vatGroups) : $this->getOrderEffectiveVatRate();
             return [$this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER,
                 1,
                 round($discount, 2),
@@ -1068,7 +1069,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             // One line per VAT rate, each with its own number - a capture nominates lines by
             // ArticleNumber and cannot tell duplicates apart.
             $lines[] = $this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER . '-' . $this->normalizeAmount($vatRate),
                 1,
                 $lineDiscount,
@@ -1430,7 +1431,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         $articles['articles'][] = $this->getArticleArrayLine(
-            (string)$this->getAdjustmentLabel(),
+            $this->renderInOrderStoreLocale(fn() => $this->getAdjustmentLabel()),
             self::ADJUSTMENT_IDENTIFIER,
             1,
             $residual,
@@ -1872,7 +1873,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ));
 
         $reconciliationLine = $this->getArticleArrayLine(
-            (string)__('Extra Fees'),
+            $this->renderInOrderStoreLocale(fn() => __('Extra Fees')),
             'extra-fees',
             1,
             $diff,

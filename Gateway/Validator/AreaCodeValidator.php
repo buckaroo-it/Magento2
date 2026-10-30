@@ -28,6 +28,7 @@ use Magento\Framework\App\State;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
 
 class AreaCodeValidator extends AbstractValidator
 {
@@ -85,7 +86,10 @@ class AreaCodeValidator extends AbstractValidator
         // Check area-code visibility for any method that declares it (e.g. PayPerEmail, PayLink)
         if ($isValid && $this->methodConfigProviderFactory->has($method->getCode())) {
             $cp = $this->methodConfigProviderFactory->get($method->getCode());
-            if (method_exists($cp, 'isVisibleForAreaCode') && !$cp->isVisibleForAreaCode($areaCode)) {
+            // The quote's store; implementations without a store argument ignore it
+            $quote = $validationSubject['quote'] ?? null;
+            $storeId = $quote instanceof CartInterface ? $quote->getStoreId() : null;
+            if (method_exists($cp, 'isVisibleForAreaCode') && !$cp->isVisibleForAreaCode($areaCode, $storeId)) {
                 $isValid = false;
             }
         }

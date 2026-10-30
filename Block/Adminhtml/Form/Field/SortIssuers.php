@@ -23,8 +23,10 @@ namespace Buckaroo\Magento2\Block\Adminhtml\Form\Field;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
+use Buckaroo\Magento2\Service\Config\AdminConfigScope;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class SortIssuers extends Field
@@ -57,16 +59,25 @@ class SortIssuers extends Field
     protected $configProvider = null;
 
     /**
+     * @var AdminConfigScope
+     */
+    private $adminConfigScope;
+
+    /**
      * @param Context               $context
      * @param ConfigProviderFactory $configProviderFactory
      * @param array                 $data
+     * @param AdminConfigScope|null $adminConfigScope
      */
     public function __construct(
         Context $context,
         ConfigProviderFactory $configProviderFactory,
-        array $data = []
+        array $data = [],
+        ?AdminConfigScope $adminConfigScope = null
     ) {
         $this->configProviderFactory = $configProviderFactory;
+        $this->adminConfigScope = $adminConfigScope
+            ?? ObjectManager::getInstance()->get(AdminConfigScope::class);
         parent::__construct($context, $data);
     }
 
@@ -84,6 +95,8 @@ class SortIssuers extends Field
         $this->configuration = [];
         $this->issuers = [];
         $this->configuration['name'] = $element->getName();
+        // Already read at the scope being edited, including what it inherits
+        $this->configuration['value'] = (string)$element->getData('value');
         $this->configuration['ccInherit'] = str_replace('value', 'inherit', $element->getName());
         $this->configuration['selector'] = $this->getSelector($element->getName());
         $fieldConfig = $element->getData('field_config');
@@ -115,7 +128,7 @@ class SortIssuers extends Field
         }
 
         if ($this->configProvider && method_exists($this->configProvider, 'getAllIssuers')) {
-            $this->issuers = $this->configProvider->getAllIssuers();
+            $this->issuers = $this->configProvider->getAllIssuers($this->adminConfigScope->getStoreId());
         }
 
         return $this->issuers;
@@ -133,7 +146,7 @@ class SortIssuers extends Field
         }
 
         if ($this->configProvider && method_exists($this->configProvider, 'formatIssuers')) {
-            return $this->configProvider->formatIssuers();
+            return $this->configProvider->formatIssuers($this->adminConfigScope->getStoreId());
         }
 
         return [];
@@ -146,10 +159,10 @@ class SortIssuers extends Field
      */
     public function getSortedIssuerCodes()
     {
-        $sortedIssuerCodes = '';
-
-        if ($this->configProvider && method_exists($this->configProvider, 'getSortedIssuers')) {
-            $sortedIssuerCodes = $this->configProvider->getSortedIssuers();
+        // The element's value is the sort order of the scope being edited
+        $sortedIssuerCodes = $this->configuration['value'] ?? '';
+        if ($sortedIssuerCodes === '__EMPTY__') {
+            $sortedIssuerCodes = '';
         }
 
         if ($sortedIssuerCodes === '') {

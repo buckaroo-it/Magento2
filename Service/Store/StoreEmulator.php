@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Service\Store;
 use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Framework\App\Area;
 use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\App\EmulationFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -43,9 +44,9 @@ use Magento\Store\Model\StoreManagerInterface;
 class StoreEmulator
 {
     /**
-     * @var Emulation
+     * @var EmulationFactory
      */
-    private Emulation $appEmulation;
+    private EmulationFactory $emulationFactory;
 
     /**
      * @var StoreManagerInterface
@@ -53,12 +54,14 @@ class StoreEmulator
     private StoreManagerInterface $storeManager;
 
     /**
-     * @param Emulation             $appEmulation
+     * A fresh Emulation per call: core's e-mail senders stop the shared instance, ending ours early
+     *
+     * @param EmulationFactory      $emulationFactory
      * @param StoreManagerInterface $storeManager
      */
-    public function __construct(Emulation $appEmulation, StoreManagerInterface $storeManager)
+    public function __construct(EmulationFactory $emulationFactory, StoreManagerInterface $storeManager)
     {
-        $this->appEmulation = $appEmulation;
+        $this->emulationFactory = $emulationFactory;
         $this->storeManager = $storeManager;
     }
 
@@ -83,12 +86,14 @@ class StoreEmulator
             return $callback();
         }
 
-        $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        /** @var Emulation $emulation */
+        $emulation = $this->emulationFactory->create();
+        $emulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
 
         try {
             return $callback();
         } finally {
-            $this->appEmulation->stopEnvironmentEmulation();
+            $emulation->stopEnvironmentEmulation();
         }
     }
 

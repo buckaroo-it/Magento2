@@ -112,4 +112,23 @@ class BuckarooAdapterStoreResolutionTest extends TestCase
 
         $this->assertNull($this->resolver()->invoke($adapter));
     }
+
+    /**
+     * The parent reads payment_action through its private getConfiguredValue() with no store,
+     * which would skip the store resolution above. Payment Flow is set per store view and is read
+     * on an order payment when a shipment creates the invoice.
+     */
+    public function testPaymentActionIsReadThroughTheStoreResolvingConfigRead(): void
+    {
+        $adapter = $this->getMockBuilder(BuckarooAdapter::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getConfigData'])
+            ->getMock();
+        $adapter->expects($this->once())
+            ->method('getConfigData')
+            ->with('payment_action')
+            ->willReturn('authorize');
+
+        $this->assertSame('authorize', $adapter->getConfigPaymentAction());
+    }
 }

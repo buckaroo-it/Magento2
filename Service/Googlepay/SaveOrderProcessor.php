@@ -121,7 +121,7 @@ class SaveOrderProcessor
         $this->setQuoteShippingMethod($quote, $payload);
         $this->submitQuote($quote, $payload['extra'], $payload['payment']);
 
-        return $this->handleResponse();
+        return $this->handleResponse((int)$quote->getStoreId());
     }
 
     /**
@@ -280,10 +280,12 @@ class SaveOrderProcessor
     /**
      * Handle response and prepare redirect or success data
      *
+     * @param int $storeId Store of the submitted quote
+     *
      * @return array
      * @throws Exception
      */
-    private function handleResponse(): array
+    private function handleResponse(int $storeId): array
     {
         $response = $this->buckarooResponseData->getResponse();
         if (!$response) {
@@ -295,7 +297,7 @@ class SaveOrderProcessor
         }
 
         if ($response->isSuccess() && $response->getOrder()) {
-            return $this->prepareRedirect($response->getOrder());
+            return $this->prepareRedirect($response->getOrder(), $storeId);
         }
 
         return $response->toArray();
@@ -305,12 +307,13 @@ class SaveOrderProcessor
      * Prepare redirect to success page
      *
      * @param string $incrementId
+     * @param int    $storeId     Increment ids are only unique per store
      * @return array
      * @throws Exception
      */
-    private function prepareRedirect(string $incrementId): array
+    private function prepareRedirect(string $incrementId, int $storeId): array
     {
-        $order = $this->orderByIncrementId->get($incrementId);
+        $order = $this->orderByIncrementId->get($incrementId, $storeId);
         if ($order === null) {
             throw new Exception(__('Order %1 could not be found after placement', $incrementId));
         }

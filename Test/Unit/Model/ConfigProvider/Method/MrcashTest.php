@@ -103,10 +103,16 @@ class MrcashTest extends BaseTest
         $formKeyMock = $this->createMock(\Magento\Framework\Data\Form\FormKey::class);
         $formKeyMock->method('getFormKey')->willReturn('test_form_key');
 
+        // Built on the store's own base URL, not the host root
+        $urlBuilderMock = $this->createMock(\Magento\Framework\UrlInterface::class);
+        $urlBuilderMock->method('getUrl')->with('buckaroo/mrcash/pay')
+            ->willReturn('https://shop.test/be_nl/buckaroo/mrcash/pay/');
+
         $instance = $this->getInstance([
             'scopeConfig' => $scopeConfigMock,
             'paymentFeeHelper' => $paymentFeeMock,
-            'formKey' => $formKeyMock
+            'formKey' => $formKeyMock,
+            'urlBuilder' => $urlBuilderMock
         ]);
         $result = $instance->getConfig();
 
@@ -117,7 +123,7 @@ class MrcashTest extends BaseTest
             $config = $result['payment']['buckaroo']['buckaroo_magento2_mrcash'];
             $this->assertArrayHasKey('useClientSide', $config);
             $this->assertArrayHasKey('redirecturl', $config);
-            $this->assertStringContainsString('test_form_key', $config['redirecturl']);
+            $this->assertSame('https://shop.test/be_nl/buckaroo/mrcash/pay/?form_key=test_form_key', $config['redirecturl']);
         } else {
             $this->assertEquals($expected, $result);
         }

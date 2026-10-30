@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\Customer;
@@ -72,9 +73,12 @@ class AvailableBasedOnCustomerGroupValidator extends AbstractValidator
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
         $paymentMethodCode = $paymentMethodInstance->getCode();
 
-        $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode);
+        // The quote's store: in admin order create the ambient store is not the quote's
+        $storeId = StoreId::normalize($validationSubject['quote']->getStoreId());
+
+        $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode, false, $storeId);
         if ($paymentMethodCode === 'buckaroo_magento2_billink' && !$checkCustomerGroup) {
-            $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode, true);
+            $checkCustomerGroup = $this->customerHelper->checkCustomerGroup($paymentMethodCode, true, $storeId);
         }
 
         if (!$checkCustomerGroup) {

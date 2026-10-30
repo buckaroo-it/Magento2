@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\AdditionalInformation;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Googlepay;
+use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Psr\Log\LoggerInterface;
 
@@ -70,8 +71,9 @@ class GooglepayConditionalDataBuilder implements BuilderInterface
      */
     public function build(array $buildSubject): array
     {
-        // Get the integration mode: 0 = inline, 1 = redirect
-        $integrationMode = $this->googlepayConfig->getIntegrationMode();
+        // Get the integration mode of the order's store: 0 = inline, 1 = redirect
+        $storeId = SubjectReader::readPayment($buildSubject)->getOrder()->getStoreId();
+        $integrationMode = $this->googlepayConfig->getIntegrationMode($storeId);
 
         $this->logger->info('GooglePay Conditional Builder - Integration Mode', [
             'integrationMode' => $integrationMode,

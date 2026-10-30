@@ -55,14 +55,21 @@ class OrderByIncrementId
     /**
      * Fetch an order by its increment id, or null when it does not exist.
      *
-     * @param string $incrementId
+     * Increment ids are only unique per store; pass the store when it is known.
+     *
+     * @param string   $incrementId
+     * @param int|null $storeId
      * @return OrderInterface|null
      */
-    public function get(string $incrementId): ?OrderInterface
+    public function get(string $incrementId, ?int $storeId = null): ?OrderInterface
     {
+        $this->searchCriteriaBuilder->addFilter('increment_id', $incrementId);
+        if ($storeId !== null) {
+            $this->searchCriteriaBuilder->addFilter('store_id', $storeId);
+        }
+
         $orders = $this->orderRepository->getList(
             $this->searchCriteriaBuilder
-                ->addFilter('increment_id', $incrementId)
                 ->setPageSize(1)
                 ->create()
         )->getItems();

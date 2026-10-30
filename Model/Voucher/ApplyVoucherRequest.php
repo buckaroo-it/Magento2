@@ -213,6 +213,11 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         if ($originalTransactionKey !== null) {
             $body['originalTransactionKey'] = $originalTransactionKey;
         }
+        // Credentials and live/test mode of the quote's store, as the giftcard request does
+        $storeId = $this->getStoreId();
+        if ($storeId !== null) {
+            $body['orderStoreId'] = $storeId;
+        }
         return $body;
     }
 
@@ -271,7 +276,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     }
 
     /**
-     * Get Currency for giftcard
+     * Get the currency of the amount sent: the quote currency, since getAmount() is the grand total
      *
      * @return string|null
      */
@@ -279,7 +284,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     {
         $currency = $this->quote->getCurrency();
         if ($currency !== null) {
-            return $currency->getBaseCurrencyCode();
+            return $currency->getQuoteCurrencyCode();
         }
 
         return null;

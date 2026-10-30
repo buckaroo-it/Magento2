@@ -131,7 +131,7 @@ class OrderCancelAfter implements ObserverInterface
         $this->markManualCancellationIfApplicable($payment, $order);
         $this->cancelRemainingReservation->execute($order);
 
-        $cancelPPE = $this->configProviderPPE->getCancelPpe();
+        $cancelPPE = $this->configProviderPPE->getCancelPpe($order->getStoreId());
 
         if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
             try {

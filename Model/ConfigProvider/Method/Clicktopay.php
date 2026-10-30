@@ -173,7 +173,7 @@ class Clicktopay extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             'general/country/default',
-            ScopeInterface::SCOPE_WEBSITES
+            ScopeInterface::SCOPE_STORE
         );
     }
 

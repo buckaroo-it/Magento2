@@ -134,27 +134,30 @@ class PayPerEmail extends AbstractConfigProvider implements Cm3ConfigProviderInt
     /**
      * Cancel PPE link after the order is cancel in Magento
      *
+     * @param null|int|string $store Pass the order's store: cancels run in admin, cron and push
+     *
      * @return mixed
      */
-    public function getCancelPpe()
+    public function getCancelPpe($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CANCEL_PPE);
+        return $this->getMethodConfigValue(self::XPATH_PAYPEREMAIL_CANCEL_PPE, $store);
     }
 
     /**
      * Check if PayPerEmail is visible for specific area code
      *
-     * @param string $areaCode
+     * @param string          $areaCode
+     * @param null|int|string $store
      *
      * @return bool
      */
-    public function isVisibleForAreaCode(string $areaCode): bool
+    public function isVisibleForAreaCode(string $areaCode, $store = null): bool
     {
-        if (null === $this->getVisibleFrontBack()) {
+        $visibleFrontBack = $this->getVisibleFrontBack($store);
+        if (null === $visibleFrontBack) {
             return false;
         }
 
-        $visibleFrontBack = $this->getVisibleFrontBack();
         $forFrontend = ($visibleFrontBack === 'frontend' || $visibleFrontBack === 'both');
         $forBackend  = ($visibleFrontBack === 'backend' || $visibleFrontBack === 'both');
 

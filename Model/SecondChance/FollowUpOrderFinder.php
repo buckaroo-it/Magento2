@@ -160,7 +160,9 @@ class FollowUpOrderFinder
     private function createFollowUpCollection(string $customerEmail, OrderInterface $abandonedOrder): Collection
     {
         $collection = $this->orderCollectionFactory->create();
+        // Same store as the abandoned order, like getPaidRecoveryOrder()
         $collection->addFieldToFilter('customer_email', $customerEmail)
+            ->addFieldToFilter('store_id', ['eq' => (int) $abandonedOrder->getStoreId()])
             ->addFieldToFilter('entity_id', ['neq' => $abandonedOrder->getEntityId()])
             ->addFieldToFilter('created_at', ['gteq' => $abandonedOrder->getCreatedAt()]);
 

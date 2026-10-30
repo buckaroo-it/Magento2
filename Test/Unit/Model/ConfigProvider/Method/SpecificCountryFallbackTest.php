@@ -47,22 +47,27 @@ class SpecificCountryFallbackTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getMethodConfigValue', 'getAllowSpecific'])
             ->getMock();
-        // The rescue read deliberately drops the store, so the store argument is what tells the
-        // two reads apart: null means "default scope". Anything other than the country field is
-        // not this method's business and must not answer.
+        // The store-scoped read goes through getMethodConfigValue(); anything other than the
+        // country field is not this method's business and must not answer.
         $provider->method('getMethodConfigValue')->willReturnCallback(
-            static function ($field, $store = null) use ($scoped, $default) {
-                if ($field !== AbstractConfigProvider::SPECIFIC_COUNTRY) {
-                    return null;
-                }
-
-                return $store === null ? $default : $scoped;
+            static function ($field, $store = null) use ($scoped) {
+                return $field === AbstractConfigProvider::SPECIFIC_COUNTRY && $store !== null ? $scoped : null;
             }
         );
         $provider->method('getAllowSpecific')->willReturn($allowSpecific);
 
+        // The rescue reads the default scope explicitly. Without a scope it would land on the
+        // ambient store view: the same empty list, or another store's list.
         $scopeConfig = $this->createMock(ScopeConfigInterface::class);
-        $scopeConfig->method('getValue')->willReturn($default);
+        $scopeConfig->method('getValue')->willReturnCallback(
+            static function ($path, $scope = null) use ($default) {
+                return $path === 'payment/buckaroo_magento2_ideal/specificcountry'
+                    && $scope === ScopeConfigInterface::SCOPE_TYPE_DEFAULT ? $default : null;
+            }
+        );
+
+        $pattern = new \ReflectionProperty(AbstractConfigProvider::class, 'pathPattern');
+        $pattern->setValue($provider, 'payment/%s/%s');
 
         $ref = new \ReflectionProperty(
             \Buckaroo\Magento2\Model\ConfigProvider\AbstractConfigProvider::class,

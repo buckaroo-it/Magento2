@@ -187,6 +187,23 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
             $resource = $this->getFakeMock(ResourceSecondChance::class, true);
             $resource->expects($this->once())->method('save')->with($secondChanceModel);
+
+            // No record yet for this base order in the order's store
+            $filters = [];
+            $emptyRecord = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+            $emptyRecord->method('getId')->willReturn(null);
+            $recordCollection = $this->getFakeMock(
+                \Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class,
+                true
+            );
+            $recordCollection->method('addFieldToFilter')
+                ->willReturnCallback(function ($field, $value) use (&$filters, &$recordCollection) {
+                    $filters[] = [$field, $value];
+                    return $recordCollection;
+                });
+            $recordCollection->method('getFirstItem')->willReturn($emptyRecord);
+            $secondChanceCollectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+            $secondChanceCollectionFactory->method('create')->willReturn($recordCollection);
         } else {
             // For cases where expectedCalls = 0, ensure factory and resource are set up properly
             $secondChanceDataFactory = $this->getFakeMock(SecondChanceInterfaceFactory::class, true);
@@ -208,18 +225,25 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
             $resource = $this->getFakeMock(ResourceSecondChance::class, true);
             $resource->expects($this->never())->method('save');
+            $secondChanceCollectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
         }
 
         $instance = $this->getInstance([
             'configProvider' => $this->configProvider,
             'dataSecondChanceFactory' => $secondChanceDataFactory,
             'secondChanceFactory' => $secondChanceFactory,
+            'secondChanceCollectionFactory' => $secondChanceCollectionFactory,
             'mathRandom' => $this->mathRandom,
             'dateTime' => $this->dateTime,
             'resource' => $resource,
         ]);
 
         $this->invokeArgs('createSecondChance', [$order], $instance);
+
+        if ($expectedCalls > 0) {
+            // Increment ids are only unique per store: the record is looked up in the order's store
+            $this->assertSame([['order_id', '000000001'], ['store_id', 1]], $filters);
+        }
 
         // Add assertion to verify the method completes successfully
         $this->assertTrue(true, 'createSecondChance method completed without exceptions');

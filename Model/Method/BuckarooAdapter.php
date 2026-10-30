@@ -277,6 +277,18 @@ class BuckarooAdapter extends Adapter
     }
 
     /**
+     * Read the payment action in the store the payment belongs to
+     *
+     * The parent reads it without a store, bypassing getConfigData() above.
+     *
+     * @return mixed
+     */
+    public function getConfigPaymentAction()
+    {
+        return $this->getConfigData('payment_action');
+    }
+
+    /**
      * Resolve the current store to its integer id when possible.
      *
      * Magento only calls setStore() on a *quote* payment. An *order* payment never gets one, so
@@ -391,22 +403,24 @@ class BuckarooAdapter extends Adapter
 
         $paymentFee = trim((string)$configProvider->getPaymentFee($storeId));
 
-        return $this->addPaymentFee($title, $paymentFee);
+        return $this->addPaymentFee($title, $paymentFee, $storeId);
     }
 
     /**
      * Add payment fee to the given title
      *
-     * @param string $title
-     * @param string $paymentFee
+     * @param string   $title
+     * @param string   $paymentFee
+     * @param int|null $storeId
      *
      * @return string
      */
-    protected function addPaymentFee(string $title, string $paymentFee): string
+    protected function addPaymentFee(string $title, string $paymentFee, ?int $storeId = null): string
     {
         if (!empty($paymentFee) && (float)$paymentFee >= 0.01) {
             if (strpos($paymentFee, '%') === false) {
-                return $title . ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
+                $fee = $this->priceHelper->currencyByStore(round((float)$paymentFee, 2), $storeId, true, false);
+                return $title . ' + ' . $fee;
             } else {
                 return $title . ' + ' . $paymentFee;
             }

@@ -33,15 +33,17 @@ class CookieParamService
     /**
      * Get Url Params based on the settings from Analytics configuration
      *
+     * @param int|string|null $store Store whose settings apply; defaults to the current store
+     *
      * @return string
      */
-    public function getUrlParamsByCookies(): string
+    public function getUrlParamsByCookies($store = null): string
     {
-        if (!$this->configProvider->isClientIdTrackingEnabled()) {
+        if (!$this->configProvider->isClientIdTrackingEnabled($store)) {
             return '';
         }
 
-        $pairs = $this->configProvider->getCookieParamPairs();
+        $pairs = $this->configProvider->getCookieParamPairs($store);
 
         if (empty($pairs)) {
             return '';

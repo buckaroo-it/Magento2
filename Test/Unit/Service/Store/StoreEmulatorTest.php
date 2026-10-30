@@ -25,6 +25,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Store;
 use Buckaroo\Magento2\Service\Store\StoreEmulator;
 use Magento\Framework\App\Area;
 use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\App\EmulationFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -54,7 +55,18 @@ class StoreEmulatorTest extends TestCase
         $this->storeManager = $this->createMock(StoreManagerInterface::class);
         $this->storeManager->method('getStore')->willReturn($this->storeWithId(1));
 
-        $this->storeEmulator = new StoreEmulator($this->emulation, $this->storeManager);
+        $this->storeEmulator = new StoreEmulator($this->factoryFor($this->emulation), $this->storeManager);
+    }
+
+    private function factoryFor(Emulation $emulation): EmulationFactory
+    {
+        $factory = $this->getMockBuilder(EmulationFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $factory->method('create')->willReturn($emulation);
+
+        return $factory;
     }
 
     private function storeWithId(int $id): \Magento\Store\Model\Store
@@ -133,7 +145,7 @@ class StoreEmulatorTest extends TestCase
     {
         $storeManager = $this->createMock(StoreManagerInterface::class);
         $storeManager->method('getStore')->willThrowException(new \RuntimeException('no store'));
-        $storeEmulator = new StoreEmulator($this->emulation, $storeManager);
+        $storeEmulator = new StoreEmulator($this->factoryFor($this->emulation), $storeManager);
 
         $this->emulation->expects($this->once())
             ->method('startEnvironmentEmulation')
@@ -156,10 +168,35 @@ class StoreEmulatorTest extends TestCase
         $store->method('getId')->willReturn('1');
         $storeManager->method('getStore')->willReturn($store);
 
-        $storeEmulator = new StoreEmulator($this->emulation, $storeManager);
+        $storeEmulator = new StoreEmulator($this->factoryFor($this->emulation), $storeManager);
 
         $this->emulation->expects($this->never())->method('startEnvironmentEmulation');
 
         $this->assertSame('ran', $storeEmulator->emulate(1, fn() => 'ran'));
+    }
+
+    /**
+     * Every call gets its own Emulation, so an emulation started inside the callback (core's
+     * e-mail senders, or a nested emulate() for another store) cannot end ours.
+     */
+    public function testEachCallUsesItsOwnEmulationInstance(): void
+    {
+        $outer = $this->createMock(Emulation::class);
+        $inner = $this->createMock(Emulation::class);
+        $outer->expects($this->once())->method('startEnvironmentEmulation')->with(2, Area::AREA_FRONTEND, true);
+        $outer->expects($this->once())->method('stopEnvironmentEmulation');
+        $inner->expects($this->once())->method('startEnvironmentEmulation')->with(3, Area::AREA_FRONTEND, true);
+        $inner->expects($this->once())->method('stopEnvironmentEmulation');
+
+        $factory = $this->getMockBuilder(EmulationFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $factory->method('create')->willReturnOnConsecutiveCalls($outer, $inner);
+
+        $emulator = new StoreEmulator($factory, $this->storeManager);
+        $result = $emulator->emulate(2, fn() => $emulator->emulate(3, fn() => 'nested'));
+
+        $this->assertSame('nested', $result);
     }
 }

@@ -21,17 +21,17 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Adminhtml\CredentialsChecker;
 
-use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Service\Config\AdminConfigScope;
 use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Validates the configured Buckaroo credentials from the admin configuration screen.
@@ -58,39 +58,39 @@ class Index extends Action implements HttpPostActionInterface
     private $encryptor;
 
     /**
-     * @var Account
-     */
-    private $configProviderAccount;
-
-    /**
      * @var BuckarooAdapter
      */
     private $client;
 
     /**
-     * @var StoreManagerInterface
+     * @var ScopeConfigInterface
      */
-    private $storeManager;
+    private $scopeConfig;
 
     /**
-     * @param Context               $context
-     * @param EncryptorInterface    $encryptor
-     * @param Account               $configProviderAccount
-     * @param BuckarooAdapter       $client
-     * @param StoreManagerInterface $storeManager
+     * @var AdminConfigScope
+     */
+    private $adminConfigScope;
+
+    /**
+     * @param Context              $context
+     * @param EncryptorInterface   $encryptor
+     * @param BuckarooAdapter      $client
+     * @param ScopeConfigInterface $scopeConfig
+     * @param AdminConfigScope     $adminConfigScope
      */
     public function __construct(
         Context $context,
         EncryptorInterface $encryptor,
-        Account $configProviderAccount,
         BuckarooAdapter $client,
-        StoreManagerInterface $storeManager
+        ScopeConfigInterface $scopeConfig,
+        AdminConfigScope $adminConfigScope
     ) {
         parent::__construct($context);
         $this->encryptor = $encryptor;
-        $this->configProviderAccount = $configProviderAccount;
         $this->client = $client;
-        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
+        $this->adminConfigScope = $adminConfigScope;
     }
 
     /**
@@ -137,44 +137,14 @@ class Index extends Action implements HttpPostActionInterface
             return $credential;
         }
 
-        $storeId = $this->getSelectedStoreId();
-
-        $storedCredential = $type === self::CREDENTIAL_SECRET_KEY
-            ? $this->configProviderAccount->getSecretKey($storeId)
-            : $this->configProviderAccount->getMerchantKey($storeId);
+        // The stored value at exactly the scope being edited, which is what the form shows
+        [$scopeType, $scopeId] = $this->adminConfigScope->getScope();
+        $path = $type === self::CREDENTIAL_SECRET_KEY
+            ? Account::XPATH_ACCOUNT_SECRET_KEY
+            : Account::XPATH_ACCOUNT_MERCHANT_KEY;
+        $storedCredential = $this->scopeConfig->getValue($path, $scopeType, $scopeId);
 
         return (string)$this->encryptor->decrypt((string)$storedCredential);
-    }
-
-    /**
-     * Store id standing for the configuration scope the admin has selected.
-     *
-     * The credentials are store-scoped, so an all-asterisk input has to be resolved against the
-     * scope shown in the store switcher rather than the default scope. A website selection is
-     * represented by that website's default store, which inherits the same value the
-     * configuration screen displays.
-     *
-     * @return int|null
-     */
-    private function getSelectedStoreId(): ?int
-    {
-        $storeId = StoreId::normalize($this->getRequest()->getParam('store'));
-        if ($storeId !== null) {
-            return $storeId;
-        }
-
-        $websiteId = StoreId::normalize($this->getRequest()->getParam('website'));
-        if ($websiteId === null) {
-            return null;
-        }
-
-        try {
-            $defaultStore = $this->storeManager->getWebsite($websiteId)->getDefaultStore();
-        } catch (Exception $e) {
-            return null;
-        }
-
-        return $defaultStore !== null ? (int)$defaultStore->getId() : null;
     }
 
     /**

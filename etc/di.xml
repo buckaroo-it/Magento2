@@ -762,9 +762,10 @@
         </arguments>
     </virtualType>
 
+    <!-- Own Emulation instance: core's e-mail senders stop the shared one -->
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler">
         <arguments>
-            <argument name="appEmulation" xsi:type="object">Magento\Store\Model\App\Emulation</argument>
+            <argument name="appEmulation" xsi:type="object" shared="false">Magento\Store\Model\App\Emulation</argument>
         </arguments>
     </type>
     <!--

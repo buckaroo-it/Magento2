@@ -142,7 +142,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                 if (in_array($this->order->getState(), ['canceled', 'closed'])) {
                     $url = $this->urlBuilder->getRouteUrl(
                         'buckaroo/redirect/process',
-                        ['_scope' => $this->storeManager->getStore()->getStoreId()]
+                        ['_scope' => $store->getId()]
                     ) . '?form_key=' . $this->formKey->getFormKey();
 
                     $extraData = [

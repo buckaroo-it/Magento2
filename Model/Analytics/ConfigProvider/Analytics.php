@@ -41,13 +41,16 @@ class Analytics
     /**
      * Check whether GA client id tracking is enabled in configuration.
      *
+     * @param int|string|null $store Defaults to the current store
+     *
      * @return bool
      */
-    public function isClientIdTrackingEnabled(): bool
+    public function isClientIdTrackingEnabled($store = null): bool
     {
         $config = $this->storeConfig->getValue(
             static::XML_PATH_ANALYTICS_ENABLE_GA_CLIENT_ID_TRACKING,
-            ScopeInterface::SCOPE_STORES
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
         return (bool)$config;
     }
@@ -55,13 +58,16 @@ class Analytics
     /**
      * Get the configured cookie/parameter pairs used for analytics tracking.
      *
+     * @param int|string|null $store Defaults to the current store
+     *
      * @return array
      */
-    public function getCookieParamPairs(): array
+    public function getCookieParamPairs($store = null): array
     {
         $configValue = $this->storeConfig->getValue(
             static::XML_PATH_ANALYTICS_COOKIE_PARAM_PAIRS,
-            ScopeInterface::SCOPE_STORES
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
 
         if (is_array($configValue)) {

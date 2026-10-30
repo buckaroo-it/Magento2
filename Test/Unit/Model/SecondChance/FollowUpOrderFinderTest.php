@@ -77,6 +77,8 @@ class FollowUpOrderFinderTest extends TestCase
         $this->assertSame(
             [
                 ['customer_email', 'klant@buckaroo.nl'],
+                // a paid order in another store must not close this store's reminder
+                ['store_id', ['eq' => 2]],
                 ['entity_id', ['neq' => 15826140]],
                 ['created_at', ['gteq' => self::ABANDONED_AT]],
                 ['state', ['in' => [Order::STATE_PROCESSING, Order::STATE_COMPLETE]]],
@@ -111,6 +113,8 @@ class FollowUpOrderFinderTest extends TestCase
         $this->assertSame(
             [
                 ['customer_email', 'klant@buckaroo.nl'],
+                // a paid order in another store must not close this store's reminder
+                ['store_id', ['eq' => 2]],
                 ['entity_id', ['neq' => 15826140]],
                 ['created_at', ['gteq' => self::ABANDONED_AT]],
                 ['state', ['in' => [Order::STATE_NEW, Order::STATE_PENDING_PAYMENT]]],
@@ -146,6 +150,7 @@ class FollowUpOrderFinderTest extends TestCase
         $order = $this->createMock(Order::class);
         $order->method('getEntityId')->willReturn(15826140);
         $order->method('getCreatedAt')->willReturn(self::ABANDONED_AT);
+        $order->method('getStoreId')->willReturn(2);
 
         return $order;
     }

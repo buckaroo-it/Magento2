@@ -20,11 +20,13 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
+use Buckaroo\Magento2\Service\Config\AdminConfigScope;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Context;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Config\Model\Config;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\View\Helper\Js;
 
@@ -42,20 +44,29 @@ class Payment extends Fieldset
     protected $backendConfig;
 
     /**
-     * @param Context $context
-     * @param Session $authSession
-     * @param Js      $jsHelper
-     * @param Config  $backendConfig
-     * @param array   $data
+     * @var AdminConfigScope
+     */
+    private $adminConfigScope;
+
+    /**
+     * @param Context               $context
+     * @param Session               $authSession
+     * @param Js                    $jsHelper
+     * @param Config                $backendConfig
+     * @param array                 $data
+     * @param AdminConfigScope|null $adminConfigScope
      */
     public function __construct(
         Context $context,
         Session $authSession,
         Js $jsHelper,
         Config $backendConfig,
-        array $data = []
+        array $data = [],
+        ?AdminConfigScope $adminConfigScope = null
     ) {
         $this->backendConfig = $backendConfig;
+        $this->adminConfigScope = $adminConfigScope
+            ?? ObjectManager::getInstance()->get(AdminConfigScope::class);
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
@@ -128,7 +139,10 @@ class Payment extends Fieldset
      */
     protected function isPaymentEnabled($element)
     {
-        return (bool)(string)$this->backendConfig->getConfigDataValue('buckaroo_magento2/account/active') > 0;
+        // At the scope being edited: Buckaroo can be off by default and on for one website only
+        [$scopeType, $scopeId] = $this->adminConfigScope->getScope();
+
+        return (int)$this->_scopeConfig->getValue('buckaroo_magento2/account/active', $scopeType, $scopeId) > 0;
     }
 
     /**

@@ -52,9 +52,12 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
         $path = 'buckaroo_magento2/account/active';
         $valueToUpdate = '1';
 
+        // Default scope only: websites or store views switched off stay off
         $select = $connection->select()
             ->from($this->moduleDataSetup->getTable('core_config_data'))
-            ->where('path = ?', $path);
+            ->where('path = ?', $path)
+            ->where('scope = ?', 'default')
+            ->where('scope_id = ?', 0);
 
         $data = $connection->fetchRow($select);
 
@@ -62,7 +65,7 @@ class UpdateBuckarooAccountConfig implements DataPatchInterface
             $connection->update(
                 $this->moduleDataSetup->getTable('core_config_data'),
                 ['value' => $valueToUpdate],
-                ['path = ?' => $path]
+                ['path = ?' => $path, 'scope = ?' => 'default', 'scope_id = ?' => 0]
             );
         } else {
             $connection->insert(

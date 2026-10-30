@@ -274,7 +274,14 @@ abstract class AbstractConfigProvider extends BaseAbstractConfigProvider impleme
         // list for a website or store view: the global restriction silently stayed in force and
         // the method vanished from that store's checkout with no error and no log line.
         if ($configuredSpecificCountry === '' && $this->getAllowSpecific($store)) {
-            $configuredSpecificCountry = trim((string)$this->getMethodConfigValue(static::SPECIFIC_COUNTRY));
+            // The default scope explicitly, not the ambient store view
+            $configuredSpecificCountry = '';
+            if (static::CODE !== null && $this->pathPattern !== null) {
+                $configuredSpecificCountry = trim((string)$this->scopeConfig->getValue(
+                    sprintf($this->pathPattern, static::CODE, static::SPECIFIC_COUNTRY),
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT
+                ));
+            }
         }
 
         if (empty($configuredSpecificCountry)) {
