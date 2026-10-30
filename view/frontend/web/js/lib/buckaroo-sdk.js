@@ -249,7 +249,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
                 Base.setTestMode(options.isTestMode);
             }
             requirePayPal(options, function () {
-                paypal.Buttons({
+                var buttonConfig = {
                     createOrder: function () {
                         // Call validation callback if provided
                         if (options.onValidationCallback !== undefined) {
@@ -306,7 +306,11 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
                         if (options.onClickCallback !== undefined)
                             options.onClickCallback();
                     }
-                }).render(options.containerSelector);
+                };
+                if (options.style) {
+                    buttonConfig.style = options.style;
+                }
+                paypal.Buttons(buttonConfig).render(options.containerSelector);
             });
         };
     })(PayPal = BuckarooSdk.PayPal || (BuckarooSdk.PayPal = {}));

@@ -469,15 +469,16 @@ class BuckarooAdapter
      * route carrying no store code, so the ambient store is the default store view of the default
      * website — validating against its keys would use the wrong secret on a multi-store install.
      *
-     * @param mixed $postData
-     * @param mixed $authHeader
-     * @param mixed $uri
-     * @param int|null $storeId
+     * @param mixed    $postData
+     * @param mixed    $authHeader
+     * @param mixed    $uri
+     * @param int|null $storeId    Order store id for per-store secret resolution; null = current store
+     *
+     * @throws Exception
      *
      * @return bool
-     * @throws Exception
      */
-    public function validate($postData, $authHeader, $uri, ?int $storeId = null): bool
+    public function validate($postData, $authHeader = null, $uri = null, ?int $storeId = null): bool
     {
         try {
             $this->setClientSdk('', $storeId);

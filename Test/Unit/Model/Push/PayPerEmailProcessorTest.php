@@ -187,6 +187,49 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * The B2B capture is registered for the amount the push reports as paid.
+     */
+    public function testInvoiceShouldBeSavedB2BRegistersThePushedAmountAndLeavesAnUnsettledOrderOpen(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequestMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class)
+            ->getMock();
+        $pushRequestMock->method('getAdditionalInformation')->willReturnMap([
+            ['frompayperemail', '1'],
+        ]);
+        $pushRequestMock->method('getTransactionMethod')->willReturn('payperemail');
+        $pushRequestMock->method('getTransactions')->willReturn('');
+        $pushRequestMock->method('getDatarequest')->willReturn('');
+        $pushRequestMock->method('getRelatedtransactionRefund')->willReturn('');
+        $pushRequestMock->method('getAmount')->willReturn('40.00');
+        $pushRequestMock->method('getCurrency')->willReturn('EUR');
+
+        $this->configPayPerEmailMock->method('isEnabledB2B')->willReturn(true);
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('isSameCurrency')->willReturn(true);
+        $paymentMock->method('isCaptureFinal')->willReturn(true);
+        $paymentMock->method('getIsFraudDetected')->willReturn(true);
+        $paymentMock->expects($this->once())->method('registerCaptureNotification')->with(40.0);
+
+        $orderMock = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
+        $orderMock->method('getGrandTotal')->willReturn(100.0);
+        $orderMock->method('getBaseTotalDue')->willReturn(100.0);
+        $orderMock->method('getBaseCurrencyCode')->willReturn('EUR');
+        $orderMock->method('getOrderCurrencyCode')->willReturn('EUR');
+        $orderMock->expects($this->never())->method('setState');
+        $orderMock->expects($this->never())->method('addCommentToStatusHistory');
+
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+        $this->setProperty('pushRequest', $pushRequestMock, $instance);
+
+        $paymentDetails = ['description' => 'Payment status : success'];
+        $this->assertFalse($this->invokeArgs('invoiceShouldBeSaved', [&$paymentDetails], $instance));
+    }
+
+    /**
      * BTI-1316: a PayLink paid in full with one giftcard is closed by a push that names no payment
      * service of its own, only the PayLink. Overwriting the giftcard method with PayLink at that
      * point left the order on a method that cannot be refunded online.

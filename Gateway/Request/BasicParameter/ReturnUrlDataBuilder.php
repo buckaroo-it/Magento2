@@ -134,8 +134,9 @@ class ReturnUrlDataBuilder implements BuilderInterface
             // is created in the admin, where the ambient store is the admin's - and ['_scope' => id]
             // does not change the host getDirectUrl() resolves. On a per-domain setup that returned
             // the shopper to the default store's domain, where their session does not exist.
+            // The return route does not use a form key.
             $url = $this->storeUrlBuilder->getUrl($order->getStoreId(), 'buckaroo/redirect/process')
-                . '?form_key=' . $this->getFormKey() . $this->getStoreParam($order);
+                . $this->getStoreParam($order);
 
             $this->setReturnUrl($url);
             $this->returnUrlOrderKey = $this->getOrderKey($order);
@@ -239,6 +240,6 @@ class ReturnUrlDataBuilder implements BuilderInterface
             return '';
         }
 
-        return $code === '' ? '' : '&' . StoreManagerInterface::PARAM_NAME . '=' . urlencode($code);
+        return $code === '' ? '' : '?' . StoreManagerInterface::PARAM_NAME . '=' . urlencode($code);
     }
 }

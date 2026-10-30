@@ -40,6 +40,11 @@ use Magento\Tax\Model\Config;
 class AfterpayHandler extends AbstractArticlesHandler
 {
     /**
+     * Riverty rejects an article identifier (its ProductId) longer than 100 characters.
+     */
+    protected const IDENTIFIER_MAX_LENGTH = 100;
+
+    /**
      * @var Image
      */
     protected $imageHelper;

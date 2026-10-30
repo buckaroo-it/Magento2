@@ -52,8 +52,6 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
         $customerSession->method('isLoggedIn')->willReturn(false);
         $customerSession->expects($this->never())->method('setCustomerDataAsLoggedIn');
 
-        // getLastRealOrderId()/setLastRealOrderId() are magic accessors, so they have to be
-        // declared on a concrete double - MockBuilder::addMethods() is gone in PHPUnit 12.
         $checkoutSession = $this->getFakeMock(SessionStub2::class)
             ->onlyMethods(['getLastRealOrderId', 'setLastRealOrderId', 'restoreQuote'])
             ->getMock();

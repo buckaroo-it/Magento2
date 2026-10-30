@@ -81,6 +81,7 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
+     * The return URL carries no form key; the return route does not use one.
      */
     public function testBuild(): void
     {
@@ -110,8 +111,7 @@ class ReturnUrlDataBuilderTest extends AbstractDataBuilderTest
         // The gateway returns the shopper with a cross-site POST, so the SameSite=Lax store cookie
         // is not sent. Naming the store in the URL is what keeps the redirect controller - and the
         // URL it sends the shopper to - in the order's store rather than the default one.
-        $expectedReturnUrl = 'http://example.com/buckaroo/redirect/process?form_key=' . $formKey
-            . '&___store=second_store';
+        $expectedReturnUrl = 'http://example.com/buckaroo/redirect/process?___store=second_store';
 
         $paymentDOMock = $this->getPaymentDOMock();
 

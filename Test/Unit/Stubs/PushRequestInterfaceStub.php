@@ -32,6 +32,10 @@ interface PushRequestInterfaceStub extends \Buckaroo\Magento2\Api\Data\PushReque
 
     public function getServiceCreditmanagement3Invoicekey(...$args);
 
+    public function getServiceIdinConsumerbin(...$args);
+
+    public function getServiceIdinIseighteenorolder(...$args);
+
     public function getServiceKlarnakpAutopaytransactionkey(...$args);
 
     public function getServiceKlarnakpCaptureid(...$args);

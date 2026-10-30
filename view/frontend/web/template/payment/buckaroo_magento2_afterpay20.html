@@ -113,36 +113,6 @@
                     </div>
                     <!-- /ko -->
 
-                    <!-- Default -->
-                    <div class="field required">
-                        <label class="label" for="buckaroo_magento2_afterpay20_TermsCondition"> <span data-bind="i18n: 'Terms and Conditions:'"> </span> </label>
-                        <div class="control">
-                            <input id="buckaroo_magento2_afterpay20_TermsCondition"
-                                   class="field"
-                                   type="checkbox"
-                                   data-bind="checked: termsSelected"
-                                   data-validate="{required:true}"
-                                   name="payment[buckaroo_magento2_afterpay20][termsCondition]">
-                            <span>
-                                <a target="_blank"
-                                 rel="noopener"
-                                   data-bind="
-                                       i18n: 'The general Terms and Conditions for the Riverty payment method apply. The privacy policy of Riverty can be found here.',
-                                       attr: { 'href': termsUrl }
-                                   ">
-                                </a>
-                                <!-- ko if: showFrenchTos -->
-                                <span data-bind="html: getFrenchTos()"></span>
-                                <!-- /ko -->
-                            </span>
-                            <div for="buckaroo_magento2_afterpay20_TermsCondition" generated="true" class="mage-error" id="buckaroo_magento2_afterpay20_TermsCondition-error" style="display: none;"><span data-bind="i18n: 'This is a required field.' "></span></div>
-                        </div>
-                    </div>
-
-                    <!-- ko if: showFinancialWarning  -->
-                    <div class="field" data-bind="html: getMessageText()"></div>
-                    <!-- /ko -->
-
                     <div class="field">
                         <span data-bind="i18n: 'Please make sure all fields are filled in correctly before proceeding.' ">  </span>
                     </div>

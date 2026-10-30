@@ -351,9 +351,9 @@
         </group>
     </group>
 
-    <!-- Google Analytics -->
+    <!-- Analytics Tracking -->
     <group id="analytics" translate="label comment" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
-        <label>GA Tracking Options</label>
+        <label>Analytics Tracking</label>
         <fieldset_css>buckaroo_magento2-section</fieldset_css>
         <attribute type="expanded">0</attribute>
 
@@ -365,8 +365,8 @@
 
         <field id="enable_ga_client_id_tracking" type="select" sortOrder="10" showInWebsite="1" showInStore="1" showInDefault="1" translate="label">
             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-            <label>Enable GA Client ID tracking</label>
-            <tooltip>More details on how to use the module can be found on our github repo: https://github.com/buckaroo-it/Magento2_Analytics</tooltip>
+            <label>Enable Analytics Tracking</label>
+            <tooltip>Read how to set up and test analytics tracking in the Buckaroo documentation: https://docs.buckaroo.io/docs/magento-2-built-in-features</tooltip>
             <config_path>buckaroo_magento2/analytics/enable_ga_client_id_tracking</config_path>
         </field>
 

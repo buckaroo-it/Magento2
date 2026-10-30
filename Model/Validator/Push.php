@@ -22,18 +22,12 @@ namespace Buckaroo\Magento2\Model\Validator;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ValidatorInterface;
-use Magento\Framework\Encryption\Encryptor;
 use Magento\Store\Api\Data\StoreInterface;
 
 class Push implements ValidatorInterface
 {
-    /**
-     * @var Account
-     */
-    public $configProviderAccount;
-
     /**
      * @var Data
      */
@@ -45,9 +39,9 @@ class Push implements ValidatorInterface
     public $logger;
 
     /**
-     * @var Encryptor
+     * @var BuckarooAdapter
      */
-    private $encryptor;
+    private $sdkAdapter;
 
     /**
      * @var string[]
@@ -68,20 +62,17 @@ class Push implements ValidatorInterface
 
     /**
      * @param Data                    $helper
-     * @param Account                 $configProviderAccount
      * @param BuckarooLoggerInterface $logger
-     * @param Encryptor               $encryptor
+     * @param BuckarooAdapter         $sdkAdapter
      */
     public function __construct(
         Data $helper,
-        Account $configProviderAccount,
         BuckarooLoggerInterface $logger,
-        Encryptor $encryptor
+        BuckarooAdapter $sdkAdapter
     ) {
-        $this->helper                   = $helper;
-        $this->configProviderAccount    = $configProviderAccount;
-        $this->logger                   = $logger;
-        $this->encryptor                = $encryptor;
+        $this->helper     = $helper;
+        $this->logger     = $logger;
+        $this->sdkAdapter = $sdkAdapter;
     }
 
     /**
@@ -125,13 +116,11 @@ class Push implements ValidatorInterface
     }
 
     /**
-     * Generates and verifies the Buckaroo signature using configuration values and data from a push.
+     * Verify the HTTP-post push signature.
      *
-     * @param array                          $originalPostData
-     * @param array                          $postData
+     * @param array                          $originalPostData Raw push data, original key casing preserved
+     * @param array                          $postData         Case-folded push data (used only for the fast-fail check)
      * @param int|string|StoreInterface|null $store
-     *
-     * @throws \Exception
      *
      * @return bool
      */
@@ -141,124 +130,36 @@ class Push implements ValidatorInterface
             return false;
         }
 
-        $signature = $this->calculateSignature($originalPostData, $store);
-
-        if (!hash_equals($signature, (string)$postData['brq_signature'])) {
+        try {
+            return $this->sdkAdapter->validate($originalPostData, null, null, $this->resolveStoreId($store));
+        } catch (\Throwable $e) {
+            $this->logger->addError(sprintf(
+                '[PUSH] | [Webapi] | [%s:%s] - Signature validation failed: %s',
+                __METHOD__,
+                __LINE__,
+                $e->getMessage()
+            ));
             return false;
         }
-
-        return true;
     }
 
     /**
-     * Determines the signature using array sorting and the SHA1 hash algorithm
+     * Normalise the store argument to a store id for the SDK adapter.
      *
-     * @param array                          $postData
      * @param int|string|StoreInterface|null $store
      *
-     * @throws \Exception
-     *
-     * @return string
+     * @return int|null
      */
-    public function calculateSignature(array $postData, $store = null): string
+    private function resolveStoreId($store): ?int
     {
-        $copyData = $postData;
-        unset($copyData['brq_signature']);
-        unset($copyData['BRQ_SIGNATURE']);
-
-        $acceptablePrefixes = ['brq', 'add', 'cust', 'BRQ', 'ADD', 'CUST'];
-        $copyData = array_filter($copyData, function ($key) use ($acceptablePrefixes) {
-            return in_array(explode('_', (string)$key)[0], $acceptablePrefixes);
-        }, ARRAY_FILTER_USE_KEY);
-
-        // Fix parameter names that PHP converted from spaces to underscores
-        $copyData = $this->fixParameterNamesWithSpaces($copyData);
-
-        $sortableArray = $this->buckarooArraySort($copyData);
-
-        $signatureString = '';
-
-        foreach ($sortableArray as $brqKey => $value) {
-            $signatureString .= $brqKey . '=' . $value;
+        if ($store instanceof StoreInterface) {
+            return (int)$store->getId();
         }
 
-        $digitalSignature = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($store));
-        $signatureString .= $digitalSignature;
-        $signature = SHA1($signatureString);
-
-        $this->logger->addDebug(
-            '[PUSH] | [Webapi] | [' . __METHOD__ . ':' . __LINE__ . '] - Calculated signature: ' . $signature,
-        );
-
-        return $signature;
-    }
-
-    /**
-     * Fix parameter names where PHP converted spaces to underscores
-     *
-     * Buckaroo sends some parameters with spaces in the name (e.g., "Additional Info")
-     * but PHP's POST parsing automatically converts spaces to underscores, breaking signature validation.
-     *
-     * This method detects and fixes these known cases by converting specific underscores back to spaces.
-     *
-     * @param array $data POST data with PHP-mangled parameter names
-     * @return array Data with original parameter names restored
-     */
-    private function fixParameterNamesWithSpaces(array $data): array
-    {
-        $fixed = [];
-
-        foreach ($data as $key => $value) {
-            if (preg_match('/^brq_SERVICE_[^_]+_(.+)$/', $key, $matches)) {
-                $suffix = $matches[1];
-
-                $knownSpacedParams = [
-                    'Additional_Info' => 'Additional Info',
-                ];
-
-                if (isset($knownSpacedParams[$suffix])) {
-                    $newKey = str_replace('_' . $suffix, '_' . $knownSpacedParams[$suffix], $key);
-                    $this->logger->addDebug(sprintf(
-                        '[SIGNATURE] | Fixed parameter name: %s -> %s',
-                        $key,
-                        $newKey
-                    ));
-                    $key = $newKey;
-                }
-            }
-
-            $fixed[$key] = $value;
+        if (is_numeric($store)) {
+            return (int)$store;
         }
 
-        return $fixed;
-    }
-
-    /**
-     * Sort the array so that the signature can be calculated identical to the way buckaroo does.
-     *
-     * @param array $arrayToUse
-     *
-     * @return array $sortableArray
-     */
-    protected function buckarooArraySort(array $arrayToUse): array
-    {
-        $arrayToSort   = [];
-        $originalArray = [];
-
-        foreach ($arrayToUse as $key => $value) {
-            $arrayToSort[strtolower($key)]   = $value;
-            $originalArray[strtolower($key)] = $key;
-        }
-
-        ksort($arrayToSort);
-
-        $sortableArray = [];
-
-        foreach ($arrayToSort as $key => $value) {
-            $key = $originalArray[$key];
-            $sortableArray[$key] = $value;
-        }
-
-        return $sortableArray;
+        return null;
     }
 }

@@ -63,6 +63,11 @@ class HeaderCultureResolverTest extends TestCase
             'CA on french store'    => ['CA', 'fr_CA', 'fr-CA'],
             'ZA'                    => ['ZA', null, 'en-ZA'],
 
+            // BTI-1578: the gateway rejects en-NA and fr-CG outright, so each degrades to
+            // its own verified bare language rather than to en-GB or to no header at all.
+            'NA degrades to en'     => ['NA', 'nl_NL', 'en'],
+            'CG degrades to fr'     => ['CG', 'en_US', 'fr'],
+
             // Nothing curated -> no header override, so the adapter keeps today's value.
             'uncurated country'     => ['XK', 'en_US', null],
             'empty country'         => ['', null, null],
@@ -92,6 +97,7 @@ class HeaderCultureResolverTest extends TestCase
     public function testOnlyEverEmitsACuratedCulture(): void
     {
         $curated = array_merge(
+            array_values(CultureCodeResolver::HEADER_CULTURE_FALLBACKS),
             ...array_values(CultureCodeResolver::COUNTRY_CULTURES),
             ...array_values(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES)
         );
@@ -127,11 +133,68 @@ class HeaderCultureResolverTest extends TestCase
         foreach (array_keys(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES) as $country) {
             $culture = $this->resolver->resolveForHeader($country, null);
 
+            if (isset(CultureCodeResolver::HEADER_CULTURE_FALLBACKS[(string)$culture])
+                || in_array($culture, CultureCodeResolver::HEADER_CULTURE_FALLBACKS, true)
+            ) {
+                continue;
+            }
+
             $this->assertMatchesRegularExpression(
                 '/^[a-z]{2}-[A-Z]{2}$/',
                 (string)$culture,
                 sprintf('Country %s produced a malformed header culture', $country)
             );
         }
+    }
+
+    /**
+     * BTI-1578: the header validator rejects these outright with a 400, so no billing
+     * country and no locale hint may produce one.
+     */
+    public function testNeverEmitsAGatewayRejectedCulture(): void
+    {
+        $countries = array_merge(
+            array_keys(CultureCodeResolver::COUNTRY_CULTURES),
+            array_keys(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES),
+            ['NA', 'CG', 'XK', 'ZZ', '']
+        );
+
+        foreach ($countries as $country) {
+            foreach ([null, 'en_US', 'nl_NL', 'fr_FR', 'af_ZA', 'en_NA'] as $hint) {
+                $this->assertArrayNotHasKey(
+                    (string)$this->resolver->resolveForHeader($country, $hint),
+                    CultureCodeResolver::HEADER_CULTURE_FALLBACKS,
+                    sprintf('Rejected culture emitted for %s / %s', $country, (string)$hint)
+                );
+            }
+        }
+    }
+
+    /**
+     * The exclusion is header-only: Credit Management accepts en-NA, so the debtor
+     * path must keep sending it.
+     */
+    public function testExclusionDoesNotReachTheDebtorPath(): void
+    {
+        $this->assertSame('en-NA', $this->resolver->resolveForDebtor('NA', 'nl_NL'));
+        $this->assertSame('fr-CG', $this->resolver->resolveForDebtor('CG', 'fr_FR'));
+    }
+
+    /**
+     * The substitute must keep the country's own language, never jump to en-GB and
+     * never silently borrow another country's culture.
+     */
+    public function testRejectedCultureDegradesToItsOwnLanguage(): void
+    {
+        foreach (CultureCodeResolver::HEADER_CULTURE_FALLBACKS as $rejected => $fallback) {
+            $this->assertSame(
+                strtok($rejected, '-'),
+                $fallback,
+                sprintf('%s should degrade to its own language, not to %s', $rejected, $fallback)
+            );
+        }
+
+        $this->assertSame('en', $this->resolver->resolveForHeader('NA', 'nl_NL'));
+        $this->assertSame('fr', $this->resolver->resolveForHeader('CG', 'nl_NL'));
     }
 }

@@ -56,7 +56,7 @@ define(
 
         function checkPayments()
         {
-            var p = ["billink","klarnakp","capayableinstallments","transfer","sepadirectdebit","capayablein3","creditcard","mrcash","payperemail", "bancontact"];
+            var p = ["billink","klarnakp","capayableinstallments","transfer","sepadirectdebit","capayablein3","zakelijkoprekening","creditcard","mrcash","payperemail", "bancontact"];
             p.forEach(function (item) {
                 $('.buckaroo_magento2_' + item).remove();
             });

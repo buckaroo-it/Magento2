@@ -81,6 +81,17 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     public const BUNDLE_CALCULATE_CHILD = 0;
 
     /**
+     * Longest article identifier the payment method accepts. 0 sends the item SKU unchanged, which
+     * suits every method that accepts the 255 characters of the item SKU column.
+     */
+    protected const IDENTIFIER_MAX_LENGTH = 0;
+
+    /**
+     * Characters of the SKU hash that end an identifier shortened to the method's limit.
+     */
+    private const IDENTIFIER_HASH_LENGTH = 8;
+
+    /**
      * The invoice whose own share of the order-level credits is being priced, or null when the
      * lines are built for the whole order.
      *
@@ -353,6 +364,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get Quote
      *
+     * The order's cart is loaded whatever store the request runs in: a plain load only finds carts
+     * of the current website, so in the admin store it returns an empty cart.
+     *
      * @throws LocalizedException
      *
      * @return Quote
@@ -361,7 +375,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         if (!$this->quote instanceof Quote) {
             $quote = $this->quoteFactory->create();
-            $this->quoteResource->load($quote, $this->getOrder()->getQuoteId());
+            $this->quoteResource->loadByIdWithoutStore($quote, $this->getOrder()->getQuoteId());
             $this->quote = $quote;
         }
 
@@ -501,13 +515,47 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get identifier, can be sku or product id
      *
+     * The item SKU of a product with custom options is the product SKU followed by every selected
+     * option SKU, so it can be longer than the method accepts. Such a SKU keeps its start and ends
+     * in a hash of the whole SKU: capture and refund lines are matched on the identifier, so the
+     * same SKU must always give the same value, and two option sets that share their start must
+     * not share an identifier.
+     *
      * @param Item|Invoice\Item|Creditmemo\Item $item
      *
      * @return mixed|string|null
      */
     protected function getIdentifier($item)
     {
-        return $item->getSku();
+        $sku = $item->getSku();
+        $maxLength = static::IDENTIFIER_MAX_LENGTH;
+
+        if ($sku === null || $maxLength <= 0 || $this->getGatewayLength((string)$sku) <= $maxLength) {
+            return $sku;
+        }
+
+        $prefixLength = $maxLength - self::IDENTIFIER_HASH_LENGTH - 1;
+        $prefix = mb_substr((string)$sku, 0, $prefixLength);
+        while ($this->getGatewayLength($prefix) > $prefixLength) {
+            $prefix = mb_substr($prefix, 0, -1);
+        }
+
+        return $prefix . '-' . substr(hash('sha256', (string)$sku), 0, self::IDENTIFIER_HASH_LENGTH);
+    }
+
+    /**
+     * Length as the gateway counts it.
+     *
+     * The gateway counts UTF-16 code units, so a character outside the Basic Multilingual Plane,
+     * such as an emoji, counts as two.
+     *
+     * @param string $value
+     *
+     * @return int
+     */
+    private function getGatewayLength(string $value): int
+    {
+        return intdiv(strlen((string)mb_convert_encoding($value, 'UTF-16LE', 'UTF-8')), 2);
     }
 
     /**

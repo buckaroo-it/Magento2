@@ -29,12 +29,15 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
+    private const VALID_TOKEN = 'Ab3dEf6hIj9kLm2nOp5qRs8tUv1wXy4z';
+
     protected $instanceClass = SecondChance::class;
 
     /** @var Log|\PHPUnit\Framework\MockObject\MockObject */
@@ -90,7 +93,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecuteWithValidToken()
     {
-        $token = 'valid_token_123';
+        $token = self::VALID_TOKEN;
 
         $this->request->method('getParam')->with('token')->willReturn($token);
         $this->request->method('getParams')->willReturn(['token' => $token]);
@@ -114,7 +117,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecuteForwardsOnlyUtmParams()
     {
-        $token = 'valid_token_123';
+        $token = self::VALID_TOKEN;
 
         $this->request->method('getParam')->with('token')->willReturn($token);
         $this->request->method('getParams')->willReturn([
@@ -154,7 +157,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
     public function testExecuteWithInvalidToken()
     {
-        $token = 'invalid_token_456';
+        $token = 'Zz9yXw8vUt7sRq6pOn5mLk4jIh3gFe2d';
 
         $this->request->method('getParam')->with('token')->willReturn($token);
 
@@ -169,6 +172,35 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->messageManager->expects($this->once())
             ->method('addErrorMessage')
             ->with(__('Invalid or expired link. Please try again.'));
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    public function testExecuteWithAlreadyPaidOrder()
+    {
+        $token = 'Zz9yXw8vUt7sRq6pOn5mLk4jIh3gFe2d';
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+
+        $this->secondChanceRepository->method('getSecondChanceByToken')
+            ->with($token)
+            ->willThrowException(
+                new \Magento\Framework\Exception\StateException(__('This order has already been paid.'))
+            );
+
+        $this->messageManager->expects($this->once())
+            ->method('addNoticeMessage')
+            ->with(__('This order has already been paid.'));
+        $this->messageManager->expects($this->never())->method('addErrorMessage');
+        $this->checkoutSession->expects($this->never())->method('getQuote');
 
         $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
 
@@ -227,9 +259,49 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertInstanceOf(Redirect::class, $instance->execute());
     }
 
+    public static function malformedTokenProvider(): array
+    {
+        return [
+            'array value'          => [['token' => self::VALID_TOKEN]],
+            'list of values'       => [[self::VALID_TOKEN, 'x']],
+            'too short'            => [substr(self::VALID_TOKEN, 0, 31)],
+            'too long'             => [self::VALID_TOKEN . 'a'],
+            'symbols'              => [str_repeat('#', 32)],
+            'trailing newline'     => [self::VALID_TOKEN . "\n"],
+            'non alphanumeric'     => [substr(self::VALID_TOKEN, 0, 31) . '-'],
+        ];
+    }
+
+    /**
+     * @param mixed $token
+     */
+    #[DataProvider('malformedTokenProvider')]
+    public function testExecuteRejectsMalformedTokenBeforeAnyLookup($token)
+    {
+        $this->request->method('getParam')->with('token')->willReturn($token);
+
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceByToken');
+        $this->checkoutSession->expects($this->never())->method('getQuote');
+        $this->customerSession->expects($this->never())->method('logout');
+
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
+            ->with(__('Invalid or expired link. Please try again.'));
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
     public function testExecuteWithNoQuoteAfterRestore()
     {
-        $token = 'valid_token_123';
+        $token = self::VALID_TOKEN;
 
         $this->request->method('getParam')->with('token')->willReturn($token);
         $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
@@ -252,6 +324,119 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance->expects($this->once())
             ->method('handleRedirect')
             ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    /**
+     * BTI-1912: another customer's link opened while signed in logs out and asks the owner to sign in
+     */
+    public function testExecuteLogsOutWhenTheOrderBelongsToAnotherCustomer()
+    {
+        $token = self::VALID_TOKEN;
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
+
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId'])
+            ->getMock();
+        $quoteMock->method('getId')->willReturn(123);
+        $quoteMock->method('getCustomerId')->willReturn(42);
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+
+        // Signed in as customer 7; logout() ends that session
+        $loggedIn = true;
+        $this->customerSession->method('isLoggedIn')->willReturnCallback(function () use (&$loggedIn) {
+            return $loggedIn;
+        });
+        $this->customerSession->method('getCustomerId')->willReturn(7);
+        $this->customerSession->expects($this->once())->method('logout')->willReturnCallback(
+            function () use (&$loggedIn) {
+                $loggedIn = false;
+                return $this->customerSession;
+            }
+        );
+        $this->customerSession->expects($this->once())->method('regenerateId');
+        $this->checkoutSession->expects($this->once())->method('regenerateId');
+        $this->checkoutSession->expects($this->once())->method('replaceQuote')->with($quoteMock);
+        $this->checkoutSession->expects($this->once())->method('setQuoteId')->with(123);
+
+        $urlBuilder = $this->createMock(\Magento\Framework\UrlInterface::class);
+        $urlBuilder->method('getUrl')->willReturn('https://shop.example/checkout/#payment');
+        $this->context->method('getUrl')->willReturn($urlBuilder);
+        $this->customerSession->expects($this->once())->method('setAfterAuthUrl')
+            ->with('https://shop.example/checkout/#payment');
+
+        $this->messageManager->expects($this->once())
+            ->method('addNoticeMessage')
+            ->with(__('Please sign in to continue with your restored cart.'));
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('customer/account/login')
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    public function testExecuteKeepsTheOwnerLoggedIn()
+    {
+        $token = self::VALID_TOKEN;
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->request->method('getParams')->willReturn(['token' => $token]);
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
+
+        $quoteMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class, false)
+            ->onlyMethods(['getId', 'getCustomerId'])
+            ->getMock();
+        $quoteMock->method('getId')->willReturn(123);
+        $quoteMock->method('getCustomerId')->willReturn('42');
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+        $this->customerSession->method('getCustomerId')->willReturn(42);
+
+        $this->customerSession->expects($this->never())->method('logout');
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout', ['_query' => [], '_fragment' => 'payment'])
+            ->willReturn($redirectMock);
+
+        $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    public function testExecuteLogsOutAndKeepsRestoredGuestQuote()
+    {
+        $token = self::VALID_TOKEN;
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->request->method('getParams')->willReturn(['token' => $token]);
+        $this->secondChanceRepository->method('getSecondChanceByToken')->with($token);
+
+        $quoteMock = $this->createMock(\Magento\Quote\Model\Quote::class);
+        $quoteMock->method('getId')->willReturn(123);
+        $this->checkoutSession->method('getQuote')->willReturn($quoteMock);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+        $this->customerSession->method('getCustomerId')->willReturn(7);
+
+        $this->customerSession->expects($this->once())->method('logout');
+        $this->customerSession->expects($this->once())->method('regenerateId');
+        $this->checkoutSession->expects($this->once())->method('regenerateId');
+        $this->checkoutSession->expects($this->once())->method('replaceQuote')->with($quoteMock);
+        $this->checkoutSession->expects($this->once())->method('setQuoteId')->with(123);
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout', ['_query' => [], '_fragment' => 'payment'])
             ->willReturn($redirectMock);
 
         $this->assertInstanceOf(Redirect::class, $instance->execute());
