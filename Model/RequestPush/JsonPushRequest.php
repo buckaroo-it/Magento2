@@ -69,7 +69,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function validate($store = null): bool
     {
-        return $this->validator->validate($this->getData());
+        return $this->validator->validate($this->getData(), $store);
     }
 
     /**

@@ -110,7 +110,7 @@
             </depends>
         </field>
 
-        <field id="second_chance_prune_days" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInStore="1">
+        <field id="second_chance_prune_days" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Prune Older Second Chance Entries (Days)</label>
             <comment><![CDATA[Timing in days, 0 to disable this.]]></comment>
             <config_path>buckaroo_magento2/second_chance/prune_days</config_path>

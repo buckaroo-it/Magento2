@@ -113,7 +113,8 @@ class BuckarooFee extends AbstractTotal
         if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
-        $amount = $this->priceCurrency->convert($result->getRoundedAmount());
+        // Convert with the quote store's currencies, not the ambient store's (admin order create)
+        $amount = $this->priceCurrency->convert($result->getRoundedAmount(), $quote->getStore());
 
         /**
          * @noinspection PhpUndefinedMethodInspection

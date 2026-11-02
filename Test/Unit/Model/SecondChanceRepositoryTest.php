@@ -136,7 +136,6 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param bool   $secondChanceEnabled
      * @param string $paymentMethod
      * @param int    $expectedCalls
-     *
      */
     #[DataProvider('createSecondChanceProvider')]
     public function testCreateSecondChance($secondChanceEnabled, $paymentMethod, $expectedCalls)
@@ -188,6 +187,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
             $resource = $this->getFakeMock(ResourceSecondChance::class, true);
             $resource->expects($this->once())->method('save')->with($secondChanceModel);
+
+            // No record yet for this base order in the order's store
+            $secondChanceCollectionFactory = $this->emptyRecordCollectionFactory();
         } else {
             // For cases where expectedCalls = 0, ensure factory and resource are set up properly
             $secondChanceDataFactory = $this->getFakeMock(SecondChanceInterfaceFactory::class, true);
@@ -209,12 +211,14 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
             $resource = $this->getFakeMock(ResourceSecondChance::class, true);
             $resource->expects($this->never())->method('save');
+            $secondChanceCollectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
         }
 
         $instance = $this->getInstance([
             'configProvider' => $this->configProvider,
             'dataSecondChanceFactory' => $secondChanceDataFactory,
             'secondChanceFactory' => $secondChanceFactory,
+            'secondChanceCollectionFactory' => $secondChanceCollectionFactory,
             'mathRandom' => $this->mathRandom,
             'dateTime' => $this->dateTime,
             'resource' => $resource,
@@ -222,8 +226,40 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->invokeArgs('createSecondChance', [$order], $instance);
 
+        if ($expectedCalls > 0) {
+            // Increment ids are only unique per store: the record is looked up in the order's store
+            $this->assertSame([['order_id', '000000001'], ['store_id', 1]], $this->recordFilters);
+        }
+
         // Add assertion to verify the method completes successfully
         $this->assertTrue(true, 'createSecondChance method completed without exceptions');
+    }
+
+    /**
+     * @var array Filters applied to the record collection by emptyRecordCollectionFactory()
+     */
+    private $recordFilters = [];
+
+    /**
+     * A record collection that finds nothing and remembers the filters it was given
+     *
+     * @return SecondChanceCollectionFactory
+     */
+    private function emptyRecordCollectionFactory()
+    {
+        $this->recordFilters = [];
+        $emptyRecord = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $emptyRecord->method('getId')->willReturn(null);
+        $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
+        $collection->method('addFieldToFilter')->willReturnCallback(function ($field, $value) use ($collection) {
+            $this->recordFilters[] = [$field, $value];
+            return $collection;
+        });
+        $collection->method('getFirstItem')->willReturn($emptyRecord);
+        $factory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $factory->method('create')->willReturn($collection);
+
+        return $factory;
     }
 
     /**
@@ -280,7 +316,6 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
      * @param array $orderItems
      * @param array $stockData
      * @param bool  $expectedResult
-     *
      */
     #[DataProvider('checkOrderProductsIsInStockProvider')]
     public function testCheckOrderProductsIsInStock($orderItems, $stockData, $expectedResult)

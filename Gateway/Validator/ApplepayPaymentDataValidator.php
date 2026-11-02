@@ -21,11 +21,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 
 /**
  * In inline mode an Apple Pay order needs the payment data returned by the Apple Pay sheet.
@@ -66,7 +68,7 @@ class ApplepayPaymentDataValidator extends AbstractValidator
 
         if (!$payment instanceof OrderPaymentInterface
             || $payment->getMethod() !== Applepay::CODE
-            || (string)$this->applepayConfig->getIntegrationMode() !== self::INLINE_MODE
+            || (string)$this->applepayConfig->getIntegrationMode($this->getStoreId($payment)) !== self::INLINE_MODE
         ) {
             return $this->createResult(true);
         }
@@ -80,5 +82,21 @@ class ApplepayPaymentDataValidator extends AbstractValidator
             false,
             [__('Apple Pay could not be completed. Please try again.')]
         );
+    }
+
+    /**
+     * Store of the order being placed
+     *
+     * @param OrderPaymentInterface $payment
+     *
+     * @return int|null
+     */
+    private function getStoreId(OrderPaymentInterface $payment): ?int
+    {
+        if (!$payment instanceof OrderPayment || $payment->getOrder() === null) {
+            return null;
+        }
+
+        return StoreId::normalize($payment->getOrder()->getStoreId());
     }
 }

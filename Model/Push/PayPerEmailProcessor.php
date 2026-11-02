@@ -337,7 +337,7 @@ class PayPerEmailProcessor extends DefaultProcessor
         $failedStatuses = $this->buckarooStatusCode->getFailedStatuses();
         if (!empty($this->pushRequest->getTransactionMethod())
             && in_array($this->pushTransactionType->getStatusKey(), $failedStatuses)
-            && $this->configPayPerEmail->getEnabledCronCancelPPE()
+            && $this->configPayPerEmail->getEnabledCronCancelPPE($this->getOrderStoreId())
         ) {
             return true;
         }
@@ -497,20 +497,6 @@ class PayPerEmailProcessor extends DefaultProcessor
     }
 
     /**
-     * Store id of the order this push belongs to, so config is read in the order's scope.
-     *
-     * A push is delivered outside any store context, so the current scope is the request's default
-     * store rather than the order's. The order is resolved by initializeFields() before any push
-     * handling runs, so it is always available here.
-     *
-     * @return int
-     */
-    private function getOrderStoreId(): int
-    {
-        return (int)$this->order->getStoreId();
-    }
-
-    /**
      * Check if the Pay Per Email payment is in B2B mode.
      *
      * @return bool
@@ -569,7 +555,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         if ($this->isPayPerEmailB2BModePushInitial()) {
             $this->pushTransactionType->setStatusKey('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS');
-            $newStatus = $this->configAccount->getOrderStatusSuccess();
+            $newStatus = $this->configAccount->getOrderStatusSuccess(null, $this->getOrderStoreId());
             $this->logger->addDebug(sprintf(
                 '[PUSH - PayPerEmail] | [Webapi] | [%s:%s] - Get New Status | newStatus: %s',
                 __METHOD__,

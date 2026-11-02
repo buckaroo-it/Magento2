@@ -21,11 +21,11 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Controller\Redirect;
 
+use Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2;
 use Buckaroo\Magento2\Controller\Redirect\Process;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Sales\Model\Order;
-use Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2;
 
 /**
  * Covers Process::setCustomerAndRestoreQuote(): the quote is restored against the checkout

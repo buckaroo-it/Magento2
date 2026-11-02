@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Helper;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Config\Source\Business;
@@ -225,8 +226,8 @@ class Data extends AbstractHelper
     /**
      * Get the active mode for the given payment method and store.
      *
-     * @param string|null     $paymentMethod
-     * @param string|int|null $store
+     * @param string|null                                            $paymentMethod
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @throws BuckarooException
      *
@@ -234,7 +235,7 @@ class Data extends AbstractHelper
      */
     public function getMode(?string $paymentMethod = null, $store = null): int
     {
-        $baseMode = $this->configProviderAccount->getActive();
+        $baseMode = $this->configProviderAccount->getActive($store);
 
         if (!$paymentMethod || !$baseMode) {
             return $baseMode;
@@ -244,13 +245,8 @@ class Data extends AbstractHelper
          * @var AbstractConfigProvider $configProvider
          */
         $configProvider = $this->configProviderMethodFactory->get($paymentMethod);
-        if ($store === null) {
-            $mode = $configProvider->getActive();
-        } else {
-            $mode = $configProvider->getActive($store);
-        }
 
-        return $mode;
+        return $configProvider->getActive($store);
     }
 
     /**
@@ -369,7 +365,10 @@ class Data extends AbstractHelper
      */
     public function getOrderStatusByState($order, $orderState)
     {
-        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData('order_status');
+        $orderStatus = $order->getPayment()->getMethodInstance()->getConfigData(
+            'order_status',
+            StoreId::normalize($order->getStoreId())
+        );
         $states = $order->getConfig()->getStateStatuses($orderState);
 
         if (!$orderStatus || !array_key_exists($orderStatus, $states)) {

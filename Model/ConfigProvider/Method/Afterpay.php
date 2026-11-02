@@ -60,12 +60,14 @@ class Afterpay extends AbstractConfigProvider
      * businessMethod 2 = B2B
      * businessMethod 3 = Both
      *
+     * @param null|int|string $store
+     *
      * @return bool|int
      */
-    public function getBusiness()
+    public function getBusiness($store = null)
     {
-        $business = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_BUSINESS);
-        $paymentMethod = $this->getPaymentMethod();
+        $business = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_BUSINESS, $store);
+        $paymentMethod = $this->getPaymentMethod($store);
 
         // Acceptgiro payment method is ALWAYS B2C
         if ($paymentMethod == AfterpayPaymentMethods::PAYMENT_METHOD_ACCEPTGIRO) {
@@ -80,11 +82,13 @@ class Afterpay extends AbstractConfigProvider
      * paymentMethod 1 = afterpayacceptgiro
      * paymentMethod 2 = afterpaydigiaccept
      *
+     * @param null|int|string $store
+     *
      * @return bool|int
      */
-    public function getPaymentMethod()
+    public function getPaymentMethod($store = null)
     {
-        $paymentMethod = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_PAYMENT_METHODS);
+        $paymentMethod = (int)$this->getMethodConfigValue(self::XPATH_AFTERPAY_PAYMENT_METHODS, $store);
 
         return $paymentMethod ?: false;
     }

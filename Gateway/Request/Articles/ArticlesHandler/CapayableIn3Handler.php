@@ -117,7 +117,7 @@ class CapayableIn3Handler extends AbstractArticlesHandler
 
         if ($residual > 0.01 && count($articles['articles']) < self::MAX_ARTICLE_COUNT) {
             $articles['articles'][] = $this->getArticleArrayLine(
-                (string)$this->getAdjustmentLabel(),
+                $this->renderInOrderStoreLocale(fn() => $this->getAdjustmentLabel()),
                 self::ADJUSTMENT_IDENTIFIER,
                 1,
                 $residual

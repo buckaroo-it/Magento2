@@ -4,8 +4,9 @@ define([
     'jquery',
     'Magento_Customer/js/customer-data',
     'mage/translate',
-    'mage/storage'
-], function (Component, urlBuilder, $, customerData, $t, storage) {
+    'mage/storage',
+    'buckaroo/rest-url-builder'
+], function (Component, urlBuilder, $, customerData, $t, storage, restUrlBuilder) {
     'use strict';
 
     return Component.extend({
@@ -55,7 +56,7 @@ define([
                     orderData: productData.order_data
                 };
 
-                $.post(urlBuilder.build("rest/V1/buckaroo/ideal/quote/create"), apiData)
+                $.post(restUrlBuilder.createUrl('/buckaroo/ideal/quote/create'), apiData)
                     .done((response) => resolve(response))
                     .fail((error) => reject(error));
             });
@@ -83,10 +84,10 @@ define([
             var customerDataObject = customerData.get('customer');
 
             if (!customerDataObject().firstname) {
-                serviceUrl = urlBuilder.build(`rest/V1/guest-buckaroo/${quoteId}/payment-information`);
+                serviceUrl = restUrlBuilder.createUrl(`/guest-buckaroo/${quoteId}/payment-information`);
                 payload = this.getPayload(quoteId, paymentData, 'guest');
             } else {
-                serviceUrl = urlBuilder.build('rest/V1/buckaroo/payment-information');
+                serviceUrl = restUrlBuilder.createUrl('/buckaroo/payment-information');
                 payload = this.getPayload(quoteId, paymentData, 'customer');
             }
 

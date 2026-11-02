@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -139,7 +140,7 @@ class OrderCancelAfter implements ObserverInterface
         $this->markManualCancellationIfApplicable($payment, $order);
         $this->cancelRemainingReservation->execute($order);
 
-        $cancelPPE = $this->configProviderPPE->getCancelPpe();
+        $cancelPPE = $this->configProviderPPE->getCancelPpe($order->getStoreId());
 
         if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
             try {
@@ -151,7 +152,11 @@ class OrderCancelAfter implements ObserverInterface
                     var_export([$originalKey], true),
                     $order->getId()
                 ));
-                $this->sendCancelResponse($originalKey, $order->getStoreId(), (string)$order->getIncrementId());
+                $this->sendCancelResponse(
+                    $originalKey,
+                    StoreId::normalize($order->getStoreId()),
+                    (string)$order->getIncrementId()
+                );
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
@@ -214,7 +219,7 @@ class OrderCancelAfter implements ObserverInterface
      */
     private function sendCancelResponse($key, $storeId, string $orderIncrementId)
     {
-        $active = $this->configProviderPPE->getActive();
+        $active = $this->configProviderPPE->getActive($storeId);
         $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
         $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($storeId));
