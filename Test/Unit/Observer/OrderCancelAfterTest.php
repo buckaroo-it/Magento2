@@ -21,6 +21,9 @@ use Magento\Sales\Model\Order\Payment;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class OrderCancelAfterTest extends TestCase
 {
     private const ORDER = '300000327';
