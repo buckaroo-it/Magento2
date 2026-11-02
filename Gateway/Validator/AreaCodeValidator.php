@@ -87,13 +87,26 @@ class AreaCodeValidator extends AbstractValidator
         if ($isValid && $this->methodConfigProviderFactory->has($method->getCode())) {
             $cp = $this->methodConfigProviderFactory->get($method->getCode());
             // The quote's store; implementations without a store argument ignore it
-            $quote = $validationSubject['quote'] ?? null;
-            $storeId = $quote instanceof CartInterface ? $quote->getStoreId() : null;
+            $storeId = $this->getQuoteStoreId($validationSubject);
             if (method_exists($cp, 'isVisibleForAreaCode') && !$cp->isVisibleForAreaCode($areaCode, $storeId)) {
                 $isValid = false;
             }
         }
 
         return $this->createResult($isValid);
+    }
+
+    /**
+     * Store of the quote being validated, if any
+     *
+     * @param array $validationSubject
+     *
+     * @return int|string|null
+     */
+    private function getQuoteStoreId(array $validationSubject)
+    {
+        $quote = $validationSubject['quote'] ?? null;
+
+        return $quote instanceof CartInterface ? $quote->getStoreId() : null;
     }
 }

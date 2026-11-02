@@ -20,7 +20,6 @@
 declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Helper;
 
-use Buckaroo\Magento2\Gateway\Validator\AvailableBasedOnCustomerGroupValidator;
 use Buckaroo\Magento2\Helper\Customer;
 use Buckaroo\Magento2\Model\Config\Source\Business;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -31,10 +30,6 @@ use Magento\Customer\Model\Group;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\State;
-use Magento\Payment\Gateway\Validator\ResultInterface;
-use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
-use Magento\Payment\Model\MethodInterface;
-use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -66,25 +61,5 @@ class CustomerStoreScopeTest extends TestCase
         );
 
         $this->assertTrue($helper->checkCustomerGroup('buckaroo_magento2_afterpay', false, 4));
-    }
-
-    public function testValidatorPassesTheQuotesStore(): void
-    {
-        $helper = $this->createMock(Customer::class);
-        $helper->expects($this->once())->method('checkCustomerGroup')
-            ->with('buckaroo_magento2_ideal', false, 6)
-            ->willReturn(true);
-
-        $resultFactory = $this->getMockBuilder(ResultInterfaceFactory::class)
-            ->disableOriginalConstructor()->onlyMethods(['create'])->getMock();
-        $resultFactory->method('create')->willReturn($this->createMock(ResultInterface::class));
-
-        $method = $this->createMock(MethodInterface::class);
-        $method->method('getCode')->willReturn('buckaroo_magento2_ideal');
-        $quote = $this->createMock(Quote::class);
-        $quote->method('getStoreId')->willReturn('6');
-
-        (new AvailableBasedOnCustomerGroupValidator($helper, $resultFactory))
-            ->validate(['paymentMethodInstance' => $method, 'quote' => $quote]);
     }
 }

@@ -100,7 +100,7 @@ class PushSDKTest extends TestCase
     {
         $this->adapter->expects($this->exactly(2))
             ->method('validate')
-            ->willReturnCallback(fn($p, $h, $uri) => $uri === self::LEGACY_URI);
+            ->willReturnCallback(fn() => func_get_args()[2] === self::LEGACY_URI);
 
         $this->assertTrue($this->validator->validate([], 2));
     }

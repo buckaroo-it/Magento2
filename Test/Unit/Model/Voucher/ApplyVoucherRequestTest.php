@@ -20,20 +20,11 @@
 declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Model\Voucher;
 
-use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
-use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\Voucher\ApplyVoucherRequest;
-use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Request\Http;
-use Magento\Framework\Data\Form\FormKey;
-use Magento\Framework\UrlInterface;
-use Magento\Payment\Gateway\Http\ClientInterface;
-use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Quote\Api\Data\CurrencyInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class ApplyVoucherRequestTest extends TestCase
@@ -60,18 +51,9 @@ class ApplyVoucherRequestTest extends TestCase
         $httpRequest = $this->createMock(Http::class);
         $httpRequest->method('getServer')->willReturn('127.0.0.1');
 
-        $request = new ApplyVoucherRequest(
-            $this->createMock(ScopeConfigInterface::class),
-            $this->createMock(Account::class),
-            $this->createMock(UrlInterface::class),
-            $this->createMock(FormKey::class),
-            $this->createMock(StoreManagerInterface::class),
-            $this->createMock(SDKTransferFactory::class),
-            $this->createMock(ClientInterface::class),
-            $httpRequest,
-            $this->createMock(PaymentGroupTransaction::class),
-            $this->createMock(CartRepositoryInterface::class),
-            $this->createMock(PushUrlBuilder::class)
+        $request = (new ObjectManager($this))->getObject(
+            ApplyVoucherRequest::class,
+            ['httpRequest' => $httpRequest]
         );
         $request->setQuote($quote)->setVoucherCode('CODE');
 
