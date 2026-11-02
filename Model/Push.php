@@ -34,6 +34,11 @@ use Buckaroo\Magento2\Service\Push\OrderRequestService;
 class Push implements PushInterface
 {
     /**
+     * How long a push waits for the order lock, in seconds.
+     */
+    private const LOCK_WAIT_SECONDS = 5;
+
+    /**
      * @var BuckarooLoggerInterface $logger
      */
     public $logger;
@@ -135,7 +140,7 @@ class Push implements PushInterface
 
         $orderIncrementID = $order->getIncrementId();
         $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+        $lockAcquired = $this->acquireOrderLock($orderIncrementID);
 
         if (!$lockAcquired) {
             $this->logger->addDebug(__METHOD__ . '|lock not acquired|');
@@ -166,5 +171,38 @@ class Push implements PushInterface
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
+    }
+
+    /**
+     * Take the order lock, giving up at once when the holder is waiting for Buckaroo.
+     *
+     * Buckaroo sends the push for a transaction before it answers the request that started the
+     * transaction, and waits for the push response. Waiting for the lock that request holds can only
+     * end in the timeout, and keeps the shopper or the shipment waiting for it too. The push is
+     * refused instead, Buckaroo answers the request, and it sends the push again once the order is
+     * saved. Other holders of the lock only work on the order locally, so they are waited for.
+     *
+     * @param string $orderIncrementID
+     *
+     * @throws BuckarooException
+     *
+     * @return bool
+     */
+    private function acquireOrderLock(string $orderIncrementID): bool
+    {
+        for ($attempt = 0; $attempt < self::LOCK_WAIT_SECONDS; $attempt++) {
+            if ($this->lockManager->isGatewayRequestInProgress($orderIncrementID)) {
+                $this->logger->addDebug(__METHOD__ . '|order is waiting for a Buckaroo response|');
+                throw new BuckarooException(
+                    __('Order %1 is waiting for a Buckaroo response, send the push again later', $orderIncrementID)
+                );
+            }
+
+            if ($this->lockManager->lockOrder($orderIncrementID, 1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

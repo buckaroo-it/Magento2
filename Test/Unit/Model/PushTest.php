@@ -94,7 +94,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->lockManagerMock->expects($this->once())
             ->method('lockOrder')
-            ->with('123456', 5)
+            ->with('123456', 1)
             ->willReturn(true);
 
         $this->pushRequestMock->expects($this->once())
@@ -157,9 +157,13 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getIncrementId')->willReturn('123456');
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
-        $this->lockManagerMock->method('lockOrder')->willReturn(false);
+        $this->lockManagerMock->expects($this->exactly(5))
+            ->method('lockOrder')
+            ->with('123456', 1)
+            ->willReturn(false);
 
         $this->lockManagerMock->expects($this->never())->method('unlockOrder');
+        $this->pushRequestMock->expects($this->never())->method('validate');
 
         $instance = $this->getInstance();
 
@@ -193,5 +197,76 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->expectExceptionMessage('Test exception');
 
         $instance->receivePush();
+    }
+
+    public function testReceivePushIsRefusedAtOnceWhileTheOrderWaitsForBuckaroo()
+    {
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->expects($this->once())
+            ->method('isGatewayRequestInProgress')
+            ->with('123456')
+            ->willReturn(true);
+        $this->lockManagerMock->expects($this->never())->method('lockOrder');
+        $this->lockManagerMock->expects($this->never())->method('unlockOrder');
+        $this->pushRequestMock->expects($this->never())->method('validate');
+        $this->pushProcessorsFactoryMock->expects($this->never())->method('get');
+
+        $instance = $this->getInstance();
+
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('Order 123456 is waiting for a Buckaroo response, send the push again later');
+
+        $instance->receivePush();
+    }
+
+    public function testReceivePushStopsWaitingOnceTheLockHolderCallsBuckaroo()
+    {
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->expects($this->exactly(2))
+            ->method('isGatewayRequestInProgress')
+            ->willReturnOnConsecutiveCalls(false, true);
+        $this->lockManagerMock->expects($this->once())->method('lockOrder')->willReturn(false);
+        $this->lockManagerMock->expects($this->never())->method('unlockOrder');
+
+        $instance = $this->getInstance();
+
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('is waiting for a Buckaroo response');
+
+        $instance->receivePush();
+    }
+
+    public function testReceivePushWaitsForALockHolderThatOnlyWorksLocally()
+    {
+        $storeMock = $this->getFakeMock(Store::class)->getMock();
+
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+        $orderMock->method('getStore')->willReturn($storeMock);
+
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->method('isGatewayRequestInProgress')->willReturn(false);
+        $this->lockManagerMock->expects($this->exactly(3))
+            ->method('lockOrder')
+            ->with('123456', 1)
+            ->willReturnOnConsecutiveCalls(false, false, true);
+
+        $this->pushRequestMock->method('validate')->with($storeMock)->willReturn(true);
+        $this->pushTransactionTypeMock->method('getPushTransactionType')
+            ->willReturn($this->getFakeMock(PushTransactionType::class)->getMock());
+
+        $processorMock = $this->getFakeMock(PushProcessorInterface::class)->getMock();
+        $processorMock->expects($this->once())->method('processPush')->willReturn(true);
+        $this->pushProcessorsFactoryMock->method('get')->willReturn($processorMock);
+
+        $this->lockManagerMock->expects($this->once())->method('unlockOrder')->with('123456');
+
+        $this->assertTrue($this->getInstance()->receivePush());
     }
 }
