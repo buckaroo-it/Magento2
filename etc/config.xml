@@ -816,7 +816,7 @@
                 <group>buckaroo_magento2</group>
                 <payment_action>authorize</payment_action>
                 <available_in_backend>0</available_in_backend>
-                <min_amount>250</min_amount>
+                <min_amount>302.5</min_amount>
                 <max_amount>25000</max_amount>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>

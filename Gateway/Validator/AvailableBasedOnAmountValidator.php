@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Validator;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Billink;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 
@@ -53,6 +54,13 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
         } else {
             $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
             $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);
+        }
+
+        if ($paymentMethodInstance->getCode() === ZakelijkOpRekening::CODE) {
+            $minimum = max((float)$minimum, ZakelijkOpRekening::MIN_ORDER_AMOUNT);
+            $maximum = ($maximum === null || $maximum === '')
+                ? ZakelijkOpRekening::MAX_ORDER_AMOUNT
+                : min((float)$maximum, ZakelijkOpRekening::MAX_ORDER_AMOUNT);
         }
 
         $total = $quote->getGrandTotal();

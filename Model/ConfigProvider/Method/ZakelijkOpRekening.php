@@ -29,6 +29,14 @@ class ZakelijkOpRekening extends AbstractConfigProvider
     public const TOOLTIP_URL = 'https://doorpakken.abnamro.nl/hulpmiddelen-en-diensten/zakelijk-op-rekening/faq/';
 
     /**
+     * Order amount range accepted by ABN AMRO for this route. The configured
+     * min/max amounts can narrow this range but not widen it.
+     */
+    public const MIN_ORDER_AMOUNT = 302.5;
+
+    public const MAX_ORDER_AMOUNT = 25000.0;
+
+    /**
      * @var array
      */
     protected $allowedCurrencies = [
