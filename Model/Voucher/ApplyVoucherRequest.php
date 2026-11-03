@@ -24,8 +24,10 @@ use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
@@ -46,6 +48,11 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 {
+    /**
+     * @var VerificationGuard|null
+     */
+    private $idinVerificationGuard;
+
     /**
      * @var StoreInterface
      */
@@ -117,6 +124,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
      * @param RequestInterface $httpRequest
      * @param PaymentGroupTransaction $groupTransaction
      * @param CartRepositoryInterface $cartRepository
+     * @param VerificationGuard|null $idinVerificationGuard
      * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -130,9 +138,11 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
         ClientInterface $clientInterface,
         RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        ?VerificationGuard $idinVerificationGuard = null
     ) {
         $this->cartRepository = $cartRepository;
+        $this->idinVerificationGuard = $idinVerificationGuard;
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -156,6 +166,13 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     {
         if ($this->voucherCode === null) {
             throw new GiftcardException("Field `voucherCode` is required");
+        }
+        if ($this->quote !== null) {
+            try {
+                $this->getIdinVerificationGuard()->assertVerified($this->quote);
+            } catch (LocalizedException $e) {
+                throw new GiftcardException($e->getMessage(), 0, $e);
+            }
         }
 
         $transferO = $this->transferFactory->create(
@@ -326,5 +343,19 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
     {
         $this->quote = $quote;
         return $this;
+    }
+
+    /**
+     * Get the iDIN verification guard
+     *
+     * @return VerificationGuard
+     */
+    private function getIdinVerificationGuard(): VerificationGuard
+    {
+        if ($this->idinVerificationGuard === null) {
+            $this->idinVerificationGuard = ObjectManager::getInstance()->get(VerificationGuard::class);
+        }
+
+        return $this->idinVerificationGuard;
     }
 }

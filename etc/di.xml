@@ -4721,4 +4721,8 @@
                 sortOrder="10"/>
     </type>
 
+    <!-- iDIN age verification is checked whenever a quote becomes an order -->
+    <type name="Magento\Quote\Model\QuoteManagement">
+        <plugin name="buckaroo_idin_verification" type="Buckaroo\Magento2\Plugin\QuoteManagement\IdinVerification"/>
+    </type>
 </config>
