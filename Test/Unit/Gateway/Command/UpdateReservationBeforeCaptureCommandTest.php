@@ -34,6 +34,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * A reservation without unique article numbers is updated once before the capture, and only with
  * lines that carry every unique article number.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UpdateReservationBeforeCaptureCommandTest extends TestCase
 {
