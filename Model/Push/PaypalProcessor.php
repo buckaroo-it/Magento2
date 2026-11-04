@@ -45,6 +45,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -80,6 +81,7 @@ class PaypalProcessor extends DefaultProcessor
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -105,7 +107,8 @@ class PaypalProcessor extends DefaultProcessor
         TransactionRepositoryInterface  $transactionRepository,
         SearchCriteriaBuilder           $searchCriteriaBuilder,
         OrderManagementInterface        $orderManagement,
-        Escaper                         $escaper
+        Escaper                         $escaper,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -129,7 +132,8 @@ class PaypalProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->paypalConfig = $paypalConfig;
     }

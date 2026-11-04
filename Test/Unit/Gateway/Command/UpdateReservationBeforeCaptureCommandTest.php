@@ -69,6 +69,21 @@ class UpdateReservationBeforeCaptureCommandTest extends TestCase
         $this->assertSame(['capture'], $calls);
     }
 
+    /**
+     * Capturing what is left of a partly captured reservation names no lines, and replacing the
+     * lines of a reservation that is partly captured can only fail.
+     */
+    public function testARemainderCaptureIsNotPrecededByAnUpdate(): void
+    {
+        $payment = $this->makePayment(false, 32.15);
+        $payment->expects($this->never())->method('setAdditionalInformation');
+        $calls = [];
+
+        $this->makeCommand(true, $calls)->execute($this->subjectFor($payment));
+
+        $this->assertSame(['capture'], $calls);
+    }
+
     public function testAFailedUpdateStillLetsTheCaptureRun(): void
     {
         $payment = $this->makePayment(false);
@@ -138,14 +153,23 @@ class UpdateReservationBeforeCaptureCommandTest extends TestCase
     }
 
     /**
-     * @param bool $uniqueArticleNumbers
+     * @param bool       $uniqueArticleNumbers
+     * @param float|null $captureRemainder
      *
      * @return Payment|\PHPUnit\Framework\MockObject\MockObject
      */
-    private function makePayment(bool $uniqueArticleNumbers)
+    private function makePayment(bool $uniqueArticleNumbers, ?float $captureRemainder = null)
     {
+        $invoices = $this->createMock(\Magento\Sales\Model\ResourceModel\Order\Invoice\Collection::class);
+        $invoices->method('getLastItem')->willReturn(new \Magento\Framework\DataObject(
+            $captureRemainder === null
+                ? []
+                : [\Buckaroo\Magento2\Model\Service\UninvoicedCaptures::INVOICE_CAPTURE_REMAINDER => $captureRemainder]
+        ));
+
         $order = $this->createMock(Order::class);
         $order->method('getIncrementId')->willReturn('300000076');
+        $order->method('getInvoiceCollection')->willReturn($invoices);
 
         $payment = $this->createMock(Payment::class);
         $payment->method('getMethod')->willReturn('buckaroo_magento2_klarnakp');
