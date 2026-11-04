@@ -51,6 +51,7 @@ use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -104,6 +105,7 @@ class PayPerEmailProcessor extends DefaultProcessor
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
      * @param PaymentMethodCodeResolver $paymentMethodCodeResolver
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -130,7 +132,8 @@ class PayPerEmailProcessor extends DefaultProcessor
         SearchCriteriaBuilder           $searchCriteriaBuilder,
         OrderManagementInterface        $orderManagement,
         Escaper                         $escaper,
-        PaymentMethodCodeResolver       $paymentMethodCodeResolver
+        PaymentMethodCodeResolver       $paymentMethodCodeResolver,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -154,7 +157,8 @@ class PayPerEmailProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->configPayPerEmail = $configPayPerEmail;
         $this->paymentMethodCodeResolver = $paymentMethodCodeResolver;

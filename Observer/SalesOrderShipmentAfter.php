@@ -27,6 +27,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -93,6 +94,11 @@ class SalesOrderShipmentAfter implements ObserverInterface
     private $orderItemRepository;
 
     /**
+     * @var UninvoicedCaptures
+     */
+    private $uninvoicedCaptures;
+
+    /**
      * @param InvoiceService               $invoiceService
      * @param TransactionFactory           $transactionFactory
      * @param ConfigProviderFactory        $configProviderFactory
@@ -100,6 +106,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
      * @param CreateInvoice                $createInvoiceService
      * @param OrderRepositoryInterface     $orderRepository
      * @param OrderItemRepositoryInterface $orderItemRepository
+     * @param UninvoicedCaptures           $uninvoicedCaptures
      */
     public function __construct(
         InvoiceService $invoiceService,
@@ -108,7 +115,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
         BuckarooLoggerInterface $logger,
         CreateInvoice $createInvoiceService,
         OrderRepositoryInterface $orderRepository,
-        OrderItemRepositoryInterface $orderItemRepository
+        OrderItemRepositoryInterface $orderItemRepository,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         $this->invoiceService = $invoiceService;
         $this->transactionFactory = $transactionFactory;
@@ -117,6 +125,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
         $this->createInvoiceService = $createInvoiceService;
         $this->orderRepository = $orderRepository;
         $this->orderItemRepository = $orderItemRepository;
+        $this->uninvoicedCaptures = $uninvoicedCaptures;
     }
 
     /**
@@ -205,6 +214,8 @@ class SalesOrderShipmentAfter implements ObserverInterface
 
         $invoice = null;
         $mayHaveRegisteredItems = false;
+        // Paying the invoice can draw on a capture made earlier; a failed invoice must give it back.
+        $uninvoicedCapturesBefore = $this->uninvoicedCaptures->snapshot($this->order);
 
         try {
             if (!$this->order->canInvoice()) {
@@ -279,6 +290,7 @@ class SalesOrderShipmentAfter implements ObserverInterface
                 var_export($this->order->getStatus(), true)
             ));
         } catch (\Exception $e) {
+            $this->uninvoicedCaptures->restore($this->order, $uninvoicedCapturesBefore);
             $this->handleInvoiceFailure($e, $mayHaveRegisteredItems ? $invoice : null);
 
             return null;
