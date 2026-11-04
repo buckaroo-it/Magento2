@@ -27,6 +27,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Billink;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\ZakelijkOpRekening;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Model\MethodInterface;
+use Magento\Quote\Model\Quote;
 
 class AvailableBasedOnAmountValidator extends AbstractValidator
 {
@@ -39,22 +41,35 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $isValid = true;
-
         $paymentMethodInstance = SubjectReader::readPaymentMethodInstance($validationSubject);
-
         $quote = SubjectReader::readQuote($validationSubject);
 
-        $storeId = $quote->getStoreId();
+        [$minimum, $maximum] = $this->getAmountLimits($paymentMethodInstance, $quote);
 
-        if (($quote->getShippingAddress()->getCompany() || $quote->getBillingAddress()->getCompany())
-            && in_array($paymentMethodInstance->getCode(), [Afterpay20::CODE, Billink::CODE])) {
-            $maximum = $paymentMethodInstance->getConfigData('max_amount_b2b', $storeId);
-            $minimum = $paymentMethodInstance->getConfigData('min_amount_b2b', $storeId);
-        } else {
-            $maximum = $paymentMethodInstance->getConfigData('max_amount', $storeId);
-            $minimum = $paymentMethodInstance->getConfigData('min_amount', $storeId);
-        }
+        $total = $quote->getGrandTotal();
+
+        $isValid = !($total < 0.01
+            || $maximum !== null && $total > $maximum
+            || $minimum !== null && $total < $minimum);
+
+        return $this->createResult($isValid);
+    }
+
+    /**
+     * Get the minimum and maximum order amount for the payment method.
+     *
+     * @param MethodInterface $paymentMethodInstance
+     * @param Quote           $quote
+     *
+     * @return array{0: mixed, 1: mixed}
+     */
+    private function getAmountLimits(MethodInterface $paymentMethodInstance, Quote $quote): array
+    {
+        $storeId = $quote->getStoreId();
+        $suffix = $this->useB2bLimits($paymentMethodInstance, $quote) ? '_b2b' : '';
+
+        $minimum = $paymentMethodInstance->getConfigData('min_amount' . $suffix, $storeId);
+        $maximum = $paymentMethodInstance->getConfigData('max_amount' . $suffix, $storeId);
 
         if ($paymentMethodInstance->getCode() === ZakelijkOpRekening::CODE) {
             $minimum = max((float)$minimum, ZakelijkOpRekening::MIN_ORDER_AMOUNT);
@@ -63,15 +78,23 @@ class AvailableBasedOnAmountValidator extends AbstractValidator
                 : min((float)$maximum, ZakelijkOpRekening::MAX_ORDER_AMOUNT);
         }
 
-        $total = $quote->getGrandTotal();
+        return [$minimum, $maximum];
+    }
 
-        if ($total < 0.01
-            || $maximum !== null && $total > $maximum
-            || $minimum !== null && $total < $minimum
-        ) {
-            $isValid = false;
+    /**
+     * Check if the B2B amount limits apply to this quote and payment method.
+     *
+     * @param MethodInterface $paymentMethodInstance
+     * @param Quote           $quote
+     *
+     * @return bool
+     */
+    private function useB2bLimits(MethodInterface $paymentMethodInstance, Quote $quote): bool
+    {
+        if (!in_array($paymentMethodInstance->getCode(), [Afterpay20::CODE, Billink::CODE], true)) {
+            return false;
         }
 
-        return $this->createResult($isValid);
+        return $quote->getShippingAddress()->getCompany() || $quote->getBillingAddress()->getCompany();
     }
 }
