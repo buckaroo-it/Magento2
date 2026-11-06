@@ -78,22 +78,22 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
-     * Test that the config returns the right values
+     * The checkout notice follows the payment instruction email setting, not the order confirmation email.
      */
-    public function testGetConfig()
+    #[DataProvider('getSendMailProvider')]
+    public function testGetConfigSendEmailFollowsPaymentInstructionEmail($value, $expected)
     {
-        $sendEmail = '1';
-
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->getMock();
-        $scopeConfigMock->method('getValue')->willReturnCallback(function ($path = null) {
-            // Return active = 1 for the payment method to ensure it's enabled
+        $scopeConfigMock->method('getValue')->willReturnCallback(function ($path = null) use ($value) {
             if (strpos($path, '/active') !== false) {
                 return '1';
             }
-            // Return sendEmail value for order_email configuration (correct path)
-            if (strpos($path, 'order_email') !== false) {
-                return '1';
+            if ($path === 'payment/buckaroo_magento2_transfer/payment_instruction_email') {
+                return $value;
+            }
+            if ($path === 'payment/buckaroo_magento2_transfer/order_email') {
+                return $value === '1' ? '0' : '1';
             }
             return null;
         });
@@ -105,7 +105,30 @@ class TransferTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertArrayHasKey('buckaroo', $result['payment']);
         $this->assertArrayHasKey('buckaroo_magento2_transfer', $result['payment']['buckaroo']);
         $this->assertArrayHasKey('sendEmail', $result['payment']['buckaroo']['buckaroo_magento2_transfer']);
-        $this->assertEquals($sendEmail, $result['payment']['buckaroo']['buckaroo_magento2_transfer']['sendEmail']);
+        $this->assertSame(
+            $expected === 'true',
+            $result['payment']['buckaroo']['buckaroo_magento2_transfer']['sendEmail']
+        );
+    }
+
+    /**
+     * @param $value
+     * @param $expected
+     */
+    #[DataProvider('getSendMailProvider')]
+    public function testHasPaymentInstructionEmail($value, $expected)
+    {
+        $scopeConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)->getMock();
+        $scopeConfigMock->method('getValue')
+            ->with(
+                $this->getPaymentMethodConfigPath(Transfer::CODE, Transfer::XPATH_TRANSFER_PAYMENT_INSTRUCTION_EMAIL),
+                ScopeInterface::SCOPE_STORE
+            )
+            ->willReturn($value);
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertSame($expected === 'true', $instance->hasPaymentInstructionEmail());
     }
 
     /**
