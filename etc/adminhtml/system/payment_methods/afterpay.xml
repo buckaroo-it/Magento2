@@ -173,7 +173,7 @@
                 <comment><![CDATA[Leave empty to use default 'success' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesSuccess</source_model>
-                <config_path>payment/buckaroo_magento2_ideal/order_status_success</config_path>
+                <config_path>payment/buckaroo_magento2_afterpay/order_status_success</config_path>
                 <depends>
                     <field id="active_status">1</field>
                 </depends>
@@ -184,7 +184,7 @@
                 <comment><![CDATA[Leave empty to use default 'failed' status.]]></comment>
                 <tooltip>To make a new status available it needs to be assigned to the correct state. See Magento documentation about state and status.</tooltip>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\StatusesFailed</source_model>
-                <config_path>payment/buckaroo_magento2_ideal/order_status_failed</config_path>
+                <config_path>payment/buckaroo_magento2_afterpay/order_status_failed</config_path>
                 <depends>
                     <field id="active_status">1</field>
                 </depends>
