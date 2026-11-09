@@ -226,3 +226,8 @@
 "Analytics Tracking","Analytics Tracking"
 "About Analytics Tracking","About Analytics Tracking"
 "Enable Analytics Tracking","Enable Analytics Tracking"
+"Please verify your age with iDIN before placing this order.","Please verify your age with iDIN before placing this order."
+"We could not check the age verification for your order. Please try again.","We could not check the age verification for your order. Please try again."
+"Buckaroo iDIN age verification is enabled, but the checkout of these store views has no iDIN step, so their orders are placed without iDIN verification: %1.","Buckaroo iDIN age verification is enabled, but the checkout of these store views has no iDIN step, so their orders are placed without iDIN verification: %1."
+"For the Hyvä Checkout, update the Buckaroo Hyvä Checkout module to version 2.4.0 or higher.","For the Hyvä Checkout, update the Buckaroo Hyvä Checkout module to version 2.4.0 or higher."
+"The Hyvä React Checkout has no iDIN step, use the Hyvä Checkout or the Magento checkout instead.","The Hyvä React Checkout has no iDIN step, use the Hyvä Checkout or the Magento checkout instead."

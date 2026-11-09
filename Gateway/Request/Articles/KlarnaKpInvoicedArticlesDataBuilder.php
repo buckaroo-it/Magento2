@@ -23,6 +23,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles;
 
 use Buckaroo\Magento2\Gateway\Request\AbstractDataBuilder;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 use Magento\Sales\Model\Order;
 
 /**
@@ -71,6 +72,19 @@ class KlarnaKpInvoicedArticlesDataBuilder extends AbstractDataBuilder
 
         $order = $this->getOrder();
 
+        $remainder = $this->getCaptureRemainder($order);
+        if ($remainder !== null) {
+            // The rest of the reservation, captured by amount: Klarna accepts a capture without
+            // lines only when it equals what is left on the reservation.
+            $this->articleTotalRegistry->set(
+                ArticleTotalRegistry::CONTEXT_INVOICE,
+                (string)$order->getIncrementId(),
+                $remainder
+            );
+
+            return [];
+        }
+
         $articleHandler = $this->articlesHandlerFactory->create($this->getPayment()->getMethod());
         $articles = $articleHandler->getInvoiceArticlesData($order, $this->getPayment());
 
@@ -85,6 +99,21 @@ class KlarnaKpInvoicedArticlesDataBuilder extends AbstractDataBuilder
         }
 
         return ['articles' => $this->toNominatedLines($articles)];
+    }
+
+    /**
+     * The part of the current invoice still to be captured, when an earlier capture covers the rest.
+     *
+     * @param Order $order
+     *
+     * @return float|null
+     */
+    private function getCaptureRemainder(Order $order): ?float
+    {
+        $remainder = $order->getInvoiceCollection()->getLastItem()
+            ->getData(UninvoicedCaptures::INVOICE_CAPTURE_REMAINDER);
+
+        return $remainder !== null ? (float)$remainder : null;
     }
 
     /**

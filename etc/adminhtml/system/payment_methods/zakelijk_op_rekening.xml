@@ -136,7 +136,7 @@
 
                 <field id="min_amount" translate="label comment tooltip" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Min Order Amount</label>
-                    <comment><![CDATA[Minimum order amount allowed. Default: 250.]]></comment>
+                    <comment><![CDATA[Minimum order amount allowed. Default: 302.50. ABN AMRO accepts orders from 302.50 up to 25000; a lower value is not applied.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount greater than or equal to the minimum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_zakelijkoprekening/min_amount</config_path>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>
@@ -144,7 +144,7 @@
 
                 <field id="max_amount" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max Order Amount</label>
-                    <comment><![CDATA[Maximum order amount allowed. Default: 25000.]]></comment>
+                    <comment><![CDATA[Maximum order amount allowed. Default: 25000. ABN AMRO accepts orders from 302.50 up to 25000; a higher value is not applied.]]></comment>
                     <tooltip>The payment method shows only for orders with an order amount smaller than or equal to the maximum amount.</tooltip>
                     <config_path>payment/buckaroo_magento2_zakelijkoprekening/max_amount</config_path>
                     <backend_model>Buckaroo\Magento2\Model\Config\Backend\Price</backend_model>

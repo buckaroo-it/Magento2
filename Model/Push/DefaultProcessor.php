@@ -43,6 +43,7 @@ use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
@@ -216,6 +217,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected $escaper;
 
     /**
+     * @var UninvoicedCaptures
+     */
+    protected $uninvoicedCaptures;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -240,6 +246,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -264,7 +271,8 @@ class DefaultProcessor implements PushProcessorInterface
         TransactionRepositoryInterface                           $transactionRepository,
         SearchCriteriaBuilder                                    $searchCriteriaBuilder,
         OrderManagementInterface                                 $orderManagement,
-        Escaper                                                  $escaper
+        Escaper                                                  $escaper,
+        UninvoicedCaptures                                       $uninvoicedCaptures
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -289,6 +297,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->orderManagement = $orderManagement;
         $this->escaper = $escaper;
+        $this->uninvoicedCaptures = $uninvoicedCaptures;
     }
 
     /**
@@ -1187,8 +1196,11 @@ class DefaultProcessor implements PushProcessorInterface
             $payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
         }
 
+        // Invoices created later draw on this instead of capturing the same money again.
+        $this->uninvoicedCaptures->record($payment, (string)$transactionKey, $captureAmount);
+
         // These fields are required for Magento to allow invoice creation later
-        $payment->setBaseAmountPaidOnline($captureAmount);
+        $payment->setBaseAmountPaidOnline((float)$payment->getBaseAmountPaidOnline() + $captureAmount);
 
         // Calculate amounts - handle null values from first payment
         $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;

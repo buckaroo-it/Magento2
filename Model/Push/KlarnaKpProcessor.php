@@ -43,6 +43,7 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -84,6 +85,7 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param \Magento\Sales\Api\OrderManagementInterface $orderManagement
      * @param ReservationNumberStore $reservationNumberStore
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -110,7 +112,8 @@ class KlarnaKpProcessor extends DefaultProcessor
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Sales\Api\OrderManagementInterface $orderManagement,
-        ReservationNumberStore $reservationNumberStore
+        ReservationNumberStore $reservationNumberStore,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -134,7 +137,8 @@ class KlarnaKpProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->klarnakpConfig = $klarnakpConfig;
         $this->reservationNumberStore = $reservationNumberStore;
