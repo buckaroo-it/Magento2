@@ -80,13 +80,13 @@ class PaypalExpress extends Template implements ShortcutInterface
     private $checkoutSession;
 
     /**
-     * @param Context              $context
-     * @param Account              $configProviderAccount
-     * @param Encryptor            $encryptor
-     * @param Paypal               $paypalConfig
-     * @param Registry|null        $registry
-     * @param CheckoutSession|null $checkoutSession
-     * @param array                $data
+     * @param Context                 $context
+     * @param Account                 $configProviderAccount
+     * @param Encryptor               $encryptor
+     * @param Paypal                  $paypalConfig
+     * @param Registry|null           $registry
+     * @param CheckoutSession|null    $checkoutSession
+     * @param array                   $data
      * @param IdinConfigProvider|null $idinConfigProvider
      */
     public function __construct(
