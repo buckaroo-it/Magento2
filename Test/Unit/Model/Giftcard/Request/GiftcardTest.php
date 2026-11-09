@@ -24,7 +24,9 @@ namespace Buckaroo\Magento2\Test\Unit\Model\Giftcard\Request;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Model\Giftcard\Request\Giftcard;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardException;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Quote\Model\Quote;
@@ -64,7 +66,25 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
         ];
     }
 
-    private function buildInstance(string $allowed, $client): Giftcard
+    public function testGiftcardIsNotChargedWhenIdinVerificationIsMissing(): void
+    {
+        $client = $this->getFakeMock(ClientInterface::class)->getMock();
+        $client->expects($this->never())->method('placeRequest');
+
+        $guard = $this->getFakeMock(VerificationGuard::class)->getMock();
+        $guard->method('assertVerified')
+            ->willThrowException(new LocalizedException(__('Please verify your age with iDIN before placing this order.')));
+
+        $instance = $this->buildInstance('vvvgiftcard', $client, $guard);
+        $instance->setCardId('vvvgiftcard')->setCardNumber('123456')->setPin('1234');
+
+        $this->expectException(GiftcardException::class);
+        $this->expectExceptionMessage('Please verify your age with iDIN before placing this order.');
+
+        $instance->send();
+    }
+
+    private function buildInstance(string $allowed, $client, $guard = null): Giftcard
     {
         $scopeConfig = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
         $scopeConfig->method('getValue')->willReturnMap([
@@ -87,6 +107,11 @@ class GiftcardTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->setGiftcardProperty($instance, 'scopeConfig', $scopeConfig);
         $this->setGiftcardProperty($instance, 'transferFactory', $transferFactory);
         $this->setGiftcardProperty($instance, 'clientInterface', $client);
+        $this->setGiftcardProperty(
+            $instance,
+            'idinVerificationGuard',
+            $guard ?? $this->getFakeMock(VerificationGuard::class)->getMock()
+        );
 
         return $instance;
     }

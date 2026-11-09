@@ -26,7 +26,9 @@ use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
 use Buckaroo\Magento2\Helper\Data as HelperData;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Encryption\Encryptor;
@@ -49,6 +51,10 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Giftcard implements GiftcardInterface
 {
+    /**
+     * @var VerificationGuard|null
+     */
+    private $idinVerificationGuard;
 
     public const TCS_ACQUIRER = 'tcs';
     public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
@@ -153,6 +159,7 @@ class Giftcard implements GiftcardInterface
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardRepositoryInterface $giftcardRepository
      * @param CartRepositoryInterface $cartRepository
+     * @param VerificationGuard|null $idinVerificationGuard
      * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -168,9 +175,11 @@ class Giftcard implements GiftcardInterface
         RequestInterface $httpRequest,
         PaymentGroupTransaction $groupTransaction,
         GiftcardRepositoryInterface $giftcardRepository,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        ?VerificationGuard $idinVerificationGuard = null
     ) {
         $this->cartRepository = $cartRepository;
+        $this->idinVerificationGuard = $idinVerificationGuard;
         $this->scopeConfig = $scopeConfig;
         $this->configProviderAccount = $configProviderAccount;
         $this->urlBuilder = $urlBuilder;
@@ -207,6 +216,12 @@ class Giftcard implements GiftcardInterface
         }
         if (!$this->isAllowedGiftcard($this->cardId)) {
             throw new GiftcardException("Giftcard is not allowed");
+        }
+
+        try {
+            $this->getIdinVerificationGuard()->assertVerified($this->quote);
+        } catch (LocalizedException $e) {
+            throw new GiftcardException($e->getMessage(), 0, $e);
         }
 
         $transferO = $this->transferFactory->create(
@@ -567,5 +582,19 @@ class Giftcard implements GiftcardInterface
         return $this->giftcardRepository
             ->getByServiceCode($this->cardId)
             ->getAcquirer();
+    }
+
+    /**
+     * Get the iDIN verification guard
+     *
+     * @return VerificationGuard
+     */
+    private function getIdinVerificationGuard(): VerificationGuard
+    {
+        if ($this->idinVerificationGuard === null) {
+            $this->idinVerificationGuard = ObjectManager::getInstance()->get(VerificationGuard::class);
+        }
+
+        return $this->idinVerificationGuard;
     }
 }

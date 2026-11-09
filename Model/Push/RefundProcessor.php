@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Refund\Push as RefundPush;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
@@ -46,6 +47,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -81,6 +83,7 @@ class RefundProcessor extends DefaultProcessor
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -106,7 +109,8 @@ class RefundProcessor extends DefaultProcessor
         TransactionRepositoryInterface  $transactionRepository,
         SearchCriteriaBuilder           $searchCriteriaBuilder,
         OrderManagementInterface        $orderManagement,
-        Escaper                         $escaper
+        Escaper                         $escaper,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -130,7 +134,8 @@ class RefundProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->refundPush = $refundPush;
     }
@@ -174,7 +179,130 @@ class RefundProcessor extends DefaultProcessor
             }
         }
 
+        if ($this->isRefundOfUnpaidPartialPayment()) {
+            return $this->handleRefundOfUnpaidPartialPayment();
+        }
+
         return $this->refundPush->receiveRefundPush($this->pushRequest, true, $this->order);
+    }
+
+    /**
+     * Whether this refund returns one part of a split payment on an order that was never paid.
+     *
+     * A customer who pays part of an order with a gift card and then leaves the payment page
+     * gets that part refunded. The order has no invoice and nothing paid, so there is nothing to
+     * credit: the refund only undoes the part.
+     *
+     * @return bool
+     */
+    private function isRefundOfUnpaidPartialPayment(): bool
+    {
+        $refundedTransaction = (string)$this->pushRequest->getRelatedtransactionRefund();
+
+        if ($refundedTransaction === ''
+            || $this->order->hasInvoices()
+            || round((float)$this->order->getTotalPaid(), 2) > 0
+        ) {
+            return false;
+        }
+
+        $part = $this->groupTransaction->getGroupTransactionByTrxId($refundedTransaction);
+
+        return $part !== null
+            && $part->getId()
+            && (string)$part->getData('order_id') === (string)$this->order->getIncrementId();
+    }
+
+    /**
+     * Record the refunded part and cancel the order once nothing paid is left.
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    private function handleRefundOfUnpaidPartialPayment(): bool
+    {
+        $refundedTransaction = (string)$this->pushRequest->getRelatedtransactionRefund();
+        $part = $this->groupTransaction->getGroupTransactionByTrxId($refundedTransaction);
+        $refundedAmount = (float)$this->pushRequest->getAmountCredit();
+
+        $partAmount = (float)$part->getData('amount');
+        $alreadyRefunded = (float)$part->getData('refunded_amount') >= $partAmount;
+
+        // A repeated push: already recorded and the order already cancelled.
+        if ($alreadyRefunded && $this->order->getState() === \Magento\Sales\Model\Order::STATE_CANCELED) {
+            return true;
+        }
+
+        // The refund response may already have counted it (gift card removed from the checkout).
+        $this->groupTransaction->updateGroupTransaction([
+            'entity_id' => $part->getId(),
+            'refunded_amount' => min($partAmount, (float)$part->getData('refunded_amount') + $refundedAmount),
+        ]);
+
+        $stillPaid = round(
+            (float)$this->groupTransaction->getGroupTransactionAmount($this->order->getIncrementId()),
+            2
+        );
+        $refundedText = $this->formatCommentAmount($refundedAmount);
+
+        $this->logger->addDebug(sprintf(
+            '[PUSH_REFUND] | [%s:%s] - Order %s: partial payment %s refunded before the order was paid'
+            . ' (%s) | still paid: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId(),
+            $refundedTransaction,
+            $refundedAmount,
+            $stillPaid
+        ));
+
+        if ($stillPaid > 0 || !$this->order->canCancel()) {
+            $this->order->addCommentToStatusHistory((string)__(
+                'Buckaroo: the partial payment of %1 (transaction %2) was refunded.',
+                $refundedText,
+                $refundedTransaction
+            ));
+            $this->orderRepository->save($this->order);
+
+            return true;
+        }
+
+        $this->cancelWithoutGatewayCall();
+
+        // The cancel saved its own copy of the order; continue on a fresh one.
+        $order = $this->orderRepository->get((int)$this->order->getId());
+        if (!$order instanceof \Magento\Sales\Model\Order) {
+            return true;
+        }
+        $order->addCommentToStatusHistory((string)__(
+            'Buckaroo: the partial payment of %1 (transaction %2) was refunded before the order was paid.'
+            . ' The order is cancelled.',
+            $refundedText,
+            $refundedTransaction
+        ));
+        $this->orderRepository->save($order);
+
+        return true;
+    }
+
+    /**
+     * Cancel the order; the part was refunded already, so there is nothing to void at Buckaroo.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    private function cancelWithoutGatewayCall(): void
+    {
+        $originalRequestOnVoid = BuckarooAdapter::$requestOnVoid;
+        BuckarooAdapter::$requestOnVoid = false;
+
+        try {
+            $this->orderManagement->cancel((int)$this->order->getId());
+        } finally {
+            BuckarooAdapter::$requestOnVoid = $originalRequestOnVoid;
+        }
     }
 
     /**

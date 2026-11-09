@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory;
 use Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Model\InfoInterface;
 
@@ -105,12 +106,20 @@ class UpdateReservationBeforeCaptureCommand implements CommandInterface
             return null;
         }
 
+        $order = $payment->getOrder();
+
+        // A capture of the reservation's remainder names no lines, so there is nothing to renumber.
+        $currentInvoice = $order->getInvoiceCollection()->getLastItem();
+        if ($currentInvoice->getData(UninvoicedCaptures::INVOICE_CAPTURE_REMAINDER) !== null) {
+            return null;
+        }
+
         $handler = $this->articlesHandlerFactory->create((string)$payment->getMethod());
         if (!$handler instanceof KlarnaKpHandler) {
             return null;
         }
 
-        $handler->setOrder($payment->getOrder());
+        $handler->setOrder($order);
 
         return $handler->hasDuplicateSku() ? $handler : null;
     }

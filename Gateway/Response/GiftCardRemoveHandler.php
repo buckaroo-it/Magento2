@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\Giftcard\RemoveException;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\GroupTransactionRepository;
+use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Message\ManagerInterface as MessageManager;
 use Magento\Payment\Gateway\Response\HandlerInterface;
@@ -68,7 +69,7 @@ class GiftCardRemoveHandler implements HandlerInterface
             && $transactionResponse->getStatusCode() == 190) {
             $this->updateGiftcardTransactionAmount(
                 $handlingSubject['giftcardTransaction'],
-                (float)$transactionResponse->getAmount()
+                $this->getRefundedAmount($transactionResponse)
             );
         }
 
@@ -77,6 +78,20 @@ class GiftCardRemoveHandler implements HandlerInterface
                 'Giftcard was already removed'
             );
         }
+    }
+
+    /**
+     * Get the refunded amount, a refund response reports it as AmountCredit instead of AmountDebit
+     *
+     * @param TransactionResponse $transactionResponse
+     *
+     * @return float
+     */
+    private function getRefundedAmount(TransactionResponse $transactionResponse): float
+    {
+        return (float)($transactionResponse->get('AmountCredit')
+            ?? $transactionResponse->get('AmountDebit')
+            ?? 0);
     }
 
     /**

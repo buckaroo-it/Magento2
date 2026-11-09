@@ -101,7 +101,24 @@
     <type name="Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress">
         <arguments>
             <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
         </arguments>
     </type>
 
+    <!-- Express buttons read the current product from the registry -->
+    <type name="Buckaroo\Magento2\Block\Catalog\Product\View\Applepay">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
+    <type name="Buckaroo\Magento2\Block\Catalog\Product\View\Googlepay">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
+    <type name="Buckaroo\Magento2\Block\Catalog\Product\View\IdealFastCheckout">
+        <arguments>
+            <argument name="registry" xsi:type="object">Magento\Framework\Registry</argument>
+        </arguments>
+    </type>
 </config>
