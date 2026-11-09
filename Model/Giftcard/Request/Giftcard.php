@@ -56,7 +56,6 @@ class Giftcard implements GiftcardInterface
      */
     private $idinVerificationGuard;
 
-
     public const TCS_ACQUIRER = 'tcs';
     public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
