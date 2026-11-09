@@ -32,6 +32,9 @@ use Magento\Quote\Model\Quote;
 /**
  * Makes sure a quote that needs iDIN age verification is only turned into an order (or paid
  * with a giftcard/voucher) once the verification is done, whatever route the order takes.
+ *
+ * A store whose checkout has no iDIN step is the exception: the shopper cannot verify there, so the
+ * order is not refused, and a log warning and an admin message ask the merchant to update the checkout.
  */
 class VerificationGuard
 {
@@ -57,18 +60,26 @@ class VerificationGuard
     private $logger;
 
     /**
+     * @var CheckoutSupport
+     */
+    private $checkoutSupport;
+
+    /**
      * @param IdinConfigProvider      $idinConfigProvider
      * @param State                   $appState
      * @param BuckarooLoggerInterface $logger
+     * @param CheckoutSupport         $checkoutSupport
      */
     public function __construct(
         IdinConfigProvider $idinConfigProvider,
         State $appState,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        CheckoutSupport $checkoutSupport
     ) {
         $this->idinConfigProvider = $idinConfigProvider;
         $this->appState = $appState;
         $this->logger = $logger;
+        $this->checkoutSupport = $checkoutSupport;
     }
 
     /**
@@ -99,12 +110,18 @@ class VerificationGuard
                 $quote->getId(),
                 $e->getMessage()
             ));
+            if ($this->isIdinStepMissing($quote)) {
+                return;
+            }
             throw new LocalizedException(
                 __('We could not check the age verification for your order. Please try again.')
             );
         }
 
         if (!empty($status['active'])) {
+            if ($this->isIdinStepMissing($quote)) {
+                return;
+            }
             $this->logger->addDebug(sprintf(
                 '[iDIN] | [Model] | [%s:%s] - Order for quote %s refused, iDIN verification required',
                 __METHOD__,
@@ -115,6 +132,36 @@ class VerificationGuard
                 __('Please verify your age with iDIN before placing this order.')
             );
         }
+    }
+
+    /**
+     * Whether the checkout of the quote's store has no iDIN step, logged as a warning for the merchant
+     *
+     * @param Quote $quote
+     *
+     * @return bool
+     */
+    private function isIdinStepMissing(Quote $quote): bool
+    {
+        $checkout = $this->checkoutSupport->getCheckoutWithoutIdinStep($quote->getStoreId());
+        if ($checkout === null) {
+            return false;
+        }
+
+        $this->logger->addWarning(sprintf(
+            '[iDIN] | [Model] | [%s:%s] - Quote %s needs iDIN verification, but the %s of store %s has no iDIN'
+            . ' step, so the quote is not refused. %s',
+            __METHOD__,
+            __LINE__,
+            $quote->getId(),
+            $checkout,
+            $quote->getStoreId(),
+            $checkout === CheckoutSupport::HYVA_CHECKOUT
+                ? 'Update the Buckaroo Hyvä Checkout module to 2.4.0 or higher.'
+                : 'Use a checkout with an iDIN step.'
+        ));
+
+        return true;
     }
 
     /**
