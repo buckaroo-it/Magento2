@@ -92,11 +92,13 @@ class Billink extends AbstractConfigProvider
      * businessMethod 1 = B2C
      * businessMethod 2 = B2B
      *
+     * @param null|int|string $store
+     *
      * @return bool|int
      */
-    public function getBusiness()
+    public function getBusiness($store = null)
     {
-        $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS);
+        $business = (int)$this->getMethodConfigValue(self::XPATH_BILLINK_BUSINESS, $store);
 
         return $business ?: false;
     }

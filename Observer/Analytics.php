@@ -68,13 +68,14 @@ class Analytics implements ObserverInterface
     public function execute(
         \Magento\Framework\Event\Observer $observer
     ) {
-        //check if this feature is enabled
-        if (!$this->configProvider->isClientIdTrackingEnabled()) {
+        $quote = $observer->getEvent()->getQuote();
+
+        //check if this feature is enabled for the quote's store
+        if (!$this->configProvider->isClientIdTrackingEnabled($quote ? $quote->getStoreId() : null)) {
             return;
         }
 
         try {
-            $quote  = $observer->getEvent()->getQuote();
             if ($quote) {
                 $quote_id = $quote->getEntityId();
             }

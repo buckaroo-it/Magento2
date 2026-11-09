@@ -20,6 +20,8 @@
 
 namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
+use Buckaroo\Magento2\Helper\StoreId;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Buckaroo\Magento2\Api\GiftcardRepositoryInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Gateway\Http\SDKTransferFactory;
@@ -42,7 +44,6 @@ use Magento\Payment\Gateway\Http\ConverterException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -59,9 +60,14 @@ class Giftcard implements GiftcardInterface
     public const TCS_ACQUIRER = 'tcs';
     public const FASHIONCHEQUE_ACQUIRER = 'fashioncheque';
     /**
-     * @var StoreInterface
+     * @var StoreManagerInterface
      */
-    protected $store;
+    protected $storeManager;
+
+    /**
+     * @var PushUrlBuilder
+     */
+    protected $pushUrlBuilder;
     /**
      * @var Account
      */
@@ -159,8 +165,8 @@ class Giftcard implements GiftcardInterface
      * @param PaymentGroupTransaction $groupTransaction
      * @param GiftcardRepositoryInterface $giftcardRepository
      * @param CartRepositoryInterface $cartRepository
+     * @param PushUrlBuilder $pushUrlBuilder
      * @param VerificationGuard|null $idinVerificationGuard
-     * @throws NoSuchEntityException
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -176,8 +182,10 @@ class Giftcard implements GiftcardInterface
         PaymentGroupTransaction $groupTransaction,
         GiftcardRepositoryInterface $giftcardRepository,
         CartRepositoryInterface $cartRepository,
+        PushUrlBuilder $pushUrlBuilder,
         ?VerificationGuard $idinVerificationGuard = null
     ) {
+        $this->pushUrlBuilder = $pushUrlBuilder;
         $this->cartRepository = $cartRepository;
         $this->idinVerificationGuard = $idinVerificationGuard;
         $this->scopeConfig = $scopeConfig;
@@ -185,7 +193,7 @@ class Giftcard implements GiftcardInterface
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
         $this->encryptor = $encryptor;
-        $this->store = $storeManager->getStore();
+        $this->storeManager = $storeManager;
         $this->transferFactory = $transferFactory;
         $this->clientInterface = $clientInterface;
         $this->httpRequest = $httpRequest;
@@ -271,7 +279,7 @@ class Giftcard implements GiftcardInterface
             $this->action = 'PayRemainder';
         }
 
-        $ip = $this->getIp($this->store);
+        $ip = $this->getIp($this->getStoreId());
         $body = [
             "currency"                          => $this->getCurrency(),
             'amountDebit'                       => $this->getAmount(),
@@ -281,7 +289,7 @@ class Giftcard implements GiftcardInterface
             "returnURLCancel"                   => $this->getReturnUrl(),
             "returnURLError"                    => $this->getReturnUrl(),
             "returnURLReject"                   => $this->getReturnUrl(),
-            "pushURL"                           => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
+            "pushURL"                           => $this->pushUrlBuilder->getPushUrl($this->getStoreId()),
             'clientIP'                          => [
                 'address' => $ip !== false ? $ip : 'unknown',
                 'type'    => strpos($ip, ':') === false ? '0' : '1',
@@ -392,7 +400,7 @@ class Giftcard implements GiftcardInterface
     {
         return $this->urlBuilder->getRouteUrl(
             'buckaroo/redirect/process',
-            ['_scope' => $this->store->getId()]
+            ['_scope' => $this->getStoreId()]
         ) . '?form_key=' . $this->formKey->getFormKey();
     }
 
@@ -540,7 +548,7 @@ class Giftcard implements GiftcardInterface
     protected function getMerchantKey(): string
     {
         return $this->encryptor->decrypt(
-            $this->configProviderAccount->getMerchantKey($this->store)
+            $this->configProviderAccount->getMerchantKey($this->getStoreId())
         );
     }
 
@@ -554,7 +562,7 @@ class Giftcard implements GiftcardInterface
     protected function getSecretKey(): string
     {
         return $this->encryptor->decrypt(
-            $this->configProviderAccount->getSecretKey($this->store)
+            $this->configProviderAccount->getSecretKey($this->getStoreId())
         );
     }
 
@@ -562,12 +570,14 @@ class Giftcard implements GiftcardInterface
      * Get request mode
      *
      * @return int
+     * @throws NoSuchEntityException
      */
     protected function getMode(): int
     {
         $active = $this->scopeConfig->getValue(
             'payment/buckaroo_magento2_giftcards/active',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            $this->getStoreId()
         );
         return ($active == HelperData::MODE_LIVE) ? HelperData::MODE_LIVE : HelperData::MODE_TEST;
     }
@@ -582,6 +592,28 @@ class Giftcard implements GiftcardInterface
         return $this->giftcardRepository
             ->getByServiceCode($this->cardId)
             ->getAcquirer();
+    }
+
+    /**
+     * Get the id of the store the request has to be scoped to.
+     *
+     * The quote's store is authoritative: the merchant/secret key, the ip_header setting and the
+     * return-URL scope all have to match the store view the cart lives in, and this class is
+     * reachable from the REST API where the ambient store is the default store view rather than
+     * the shopper's.
+     *
+     * @return int|null
+     * @throws NoSuchEntityException
+     */
+    protected function getStoreId(): ?int
+    {
+        $quoteStoreId = $this->quote !== null ? StoreId::normalize($this->quote->getStoreId()) : null;
+
+        if ($quoteStoreId !== null) {
+            return $quoteStoreId;
+        }
+
+        return StoreId::normalize($this->storeManager->getStore());
     }
 
     /**

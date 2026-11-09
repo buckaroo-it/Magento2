@@ -22,7 +22,10 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\PushUrlDataBuilder;
-use Magento\Framework\UrlInterface;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class PushUrlDataBuilderTest extends TestCase
@@ -33,41 +36,55 @@ class PushUrlDataBuilderTest extends TestCase
     private $pushUrlDataBuilder;
 
     /**
-     * @var UrlInterface|MockObject
+     * @var PushUrlBuilder|MockObject
      */
-    private $urlBuilderMock;
+    private $pushUrlBuilderMock;
 
     /**
      * @inheritdoc
      */
     protected function setUp(): void
     {
-        $this->urlBuilderMock = $this->createMock(UrlInterface::class);
+        $this->pushUrlBuilderMock = $this->createMock(PushUrlBuilder::class);
 
-        $this->pushUrlDataBuilder = new PushUrlDataBuilder($this->urlBuilderMock);
+        $this->pushUrlDataBuilder = new PushUrlDataBuilder($this->pushUrlBuilderMock);
     }
 
-    public function testBuild(): void
+    public function testBuildUsesThePushUrlOfTheOrderStore(): void
     {
-        $pushUrl = 'https://buckaroo.com/rest/V1/buckaroo/push';
-        $pushUrlFailure = 'https://buckaroo.com/rest/V1/buckaroo/push';
+        $pushUrl = 'https://buckaroo.com/rest/second_store/V1/buckaroo/push';
 
-        $this->urlBuilderMock->method('getDirectUrl')
-            ->willReturnMap(
-                [
-                    ['rest/V1/buckaroo/push', [], $pushUrl],
-                    ['rest/V1/buckaroo/push', [], $pushUrlFailure],
-                ]
-            );
+        $this->pushUrlBuilderMock->expects($this->once())
+            ->method('getPushUrl')
+            ->with(2)
+            ->willReturn($pushUrl);
 
-        $result = $this->pushUrlDataBuilder->build([]);
+        $result = $this->pushUrlDataBuilder->build($this->buildSubjectForStore(2));
 
         $this->assertEquals(
             [
                 'pushURL'        => $pushUrl,
-                'pushURLFailure' => $pushUrlFailure
+                'pushURLFailure' => $pushUrl
             ],
             $result
         );
+    }
+
+    /**
+     * Build the gateway build subject for an order in the given store.
+     *
+     * @param int $storeId
+     *
+     * @return array
+     */
+    private function buildSubjectForStore(int $storeId): array
+    {
+        $orderAdapter = $this->createMock(OrderAdapterInterface::class);
+        $orderAdapter->method('getStoreId')->willReturn($storeId);
+
+        $paymentDO = $this->createMock(PaymentDataObjectInterface::class);
+        $paymentDO->method('getOrder')->willReturn($orderAdapter);
+
+        return ['payment' => $paymentDO];
     }
 }

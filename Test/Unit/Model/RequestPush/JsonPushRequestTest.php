@@ -101,6 +101,37 @@ class JsonPushRequestTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * validate() used to discard its $store argument, so the SDK client was always built from the
+     * ambient store - the default store view on the push route - and a push for another store view
+     * was checked with the wrong secret key on a multi-store install.
+     */
+    public function testForwardsTheStoreToTheValidatorInsteadOfDroppingIt(): void
+    {
+        $validator = $this->createMock(PushSDK::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($this->isType('array'), 2)
+            ->willReturn(true);
+
+        $request = new JsonPushRequest(['Transaction' => []], $validator);
+
+        $this->assertTrue($request->validate(2));
+    }
+
+    public function testForwardsANullStoreUnchanged(): void
+    {
+        $validator = $this->createMock(PushSDK::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($this->isType('array'), null)
+            ->willReturn(false);
+
+        $request = new JsonPushRequest(['Transaction' => []], $validator);
+
+        $this->assertFalse($request->validate());
+    }
+
+    /**
      * @param array $data
      *
      * @return JsonPushRequest

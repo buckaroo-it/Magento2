@@ -27,6 +27,7 @@ define(
         'mage/translate',
         'Magento_Checkout/js/action/get-totals',
         'Magento_Customer/js/customer-data',
+        'buckaroo/rest-url-builder',
     ],
     function (
         $,
@@ -36,6 +37,7 @@ define(
         $t,
         getTotalsAction,
         customerData,
+        restUrlBuilder,
     ) {
         'use strict';
 
@@ -62,7 +64,7 @@ define(
                         const voucherCode = this.code();
                         let self = this;
                         $.ajax({
-                            url: url.build(`rest/V1/buckaroo/voucher/apply`),
+                            url: restUrlBuilder.createUrl('/buckaroo/voucher/apply'),
                             type: 'POST',
                             dataType: 'json',
                             showLoader: true, //use for display loader

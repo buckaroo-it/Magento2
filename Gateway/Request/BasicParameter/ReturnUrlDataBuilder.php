@@ -22,12 +22,15 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
+use Buckaroo\Magento2\Service\Store\StoreUrlBuilder;
 use Laminas\Uri\UriFactory;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order;
+use Magento\Store\Model\StoreManagerInterface;
 
 class ReturnUrlDataBuilder implements BuilderInterface
 {
@@ -37,6 +40,13 @@ class ReturnUrlDataBuilder implements BuilderInterface
      * @var null|string
      */
     protected $returnUrl = null;
+
+    /**
+     * Order the cached $returnUrl was built for.
+     *
+     * @var string|null
+     */
+    private $returnUrlOrderKey = null;
 
     /**
      * @var FormKey
@@ -49,17 +59,33 @@ class ReturnUrlDataBuilder implements BuilderInterface
     protected $urlBuilder;
 
     /**
+     * @var PushUrlBuilder
+     */
+    private $pushUrlBuilder;
+
+    /**
+     * @var StoreUrlBuilder
+     */
+    private $storeUrlBuilder;
+
+    /**
      * TransactionBuilder constructor.
      *
-     * @param UrlInterface $urlBuilder
-     * @param FormKey      $formKey
+     * @param UrlInterface    $urlBuilder
+     * @param FormKey         $formKey
+     * @param PushUrlBuilder  $pushUrlBuilder
+     * @param StoreUrlBuilder $storeUrlBuilder
      */
     public function __construct(
         UrlInterface $urlBuilder,
-        FormKey $formKey
+        FormKey $formKey,
+        PushUrlBuilder $pushUrlBuilder,
+        StoreUrlBuilder $storeUrlBuilder
     ) {
+        $this->pushUrlBuilder = $pushUrlBuilder;
         $this->urlBuilder = $urlBuilder;
         $this->formKey = $formKey;
+        $this->storeUrlBuilder = $storeUrlBuilder;
     }
 
     /**
@@ -72,14 +98,15 @@ class ReturnUrlDataBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $order = $paymentDO->getOrder()->getOrder();
         $returnUrl = $this->getReturnUrl($order);
+        $pushUrl = $this->pushUrlBuilder->getPushUrl($order->getStoreId());
 
         return [
             'returnURL' => $returnUrl,
             'returnURLError' => $returnUrl,
             'returnURLCancel' => $returnUrl,
             'returnURLReject' => $returnUrl,
-            'pushURL' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push'),
-            'pushURLFailure' => $this->urlBuilder->getDirectUrl('rest/V1/buckaroo/push')
+            'pushURL' => $pushUrl,
+            'pushURLFailure' => $pushUrl
         ];
     }
 
@@ -97,20 +124,42 @@ class ReturnUrlDataBuilder implements BuilderInterface
         $returnUrl = $this->getReturnUrlFromPayment($order);
         if ($returnUrl !== null) {
             $this->setReturnUrl($returnUrl);
+            $this->returnUrlOrderKey = $this->getOrderKey($order);
             return $this->returnUrl;
         }
 
-        if ($this->returnUrl === null) {
-            // The return route does not use a form key
-            $url = $this->urlBuilder->getDirectUrl(
-                'buckaroo/redirect/process',
-                ['_scope' => $order->getStoreId()]
-            );
+        if ($this->returnUrl === null || $this->returnUrlOrderKey !== $this->getOrderKey($order)) {
+            // Built from the order store's OWN base URL, not from getDirectUrl()'s ambient one.
+            // During a frontend placeOrder the two are the same, but a PayPerEmail or PayLink order
+            // is created in the admin, where the ambient store is the admin's - and ['_scope' => id]
+            // does not change the host getDirectUrl() resolves. On a per-domain setup that returned
+            // the shopper to the default store's domain, where their session does not exist.
+            // The return route does not use a form key.
+            $url = $this->storeUrlBuilder->getUrl($order->getStoreId(), 'buckaroo/redirect/process')
+                . $this->getStoreParam($order);
 
             $this->setReturnUrl($url);
+            $this->returnUrlOrderKey = $this->getOrderKey($order);
         }
 
         return $this->returnUrl;
+    }
+
+    /**
+     * Identity of the order the cached return URL belongs to
+     *
+     * Falls back to the object hash when the order has no id yet, which keeps a not-yet-saved order
+     * from colliding with another one.
+     *
+     * @param Order $order
+     *
+     * @return string
+     */
+    private function getOrderKey(Order $order): string
+    {
+        $id = (string)($order->getEntityId() ?? $order->getIncrementId());
+
+        return $id !== '' ? $id : spl_object_hash($order);
     }
 
     /**
@@ -166,5 +215,31 @@ class ReturnUrlDataBuilder implements BuilderInterface
         }
 
         return null;
+    }
+
+    /**
+     * Get the ___store parameter that pins the return to the order's store view.
+     *
+     * The gateway returns the shopper with a cross-site POST, so the SameSite=Lax store cookie is
+     * not sent and Magento resolves the default store for that request. Everything the redirect
+     * controller then does - including building the URL it sends the shopper to - runs in the wrong
+     * scope. On a setup where each website has its own domain that means being dumped on another
+     * store's checkout, where the cart does not exist.
+     *
+     * Naming the store in the URL removes the dependency on a cookie that cannot survive the trip.
+     *
+     * @param Order $order
+     *
+     * @return string
+     */
+    private function getStoreParam(Order $order): string
+    {
+        try {
+            $code = (string)$order->getStore()->getCode();
+        } catch (\Exception $exception) {
+            return '';
+        }
+
+        return $code === '' ? '' : '?' . StoreManagerInterface::PARAM_NAME . '=' . urlencode($code);
     }
 }

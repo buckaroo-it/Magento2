@@ -607,17 +607,16 @@ class SetupModuleDataPatch implements DataPatchInterface
     protected function updateFailureRedirectConfiguration(ModuleDataSetupInterface $setup): SetupModuleDataPatch
     {
         $path = 'buckaroo_magento2/account/failure_redirect';
-        $data = [
-            'scope'    => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
-            'scope_id' => Store::DEFAULT_STORE_ID,
-            'path'     => $path,
-            'value'    => 'checkout/cart',
-        ];
 
+        // Only the default-scope row; website and store view values stay as they are
         $setup->getConnection()->update(
             $setup->getTable('core_config_data'),
-            $data,
-            $setup->getConnection()->quoteInto('path = ?', $path)
+            ['value' => 'checkout/cart'],
+            [
+                'path = ?'     => $path,
+                'scope = ?'    => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                'scope_id = ?' => Store::DEFAULT_STORE_ID,
+            ]
         );
 
         return $this;

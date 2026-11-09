@@ -193,7 +193,8 @@ class BuckarooFee extends CommonTaxCollector
      */
     private function addAssociatedTaxable(ShippingAssignmentInterface $shippingAssignment, Result $result, Quote $quote)
     {
-        $fullAmount = $this->priceCurrency->convert($result->getRoundedAmount());
+        // Convert with the quote store's currencies, not the ambient store's (admin order create)
+        $fullAmount = $this->priceCurrency->convert($result->getRoundedAmount(), $quote->getStore());
 
         $address = $shippingAssignment->getShipping()->getAddress();
         /**

@@ -167,7 +167,7 @@
             <config_path>payment/buckaroo_magento2_creditcard/group_creditcards</config_path>
         </field>
 
-        <field id="selection_type" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="0" showInStore="0">
+        <field id="selection_type" translate="label" type="select" sortOrder="55" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Use Selection</label>
             <source_model>Buckaroo\Magento2\Model\Config\Source\SelectionType</source_model>
             <comment><![CDATA[Display the bank issuers as a select or as a list of radio buttons]]></comment>

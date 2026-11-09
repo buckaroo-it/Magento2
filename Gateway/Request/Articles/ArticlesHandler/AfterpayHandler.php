@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
+use Magento\Quote\Model\ResourceModel\Quote as QuoteResource;
+use Magento\Store\Model\App\Emulation;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
@@ -60,6 +62,8 @@ class AfterpayHandler extends AbstractArticlesHandler
      * @param ConfigProviderMethodFactory $configProviderMethodFactory
      * @param PayReminderService          $payReminderService
      * @param Image                       $imageHelper
+     * @param QuoteResource|null          $quoteResource
+     * @param Emulation|null              $appEmulation                Renders labels in the order store's locale
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -73,7 +77,9 @@ class AfterpayHandler extends AbstractArticlesHandler
         SoftwareData $softwareData,
         ConfigProviderMethodFactory $configProviderMethodFactory,
         PayReminderService $payReminderService,
-        Image $imageHelper
+        Image $imageHelper,
+        ?QuoteResource $quoteResource = null,
+        ?Emulation $appEmulation = null
     ) {
         parent::__construct(
             $scopeConfig,
@@ -84,7 +90,9 @@ class AfterpayHandler extends AbstractArticlesHandler
             $configProviderBuckarooFee,
             $softwareData,
             $configProviderMethodFactory,
-            $payReminderService
+            $payReminderService,
+            $quoteResource,
+            $appEmulation
         );
 
         $this->imageHelper = $imageHelper;

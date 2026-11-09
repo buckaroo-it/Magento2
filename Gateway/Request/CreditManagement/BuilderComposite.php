@@ -24,6 +24,7 @@ namespace Buckaroo\Magento2\Gateway\Request\CreditManagement;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Gateway\Response\CreditManagementOrderHandler;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Framework\ObjectManager\TMap;
 use Magento\Framework\ObjectManager\TMapFactory;
@@ -106,9 +107,11 @@ class BuilderComposite implements BuilderInterface
      */
     protected function isCreditManagementActive(array $buildSubject): bool
     {
-        $payment = SubjectReader::readPayment($buildSubject)->getPayment();
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+        $payment = $paymentDO->getPayment();
+        $storeId = StoreId::normalize($paymentDO->getOrder()->getStoreId());
 
-        return (bool)$this->configProvider->get($payment->getMethod())->getActiveStatusCm3();
+        return (bool)$this->configProvider->get($payment->getMethod())->getActiveStatusCm3($storeId);
     }
 
     /**

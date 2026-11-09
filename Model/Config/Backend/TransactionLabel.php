@@ -69,13 +69,35 @@ class TransactionLabel extends Value
     {
         $value = $this->getValue();
         if (!$value || $value == 'Magento Buckaroo') {
-            $storeName = $this->storeManagerInterface
-                ->getStore()
-                ->getName();
+            $storeName = $this->getEditedStoreName();
             if ($storeName) {
                 $this->setValue($storeName);
             }
         }
         return $this;
+    }
+
+    /**
+     * Name of the store view whose configuration is being edited
+     *
+     * @return string|null
+     */
+    private function getEditedStoreName(): ?string
+    {
+        try {
+            if ($this->getStore()) {
+                return $this->storeManagerInterface->getStore($this->getStore())->getName();
+            }
+
+            if ($this->getWebsite()) {
+                $defaultStore = $this->storeManagerInterface->getWebsite($this->getWebsite())->getDefaultStore();
+
+                return $defaultStore !== null ? $defaultStore->getName() : null;
+            }
+
+            return $this->storeManagerInterface->getStore()->getName();
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 }

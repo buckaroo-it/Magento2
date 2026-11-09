@@ -766,9 +766,26 @@
         </arguments>
     </virtualType>
 
+    <!-- Own Emulation instance: core's e-mail senders stop the shared one -->
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\AbstractArticlesHandler">
         <arguments>
-            <argument name="appEmulation" xsi:type="object">Magento\Store\Model\App\Emulation</argument>
+            <argument name="appEmulation" xsi:type="object" shared="false">Magento\Store\Model\App\Emulation</argument>
+        </arguments>
+    </type>
+    <!--
+        The push webapi route carries no store code, so it runs in the default store view. Give the
+        push service an emulator so the processor chain runs in the order's own store instead.
+        Optional constructor arguments are NOT autowired by the object manager, so this has to be
+        declared explicitly - same as appEmulation above.
+    -->
+    <type name="Buckaroo\Magento2\Service\Sales\Quote\Recreate">
+        <arguments>
+            <argument name="secondChanceConfig" xsi:type="object">Buckaroo\Magento2\Model\ConfigProvider\SecondChance</argument>
+        </arguments>
+    </type>
+    <type name="Buckaroo\Magento2\Model\Push">
+        <arguments>
+            <argument name="storeEmulator" xsi:type="object">Buckaroo\Magento2\Service\Store\StoreEmulator</argument>
         </arguments>
     </type>
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">

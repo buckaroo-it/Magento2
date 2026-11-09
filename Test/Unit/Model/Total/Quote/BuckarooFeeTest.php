@@ -230,9 +230,11 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $expectedGrandTotal = $initialGrandTotal + $convertedFee;
         $expectedBaseGrandTotal = $initialBaseGrandTotal + $roundedBaseFee;
 
+        $quoteStore = $this->getFakeMock(\Magento\Store\Model\Store::class)->getMock();
         $quoteMock = $this->getFakeMock(QuoteStub::class)
-            ->onlyMethods(['setBuckarooFee', 'setBaseBuckarooFee'])
+            ->onlyMethods(['setBuckarooFee', 'setBaseBuckarooFee', 'getStore'])
             ->getMock();
+        $quoteMock->method('getStore')->willReturn($quoteStore);
         $quoteMock->expects($this->once())->method('setBuckarooFee')->with($convertedFee)->willReturnSelf();
         $quoteMock->expects($this->once())->method('setBaseBuckarooFee')->with($roundedBaseFee)->willReturnSelf();
 
@@ -283,7 +285,8 @@ class BuckarooFeeTest extends \Buckaroo\Magento2\Test\BaseTest
         $priceCurrencyMock = $this->getFakeMock(PriceCurrencyInterface::class, true);
         $priceCurrencyMock->expects($this->once())
             ->method('convert')
-            ->with($roundedBaseFee)
+            // the quote store's currencies, not the ambient store's (admin order create)
+            ->with($roundedBaseFee, $quoteStore)
             ->willReturn($convertedFee);
 
         $groupTransactionMock = $this->getFakeMock(PaymentGroupTransaction::class)

@@ -26,6 +26,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -85,5 +86,25 @@ class ApplepayPaymentDataValidatorTest extends \Buckaroo\Magento2\Test\BaseTest
         (new ApplepayPaymentDataValidator($resultFactory, $config))->validate(['payment' => $payment, 'storeId' => 1]);
 
         $this->assertSame([$isValid], $created);
+    }
+
+    /**
+     * Integration mode is set per store view; an admin or REST order does not run in its own store.
+     */
+    public function testChecksTheIntegrationModeOfTheOrdersStore(): void
+    {
+        $resultFactory = $this->getFakeMock(ResultInterfaceFactory::class)->onlyMethods(['create'])->getMock();
+        $resultFactory->method('create')->willReturn($this->getFakeMock(ResultInterface::class)->getMock());
+
+        $config = $this->getFakeMock(Applepay::class)->onlyMethods(['getIntegrationMode'])->getMock();
+        $config->expects($this->once())->method('getIntegrationMode')->with(3)->willReturn('1');
+
+        $order = $this->getFakeMock(Order::class)->onlyMethods(['getStoreId'])->getMock();
+        $order->method('getStoreId')->willReturn('3');
+        $payment = $this->getFakeMock(OrderPayment::class)->onlyMethods(['getMethod', 'getOrder'])->getMock();
+        $payment->method('getMethod')->willReturn(Applepay::CODE);
+        $payment->method('getOrder')->willReturn($order);
+
+        (new ApplepayPaymentDataValidator($resultFactory, $config))->validate(['payment' => $payment]);
     }
 }

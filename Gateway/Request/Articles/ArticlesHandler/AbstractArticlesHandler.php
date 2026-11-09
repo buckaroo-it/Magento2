@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
@@ -566,10 +567,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function calculateProductPrice($productItem): float
     {
-        $includesTax = $this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
 
         $productPrice = $productItem->getPriceInclTax();
 
@@ -632,10 +630,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
         if (!$includesTax) {
             $discount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
         }
@@ -815,7 +810,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if ($buckarooFeeLine && $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
-                (string)$this->getServiceCosts(),
+                $this->renderInOrderStoreLocale(fn() => $this->getServiceCosts()),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -877,20 +872,41 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Whether the given tax setting says prices already include tax, read in the order's store.
+     *
+     * Articles are not only built during checkout. A capture or a refund is assembled from a push
+     * or from an admin action, where the ambient store is the default store view rather than the
+     * one the order was placed against. `tax/calculation/price_includes_tax` is store-scoped, so
+     * reading it ambiently makes a second store view settle at the default store's tax treatment
+     * and send the gateway article prices that do not add up to the invoice total.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    private function isTaxIncludedInPrice(string $path): bool
+    {
+        $storeId = $this->order !== null ? StoreId::normalize($this->order->getStoreId()) : null;
+
+        return (bool)$this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
      * Render a synthetic article label in the locale of the order's store.
      *
      * @param callable $render
      *
      * @return string
      */
-    private function renderInOrderStoreLocale(callable $render): string
+    protected function renderInOrderStoreLocale(callable $render): string
     {
         $order = $this->order ?? null;
         if ($order === null || $this->appEmulation === null) {
             return (string)$render();
         }
 
-        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND, true);
+        // Not forced: skipped when the order's store and frontend area are already current
+        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND);
 
         try {
             return (string)$render();
@@ -917,10 +933,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
         if (!$includesTax) {
             $discount += abs((float)($order->getShippingDiscountTaxCompensationAmount() ?? 0));
         }
@@ -1027,7 +1040,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (count($vatGroups) <= 1) {
             $vatRate = !empty($vatGroups) ? (float)array_key_first($vatGroups) : $this->getOrderEffectiveVatRate();
             return [$this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER,
                 1,
                 round($discount, 2),
@@ -1056,7 +1069,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             // One line per VAT rate, each with its own number - a capture nominates lines by
             // ArticleNumber and cannot tell duplicates apart.
             $lines[] = $this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER . '-' . $this->normalizeAmount($vatRate),
                 1,
                 $lineDiscount,
@@ -1418,7 +1431,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         $articles['articles'][] = $this->getArticleArrayLine(
-            (string)$this->getAdjustmentLabel(),
+            $this->renderInOrderStoreLocale(fn() => $this->getAdjustmentLabel()),
             self::ADJUSTMENT_IDENTIFIER,
             1,
             $residual,
@@ -1549,10 +1562,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
 
         $orderDiscount = abs((float)$order->getDiscountAmount());
         $allocated = 0.0;
@@ -1863,7 +1873,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ));
 
         $reconciliationLine = $this->getArticleArrayLine(
-            (string)__('Extra Fees'),
+            $this->renderInOrderStoreLocale(fn() => __('Extra Fees')),
             'extra-fees',
             1,
             $diff,

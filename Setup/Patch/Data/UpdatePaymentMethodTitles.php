@@ -70,9 +70,12 @@ class UpdatePaymentMethodTitles implements DataPatchInterface
         foreach ($methods as $code => $label) {
             $path = "payment/{$code}/title";
 
+            // Default scope only: store-view titles are the merchant's translations
             $select = $connection->select()
                 ->from($this->setup->getTable('core_config_data'))
-                ->where('path = ?', $path);
+                ->where('path = ?', $path)
+                ->where('scope = ?', 'default')
+                ->where('scope_id = ?', 0);
 
             $data = $connection->fetchRow($select);
 
@@ -80,7 +83,7 @@ class UpdatePaymentMethodTitles implements DataPatchInterface
                 $connection->update(
                     $this->setup->getTable('core_config_data'),
                     ['value' => $label],
-                    ['path = ?' => $path]
+                    ['path = ?' => $path, 'scope = ?' => 'default', 'scope_id = ?' => 0]
                 );
             }
         }

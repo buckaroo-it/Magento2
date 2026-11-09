@@ -23,7 +23,6 @@ namespace Buckaroo\Magento2\Test\Unit\Controller\Adminhtml\CredentialsChecker;
 
 use Buckaroo\Magento2\Controller\Adminhtml\CredentialsChecker\Index;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
-use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
@@ -72,8 +71,9 @@ class IndexTest extends TestCase
         $this->controller = new Index(
             $contextMock,
             $this->createMock(EncryptorInterface::class),
-            $this->createMock(Account::class),
-            $this->clientMock
+            $this->clientMock,
+            $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class),
+            $this->createMock(\Buckaroo\Magento2\Service\Config\AdminConfigScope::class)
         );
     }
 
@@ -119,5 +119,42 @@ class IndexTest extends TestCase
 
         // Act
         $this->assertSame($this->jsonResultMock, $this->controller->execute());
+    }
+
+    /**
+     * All-asterisk input means "the stored key"; it is read at exactly the scope the form shows,
+     * not at the website's default store view, which may carry its own override.
+     */
+    public function testMaskedCredentialsAreReadAtTheEditedScope(): void
+    {
+        $this->requestMock->method('getParam')->willReturnMap([
+            ['secretKey', '', '******'],
+            ['merchantKey', '', '******'],
+        ]);
+
+        $scope = $this->createMock(\Buckaroo\Magento2\Service\Config\AdminConfigScope::class);
+        $scope->method('getScope')->willReturn(['websites', 2]);
+
+        $scopeConfig = $this->createMock(\Magento\Framework\App\Config\ScopeConfigInterface::class);
+        $scopeConfig->method('getValue')->willReturnMap([
+            ['buckaroo_magento2/account/secret_key', 'websites', 2, 'enc-secret'],
+            ['buckaroo_magento2/account/merchant_key', 'websites', 2, 'enc-merchant'],
+        ]);
+
+        $encryptor = $this->createMock(EncryptorInterface::class);
+        $encryptor->method('decrypt')->willReturnCallback(static fn ($value) => 'plain-' . $value);
+
+        $contextMock = $this->createMock(Context::class);
+        $contextMock->method('getRequest')->willReturn($this->requestMock);
+        $resultFactoryMock = $this->createMock(ResultFactory::class);
+        $resultFactoryMock->method('create')->willReturn($this->jsonResultMock);
+        $contextMock->method('getResultFactory')->willReturn($resultFactoryMock);
+
+        $this->clientMock->expects($this->once())
+            ->method('confirmCredential')
+            ->with('plain-enc-merchant', 'plain-enc-secret')
+            ->willReturn(true);
+
+        (new Index($contextMock, $encryptor, $this->clientMock, $scopeConfig, $scope))->execute();
     }
 }
