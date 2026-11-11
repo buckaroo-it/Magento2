@@ -208,6 +208,24 @@ class IdinProcess extends Process implements HttpPostActionInterface
             return false;
         }
 
+        // The result must carry the value this session sent when it started the verification.
+        // The value is cleared here, so each verification is accepted once.
+        $expectedNonce = $this->customerSession->getBuckarooIdinNonce();
+        $this->customerSession->unsBuckarooIdinNonce();
+        $nonce = $this->redirectRequest->getAdditionalInformation('idin_nonce');
+
+        if (!is_string($expectedNonce) || $expectedNonce === '' || !is_string($nonce)
+            || !hash_equals($expectedNonce, $nonce)
+        ) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - iDIN] | [Controller] | [%s:%s] - iDIN result does not belong to this session',
+                __METHOD__,
+                __LINE__
+            ));
+
+            return false;
+        }
+
         return true;
     }
 
@@ -248,8 +266,8 @@ class IdinProcess extends Process implements HttpPostActionInterface
     /**
      * Resolve the customer the verification belongs to
      *
-     * Returns null for a guest verification (session only) and false when the signed customer id
-     * contradicts the logged in customer.
+     * Returns null for a guest verification (session only) and false when the customer the
+     * verification was started for (0 for a guest) is not the one in this session.
      *
      * @return int|null|false
      */
@@ -258,7 +276,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
         $sessionCustomerId = (int)$this->customerSession->getCustomerId();
         $requestCustomerId = (int)$this->redirectRequest->getAdditionalInformation('idin_cid');
 
-        if ($requestCustomerId > 0 && $sessionCustomerId > 0 && $requestCustomerId !== $sessionCustomerId) {
+        if ($requestCustomerId !== $sessionCustomerId) {
             $this->logger->addError(sprintf(
                 '[REDIRECT - iDIN] | [Controller] | [%s:%s] - iDIN customer id %s does not match session customer %s',
                 __METHOD__,
@@ -270,11 +288,7 @@ class IdinProcess extends Process implements HttpPostActionInterface
             return false;
         }
 
-        if ($sessionCustomerId > 0) {
-            return $sessionCustomerId;
-        }
-
-        return $requestCustomerId > 0 ? $requestCustomerId : null;
+        return $sessionCustomerId > 0 ? $sessionCustomerId : null;
     }
 
     /**

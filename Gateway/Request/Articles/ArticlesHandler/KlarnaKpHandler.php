@@ -21,6 +21,146 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
+use Magento\Quote\Model\Quote\Item\AbstractItem as QuoteItem;
+
+/**
+ * Article lines for Klarna KP.
+ *
+ * Buckaroo merges reserved lines with the same ArticleNumber and can only capture them together.
+ * When a SKU is on more than one line, each line gets its own ArticleNumber: the SKU followed by
+ * the quote item id, so the reserve and the captures refer to the same line.
+ */
 class KlarnaKpHandler extends AbstractArticlesHandler
 {
+    /**
+     * Payment flag set when the reservation was made with unique article numbers.
+     */
+    public const UNIQUE_ARTICLE_NUMBERS = 'buckaroo_klarnakp_unique_article_numbers';
+
+    /**
+     * @inheritdoc
+     */
+    protected function getIdentifier($item)
+    {
+        $identifier = parent::getIdentifier($item);
+        $quoteItemId = $this->getDuplicateSkuQuoteItemId($item);
+
+        return $quoteItemId === null ? $identifier : $identifier . '-' . $quoteItemId;
+    }
+
+    /**
+     * Whether a SKU is on more than one line of the order.
+     *
+     * @return bool
+     */
+    public function hasDuplicateSku(): bool
+    {
+        $counts = array_count_values($this->getLineSkus($this->getOrder()->getAllItems()));
+
+        return !empty($counts) && max($counts) > 1;
+    }
+
+    /**
+     * Unique article numbers of the order that are not among the given article lines.
+     *
+     * UpdateReservation replaces every line of the reservation, so it may only be sent when it
+     * carries each line the captures will ask for.
+     *
+     * @param array $articles
+     *
+     * @return string[]
+     */
+    public function getMissingUniqueArticleNumbers(array $articles): array
+    {
+        $sent = [];
+        foreach ($articles as $article) {
+            if (is_array($article) && isset($article['identifier'])) {
+                $sent[] = (string)$article['identifier'];
+            }
+        }
+
+        return array_values(array_diff($this->getUniqueArticleNumbersOfOrder(), $sent));
+    }
+
+    /**
+     * Unique article numbers of the order's lines whose SKU is also on another line.
+     *
+     * A line without a quote item id gets a number no article line can carry.
+     *
+     * @return string[]
+     */
+    private function getUniqueArticleNumbersOfOrder(): array
+    {
+        $orderItems = $this->getOrder()->getAllItems();
+        $counts = array_count_values($this->getLineSkus($orderItems));
+        $numbers = [];
+
+        foreach ($orderItems as $orderItem) {
+            if ($orderItem->getParentItemId() || $orderItem->getParentItem()
+                || ($counts[(string)$orderItem->getSku()] ?? 0) < 2
+            ) {
+                continue;
+            }
+
+            $numbers[] = parent::getIdentifier($orderItem) . '-' . (int)$orderItem->getQuoteItemId();
+        }
+
+        return $numbers;
+    }
+
+    /**
+     * Quote item id of a line whose SKU is also on another line, or null.
+     *
+     * Quote items are reserved and always get unique numbers. Invoice items are captured and only
+     * get them when the reservation has them.
+     *
+     * @param mixed $item
+     *
+     * @return int|null
+     */
+    private function getDuplicateSkuQuoteItemId($item): ?int
+    {
+        if ($item instanceof QuoteItem) {
+            $quote = $item->getQuote();
+            $lines = $quote !== null ? $quote->getAllItems() : [];
+            $quoteItemId = (int)$item->getId();
+        } else {
+            if (!$this->getPayment()->getAdditionalInformation(self::UNIQUE_ARTICLE_NUMBERS)) {
+                return null;
+            }
+
+            $orderItem = $item->getOrderItem();
+            $lines = $this->getOrder()->getAllItems();
+            $quoteItemId = $orderItem !== null ? (int)$orderItem->getQuoteItemId() : 0;
+        }
+
+        $counts = array_count_values($this->getLineSkus($lines));
+        if ($quoteItemId <= 0 || ($counts[(string)$item->getSku()] ?? 0) < 2) {
+            return null;
+        }
+
+        return $quoteItemId;
+    }
+
+    /**
+     * SKUs of the top-level lines; child items carry their parent's SKU.
+     *
+     * @param array $items
+     *
+     * @return string[]
+     */
+    private function getLineSkus(array $items): array
+    {
+        $skus = [];
+
+        foreach ($items as $item) {
+            if ($item->getParentItemId() || $item->getParentItem()) {
+                continue;
+            }
+
+            $skus[] = (string)$item->getSku();
+        }
+
+        return $skus;
+    }
 }

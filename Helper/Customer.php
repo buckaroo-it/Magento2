@@ -76,15 +76,16 @@ class Customer extends AbstractHelper
     /**
      * Check if customer group is allowed for the payment method
      *
-     * @param string $paymentMethod
-     * @param bool   $forceB2C
+     * @param string   $paymentMethod
+     * @param bool     $forceB2C
+     * @param int|null $storeId       Defaults to the current store
      *
      * @throws BuckarooException
      * @throws LocalizedException
      *
      * @return bool
      */
-    public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false): bool
+    public function checkCustomerGroup(string $paymentMethod, bool $forceB2C = false, ?int $storeId = null): bool
     {
         if (!$this->checkPaymentType->isBuckarooMethod($paymentMethod)) {
             return true;
@@ -93,7 +94,7 @@ class Customer extends AbstractHelper
         $paymentMethodCode = $this->getBuckarooMethod($paymentMethod);
         $configProvider = $this->configProviderMethodFactory->get($paymentMethodCode);
 
-        $configCustomerGroup = $this->determineCustomerGroup($paymentMethodCode, $configProvider, $forceB2C);
+        $configCustomerGroup = $this->determineCustomerGroup($paymentMethodCode, $configProvider, $forceB2C, $storeId);
 
         if ($configCustomerGroup === null || $configCustomerGroup == Group::CUST_GROUP_ALL) {
             return true;
@@ -114,19 +115,21 @@ class Customer extends AbstractHelper
      * @param string                  $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
      * @param bool                    $forceB2C
+     * @param int|null                $storeId
      *
      * @return string|null
      */
     private function determineCustomerGroup(
         string $paymentMethodCode,
         ConfigProviderInterface $configProvider,
-        bool $forceB2C
+        bool $forceB2C,
+        ?int $storeId
     ): ?string {
-        if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider)) {
-            return $configProvider->getSpecificCustomerGroupB2B();
+        if (!$forceB2C && $this->isSpecialPaymentMethod($paymentMethodCode, $configProvider, $storeId)) {
+            return $configProvider->getSpecificCustomerGroupB2B($storeId);
         }
 
-        return $configProvider->getSpecificCustomerGroup();
+        return $configProvider->getSpecificCustomerGroup($storeId);
     }
 
     /**
@@ -134,15 +137,19 @@ class Customer extends AbstractHelper
      *
      * @param string                  $paymentMethodCode
      * @param ConfigProviderInterface $configProvider
+     * @param int|null                $storeId
      *
      * @return bool
      */
-    private function isSpecialPaymentMethod(string $paymentMethodCode, ConfigProviderInterface $configProvider): bool
-    {
+    private function isSpecialPaymentMethod(
+        string $paymentMethodCode,
+        ConfigProviderInterface $configProvider,
+        ?int $storeId
+    ): bool {
         return ($paymentMethodCode == 'billink')
             || (($paymentMethodCode == 'afterpay' || $paymentMethodCode == 'afterpay2')
-                && $configProvider->getBusiness() == Business::BUSINESS_B2B)
-            || ($paymentMethodCode == 'payperemail' && $configProvider->isEnabledB2B());
+                && $configProvider->getBusiness($storeId) == Business::BUSINESS_B2B)
+            || ($paymentMethodCode == 'payperemail' && $configProvider->isEnabledB2B($storeId));
     }
 
     /**

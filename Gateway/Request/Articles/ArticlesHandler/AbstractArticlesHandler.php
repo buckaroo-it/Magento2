@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
@@ -78,6 +79,17 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      * product_calculations). The children carry the money, the parent only holds their sum.
      */
     public const BUNDLE_CALCULATE_CHILD = 0;
+
+    /**
+     * Longest article identifier the payment method accepts. 0 sends the item SKU unchanged, which
+     * suits every method that accepts the 255 characters of the item SKU column.
+     */
+    protected const IDENTIFIER_MAX_LENGTH = 0;
+
+    /**
+     * Characters of the SKU hash that end an identifier shortened to the method's limit.
+     */
+    private const IDENTIFIER_HASH_LENGTH = 8;
 
     /**
      * The invoice whose own share of the order-level credits is being priced, or null when the
@@ -352,6 +364,9 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get Quote
      *
+     * The order's cart is loaded whatever store the request runs in: a plain load only finds carts
+     * of the current website, so in the admin store it returns an empty cart.
+     *
      * @throws LocalizedException
      *
      * @return Quote
@@ -360,7 +375,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     {
         if (!$this->quote instanceof Quote) {
             $quote = $this->quoteFactory->create();
-            $this->quoteResource->load($quote, $this->getOrder()->getQuoteId());
+            $this->quoteResource->loadByIdWithoutStore($quote, $this->getOrder()->getQuoteId());
             $this->quote = $quote;
         }
 
@@ -500,13 +515,47 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     /**
      * Get identifier, can be sku or product id
      *
+     * The item SKU of a product with custom options is the product SKU followed by every selected
+     * option SKU, so it can be longer than the method accepts. Such a SKU keeps its start and ends
+     * in a hash of the whole SKU: capture and refund lines are matched on the identifier, so the
+     * same SKU must always give the same value, and two option sets that share their start must
+     * not share an identifier.
+     *
      * @param Item|Invoice\Item|Creditmemo\Item $item
      *
      * @return mixed|string|null
      */
     protected function getIdentifier($item)
     {
-        return $item->getSku();
+        $sku = $item->getSku();
+        $maxLength = static::IDENTIFIER_MAX_LENGTH;
+
+        if ($sku === null || $maxLength <= 0 || $this->getGatewayLength((string)$sku) <= $maxLength) {
+            return $sku;
+        }
+
+        $prefixLength = $maxLength - self::IDENTIFIER_HASH_LENGTH - 1;
+        $prefix = mb_substr((string)$sku, 0, $prefixLength);
+        while ($this->getGatewayLength($prefix) > $prefixLength) {
+            $prefix = mb_substr($prefix, 0, -1);
+        }
+
+        return $prefix . '-' . substr(hash('sha256', (string)$sku), 0, self::IDENTIFIER_HASH_LENGTH);
+    }
+
+    /**
+     * Length as the gateway counts it.
+     *
+     * The gateway counts UTF-16 code units, so a character outside the Basic Multilingual Plane,
+     * such as an emoji, counts as two.
+     *
+     * @param string $value
+     *
+     * @return int
+     */
+    private function getGatewayLength(string $value): int
+    {
+        return intdiv(strlen((string)mb_convert_encoding($value, 'UTF-16LE', 'UTF-8')), 2);
     }
 
     /**
@@ -518,10 +567,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function calculateProductPrice($productItem): float
     {
-        $includesTax = $this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
 
         $productPrice = $productItem->getPriceInclTax();
 
@@ -584,10 +630,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
         if (!$includesTax) {
             $discount += abs((float)($item->getDiscountTaxCompensationAmount() ?? 0));
         }
@@ -767,7 +810,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
 
         if ($buckarooFeeLine && $buckarooFeeLine > 0) {
             $article = $this->getArticleArrayLine(
-                (string)$this->getServiceCosts(),
+                $this->renderInOrderStoreLocale(fn() => $this->getServiceCosts()),
                 1,
                 1,
                 round($buckarooFeeLine, 2),
@@ -829,20 +872,41 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Whether the given tax setting says prices already include tax, read in the order's store.
+     *
+     * Articles are not only built during checkout. A capture or a refund is assembled from a push
+     * or from an admin action, where the ambient store is the default store view rather than the
+     * one the order was placed against. `tax/calculation/price_includes_tax` is store-scoped, so
+     * reading it ambiently makes a second store view settle at the default store's tax treatment
+     * and send the gateway article prices that do not add up to the invoice total.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    private function isTaxIncludedInPrice(string $path): bool
+    {
+        $storeId = $this->order !== null ? StoreId::normalize($this->order->getStoreId()) : null;
+
+        return (bool)$this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
      * Render a synthetic article label in the locale of the order's store.
      *
      * @param callable $render
      *
      * @return string
      */
-    private function renderInOrderStoreLocale(callable $render): string
+    protected function renderInOrderStoreLocale(callable $render): string
     {
         $order = $this->order ?? null;
         if ($order === null || $this->appEmulation === null) {
             return (string)$render();
         }
 
-        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND, true);
+        // Not forced: skipped when the order's store and frontend area are already current
+        $this->appEmulation->startEnvironmentEmulation((int)$order->getStoreId(), Area::AREA_FRONTEND);
 
         try {
             return (string)$render();
@@ -869,10 +933,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_SHIPPING_INCLUDES_TAX);
         if (!$includesTax) {
             $discount += abs((float)($order->getShippingDiscountTaxCompensationAmount() ?? 0));
         }
@@ -979,7 +1040,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         if (count($vatGroups) <= 1) {
             $vatRate = !empty($vatGroups) ? (float)array_key_first($vatGroups) : $this->getOrderEffectiveVatRate();
             return [$this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER,
                 1,
                 round($discount, 2),
@@ -1008,7 +1069,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             // One line per VAT rate, each with its own number - a capture nominates lines by
             // ArticleNumber and cannot tell duplicates apart.
             $lines[] = $this->getArticleArrayLine(
-                (string)$this->getDiscount(),
+                $this->renderInOrderStoreLocale(fn() => $this->getDiscount()),
                 self::DISCOUNT_IDENTIFIER . '-' . $this->normalizeAmount($vatRate),
                 1,
                 $lineDiscount,
@@ -1370,7 +1431,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         }
 
         $articles['articles'][] = $this->getArticleArrayLine(
-            (string)$this->getAdjustmentLabel(),
+            $this->renderInOrderStoreLocale(fn() => $this->getAdjustmentLabel()),
             self::ADJUSTMENT_IDENTIFIER,
             1,
             $residual,
@@ -1501,10 +1562,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return 0.0;
         }
 
-        $includesTax = (bool)$this->scopeConfig->getValue(
-            static::TAX_CALCULATION_INCLUDES_TAX,
-            ScopeInterface::SCOPE_STORE
-        );
+        $includesTax = $this->isTaxIncludedInPrice(static::TAX_CALCULATION_INCLUDES_TAX);
 
         $orderDiscount = abs((float)$order->getDiscountAmount());
         $allocated = 0.0;
@@ -1815,7 +1873,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
         ));
 
         $reconciliationLine = $this->getArticleArrayLine(
-            (string)__('Extra Fees'),
+            $this->renderInOrderStoreLocale(fn() => __('Extra Fees')),
             'extra-fees',
             1,
             $diff,

@@ -44,6 +44,13 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
 
     /**
+     * Card networks offered in the Apple Pay payment sheet.
+     *
+     * Buckaroo does not process American Express, Discover or JCB through Apple Pay.
+     */
+    public const SUPPORTED_NETWORKS = ['masterCard', 'visa', 'maestro', 'vPay', 'cartesBancaires', 'privateLabel'];
+
+    /**
      * @var array
      */
     protected $allowedCurrencies = [
@@ -104,6 +111,7 @@ class Applepay extends AbstractConfigProvider
             'buttonStyle'                  => $this->getButtonStyle(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
+            'supportedNetworks'            => self::SUPPORTED_NETWORKS,
         ]);
     }
 
@@ -231,7 +239,7 @@ class Applepay extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             'general/country/default',
-            ScopeInterface::SCOPE_WEBSITES
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -246,10 +254,14 @@ class Applepay extends AbstractConfigProvider
     }
 
     /**
-     * Get Integration Mode
+     * Get Integration Mode (0 = inline, 1 = redirect)
+     *
+     * @param int|string|\Magento\Store\Api\Data\StoreInterface|null $store Defaults to the current store
+     *
+     * @throws NoSuchEntityException
      */
-    public function getIntegrationMode()
+    public function getIntegrationMode($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_INTEGRATION_MODE, $this->storeManager->getStore());
+        return $this->getMethodConfigValue(self::XPATH_APPLEPAY_INTEGRATION_MODE, $store ?? $this->storeManager->getStore());
     }
 }

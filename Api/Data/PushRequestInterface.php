@@ -26,7 +26,11 @@ interface PushRequestInterface
     /**
      * Validate Push Request
      *
-     * @param int|string|null $store
+     * $store is the store of the order the push belongs to, and must be honoured when resolving the
+     * credentials the signature is checked against — the push route carries no store code, so the
+     * ambient store is the default store view of the default website.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
      *
      * @return bool
      *

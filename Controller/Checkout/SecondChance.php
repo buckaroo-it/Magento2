@@ -29,9 +29,16 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\StateException;
 
 class SecondChance extends Action
 {
+    /**
+     * Format of the tokens generated for Second Chance links
+     */
+    private const TOKEN_PATTERN = '/\A[A-Za-z0-9]{32}\z/';
+
     /**
      * @var Log
      */
@@ -90,12 +97,9 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        try {
-            $this->secondChanceRepository->getSecondChanceByToken($token);
-        } catch (Exception $e) {
-            $this->logger->addWarning('SecondChance: invalid or expired token');
-            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
-            return $this->handleRedirect('checkout/cart');
+        $failedRedirect = $this->restoreCart($token);
+        if ($failedRedirect !== null) {
+            return $failedRedirect;
         }
 
         $quote = $this->checkoutSession->getQuote();
@@ -106,12 +110,20 @@ class SecondChance extends Action
             return $this->handleRedirect('checkout/cart');
         }
 
-        // Guest order clicked while customer is logged in: log out to preserve the guest flow.
-        // Auto-login is a security risk (link reuse, shared inboxes) and would assign a guest
-        // order to the wrong account.
-        if (!$quote->getCustomerId() && $this->customerSession->isLoggedIn()) {
+        // Link for a guest order or another customer's order clicked while a customer is logged
+        // in: log out, so a guest order continues as guest and a customer order asks its owner
+        // to sign in below. Auto-login is a security risk (link reuse, shared inboxes) and would
+        // assign the order to the wrong account. logout() destroys the PHP session, which detaches
+        // the customer and checkout storage. regenerateId() binds only its own storage to the new
+        // session, so call it on both: the customer one keeps the sign-in redirect set below.
+        if ($this->customerSession->isLoggedIn()
+            && (int) $quote->getCustomerId() !== (int) $this->customerSession->getCustomerId()
+        ) {
             $this->customerSession->logout();
             $this->customerSession->regenerateId();
+            $this->checkoutSession->regenerateId();
+            $this->checkoutSession->replaceQuote($quote);
+            $this->checkoutSession->setQuoteId($quote->getId());
         }
 
         if ($quote->getCustomerId() && !$this->customerSession->isLoggedIn()) {
@@ -133,6 +145,42 @@ class SecondChance extends Action
     }
 
     /**
+     * Restore the cart for the token, or return the redirect when it cannot be restored
+     *
+     * @param mixed $token
+     * @return Redirect|null
+     */
+    private function restoreCart($token): ?Redirect
+    {
+        try {
+            if (!$this->isWellFormedToken($token)) {
+                throw new NoSuchEntityException(__('Invalid token.'));
+            }
+            $this->secondChanceRepository->getSecondChanceByToken($token);
+        } catch (StateException $e) {
+            $this->messageManager->addNoticeMessage($e->getMessage());
+            return $this->handleRedirect('checkout/cart');
+        } catch (Exception $e) {
+            $this->logger->addWarning('SecondChance: invalid or expired token');
+            $this->messageManager->addErrorMessage(__('Invalid or expired link. Please try again.'));
+            return $this->handleRedirect('checkout/cart');
+        }
+
+        return null;
+    }
+
+    /**
+     * Accept only a single string in the generated token format
+     *
+     * @param mixed $token
+     * @return bool
+     */
+    private function isWellFormedToken($token): bool
+    {
+        return is_string($token) && preg_match(self::TOKEN_PATTERN, $token) === 1;
+    }
+
+    /**
      * Handle redirect to a specified path with arguments
      *
      * @param string $path
@@ -151,7 +199,9 @@ class SecondChance extends Action
         $arguments['_nosid'] = true;
         $url = $this->_url->getUrl($path, $arguments);
         $separator = strpos($url, '?') === false ? '?' : '&';
-        $queryString = $queryParams ? $separator . http_build_query($queryParams) : '';
+        // Pass "&" explicitly. PHP's arg_separator.output is often "&amp;", which
+        // would put a literal amp; into every tracking parameter after the first.
+        $queryString = $queryParams ? $separator . http_build_query($queryParams, '', '&') : '';
 
         return $resultRedirect->setUrl($url . $queryString . $fragment);
     }

@@ -28,6 +28,11 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 class GiftcardOrderSkip implements SkipCommandInterface
 {
     /**
+     * Rounding margin when comparing the paid amount with the order total.
+     */
+    private const AMOUNT_TOLERANCE = 0.01;
+
+    /**
      * @var PaymentGroupTransaction
      */
     protected $paymentGroupTransaction;
@@ -46,7 +51,13 @@ class GiftcardOrderSkip implements SkipCommandInterface
     public function isSkip(array $commandSubject): bool
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
-        $orderIncrementId = $paymentDO->getPayment()->getOrder()->getIncrementId();
-        return $this->paymentGroupTransaction->isAnyGroupTransaction($orderIncrementId);
+        $order = $paymentDO->getPayment()->getOrder();
+        $alreadyPaid = (float)$this->paymentGroupTransaction->getAlreadyPaid($order->getIncrementId());
+
+        if ($alreadyPaid <= 0) {
+            return false;
+        }
+
+        return $alreadyPaid >= (float)$order->getGrandTotal() - self::AMOUNT_TOLERANCE;
     }
 }

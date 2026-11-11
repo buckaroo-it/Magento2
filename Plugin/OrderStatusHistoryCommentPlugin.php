@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarna;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Magento\Framework\Escaper;
 use Magento\Sales\Model\Order;
@@ -71,9 +73,10 @@ class OrderStatusHistoryCommentPlugin
             return [$comment, $status];
         }
 
-        $commentText = (string)$comment;
+        $commentText = $this->useRemainingAmountOnPartialCancellation($subject, (string)$comment);
+
         if (preg_match(self::BUCKAROO_REFUND_COMMENT_PATTERN, $commentText) !== 1) {
-            return [$comment, $status];
+            return [$commentText, $status];
         }
 
         $transactionId = $this->getRefundTransactionId($subject);
@@ -96,6 +99,45 @@ class OrderStatusHistoryCommentPlugin
         ) ?: $updatedComment;
 
         return [$updatedComment, $status];
+    }
+
+    /**
+     * Quote the uncaptured remainder when Klarna cancels after a partial capture.
+     *
+     * @param Order  $order
+     * @param string $comment
+     *
+     * @return string
+     */
+    private function useRemainingAmountOnPartialCancellation(Order $order, string $comment): string
+    {
+        $canceledOnline = (string)__('Canceled order online');
+        if (!str_contains($comment, $canceledOnline)) {
+            return $comment;
+        }
+
+        $payment = $order->getPayment();
+        if ($payment === null
+            || !in_array((string)$payment->getMethod(), [Klarna::CODE, Klarnakp::CODE], true)
+        ) {
+            return $comment;
+        }
+
+        $baseGrandTotal = (float)$order->getBaseGrandTotal();
+        $basePaid = (float)$order->getBaseTotalPaid();
+        $remaining = $baseGrandTotal - $basePaid;
+        if ($basePaid <= 0 || $remaining <= 0) {
+            return $comment;
+        }
+
+        $fullAmount = (string)$payment->formatPrice($payment->formatAmount($baseGrandTotal, true));
+        $remainingAmount = (string)$payment->formatPrice($payment->formatAmount($remaining, true));
+        $quotedFullAmount = (string)__('Amount: %1.', $fullAmount);
+        if ($fullAmount === $remainingAmount || !str_contains($comment, $quotedFullAmount)) {
+            return $comment;
+        }
+
+        return str_replace($quotedFullAmount, (string)__('Amount: %1.', $remainingAmount), $comment);
     }
 
     /**

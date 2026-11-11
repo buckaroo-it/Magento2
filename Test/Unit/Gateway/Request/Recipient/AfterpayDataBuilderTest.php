@@ -89,6 +89,51 @@ class AfterpayDataBuilderTest extends AbstractDataBuilderTest
         }
     }
 
+    public function testCompanyRecipientCarriesTheRegistrationNumberForTheSdk(): void
+    {
+        $this->addressMock->method('getStreet')->willReturn(['Keizersgracht 123']);
+        $this->addressMock->method('getCountryId')->willReturn('NL');
+        $this->addressMock->method('getFirstname')->willReturn('Albina');
+        $this->addressMock->method('getLastname')->willReturn('Baraliu');
+        $this->addressMock->method('getCompany')->willReturn('Test BV');
+
+        $this->orderMock->method('getBillingAddress')->willReturn($this->addressMock);
+
+        $paymentDO = $this->getPaymentDOMock();
+        $paymentDO->getPayment()->method('getAdditionalInformation')->willReturnMap([
+            ['customer_identificationNumber', '04060983'],
+        ]);
+
+        $recipient = $this->builder->build(['payment' => $paymentDO])['recipient'];
+
+        $this->assertSame('Company', $recipient['category']);
+        $this->assertSame('Test BV', $recipient['companyName']);
+        // The SDK company model only maps chamberOfCommerce to IdentificationNumber
+        $this->assertSame('04060983', $recipient['chamberOfCommerce']);
+    }
+
+    public function testCompanyRecipientUsesTheCheckoutChamberOfCommerceField(): void
+    {
+        $this->addressMock->method('getStreet')->willReturn(['Keizersgracht 123']);
+        $this->addressMock->method('getCountryId')->willReturn('NL');
+        $this->addressMock->method('getFirstname')->willReturn('Albina');
+        $this->addressMock->method('getLastname')->willReturn('Baraliu');
+        $this->addressMock->method('getCompany')->willReturn('Test BV');
+
+        $this->orderMock->method('getBillingAddress')->willReturn($this->addressMock);
+
+        $paymentDO = $this->getPaymentDOMock();
+        $paymentDO->getPayment()->method('getAdditionalInformation')->willReturnMap([
+            ['customer_identificationNumber', ''],
+            ['customer_coc', '04060983'],
+        ]);
+
+        $recipient = $this->builder->build(['payment' => $paymentDO])['recipient'];
+
+        $this->assertSame('04060983', $recipient['chamberOfCommerce']);
+        $this->assertSame('04060983', $recipient['identificationNumber']);
+    }
+
     /**
      * @return array[]
      */

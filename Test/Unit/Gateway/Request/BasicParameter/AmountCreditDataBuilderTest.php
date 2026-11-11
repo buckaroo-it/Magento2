@@ -87,6 +87,50 @@ class AmountCreditDataBuilderTest extends AbstractDataBuilderTest
         ]);
     }
 
+    /**
+     * A giftcard split payment stores the remainder leg as a group transaction too, so
+     * RefundGroupTransactionService refunds every leg itself, flags the refund as complete and
+     * returns 0. That 0 must reach DefaultTransaction, which skips the API call; refusing it here
+     * fails the credit memo after Buckaroo has already refunded the money.
+     */
+    public function testARefundSettledByTheGroupTransactionsSendsZeroSoTheCallIsSkipped(): void
+    {
+        $this->orderMock->method('getIncrementId')->willReturn('300000021');
+        $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturnCallback(
+            function (array &$buildSubject) {
+                $buildSubject['response']['group_transaction_refund_complete'] = true;
+                return 0;
+            }
+        );
+
+        $result = $this->amountCreditDataBuilder->build([
+            'payment' => $this->getSalesPaymentDOMock(null),
+            'amount' => 40.05,
+        ]);
+
+        $this->assertSame(0.0, $result[AmountCreditDataBuilder::AMOUNT_CREDIT]);
+    }
+
+    /**
+     * A zero the group transactions did NOT settle means nothing was refunded anywhere, so the
+     * credit memo must still be refused.
+     */
+    public function testAZeroGroupRemainderThatWasNotSettledIsStillRefused(): void
+    {
+        $this->orderMock->method('getIncrementId')->willReturn('300000021');
+        $this->refundGroupServiceMock->method('hasGroupTransactions')->willReturn(true);
+        $this->refundGroupServiceMock->method('refundGroupTransactions')->willReturn(0);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Credit Amount must be greater than 0');
+
+        $this->amountCreditDataBuilder->build([
+            'payment' => $this->getSalesPaymentDOMock(null),
+            'amount' => 40.05,
+        ]);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

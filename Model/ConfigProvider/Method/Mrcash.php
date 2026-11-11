@@ -28,6 +28,7 @@ use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Asset\Repository;
 
 class Mrcash extends AbstractConfigProvider
@@ -45,12 +46,18 @@ class Mrcash extends AbstractConfigProvider
     private $formKey;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
      * @param Repository           $assetRepo
      * @param ScopeConfigInterface $scopeConfig
      * @param AllowedCurrencies    $allowedCurrencies
      * @param PaymentFee           $paymentFeeHelper
      * @param LogoService          $logoService
      * @param FormKey              $formKey
+     * @param UrlInterface         $urlBuilder
      */
     public function __construct(
         Repository $assetRepo,
@@ -58,11 +65,13 @@ class Mrcash extends AbstractConfigProvider
         AllowedCurrencies $allowedCurrencies,
         PaymentFee $paymentFeeHelper,
         LogoService $logoService,
-        FormKey $formKey
+        FormKey $formKey,
+        UrlInterface $urlBuilder
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->formKey = $formKey;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -79,7 +88,8 @@ class Mrcash extends AbstractConfigProvider
 
         return $this->fullConfig([
             'useClientSide' => (int)$this->useClientSide(),
-            'redirecturl'   => self::MRCASH_REDIRECT_URL . '?form_key=' . $this->getFormKey(),
+            // On the store's own base URL: a store may not live at the host root
+            'redirecturl'   => $this->urlBuilder->getUrl('buckaroo/mrcash/pay') . '?form_key=' . $this->getFormKey(),
         ]);
     }
 

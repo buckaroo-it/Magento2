@@ -82,7 +82,7 @@ class ProcessTest extends BaseTest
         $pushRequestMock->method('getStatusCode')->willReturn('');
 
         $requestPushFactoryMock = $this->createMock(\Buckaroo\Magento2\Model\RequestPush\RequestPushFactory::class);
-        $requestPushFactoryMock->method('create')->willReturn($pushRequestMock);
+        $requestPushFactoryMock->method('createFromFormPost')->willReturn($pushRequestMock);
 
         $instance = $this->getInstance([
             'redirectFactory' => $redirectFactoryMock,

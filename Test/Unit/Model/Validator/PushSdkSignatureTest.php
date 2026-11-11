@@ -11,10 +11,10 @@ use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\RequestPush\JsonPushRequest;
 use Buckaroo\Magento2\Model\Validator\PushSDK;
+use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Locale\Resolver;
-use Magento\Framework\UrlInterface;
 use Magento\Framework\Webapi\Request;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -93,10 +93,10 @@ class PushSdkSignatureTest extends BaseTest
         $httpRequest = $this->createStub(Request::class);
         $httpRequest->method('getContent')->willReturn($content);
         $httpRequest->method('getHeader')->willReturn($header);
-        $url = $this->createStub(UrlInterface::class);
-        $url->method('getDirectUrl')->willReturn(self::URI);
+        $pushUrlBuilder = $this->createStub(PushUrlBuilder::class);
+        $pushUrlBuilder->method('getCandidateUris')->willReturn([self::URI]);
 
-        return new PushSDK($this->adapter(), $httpRequest, $url);
+        return new PushSDK($this->adapter(), $httpRequest, $pushUrlBuilder);
     }
 
     private function adapter(): BuckarooAdapter

@@ -21,8 +21,7 @@
 
 namespace Buckaroo\Magento2\Model\PaypalExpress;
 
-use Laminas\Stdlib\Parameters;
-
+use Buckaroo\Magento2\Model\Service\BuyRequestFilter;
 use Magento\Customer\Model\Group;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
@@ -67,23 +66,31 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     /**
+     * @var BuyRequestFilter
+     */
+    private $buyRequestFilter;
+
+    /**
      * Constructor
      *
      * @param QuoteFactory $quoteFactory
      * @param ProductRepositoryInterface $productRepository
      * @param DataObjectFactory $dataObjectFactory
      * @param CustomerSession $customer
+     * @param BuyRequestFilter $buyRequestFilter
      */
     public function __construct(
         QuoteFactory $quoteFactory,
         ProductRepositoryInterface $productRepository,
         DataObjectFactory $dataObjectFactory,
-        CustomerSession $customer
+        CustomerSession $customer,
+        BuyRequestFilter $buyRequestFilter
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customer = $customer;
+        $this->buyRequestFilter = $buyRequestFilter;
     }
 
     /**
@@ -157,9 +164,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $form_data)
     {
-        $parameters = new Parameters();
-        $parameters->fromString($form_data);
-        $data = $parameters->toArray();
+        $data = $this->buyRequestFilter->fromFormString($form_data);
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);

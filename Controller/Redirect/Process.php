@@ -235,7 +235,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->lockManager = $lockManager;
         $this->spamLimitService = $spamLimitService;
 
-        $this->redirectRequest = $requestPushFactory->create();
+        $this->redirectRequest = $requestPushFactory->createFromFormPost();
     }
 
     /**
@@ -1098,7 +1098,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->checkoutSession->restoreQuote();
             $this->logger->addDebug(sprintf(
                 '[REDIRECT - %s] | [Controller] | [%s:%s] - Redirect %s To Checkout - Restore Quote',
-                $this->payment?->getMethod(),
+                $this->payment ? $this->payment->getMethod() : '',
                 __METHOD__,
                 __LINE__,
                 $status

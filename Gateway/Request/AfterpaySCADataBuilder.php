@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay20;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -56,7 +57,7 @@ class AfterpaySCADataBuilder implements BuilderInterface
             return ['serviceVersion' => $serviceVersion];
         }
 
-        if ($this->configAfterpay->isEnabledSCA($paymentDO->getOrder()->getStoreId())) {
+        if ($this->configAfterpay->isEnabledSCA(StoreId::normalize($paymentDO->getOrder()->getStoreId()))) {
             $payment->setAdditionalInformation(self::BUCKAROO_SERVICE_VERSION_KEY, 2);
             return ['serviceVersion' => 2];
         }

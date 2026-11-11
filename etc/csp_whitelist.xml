@@ -11,7 +11,6 @@
                 <value id="paypal-sandbox" type="host">https://www.sandbox.paypal.com</value>
                 <value id="applepay" type="host">https://applepay.cdn-apple.com</value>
                 <value id="googlepay" type="host">https://pay.google.com</value>
-                <value id="buckaroo-hostedfields-alpha" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
                 <value id="clicktopay-up" type="host">https://up.cybersource.com</value>
                 <value id="clicktopay-flex" type="host">https://flex.cybersource.com</value>
@@ -58,7 +57,6 @@
                 <value id="buckaroo-ws" type="host">wss://websockets.buckaroo.io/</value>
                 <value id="buckaroo-checkout" type="host">https://checkout.buckaroo.nl</value>
                 <value id="buckaroo-checkout-test" type="host">https://testcheckout.buckaroo.nl</value>
-                <value id="buckaroo-hostedfields-alpha-connect" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields-connect" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
                 <value id="applepay-buckaroo" type="host">https://applepay.buckaroo.io</value>
                 <value id="applepay-smp" type="host">https://smp-paymentservices.apple.com</value>
@@ -75,7 +73,6 @@
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="buckaroo-hostedfields-alpha-frame" type="host">https://hostedfields-externalapi.alpha.buckaroo.aws</value>
                 <value id="buckaroo-hostedfields-frame" type="host">https://hostedfields-externalapi.prod-pci.buckaroo.io</value>
                 <value id="clicktopay-up-frame" type="host">https://up.cybersource.com</value>
                 <value id="clicktopay-visa-frame" type="host">https://assets.secure.checkout.visa.com</value>

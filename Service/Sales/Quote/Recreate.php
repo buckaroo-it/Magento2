@@ -19,6 +19,7 @@
  */
 namespace Buckaroo\Magento2\Service\Sales\Quote;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Checkout\Model\Cart;
@@ -28,6 +29,8 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Quote\Api\CartManagementInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\Address as QuoteAddressResource;
 use Buckaroo\Magento2\Logging\Log;
@@ -35,6 +38,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Payment\Helper\Data as PaymentHelper;
+use Magento\Framework\App\ObjectManager;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -92,6 +96,11 @@ class Recreate
     private $productRepository;
 
     /**
+     * @var SecondChanceCartMerger
+     */
+    private $cartMerger;
+
+    /**
      * Constructor
      *
      * @param CartRepositoryInterface $cartRepository
@@ -104,6 +113,7 @@ class Recreate
      * @param PaymentHelper $paymentHelper
      * @param ProductRepositoryInterface $productRepository
      * @param SecondChanceConfig|null $secondChanceConfig
+     * @param SecondChanceCartMerger|null $cartMerger
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -116,7 +126,8 @@ class Recreate
         StoreManagerInterface      $storeManager,
         PaymentHelper              $paymentHelper,
         ProductRepositoryInterface $productRepository,
-        ?SecondChanceConfig        $secondChanceConfig = null
+        ?SecondChanceConfig        $secondChanceConfig = null,
+        ?SecondChanceCartMerger    $cartMerger = null
     ) {
         $this->productRepository = $productRepository;
         $this->cartRepository       = $cartRepository;
@@ -128,6 +139,8 @@ class Recreate
         $this->storeManager         = $storeManager;
         $this->paymentHelper        = $paymentHelper;
         $this->secondChanceConfig   = $secondChanceConfig;
+        $this->cartMerger           = $cartMerger
+            ?: ObjectManager::getInstance()->get(SecondChanceCartMerger::class);
     }
 
     /**
@@ -191,9 +204,9 @@ class Recreate
                 }
                 $quote->merge($oldQuote);
 
-                // Set the correct store environment after merge
-                $store = $this->storeManager->getStore($oldQuote->getStoreId());
-                $quote->setStore($store);
+                // Set the correct store environment after merge. Quote::setStore() only forwards
+                // $store->getId() to setStoreId(), so assign the id directly and skip the lookup.
+                $quote->setStoreId(StoreId::normalize($oldQuote->getStoreId()));
                 $quote->setIsActive(true);
                 $quote->collectTotals();
                 $this->cartRepository->save($quote);
@@ -243,25 +256,34 @@ class Recreate
         $this->logger->addDebug(__METHOD__ . '|1|' . $order->getIncrementId());
 
         try {
-            $oldQuote = $this->cartRepository->get((int)$order->getQuoteId());
-
-            if (!$oldQuote->getId()) {
-                $this->logger->addError('Original quote not found for order: ' . $order->getIncrementId());
-                return null;
+            // The shopper's current cart, captured before this method replaces the session quote.
+            $sessionQuoteId = (int) $this->checkoutSession->getQuoteId();
+            // Sign-in merges the guest cart into the customer cart and deletes the original quote.
+            // The order still points at that quote, so recreate from the order when it is gone.
+            $oldQuote = null;
+            try {
+                $loadedQuote = $this->cartRepository->get((int) $order->getQuoteId());
+                if ($loadedQuote->getId()) {
+                    $oldQuote = $loadedQuote;
+                }
+            } catch (NoSuchEntityException $e) {
+                $this->logger->addDebug(
+                    'Second Chance: original quote no longer exists, recreating from the order '
+                    . $order->getIncrementId()
+                );
             }
 
             // Create new quote
             $quote = $this->quoteFactory->create();
 
             // Set store context to ensure correct locale/translations
-            $store = $this->storeManager->getStore($order->getStoreId());
+            $store = $this->storeManager->getStore(StoreId::normalize($order->getStoreId()));
             $this->storeManager->setCurrentStore($store);
-            $quote->setStore($store);
-            $quote->setStoreId($order->getStoreId());
+            $quote->setStoreId(StoreId::normalize($order->getStoreId()));
 
             $this->logger->addDebug('Second Chance: Store context set', [
                 'order_id' => $order->getIncrementId(),
-                'store_id' => $order->getStoreId(),
+                'store_id' => StoreId::normalize($order->getStoreId()),
                 'store_code' => $store->getCode(),
                 'locale' => $store->getConfig('general/locale/code')
             ]);
@@ -281,21 +303,29 @@ class Recreate
             }
 
             // Add products to quote
+            $unavailableProducts = [];
             foreach ($order->getAllVisibleItems() as $orderItem) {
                 try {
-                    $product = $this->productRepository->getById($orderItem->getProductId());
-                    if ($product->getId()) {
-                        $buyRequest = $orderItem->getProductOptionByCode('info_buyRequest');
-                        if ($buyRequest) {
-                            $quote->addProduct($product, new \Magento\Framework\DataObject($buyRequest));
-                        } else {
-                            $quote->addProduct($product, $orderItem->getQtyOrdered());
-                        }
+                    $product = clone $this->productRepository->getById(
+                        (int) $orderItem->getProductId(),
+                        false,
+                        (int) $order->getStoreId()
+                    );
+                    $product->setCustomOptions([]);
+                    // addProduct() returns the reason as a string when it cannot add the product
+                    $result = $quote->addProduct($product, $orderItem->getBuyRequest());
+                    if (is_string($result)) {
+                        throw new LocalizedException(__($result));
                     }
                 } catch (\Exception $e) {
                     $this->logger->addError('Error adding product to quote: ' . $e->getMessage());
+                    $unavailableProducts[] = $orderItem->getName();
                 }
             }
+            $this->notifyUnavailableProducts($unavailableProducts);
+
+            // Keep what the shopper added to their cart since the order (BTI-1913)
+            $previousCarts = $this->cartMerger->mergeInto($quote, $order, $sessionQuoteId);
 
             // Copy addresses
             if ($order->getBillingAddress()) {
@@ -356,7 +386,9 @@ class Recreate
             $this->cartRepository->save($quote);
 
             // Additional merge for custom data (after quote is saved)
-            $this->additionalMerge($oldQuote, $quote, $response);
+            if ($oldQuote) {
+                $this->additionalMerge($oldQuote, $quote, $response);
+            }
 
             // Restore coupon code from original order so Magento re-validates it on collectTotals
             if ($order->getCouponCode()) {
@@ -406,7 +438,9 @@ class Recreate
                     ]);
 
                     if ($this->secondChanceConfig !== null) {
-                        $message = $this->secondChanceConfig->getGiftCardInvalidMessage($order->getStoreId());
+                        $message = $this->secondChanceConfig->getGiftCardInvalidMessage(
+                            StoreId::normalize($order->getStoreId())
+                        );
                         if (!empty($message)) {
                             $this->messageManager->addWarningMessage(__($message));
                         }
@@ -420,10 +454,18 @@ class Recreate
             $this->checkoutSession->replaceQuote($quote);
             $this->checkoutSession->setQuoteId($quote->getId());
 
-            // Deactivate the original quote to prevent Magento from re-attaching it
-            // after a successful second-chance checkout for logged-in customers.
-            $oldQuote->setIsActive(false);
-            $this->cartRepository->save($oldQuote);
+            // Deactivate the original quote so Magento does not re-attach it after checkout.
+            // A logged-in customer's failed checkout restores it as their account cart, holding
+            // the same products, which would stay in the cart after the new quote is paid.
+            // Leave it active when it has since become another account's cart: a guest who
+            // signs in afterwards keeps the guest quote, and items added to it, as their cart.
+            if ($oldQuote && !$this->isOtherAccountCart($oldQuote, $order)) {
+                $oldQuote->setIsActive(false);
+                $this->cartRepository->save($oldQuote);
+            }
+
+            // The restored cart is now the shopper's only active cart (BTI-1914)
+            $this->cartMerger->deactivate($previousCarts);
 
             $this->logger->addDebug('Quote recreated successfully: ' . $quote->getId());
             return $quote;
@@ -433,6 +475,40 @@ class Recreate
             $this->messageManager->addErrorMessage($e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Whether the original quote is now the cart of an account other than the order's customer
+     *
+     * @param Quote $oldQuote
+     * @param Order $order
+     * @return bool
+     */
+    private function isOtherAccountCart($oldQuote, $order): bool
+    {
+        $quoteCustomerId = (int) $oldQuote->getCustomerId();
+
+        return $quoteCustomerId > 0 && $quoteCustomerId !== (int) $order->getCustomerId();
+    }
+
+    /**
+     * Tell the customer which products of the order could not be added to the restored cart
+     *
+     * @param string[] $productNames
+     * @return void
+     */
+    private function notifyUnavailableProducts(array $productNames): void
+    {
+        if (empty($productNames)) {
+            return;
+        }
+
+        $this->messageManager->addWarningMessage(
+            __(
+                'Some products from your order are no longer available and were not added to your cart: %1',
+                implode(', ', array_unique($productNames))
+            )
+        );
     }
 
     /**

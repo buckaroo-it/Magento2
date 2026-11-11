@@ -25,7 +25,9 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
 
 class Totals extends Template
 {
@@ -169,12 +171,35 @@ class Totals extends Template
     }
 
     /**
-     * Get currency symbol for current locale and currency code
+     * Get the currency symbol of the order being shown (the fee amounts are in order currency)
      *
      * @return string
      */
     public function getCurrentCurrencySymbol()
     {
+        $order = $this->getSourceOrder();
+        if ($order !== null && $order->getOrderCurrencyCode()) {
+            return $this->currency->getCurrency($order->getStoreId(), $order->getOrderCurrencyCode())
+                ->getCurrencySymbol();
+        }
+
         return $this->currency->getCurrency()->getCurrencySymbol();
+    }
+
+    /**
+     * Order behind the parent totals block (order, invoice or credit memo)
+     *
+     * @return Order|null
+     */
+    private function getSourceOrder(): ?Order
+    {
+        $parent = $this->getParentBlock();
+        $source = $parent ? $parent->getSource() : null;
+
+        if ($source instanceof Order) {
+            return $source;
+        }
+
+        return ($source instanceof Creditmemo || $source instanceof Invoice) ? $source->getOrder() : null;
     }
 }

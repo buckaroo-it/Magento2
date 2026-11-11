@@ -30,10 +30,14 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
-use Buckaroo\Magento2\Test\Unit\Stubs\InvoiceStub;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection as CreditmemoCollection;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as CreditmemoCollectionFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RefundCapResolverTest extends TestCase
 {
     /**
@@ -51,14 +55,46 @@ class RefundCapResolverTest extends TestCase
      */
     private $orderMock;
 
+    /**
+     * Earlier memos the credit memo query returns.
+     *
+     * @var Creditmemo[]
+     */
+    private $earlierMemos = [];
+
+    /**
+     * Every addFieldToFilter() call on the credit memo query, as [field, condition].
+     *
+     * @var array
+     */
+    private $memoFilters = [];
+
     protected function setUp(): void
     {
         $this->articlesHandlerFactoryMock = $this->createMock(ArticlesHandlerFactory::class);
         $this->orderMock = $this->createMock(Order::class);
+        $this->earlierMemos = [];
+        $this->memoFilters = [];
+
+        $collection = $this->createMock(CreditmemoCollection::class);
+        $collection->method('addFieldToFilter')->willReturnCallback(
+            function ($field, $condition) use ($collection) {
+                $this->memoFilters[] = [$field, $condition];
+                return $collection;
+            }
+        );
+        $collection->method('getIterator')->willReturnCallback(fn () => new \ArrayIterator($this->earlierMemos));
+
+        $collectionFactory = $this->getMockBuilder(CreditmemoCollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $collectionFactory->method('create')->willReturn($collection);
 
         $this->resolver = new RefundCapResolver(
             $this->articlesHandlerFactoryMock,
-            $this->createMock(BuckarooLoggerInterface::class)
+            $this->createMock(BuckarooLoggerInterface::class),
+            $collectionFactory
         );
     }
 
@@ -104,7 +140,7 @@ class RefundCapResolverTest extends TestCase
 
         $amount = $this->resolver->resolveCappedAmount(
             $this->orderMock,
-            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock(0.00))),
+            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock())),
             100.01
         );
 
@@ -112,19 +148,43 @@ class RefundCapResolverTest extends TestCase
     }
 
     /**
-     * What an earlier memo already refunded is no longer refundable on the same transaction.
+     * What earlier refunded memos took from this invoice is no longer refundable on the same
+     * transaction.
      */
-    public function testSubtractsWhatWasAlreadyRefundedFromTheInvoice(): void
+    public function testSubtractsWhatEarlierMemosRefundedFromTheInvoice(): void
     {
         $this->prepareCapturedTotal(100.00);
+        $this->earlierMemos = [$this->getEarlierMemoMock(35.0042), $this->getEarlierMemoMock(25.00)];
 
         $amount = $this->resolver->resolveCappedAmount(
             $this->orderMock,
-            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock(60.00))),
+            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock())),
             50.00
         );
 
         $this->assertEquals(40.00, $amount);
+        $this->assertSame(
+            [['invoice_id', ['eq' => 7]], ['state', ['eq' => Creditmemo::STATE_REFUNDED]]],
+            $this->memoFilters,
+            'only refunded memos of this invoice count'
+        );
+    }
+
+    /**
+     * The memo being refunded right now is not "already refunded", even when it has been saved first.
+     */
+    public function testTheMemoBeingRefundedIsNotCountedAsAlreadyRefunded(): void
+    {
+        $this->prepareCapturedTotal(100.00);
+        $this->earlierMemos = [$this->getEarlierMemoMock(10.00)];
+
+        $currentMemo = $this->getCreditmemoMock($this->getInvoiceMock());
+        $currentMemo->method('getId')->willReturn(5);
+
+        $amount = $this->resolver->resolveCappedAmount($this->orderMock, $this->getPaymentMock($currentMemo), 95.00);
+
+        $this->assertEquals(90.00, $amount);
+        $this->assertContains(['entity_id', ['neq' => 5]], $this->memoFilters);
     }
 
     /**
@@ -136,7 +196,7 @@ class RefundCapResolverTest extends TestCase
 
         $amount = $this->resolver->resolveCappedAmount(
             $this->orderMock,
-            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock(0.00))),
+            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock())),
             25.00
         );
 
@@ -153,7 +213,7 @@ class RefundCapResolverTest extends TestCase
 
         $amount = $this->resolver->resolveCappedAmount(
             $this->orderMock,
-            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock(0.00))),
+            $this->getPaymentMock($this->getCreditmemoMock($this->getInvoiceMock())),
             100.01
         );
 
@@ -176,26 +236,31 @@ class RefundCapResolverTest extends TestCase
     }
 
     /**
-     * @param float $totalRefunded
+     * A plain invoice: it declares no total_refunded, exactly like the real one.
      *
      * @return Invoice|MockObject
      */
-    private function getInvoiceMock(float $totalRefunded)
+    private function getInvoiceMock()
     {
-        // getTotalRefunded() is a DataObject magic getter; InvoiceStub declares it as a real
-        // method so it can be doubled via onlyMethods() (MockBuilder::addMethods() was removed
-        // in PHPUnit 12).
-        $invoiceMock = $this->getMockBuilder(InvoiceStub::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'getIncrementId', 'getGrandTotal', 'getTotalRefunded'])
-            ->getMock();
+        $invoiceMock = $this->createMock(Invoice::class);
         $invoiceMock->method('getId')->willReturn(7);
         $invoiceMock->method('getIncrementId')->willReturn('100000007');
         $invoiceMock->method('getGrandTotal')->willReturn(100.01);
-        $invoiceMock->method('getTotalRefunded')->willReturn($totalRefunded);
-
 
         return $invoiceMock;
+    }
+
+    /**
+     * @param float $grandTotal
+     *
+     * @return Creditmemo|MockObject
+     */
+    private function getEarlierMemoMock(float $grandTotal)
+    {
+        $memoMock = $this->createMock(Creditmemo::class);
+        $memoMock->method('getGrandTotal')->willReturn($grandTotal);
+
+        return $memoMock;
     }
 
     /**

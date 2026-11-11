@@ -160,6 +160,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
     protected function calculateQuoteTotals()
     {
         $this->quote->setStoreId($this->quote->getStore()->getId());
+        $this->ignoreAddressValidation();
 
         $this->quote
             ->setTotalsCollectedFlag(false)
@@ -188,8 +189,25 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $address->setCity($shipping_address->getCity());
         $address->setRegion($shipping_address->getState());
 
+        $this->ignoreAddressValidation();
+
         $this->quoteRepository->save($this->quote);
         $this->addFirstShippingMethod($address);
+    }
+
+    /**
+     * Allow quote save/totals while name, street and phone are still empty.
+     *
+     * Matches Magento\Paypal\Model\Express\Checkout::ignoreAddressValidation().
+     * Temporary required fields are only filled later in OrderCreate, immediately
+     * before placeOrder(), and cleared again if placement fails.
+     *
+     * @return void
+     */
+    private function ignoreAddressValidation(): void
+    {
+        $this->quote->getBillingAddress()->setShouldIgnoreValidation(true);
+        $this->quote->getShippingAddress()->setShouldIgnoreValidation(true);
     }
 
     /**

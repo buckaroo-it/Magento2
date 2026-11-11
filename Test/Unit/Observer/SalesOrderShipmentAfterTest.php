@@ -349,6 +349,56 @@ class SalesOrderShipmentAfterTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * Paying an invoice can draw on a capture made earlier in Plaza. When the invoice is not saved
+     * after all, the failure handler still saves the order, so the drawn amount has to be put back
+     * first - otherwise it is gone while no invoice accounts for it.
+     */
+    public function testAFailedInvoiceGivesBackTheCapturedAmountItDrewOn(): void
+    {
+        $invoiceMock = $this->getFakeMock('Magento\\Sales\\Model\\Order\\Invoice')->getMock();
+        $invoiceMock->method('getTotalQty')->willReturn(1.0);
+        $invoiceMock->method('getAllItems')->willReturn([]);
+        $invoiceMock->method('register')->willThrowException(new \Exception('Could not save the invoice'));
+
+        $invoiceServiceMock = $this->getFakeMock('Magento\\Sales\\Model\\Service\\InvoiceService')->getMock();
+        $invoiceServiceMock->method('prepareInvoice')->willReturn($invoiceMock);
+
+        $createInvoiceServiceMock = $this->getFakeMock('Buckaroo\\Magento2\\Model\\Service\\CreateInvoice')
+            ->getMock();
+        $createInvoiceServiceMock->method('getQtysFromShipment')->willReturn([12 => 1.0]);
+
+        $paymentMock = $this->getFakeMock('Magento\\Sales\\Model\\Order\\Payment')->getMock();
+
+        $orderMock = $this->getFakeMock('Magento\\Sales\\Model\\Order')->getMock();
+        $orderMock->method('canInvoice')->willReturn(true);
+        $orderMock->method('getPayment')->willReturn($paymentMock);
+
+        $snapshot = ['amount' => 66.15, 'transaction_key' => 'PLAZA_KEY'];
+        $uninvoicedCapturesMock = $this->getFakeMock('Buckaroo\\Magento2\\Model\\Service\\UninvoicedCaptures')
+            ->getMock();
+        $uninvoicedCapturesMock->method('snapshot')->with($orderMock)->willReturn($snapshot);
+        $uninvoicedCapturesMock->expects($this->once())->method('restore')->with($orderMock, $snapshot);
+
+        $orderRepositoryMock = $this->getFakeMock('Magento\\Sales\\Api\\OrderRepositoryInterface')->getMock();
+        $orderRepositoryMock->expects($this->once())->method('save');
+
+        $instance = $this->getInstance([
+            'invoiceService' => $invoiceServiceMock,
+            'createInvoiceService' => $createInvoiceServiceMock,
+            'orderRepository' => $orderRepositoryMock,
+            'uninvoicedCaptures' => $uninvoicedCapturesMock,
+        ]);
+        $this->setProperty('order', $orderMock, $instance);
+        $this->setProperty(
+            'shipment',
+            $this->getFakeMock('Magento\\Sales\\Model\\Order\\Shipment')->getMock(),
+            $instance
+        );
+
+        $this->assertNull($this->invoke('createInvoice', $instance));
+    }
+
+    /**
      * A failure before register() must NOT roll back - nothing was written yet, and subtracting
      * would corrupt the order in the other direction.
      */

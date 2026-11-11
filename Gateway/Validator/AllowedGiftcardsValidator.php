@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
+use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
@@ -62,7 +64,15 @@ class AllowedGiftcardsValidator extends AbstractValidator
          * If there are no giftcards chosen, we can't be available
          */
         $fails = [];
-        if (null === $this->giftcardsConfig->getAllowedGiftcards()) {
+
+        $storeId = null;
+        try {
+            $storeId = StoreId::normalize(SubjectReader::readQuote($validationSubject)->getStoreId());
+        } catch (\Exception $exception) {
+            $storeId = null;
+        }
+
+        if (null === $this->giftcardsConfig->getAllowedGiftcards($storeId)) {
             $fails[] = __('There are no allowed giftcards.');
             $isValid = false;
         }

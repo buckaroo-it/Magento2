@@ -79,7 +79,8 @@ class RequestPushFactory
             if (!empty($contentType)
                 && strpos($contentType, 'application/json') !== false
             ) {
-                $requestData = $this->request->getRequestData();
+                // Read the push from its body, the content the signature is validated over
+                $requestData = $this->request->getBodyParams();
                 $this->logger->addDebug(sprintf(
                     '[PUSH] | [Factory] | [%s:%s] - Create Json Request Object | request: %s',
                     __METHOD__,
@@ -101,6 +102,16 @@ class RequestPushFactory
             ));
         }
 
+        return $this->createFromFormPost();
+    }
+
+    /**
+     * Create the request for a shopper returning from Buckaroo, which always posts a form
+     *
+     * @return PushRequestInterface
+     */
+    public function createFromFormPost(): PushRequestInterface
+    {
         $postData = $this->request->getPostValue();
         $this->logger->addDebug(sprintf(
             '[PUSH] | [Factory] | [%s:%s] - Create HTTP Post Request Object | request: %s',

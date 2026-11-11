@@ -216,21 +216,34 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     private function setPendingFieldsOnAddress($address)
     {
-        if (!$address->getFirstname()) {
+        if ($this->isBlank($address->getFirstname())) {
             $address->setFirstname('PayPal');
         }
-        if (!$address->getLastname()) {
+        if ($this->isBlank($address->getLastname())) {
             $address->setLastname('Customer');
         }
-        if (!$address->getStreet() || empty($address->getStreet()[0])) {
+        if ($this->isBlank(implode('', (array)$address->getStreet()))) {
             $address->setStreet(['Pending']);
         }
-        if (!$address->getTelephone()) {
+        if ($this->isBlank($address->getTelephone())) {
             $address->setTelephone('000-000-0000');
         }
-        if (!$address->getEmail()) {
+        if ($this->isBlank($address->getEmail())) {
             $address->setEmail('pending@paypal.customer');
         }
+    }
+
+    /**
+     * Whether Magento's address validation treats the value as empty.
+     *
+     * The validation trims before it checks, so a value of only spaces is empty too.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    private function isBlank($value): bool
+    {
+        return trim((string)$value) === '';
     }
 
     /**
@@ -318,9 +331,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     protected function updateOrder(OrderInterface $order)
     {
+        $isGuest = (bool)$order->getCustomerIsGuest();
         $orderUpdateService = $this->orderUpdateFactory->create();
-        $orderUpdateService->updateAddress($order->getShippingAddress());
-        $orderUpdateService->updateAddress($order->getBillingAddress());
+        $orderUpdateService->updateAddress($order->getShippingAddress(), $isGuest);
+        $orderUpdateService->updateAddress($order->getBillingAddress(), $isGuest);
         $orderUpdateService->updateEmail($order);
         $orderUpdateService->updateCustomerName($order);
         $this->orderRepository->save($order);

@@ -108,6 +108,9 @@
         <method name="buckaroo_magento2_capayablein3">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="buckaroo_magento2_zakelijkoprekening">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="buckaroo_magento2_capayablepostpay">
             <allow_multiple_address>0</allow_multiple_address>
         </method>

@@ -101,9 +101,66 @@ class Afterpay20Test extends BaseTest
 
         if ($active) {
             $this->assertArrayHasKey('buckaroo_magento2_afterpay20', $result['payment']['buckaroo']);
+            $this->assertArrayNotHasKey(
+                'showFinancialWarning',
+                $result['payment']['buckaroo']['buckaroo_magento2_afterpay20']
+            );
         } else {
             $this->assertEquals($expected, $result);
         }
+    }
+
+    public function testAdminConfigDoesNotExposeFinancialWarningOrTerms(): void
+    {
+        $moduleRoot = dirname(__DIR__, 5);
+
+        $systemXml = file_get_contents(
+            $moduleRoot . '/etc/adminhtml/system/payment_methods/afterpay20.xml'
+        );
+        $this->assertIsString($systemXml);
+        $this->assertStringNotContainsString('financial_warning', $systemXml);
+        $this->assertStringNotContainsString('Consumer Financial Warning', $systemXml);
+        $this->assertStringNotContainsString('Terms and Conditions', $systemXml);
+
+        $configXml = simplexml_load_file($moduleRoot . '/etc/config.xml');
+        $this->assertNotFalse($configXml);
+        $afterpay20 = $configXml->default->payment->buckaroo_magento2_afterpay20;
+        $this->assertNotNull($afterpay20);
+        $this->assertFalse(isset($afterpay20->financial_warning));
+
+        $legacyAfterpay = $configXml->default->payment->buckaroo_magento2_afterpay;
+        $this->assertTrue(isset($legacyAfterpay->financial_warning));
+    }
+
+    public function testCheckoutAssetsDoNotShowTermsOrFinancialWarning(): void
+    {
+        $moduleRoot = dirname(__DIR__, 5);
+
+        $template = file_get_contents(
+            $moduleRoot . '/view/frontend/web/template/payment/buckaroo_magento2_afterpay20.html'
+        );
+        $this->assertIsString($template);
+        $this->assertStringNotContainsString('termsCondition', $template);
+        $this->assertStringNotContainsString('Terms and Conditions', $template);
+        $this->assertStringNotContainsString('showFinancialWarning', $template);
+        $this->assertStringNotContainsString('getMessageText', $template);
+
+        $renderer = file_get_contents(
+            $moduleRoot . '/view/frontend/web/js/view/payment/method-renderer/afterpay20.js'
+        );
+        $this->assertIsString($renderer);
+        $this->assertStringNotContainsString('termsCondition', $renderer);
+        $this->assertStringNotContainsString('termsSelected', $renderer);
+        $this->assertStringNotContainsString('showFinancialWarning', $renderer);
+        $this->assertStringNotContainsString('getTermsUrl', $renderer);
+        $this->assertStringNotContainsString('getFrenchTos', $renderer);
+
+        $legacyTemplate = file_get_contents(
+            $moduleRoot . '/view/frontend/web/template/payment/buckaroo_magento2_afterpay.html'
+        );
+        $this->assertIsString($legacyTemplate);
+        $this->assertStringContainsString('termsCondition', $legacyTemplate);
+        $this->assertStringContainsString('showFinancialWarning', $legacyTemplate);
     }
 
     public static function getPaymentFeeProvider()

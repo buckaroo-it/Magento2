@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
@@ -45,6 +46,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -80,6 +82,7 @@ class PaypalProcessor extends DefaultProcessor
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -105,7 +108,8 @@ class PaypalProcessor extends DefaultProcessor
         TransactionRepositoryInterface  $transactionRepository,
         SearchCriteriaBuilder           $searchCriteriaBuilder,
         OrderManagementInterface        $orderManagement,
-        Escaper                         $escaper
+        Escaper                         $escaper,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -129,7 +133,8 @@ class PaypalProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->paypalConfig = $paypalConfig;
     }
@@ -147,8 +152,9 @@ class PaypalProcessor extends DefaultProcessor
 
         if ($this->pushTransactionType->getStatusKey() == 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS'
             && $this->order->getPayment()->getMethod() == PaypalConfig::CODE) {
-            $newSellersProtectionStatus = $this->paypalConfig->getSellersProtectionIneligible();
-            if ($this->paypalConfig->getSellersProtection() && !empty($newSellersProtectionStatus)) {
+            $storeId = StoreId::normalize($this->order->getStoreId());
+            $newSellersProtectionStatus = $this->paypalConfig->getSellersProtectionIneligible($storeId);
+            if ($this->paypalConfig->getSellersProtection($storeId) && !empty($newSellersProtectionStatus)) {
                 $newStatus = $newSellersProtectionStatus;
             }
         }

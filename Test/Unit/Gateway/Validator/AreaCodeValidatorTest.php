@@ -3,6 +3,8 @@
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Validator;
 
 
+use Magento\Quote\Api\Data\CartInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Validator\AreaCodeValidator;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
@@ -127,5 +129,32 @@ class AreaCodeValidatorTest extends TestCase
         $result = $this->validator->validate(['paymentMethodInstance' => $method]);
 
         $this->assertSame($resultMock, $result);
+    }
+
+    /**
+     * In admin order create the ambient store is not the quote's, so visibility is asked for the
+     * quote's store.
+     */
+    public function testAsksVisibilityForTheQuotesStore(): void
+    {
+        $method = $this->createMock(MethodInterface::class);
+        $method->method('getCode')->willReturn(PayPerEmail::CODE);
+        $this->state->method('getAreaCode')->willReturn(Area::AREA_ADMINHTML);
+        $this->methodConfigProviderFactory->method('has')->willReturn(true);
+
+        $cp = $this->createMock(PayPerEmail::class);
+        $cp->expects($this->once())->method('isVisibleForAreaCode')
+            ->with(Area::AREA_ADMINHTML, 5)
+            ->willReturn(false);
+        $this->methodConfigProviderFactory->method('get')->willReturn($cp);
+
+        $quote = $this->createMock(CartInterface::class);
+        $quote->method('getStoreId')->willReturn(5);
+
+        $this->resultFactory->method('create')
+            ->with(['isValid' => false, 'failsDescription' => [], 'errorCodes' => []])
+            ->willReturn($this->createMock(ResultInterface::class));
+
+        $this->validator->validate(['paymentMethodInstance' => $method, 'quote' => $quote]);
     }
 }

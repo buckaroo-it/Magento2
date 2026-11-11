@@ -108,9 +108,9 @@
             </field>
 
             <field id="express_button_rounded" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Rounded Button Shape</label>
-                <comment><![CDATA[Set the PayPal express button to a rounded shape]]></comment>
-                <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <label>Button Shape</label>
+                <comment><![CDATA[Configure your preferred shape for the PayPal Express button to be displayed.]]></comment>
+                <source_model>Buckaroo\Magento2\Model\Config\Source\PaypalButtonShape</source_model>
                 <config_path>payment/buckaroo_magento2_paypal/express_button_rounded</config_path>
             </field>
              <field id="express_button_preview" translate="label comment" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -21,11 +21,13 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Gateway\Http\Client\Json;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
+use Buckaroo\Magento2\Model\LockManagerWrapper;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Service\Order\CancelRemainingReservation;
 use Magento\Framework\App\State as AppState;
@@ -82,6 +84,11 @@ class OrderCancelAfter implements ObserverInterface
     private $paymentRepository;
 
     /**
+     * @var LockManagerWrapper
+     */
+    private LockManagerWrapper $lockManager;
+
+    /**
      * @param Json $client
      * @param Encryptor $encryptor
      * @param Account $configProviderAccount
@@ -90,6 +97,7 @@ class OrderCancelAfter implements ObserverInterface
      * @param AppState $appState
      * @param CancelRemainingReservation $cancelRemainingReservation
      * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param LockManagerWrapper $lockManager
      */
     public function __construct(
         Json $client,
@@ -99,9 +107,11 @@ class OrderCancelAfter implements ObserverInterface
         BuckarooLoggerInterface $logger,
         AppState $appState,
         CancelRemainingReservation $cancelRemainingReservation,
-        OrderPaymentRepositoryInterface $paymentRepository
+        OrderPaymentRepositoryInterface $paymentRepository,
+        LockManagerWrapper $lockManager
     ) {
         $this->paymentRepository = $paymentRepository;
+        $this->lockManager = $lockManager;
         $this->client                       = $client;
         $this->encryptor                    = $encryptor;
         $this->configProviderAccount        = $configProviderAccount;
@@ -130,7 +140,7 @@ class OrderCancelAfter implements ObserverInterface
         $this->markManualCancellationIfApplicable($payment, $order);
         $this->cancelRemainingReservation->execute($order);
 
-        $cancelPPE = $this->configProviderPPE->getCancelPpe();
+        $cancelPPE = $this->configProviderPPE->getCancelPpe($order->getStoreId());
 
         if ($cancelPPE && $payment->getMethod() == PayPerEmail::CODE) {
             try {
@@ -142,7 +152,11 @@ class OrderCancelAfter implements ObserverInterface
                     var_export([$originalKey], true),
                     $order->getId()
                 ));
-                $this->sendCancelResponse($originalKey, $order->getStoreId());
+                $this->sendCancelResponse(
+                    $originalKey,
+                    StoreId::normalize($order->getStoreId()),
+                    (string)$order->getIncrementId()
+                );
             } catch (\Exception $e) {
                 $this->logger->addError(sprintf(
                     '[CANCEL_ORDER - PayPerEmail] | [Observer] | [%s:%s] - Send Cancel Request for PPE | [ERROR]: %s',
@@ -196,19 +210,30 @@ class OrderCancelAfter implements ObserverInterface
     /**
      * Send the cancel request for the given transaction key to the payment engine.
      *
-     * @param mixed      $key
+     * @param mixed $key
      * @param null|mixed $storeId
+     * @param string $orderIncrementId
      *
+     * @return false|mixed
      * @throws \Exception
      */
-    private function sendCancelResponse($key, $storeId = null)
+    private function sendCancelResponse($key, $storeId, string $orderIncrementId)
     {
-        $active = $this->configProviderPPE->getActive();
+        $active = $this->configProviderPPE->getActive($storeId);
         $mode = ($active == Data::MODE_LIVE) ? Data::MODE_LIVE : Data::MODE_TEST;
 
         $secretKey = $this->encryptor->decrypt($this->configProviderAccount->getSecretKey($storeId));
         $websiteKey = $this->encryptor->decrypt($this->configProviderAccount->getMerchantKey($storeId));
 
-        return $this->client->doCancelRequest($key, $mode, $secretKey, $websiteKey);
+        // Buckaroo pushes the cancellation before it answers; when this runs inside a push that holds
+        // the order lock, the mark lets that push be refused at once instead of waiting for the lock.
+        $marked = $this->lockManager->markGatewayRequestStarted($orderIncrementId);
+        try {
+            return $this->client->doCancelRequest($key, $mode, $secretKey, $websiteKey);
+        } finally {
+            if ($marked) {
+                $this->lockManager->markGatewayRequestFinished($orderIncrementId);
+            }
+        }
     }
 }

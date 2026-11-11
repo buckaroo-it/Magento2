@@ -46,6 +46,7 @@ const priceMixinStub = {
     getProductTotalPrice: jest.fn().mockReturnValue(null),
     getProductTotalPriceWithShipping: jest.fn().mockReturnValue(null),
 };
+const restUrlStub = { createUrl: jest.fn((path) => '/rest/default/V1' + path) };
 
 const requireStub = function (deps, onLoad) {
     if (typeof onLoad === 'function') {
@@ -56,7 +57,7 @@ const requireStub = function (deps, onLoad) {
 // Load the module under test
 require('../pay.js');
 const pay = global.__payFactory(
-    jqueryStub, koStub, requireStub, urlStub, dataStub, translateStub, priceMixinStub
+    jqueryStub, koStub, requireStub, urlStub, dataStub, translateStub, priceMixinStub, restUrlStub
 );
 
 // ---------------------------------------------------------------------------

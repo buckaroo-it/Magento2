@@ -69,7 +69,7 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
      */
     public function validate($store = null): bool
     {
-        return $this->validator->validate($this->getData());
+        return $this->validator->validate($this->getData(), $store);
     }
 
     /**
@@ -101,9 +101,64 @@ class JsonPushRequest extends AbstractPushRequest implements PushRequestInterfac
             $propertyName = ucfirst($name);
             if (isset($this->request[$propertyName])) {
                 $result = $this->request[$propertyName];
+            } elseif (stripos($name, 'service') === 0) {
+                $result = $this->readServiceParameter(substr($name, strlen('service')));
             }
         }
         return $result;
+    }
+
+    /**
+     * Value of a service parameter, addressed as in an HTTP POST push.
+     *
+     * An HTTP POST push sends brq_SERVICE_klarnakp_CaptureId, read through
+     * getServiceKlarnakpCaptureid(). A JSON push nests the same value under
+     * Services[Name=KlarnaKp].Parameters[Name=CaptureId], so the getter is matched against the
+     * service and parameter names together.
+     *
+     * @param string $serviceAndParameter e.g. "KlarnakpCaptureid"
+     *
+     * @return string|null
+     */
+    private function readServiceParameter(string $serviceAndParameter): ?string
+    {
+        if ($serviceAndParameter === '' || !is_array($this->request['Services'] ?? null)) {
+            return null;
+        }
+
+        foreach ($this->request['Services'] as $service) {
+            $value = is_array($service) ? $this->findServiceParameter($service, $serviceAndParameter) : null;
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Value of the parameter of one service whose service and parameter names match.
+     *
+     * @param array  $service
+     * @param string $serviceAndParameter
+     *
+     * @return string|null
+     */
+    private function findServiceParameter(array $service, string $serviceAndParameter): ?string
+    {
+        if (!isset($service['Name']) || !is_array($service['Parameters'] ?? null)) {
+            return null;
+        }
+
+        foreach ($service['Parameters'] as $parameter) {
+            if (isset($parameter['Name'], $parameter['Value'])
+                && strcasecmp($service['Name'] . $parameter['Name'], $serviceAndParameter) === 0
+            ) {
+                return (string)$parameter['Value'];
+            }
+        }
+
+        return null;
     }
 
     /**

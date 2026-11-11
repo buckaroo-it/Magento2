@@ -58,6 +58,21 @@ namespace Buckaroo\Magento2\Api\Data {
 }
 
 namespace Buckaroo\Magento2\Api\Data\PaypalExpress {
+    if (!class_exists(\Buckaroo\Magento2\Api\Data\PaypalExpress\QuoteCreateResponseInterfaceFactory::class)) {
+        class QuoteCreateResponseInterfaceFactory
+        {
+            /**
+             * @param array $data
+             * @return QuoteCreateResponseInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+
     if (!class_exists(\Buckaroo\Magento2\Api\Data\PaypalExpress\OrderCreateResponseInterfaceFactory::class)) {
         class OrderCreateResponseInterfaceFactory
         {
@@ -75,6 +90,21 @@ namespace Buckaroo\Magento2\Api\Data\PaypalExpress {
 }
 
 namespace Buckaroo\Magento2\Model\PaypalExpress {
+    if (!class_exists(\Buckaroo\Magento2\Model\PaypalExpress\QuoteBuilderInterfaceFactory::class)) {
+        class QuoteBuilderInterfaceFactory
+        {
+            /**
+             * @param array $data
+             * @return QuoteBuilderInterface|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+
     if (!class_exists(\Buckaroo\Magento2\Model\PaypalExpress\OrderUpdateFactory::class)) {
         class OrderUpdateFactory
         {
@@ -208,6 +238,23 @@ namespace Magento\Customer\Model {
     }
 }
 
+namespace Magento\Customer\Model\ResourceModel {
+    if (!class_exists(\Magento\Customer\Model\ResourceModel\CustomerFactory::class)) {
+        class CustomerFactory
+        {
+            /**
+             * @param array $data
+             * @return Customer|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
 namespace Magento\Framework\DB {
     if (!class_exists(\Magento\Framework\DB\TransactionFactory::class)) {
         class TransactionFactory
@@ -244,6 +291,40 @@ namespace Magento\Quote\Model {
 
 namespace Magento\Tax\Model\ResourceModel\Sales\Order\Tax {
     if (!class_exists(\Magento\Tax\Model\ResourceModel\Sales\Order\Tax\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Sales\Model\ResourceModel\Order {
+    if (!class_exists(\Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class)) {
+        class CollectionFactory
+        {
+            /**
+             * @param array $data
+             * @return Collection|null
+             * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+             */
+            public function create(array $data = [])
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Magento\Sales\Model\ResourceModel\Order\Creditmemo {
+    if (!class_exists(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory::class)) {
         class CollectionFactory
         {
             /**

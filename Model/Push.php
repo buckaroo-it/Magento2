@@ -30,9 +30,15 @@ use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Service\Push\KlarnaMorDataRequestPushDetector;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Service\Store\StoreEmulator;
 
 class Push implements PushInterface
 {
+    /**
+     * How long a push waits for the order lock, in seconds.
+     */
+    private const LOCK_WAIT_SECONDS = 5;
+
     /**
      * @var BuckarooLoggerInterface $logger
      */
@@ -69,6 +75,11 @@ class Push implements PushInterface
     private KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector;
 
     /**
+     * @var StoreEmulator|null
+     */
+    private ?StoreEmulator $storeEmulator;
+
+    /**
      * @param BuckarooLoggerInterface           $logger
      * @param RequestPushFactory                $requestPushFactory
      * @param PushProcessorsFactory             $pushProcessorsFactory
@@ -76,6 +87,7 @@ class Push implements PushInterface
      * @param PushTransactionType               $pushTransactionType
      * @param LockManagerWrapper                $lockManager
      * @param KlarnaMorDataRequestPushDetector  $klarnaMorDataRequestPushDetector
+     * @param StoreEmulator|null                $storeEmulator
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -84,7 +96,8 @@ class Push implements PushInterface
         OrderRequestService $orderRequestService,
         PushTransactionType $pushTransactionType,
         LockManagerWrapper $lockManager,
-        KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector
+        KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector,
+        ?StoreEmulator $storeEmulator = null
     ) {
         $this->logger = $logger;
         $this->pushRequest = $requestPushFactory->create();
@@ -93,6 +106,7 @@ class Push implements PushInterface
         $this->pushTransactionType = $pushTransactionType;
         $this->lockManager = $lockManager;
         $this->klarnaMorDataRequestPushDetector = $klarnaMorDataRequestPushDetector;
+        $this->storeEmulator = $storeEmulator;
     }
 
     /**
@@ -135,7 +149,7 @@ class Push implements PushInterface
 
         $orderIncrementID = $order->getIncrementId();
         $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
-        $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
+        $lockAcquired = $this->acquireOrderLock($orderIncrementID);
 
         if (!$lockAcquired) {
             $this->logger->addDebug(__METHOD__ . '|lock not acquired|');
@@ -153,12 +167,8 @@ class Push implements PushInterface
                 throw new BuckarooException(__('Signature from push is incorrect'));
             }
 
-            // Get Push Transaction Type
-            $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequest, $order);
-
-            // Process Push
-            $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
-            return $pushProcessor->processPush($this->pushRequest);
+            // Process Push in the order's store scope
+            return $this->processPushInStoreScope($order);
         } catch (\Throwable $e) {
             $this->logger->addDebug(__METHOD__ . '|Exception|' . $e->getMessage());
             throw $e;
@@ -166,5 +176,93 @@ class Push implements PushInterface
             $this->lockManager->unlockOrder($orderIncrementID);
             $this->logger->addDebug(__METHOD__ . '|Lock released|');
         }
+    }
+
+    /**
+     * Run the push processor with the order's store emulated
+     *
+     * The push arrives on rest/V1/buckaroo/push, a REST route with no store code and no store
+     * cookie, so Magento\Webapi\Controller\PathProcessor never calls setCurrentStore() and the
+     * ambient store is the default store view of the default website. Everything the processor
+     * chain reads without an explicit store — order statuses, invoice handling, order and invoice
+     * emails, plus any third-party observer it triggers — would resolve against that store instead
+     * of the one the order was placed in.
+     *
+     * This mirrors how Magento itself crosses the same boundary (Order\Email\Sender\*,
+     * Order\Pdf\*, Payment\Helper\Data). It is a safety net, not a substitute for passing the
+     * store to a known reader.
+     *
+     * Emulation deliberately starts only after the signature has been validated: the SDK verifies
+     * the push against the URI built by UrlInterface::getDirectUrl(), and emulating a store with a
+     * different base URL would change that URI and break validation.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function processPushInStoreScope($order): bool
+    {
+        if ($this->storeEmulator === null) {
+            return $this->runPushProcessor($order);
+        }
+
+        return $this->storeEmulator->emulate(
+            $order->getStoreId(),
+            function () use ($order) {
+                return $this->runPushProcessor($order);
+            }
+        );
+    }
+
+    /**
+     * Resolve the push transaction type and hand the push to its processor
+     *
+     * @param \Magento\Sales\Model\Order $order
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    private function runPushProcessor($order): bool
+    {
+        $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequest, $order);
+        $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
+
+        return $pushProcessor->processPush($this->pushRequest);
+    }
+
+    /**
+     * Take the order lock, giving up at once when the holder is waiting for Buckaroo.
+     *
+     * Buckaroo sends the push for a transaction before it answers the request that started the
+     * transaction, and waits for the push response. Waiting for the lock that request holds can only
+     * end in the timeout, and keeps the shopper or the shipment waiting for it too. The push is
+     * refused instead, Buckaroo answers the request, and it sends the push again once the order is
+     * saved. Other holders of the lock only work on the order locally, so they are waited for.
+     *
+     * @param string $orderIncrementID
+     *
+     * @throws BuckarooException
+     *
+     * @return bool
+     */
+    private function acquireOrderLock(string $orderIncrementID): bool
+    {
+        for ($attempt = 0; $attempt < self::LOCK_WAIT_SECONDS; $attempt++) {
+            if ($this->lockManager->isGatewayRequestInProgress($orderIncrementID)) {
+                $this->logger->addDebug(__METHOD__ . '|order is waiting for a Buckaroo response|');
+                throw new BuckarooException(
+                    __('Order %1 is waiting for a Buckaroo response, send the push again later', $orderIncrementID)
+                );
+            }
+
+            if ($this->lockManager->lockOrder($orderIncrementID, 1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

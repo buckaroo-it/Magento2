@@ -227,7 +227,10 @@ define(
                     shipmentMethodCallback,
                     shippingContactCallback,
                     requiredBillingContactFields,
-                    requiredShippingContactFields
+                    requiredShippingContactFields,
+                    undefined,
+                    undefined,
+                    window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.supportedNetworks
                 );
             },
 
@@ -489,34 +492,47 @@ define(
                 };
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
-                    return $.ajax({
-                        url: urlBuilder.build('buckaroo/applepay/saveOrder'),
-                        type: 'POST',
-                        data: {
-                            payment: payment,
-                            extra: this.getData(payment)
-                        },
-                        global: false,
-                        dataType: 'json',
-                        async: false,
-                        dataFilter: function (data) {
-                            var result = JSON.parse(data);
-                            if (result.success === true) {
+                    var failureResult = {
+                        status: ApplePaySession.STATUS_FAILURE,
+                        errors: []
+                    };
+
+                    // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout
+                    return new Promise(function (resolve) {
+                        $.ajax({
+                            url: urlBuilder.build('buckaroo/applepay/saveOrder'),
+                            type: 'POST',
+                            data: {
+                                payment: payment,
+                                extra: this.getData(payment)
+                            },
+                            global: false,
+                            dataType: 'json',
+                            async: false
+                        }).done(function (result) {
+                            if (result && result.success === true) {
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
                                     this.timeoutRedirect(result.data.RequiredAction.RedirectURL);
                                 } else {
                                     this.timeoutRedirect();
                                 }
                                 this.payMode = '';
-                                return JSON.stringify(authorizationResult);
+                                resolve(authorizationResult);
+                                return;
+                            }
+
+                            if (result && typeof result.error === 'string' && result.error !== '') {
+                                // The order was not placed; keep the page so the shopper can read why and retry
+                                this.displayErrorMessage(result.error);
                             } else {
                                 this.timeoutRedirect();
                             }
-                        }.bind(this)
-                    })
-                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            resolve(failureResult);
+                        }.bind(this)).fail(function () {
                             this.timeoutRedirect();
+                            resolve(failureResult);
                         }.bind(this));
+                    }.bind(this));
                 } else {
                     this.transactionResult(payment);
                     return Promise.resolve(authorizationResult);
@@ -531,9 +547,24 @@ define(
                     "shippingMethod": this.selectedShippingMethod,
                     "additional_data": {
                         "applepayTransaction": transactionData,
+                        "applepayCardNetwork": this.getCardNetwork(payment),
                         "billingContact": payment && payment.billingContact ? JSON.stringify(payment.billingContact) : ''
                     }
                 };
+            },
+
+            /**
+             * Card network of the authorized Apple Pay payment, e.g. "Visa" or "MasterCard"
+             *
+             * @param {ApplePayPayment|null} payment
+             * @returns {string}
+             */
+            getCardNetwork: function (payment) {
+                if (!payment || !payment.token || !payment.token.paymentMethod) {
+                    return '';
+                }
+
+                return payment.token.paymentMethod.network || '';
             },
 
             formatTransactionResponse: function (response) {
@@ -716,7 +747,8 @@ define(
                 messageContainer.find('.buckaroo-applepay-error').remove();
 
                 // Create and show error message
-                var errorDiv = $('<div class="message message-error error buckaroo-applepay-error" style="margin: 10px 0; padding: 10px; background: #fff0f0; border: 1px solid #ff0000; color: #cc0000;"><div>' + message + '</div></div>');
+                var errorDiv = $('<div class="message message-error error buckaroo-applepay-error" style="margin: 10px 0; padding: 10px; background: #fff0f0; border: 1px solid #ff0000; color: #cc0000;"><div></div></div>');
+                errorDiv.children('div').text(message);
                 
                 if (messageContainer.is('body')) {
                     // If appending to body, position it fixed at the top

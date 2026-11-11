@@ -20,8 +20,6 @@
 
 namespace Buckaroo\Magento2\Model\Service;
 
-use Laminas\Stdlib\Parameters;
-
 use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Type\Onepage;
@@ -70,21 +68,29 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     /**
+     * @var BuyRequestFilter
+     */
+    private $buyRequestFilter;
+
+    /**
      * @param QuoteFactory               $quoteFactory
      * @param ProductRepositoryInterface $productRepository
      * @param DataObjectFactory          $dataObjectFactory
      * @param CustomerSession            $customer
+     * @param BuyRequestFilter           $buyRequestFilter
      */
     public function __construct(
         QuoteFactory $quoteFactory,
         ProductRepositoryInterface $productRepository,
         DataObjectFactory $dataObjectFactory,
-        CustomerSession $customer
+        CustomerSession $customer,
+        BuyRequestFilter $buyRequestFilter
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customer = $customer;
+        $this->buyRequestFilter = $buyRequestFilter;
     }
 
     /**
@@ -156,9 +162,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $formData)
     {
-        $parameters = new Parameters();
-        $parameters->fromString($formData);
-        $data = $parameters->toArray();
+        $data = $this->buyRequestFilter->fromFormString($formData);
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);

@@ -191,6 +191,22 @@ class PushTransactionTypeTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertSame('BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS', $instance->getStatusKey());
     }
 
+    public function testUnmatchedPushTypeKeepsAPendingStatusCode(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequest = $this->createPushRequest([
+            'getStatusCode' => '792',
+        ]);
+
+        $instance->getPushTransactionType($pushRequest, $this->createOrder('SAVED-CM3-KEY'));
+
+        $this->assertSame('', $instance->getPushType());
+        $this->assertSame(792, $instance->getStatusCode());
+        $this->assertSame('BUCKAROO_MAGENTO2_STATUSCODE_WAITING_ON_CONSUMER', $instance->getStatusKey());
+        $this->assertSame('Waiting on consumer action', $instance->getStatusMessage());
+    }
+
     public function testUnknownStatusCodeResolvesToNeutralKey(): void
     {
         $instance = $this->getInstance();

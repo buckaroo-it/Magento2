@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Block\Checkout;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Helper\Session\CurrentCustomer;
 use Magento\Framework\App\Http\Context as HttpContext;
@@ -112,7 +113,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
             return true;
         }
 
-        $showInstructions = $methodInstance->getConfigData('display_payment_instructions_success', $order->getStoreId());
+        $showInstructions = $methodInstance->getConfigData('display_payment_instructions_success', StoreId::normalize($order->getStoreId()));
 
         return $showInstructions === null || $showInstructions === '' || (bool)$showInstructions;
     }

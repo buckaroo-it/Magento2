@@ -432,6 +432,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         try {
             // Parse form data to get product ID and options
             $parameters = new Parameters();
+            // nosemgrep: buckaroo-buy-request-from-unfiltered-form-data -- read for validation only, QuoteBuilder filters
             $parameters->fromString($form_data);
             $data = $parameters->toArray();
 

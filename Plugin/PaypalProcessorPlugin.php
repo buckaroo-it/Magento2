@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 use Buckaroo\Magento2\Model\Push\DefaultProcessor;
 use Buckaroo\Magento2\Model\Push\PaypalProcessor;
@@ -67,9 +68,14 @@ class PaypalProcessorPlugin
         $pushRequest = $this->getProtectedProperty($subject, 'pushRequest');
         $order = $this->getProtectedProperty($subject, 'order');
 
-        if (!$this->configProviderPaypal->getSellersProtection()
-            || empty($pushRequest) || empty($order)
-        ) {
+        if (empty($pushRequest) || empty($order)) {
+            return $result;
+        }
+
+        // Seller Protection statuses are per store view; the push runs outside the order's store.
+        $storeId = StoreId::normalize($order->getStoreId());
+
+        if (!$this->configProviderPaypal->getSellersProtection($storeId)) {
             return $result;
         }
 
@@ -114,6 +120,8 @@ class PaypalProcessorPlugin
      */
     protected function handleEligibilityType($eligibilityType, $order)
     {
+        $storeId = StoreId::normalize($order->getStoreId());
+
         switch ($eligibilityType) {
             case self::ELIGIBILITY_TYPE_ELIGIBLE:
                 $comment = __(
@@ -121,22 +129,22 @@ class PaypalProcessorPlugin
                     . ' Not Received.'
                 );
 
-                $status = $this->configProviderPaypal->getSellersProtectionEligible();
+                $status = $this->configProviderPaypal->getSellersProtectionEligible($storeId);
                 break;
             case self::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED:
                 $comment = __('Merchant is protected by Paypal Seller Protection Policy for Item Not Received.');
 
-                $status = $this->configProviderPaypal->getSellersProtectionItemnotreceivedEligible();
+                $status = $this->configProviderPaypal->getSellersProtectionItemnotreceivedEligible($storeId);
                 break;
             case self::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT:
                 $comment = __('Merchant is protected by Paypal Seller Protection Policy for Unauthorized Payment.');
 
-                $status = $this->configProviderPaypal->getSellersProtectionUnauthorizedpaymentEligible();
+                $status = $this->configProviderPaypal->getSellersProtectionUnauthorizedpaymentEligible($storeId);
                 break;
             case self::ELIGIBILITY_TYPE_NONE:
                 $comment = __('Merchant is not protected under the Seller Protection Policy.');
 
-                $status = $this->configProviderPaypal->getSellersProtectionIneligible();
+                $status = $this->configProviderPaypal->getSellersProtectionIneligible($storeId);
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid eligibility type(s): ' . $eligibilityType);

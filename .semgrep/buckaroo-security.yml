@@ -100,3 +100,19 @@ rules:
       This grid column renders its value as raw HTML (ui/grid/cells/html). Ensure the
       backing column class escapes any request- or gateway-derived content before display.
     pattern: ui/grid/cells/html
+
+  # ---------------------------------------------------------------------------
+  # Product form data parsed by hand should go through BuyRequestFilter, so
+  # express quotes are built from the same fields as a regular add-to-cart.
+  # ---------------------------------------------------------------------------
+  - id: buckaroo-buy-request-from-unfiltered-form-data
+    languages: [php]
+    severity: ERROR
+    paths:
+      exclude:
+        - "**/Model/Service/BuyRequestFilter.php"
+    message: >-
+      Form data is parsed here without BuyRequestFilter. Use
+      BuyRequestFilter::fromFormString() to build the buy request.
+    pattern: |
+      $P->fromString(...);

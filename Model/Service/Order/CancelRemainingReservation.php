@@ -63,8 +63,8 @@ class CancelRemainingReservation
     private ReservationCancellationState $cancellationState;
 
     /**
-     * @param CommandManagerInterface  $klarnaCommandManager
-     * @param CommandManagerInterface  $klarnaKpCommandManager
+     * @param CommandManagerInterface      $klarnaCommandManager
+     * @param CommandManagerInterface      $klarnaKpCommandManager
      * @param PaymentDataObjectFactory     $paymentDataObjectFactory
      * @param BuckarooLoggerInterface      $logger
      * @param ReservationCancellationState $cancellationState

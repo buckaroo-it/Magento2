@@ -20,6 +20,7 @@
 
 namespace Buckaroo\Magento2\Observer;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\Event\Observer;
@@ -139,7 +140,7 @@ class SendOrderConfirmation implements ObserverInterface
     private function processOrderEmailSending($order, $methodInstance): void
     {
         $sendOrderConfirmationEmail = $this->accountConfig->getOrderConfirmationEmail($order->getStore())
-            || $methodInstance->getConfigData('order_email', $order->getStoreId());
+            || $methodInstance->getConfigData('order_email', StoreId::normalize($order->getStoreId()));
 
         $createOrderBeforeTransaction = $this->accountConfig->getCreateOrderBeforeTransaction($order->getStore());
 

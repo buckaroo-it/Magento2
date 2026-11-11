@@ -175,7 +175,6 @@ define(
                     country: '',
                     customerCoc: '',
                     dateValidate: null,
-                    termsSelected: true,
                     identificationValidate: null,
                     phone: null,
                     showIdentification: false,
@@ -186,35 +185,15 @@ define(
                 isCustomerLoggedIn: customer.isLoggedIn,
                 dp: datePicker,
 
-                getMessageText: function () {
-                    return $.mage
-                        .__('Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt, voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt maken van de diensten van ' +
-                            window.checkoutConfig.payment.buckaroo.buckaroo_magento2_afterpay20.title +
-                            '. Door verder te gaan, accepteer je de <a target="_blank" href="%s">Algemene&nbsp;Voorwaarden</a> en bevestig je dat je de <a target="_blank" href="%f">Privacyverklaring</a> en <a target="_blank" href="%c">Cookieverklaring</a> hebt gelezen.')
-                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/default')
-                        .replace('%f', 'https://www.riverty.com/nl-nl/privacybeleid/')
-                        .replace('%c', 'https://www.riverty.com/nl-nl/cookies/');
-                },
-
                 initObservable: function () {
                     this._super().observe(
                         [
                             'dateValidate',
-                            'termsSelected',
                             'identificationValidate',
                             'phone',
                             'customerCoc',
                             'value'
                         ]
-                    );
-
-                    this.showFinancialWarning = ko.computed(
-                        function () {
-                            return quote.billingAddress() !== null &&
-                                quote.billingAddress().countryId == 'NL' &&
-                                this.buckaroo.showFinancialWarning
-                        },
-                        this
                     );
 
                     this.activeAddress = ko.computed(
@@ -269,20 +248,6 @@ define(
                     this.showIdentification = ko.computed(
                         function () {
                             return this.country() === 'FI';
-                        },
-                        this
-                    );
-
-                    this.showFrenchTos = ko.computed(
-                        function () {
-                            return this.country() === 'BE'
-                        },
-                        this
-                    );
-
-                    this.termsUrl = ko.computed(
-                        function () {
-                            return this.getTermsUrl(this.country(), this.showCOC());
                         },
                         this
                     );
@@ -356,53 +321,9 @@ define(
                             "customer_telephone": this.phone(),
                             "customer_identificationNumber": this.identificationValidate(),
                             "customer_DoB": this.dateValidate(),
-                            "termsCondition": this.termsSelected(),
                             "customer_coc": this.customerCoc(),
                         }
                     };
-                },
-
-                getTermsUrl: function (country, b2b) {
-                    let lang = 'nl_nl';
-                    let url = 'https://documents.riverty.com/terms_conditions/payment_methods/invoice';
-                    const cc = country.toLowerCase()
-
-                    if (b2b === false) {
-                        if (country === 'BE') {
-                            lang = 'be_nl';
-                        }
-
-                        if (['NL', 'DE'].indexOf(country) !== -1) {
-                            lang = `${cc}_${cc}`;
-                        }
-
-                        if (['AT', 'CH'].indexOf(country) !== -1) {
-                            const cc = country.toLowerCase()
-                            lang = `${cc}_de`;
-                        }
-
-                        if (['DK', 'FI', 'SE', 'NO'].indexOf(country) !== -1) {
-                            const cc = country.toLowerCase()
-                            lang = `${cc}_en`;
-                        }
-                    } else {
-                        url = 'https://documents.riverty.com/terms_conditions/payment_methods/b2b_invoice';
-                        if (['NL', 'DE'].indexOf(country) !== -1) {
-                            lang = `${cc}_${cc}`;
-                        }
-
-                        if (['AT', 'CH'].indexOf(country) !== -1) {
-                            lang = `${cc}_de`;
-                        }
-                    }
-
-                    return `${url}/${lang}/`;
-                },
-
-                getFrenchTos: function () {
-                    return $.mage
-                        .__('(Or click here for the French translation: <a target="_blank" href="%s">terms and conditions</a>.)')
-                        .replace('%s', 'https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_fr/');
                 },
 
                 isOsc: function () {
