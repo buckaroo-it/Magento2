@@ -14,6 +14,7 @@
 namespace Buckaroo\Magento2\Service\CreditManagement\ServiceParameters;
 
 use Buckaroo\Magento2\Exception;
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Cm3ConfigProviderInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
@@ -74,30 +75,35 @@ class CreateCombinedInvoice
 
         $this->configProvider = $configProvider;
 
-        if (!$this->configProvider->getActiveStatusCm3()) {
-            return [];
-        }
-
         if (!$payment instanceof Payment) {
             throw new Exception(__('Credit Management requires an order payment.'));
+        }
+
+        // Credit Management is configurable per store view, so every read below is scoped to the
+        // store the order was placed in rather than to whatever store the request resolved to.
+        $storeId = StoreId::normalize($payment->getOrder()->getStoreId());
+
+        if (!$this->configProvider->getActiveStatusCm3($storeId)) {
+            return [];
         }
 
         return [
             'Name'             => 'CreditManagement3',
             'Action'           => 'CreateCombinedInvoice',
             'Version'          => 1,
-            'RequestParameter' => $this->getCmRequestParameters($payment)
+            'RequestParameter' => $this->getCmRequestParameters($payment, $storeId)
         ];
     }
 
     /**
      * Get debtor details
      *
-     * @param Payment $payment
+     * @param Payment  $payment
+     * @param int|null $storeId
      *
      * @return array
      */
-    private function getCmRequestParameters(Payment $payment)
+    private function getCmRequestParameters(Payment $payment, ?int $storeId = null)
     {
         $order = $payment->getOrder();
 
@@ -122,7 +128,7 @@ class CreateCombinedInvoice
             ];
         }
 
-        $ungroupedParameters = $this->getUngroupedCmParameters($order);
+        $ungroupedParameters = $this->getUngroupedCmParameters($order, $storeId);
         $requestParameters = array_merge($requestParameters, $ungroupedParameters);
 
         $personParameters = $this->getPersonCmParameters($payment);
@@ -140,11 +146,12 @@ class CreateCombinedInvoice
     /**
      * Get invoice data
      *
-     * @param Order $order
+     * @param Order    $order
+     * @param int|null $storeId
      *
      * @return array
      */
-    private function getUngroupedCmParameters($order)
+    private function getUngroupedCmParameters($order, ?int $storeId = null)
     {
         $ungroupedParameters = [
             [
@@ -160,26 +167,26 @@ class CreateCombinedInvoice
                 'Name' => 'InvoiceDate',
             ],
             [
-                '_'    => $this->getDueDate(),
+                '_'    => $this->getDueDate($storeId),
                 'Name' => 'DueDate',
             ],
             [
-                '_'    => $this->configProvider->getSchemeKey(),
+                '_'    => $this->configProvider->getSchemeKey($storeId),
                 'Name' => 'SchemeKey',
             ],
             [
-                '_'    => $this->configProvider->getMaxStepIndex(),
+                '_'    => $this->configProvider->getMaxStepIndex($storeId),
                 'Name' => 'MaxStepIndex',
             ],
             [
-                '_'    => $this->getAllowedServices($order->getPayment()),
+                '_'    => $this->getAllowedServices($order->getPayment(), $storeId),
                 'Name' => 'AllowedServices',
             ]
         ];
 
-        if ($this->configProvider->getPaymentMethodAfterExpiry()) {
+        if ($this->configProvider->getPaymentMethodAfterExpiry($storeId)) {
             $ungroupedParameters[] = [
-                '_'    => $this->configProvider->getPaymentMethodAfterExpiry(),
+                '_'    => $this->configProvider->getPaymentMethodAfterExpiry($storeId),
                 'Name' => 'AllowedServicesAfterDueDate',
             ];
         }
@@ -195,11 +202,13 @@ class CreateCombinedInvoice
      * date simply means "due today" instead of handing strtotime()'s false to
      * date().
      *
+     * @param int|null $storeId
+     *
      * @return string
      */
-    private function getDueDate(): string
+    private function getDueDate(?int $storeId = null): string
     {
-        $dueDays = max(0, (int)$this->configProvider->getCm3DueDate());
+        $dueDays = max(0, (int)$this->configProvider->getCm3DueDate($storeId));
 
         return date('Y-m-d', (int)strtotime(sprintf('+%d day', $dueDays), time()));
     }
@@ -208,12 +217,12 @@ class CreateCombinedInvoice
      * Get allowed services
      *
      * @param OrderPaymentInterface|InfoInterface $payment
-     *
+     * @param int|null $storeId
      * @return string
      */
-    private function getAllowedServices($payment): string
+    private function getAllowedServices($payment, ?int $storeId = null): string
     {
-        $allowedServices = $this->configProvider->getPaymentMethod();
+        $allowedServices = $this->configProvider->getPaymentMethod($storeId);
 
         if (!is_string($allowedServices)) {
             return '';

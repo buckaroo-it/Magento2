@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Request\Recipient;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\Config\Source\AfterpayCustomerType;
 use Buckaroo\Resources\Constants\Gender;
 use Buckaroo\Resources\Constants\RecipientCategory;
@@ -103,7 +104,7 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
         if ($payment->getAdditionalInformation('selectedBusiness') == self::BUSINESS_METHOD_B2B) {
             $category = RecipientCategory::COMPANY;
         } else {
-            if ($this->isCustomerB2B($order->getStoreId()) &&
+            if ($this->isCustomerB2B(StoreId::normalize($order->getStoreId())) &&
                 !$this->isCompanyEmpty($billingAddress->getCompany())
             ) {
                 $category = RecipientCategory::COMPANY;
@@ -140,7 +141,7 @@ class AfterpayOldDataBuilder extends AbstractRecipientDataBuilder
     public function getConfigData(string $field, $storeId = null)
     {
         if (null === $storeId) {
-            $storeId = $this->getOrder()->getStoreId();
+            $storeId = $this->getStoreId();
         }
         $path = 'payment/' . $this->getPayment()->getMethodInstance()->getCode() . '/' . $field;
         return $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);

@@ -19,6 +19,7 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
 use Magento\Quote\Model\MaskedQuoteIdToQuoteId;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -41,6 +42,11 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @var \Magento\Quote\Model\MaskedQuoteIdToQuoteId
      */
     protected $maskedQuoteIdToQuoteId;
+
+    /**
+     * @var ChangeQuoteControlInterface
+     */
+    private $changeQuoteControl;
 
     /**
      * @var \Magento\Quote\Api\CartManagementInterface
@@ -88,6 +94,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param OrderUpdateFactory $orderUpdateFactory
      * @param Log $logger
+     * @param ChangeQuoteControlInterface $changeQuoteControl
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
@@ -98,7 +106,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
         OrderUpdateFactory $orderUpdateFactory,
-        Log $logger
+        Log $logger,
+        ChangeQuoteControlInterface $changeQuoteControl
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteManagement = $quoteManagement;
@@ -109,6 +118,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->orderRepository = $orderRepository;
         $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
+        $this->changeQuoteControl = $changeQuoteControl;
     }
 
     /**
@@ -199,21 +209,34 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     private function setPendingFieldsOnAddress($address)
     {
-        if (!$address->getFirstname()) {
+        if ($this->isBlank($address->getFirstname())) {
             $address->setFirstname('PayPal');
         }
-        if (!$address->getLastname()) {
+        if ($this->isBlank($address->getLastname())) {
             $address->setLastname('Customer');
         }
-        if (!$address->getStreet() || empty($address->getStreet()[0])) {
+        if ($this->isBlank(implode('', (array)$address->getStreet()))) {
             $address->setStreet(['Pending']);
         }
-        if (!$address->getTelephone()) {
+        if ($this->isBlank($address->getTelephone())) {
             $address->setTelephone('000-000-0000');
         }
-        if (!$address->getEmail()) {
+        if ($this->isBlank($address->getEmail())) {
             $address->setEmail('pending@paypal.customer');
         }
+    }
+
+    /**
+     * Whether Magento's address validation treats the value as empty.
+     *
+     * The validation trims before it checks, so a value of only spaces is empty too.
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    private function isBlank($value): bool
+    {
+        return trim((string)$value) === '';
     }
 
     /**
@@ -301,9 +324,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     protected function updateOrder(OrderInterface $order)
     {
+        $isGuest = (bool)$order->getCustomerIsGuest();
         $orderUpdateService = $this->orderUpdateFactory->create();
-        $orderUpdateService->updateAddress($order->getShippingAddress());
-        $orderUpdateService->updateAddress($order->getBillingAddress());
+        $orderUpdateService->updateAddress($order->getShippingAddress(), $isGuest);
+        $orderUpdateService->updateAddress($order->getBillingAddress(), $isGuest);
         $orderUpdateService->updateEmail($order);
         $orderUpdateService->updateCustomerName($order);
         $this->orderRepository->save($order);
@@ -356,6 +380,13 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $quote = $this->quoteRepository->get(
             $this->maskedQuoteIdToQuoteId->execute($cart_id)
         );
+
+        if (!$this->changeQuoteControl->isAllowed($quote)) {
+            throw new NoSuchEntityException(
+                __('No such entity with cartId = %1', $cart_id)
+            );
+        }
+
         return $quote;
     }
 }

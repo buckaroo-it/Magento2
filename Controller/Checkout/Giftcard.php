@@ -17,19 +17,20 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Phrase;
 use Magento\Quote\Model\Quote;
 
-class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionInterface
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class Giftcard extends Action implements HttpPostActionInterface
 {
     /**
      * @var BuckarooLoggerInterface
@@ -52,24 +53,32 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     protected $checkoutSession;
 
     /**
+     * @var AttemptLimit
+     */
+    private $attemptLimit;
+
+    /**
      * @param Context                 $context
      * @param Session                 $checkoutSession
      * @param GiftcardInterface       $giftcardRequest
      * @param GiftcardResponse        $giftcardResponse
      * @param BuckarooLoggerInterface $logger
+     * @param AttemptLimit            $attemptLimit
      */
     public function __construct(
         Context $context,
         Session $checkoutSession,
         GiftcardInterface $giftcardRequest,
         GiftcardResponse $giftcardResponse,
-        BuckarooLoggerInterface $logger
+        BuckarooLoggerInterface $logger,
+        AttemptLimit $attemptLimit
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->logger = $logger;
+        $this->attemptLimit = $attemptLimit;
     }
 
     /**
@@ -99,11 +108,17 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
 
         try {
             $quote = $this->checkoutSession->getQuote();
+            $this->attemptLimit->assertWithinLimit($quote);
 
-            return $this->getGiftcardResponse(
-                $quote,
-                $this->build($quote)->send()
-            );
+            try {
+                return $this->getGiftcardResponse(
+                    $quote,
+                    $this->build($quote)->send()
+                );
+            } catch (ApiException $inner) {
+                $this->attemptLimit->registerFailedAttempt($quote);
+                throw $inner;
+            }
         } catch (ApiException $th) {
             $this->logger->addError(sprintf(
                 '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
@@ -126,7 +141,7 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
     /**
      * Return response with error message
      *
-     * @param Phrase|string $message
+     * @param \Magento\Framework\Phrase|string $message
      *
      * @return Json
      */
@@ -145,7 +160,7 @@ class Giftcard extends Action implements HttpPostActionInterface, HttpGetActionI
      * @param Quote               $quote
      * @param TransactionResponse $response
      *
-     * @throws ApiException|LocalizedException
+     * @throws ApiException|\Magento\Framework\Exception\LocalizedException
      *
      * @return Json
      */

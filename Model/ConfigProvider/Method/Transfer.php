@@ -22,6 +22,7 @@ class Transfer extends AbstractConfigProvider implements Cm3ConfigProviderInterf
 
     public const XPATH_TRANSFER_PAYMENT_METHOD_LOGO = 'payment_method_logo';
     public const XPATH_TRANSFER_DUE_DATE = 'due_date';
+    public const XPATH_TRANSFER_PAYMENT_INSTRUCTION_EMAIL = 'payment_instruction_email';
 
     public const XPATH_TRANSFER_ACTIVE_STATUS_CM3           = 'active_status_cm3';
     public const XPATH_TRANSFER_SCHEME_KEY                  = 'scheme_key';
@@ -42,7 +43,7 @@ class Transfer extends AbstractConfigProvider implements Cm3ConfigProviderInterf
         }
 
         return $this->fullConfig([
-            'sendEmail' => $this->hasOrderEmail(),
+            'sendEmail' => $this->hasPaymentInstructionEmail(),
         ]);
     }
 
@@ -99,6 +100,20 @@ class Transfer extends AbstractConfigProvider implements Cm3ConfigProviderInterf
     public function getDueDate($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_TRANSFER_DUE_DATE, $store);
+    }
+
+    /**
+     * Check if Buckaroo should email the customer the bank transfer payment instructions
+     *
+     * Separate from the order confirmation email (order_email), which Magento sends.
+     *
+     * @param null|int|string $store
+     *
+     * @return bool
+     */
+    public function hasPaymentInstructionEmail($store = null): bool
+    {
+        return (bool)$this->getMethodConfigValue(self::XPATH_TRANSFER_PAYMENT_INSTRUCTION_EMAIL, $store);
     }
 
     /**

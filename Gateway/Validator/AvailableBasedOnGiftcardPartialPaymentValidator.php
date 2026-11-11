@@ -34,6 +34,7 @@ class AvailableBasedOnGiftcardPartialPaymentValidator extends AbstractValidator
         'transfer',
         'sepadirectdebit',
         'capayablein3',
+        'zakelijkoprekening',
         'creditcard',
         'mrcash',
         'payperemail',

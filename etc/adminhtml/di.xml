@@ -19,4 +19,13 @@
         <plugin name="Buckaroo_Magento2::pluginBefore" type="Buckaroo\Magento2\Plugin\PluginBefore" />
         <plugin name="Buckaroo_Magento2::addExtendReservationButton" type="Buckaroo\Magento2\Plugin\AddExtendReservationButton" />
     </type>
+
+    <!-- Tell the merchant when iDIN is enabled for a store view whose checkout has no iDIN step -->
+    <type name="Magento\Framework\Notification\MessageList">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="buckaroo_idin_checkout_step_missing" xsi:type="string">Buckaroo\Magento2\Model\System\Message\IdinCheckoutStepMissing</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

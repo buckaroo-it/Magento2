@@ -130,7 +130,11 @@ class RefundPendingApprovalValidator extends AbstractValidator
                 $transactionKeysArray
             );
 
-            if ($this->refundConfigProvider->getPendingApprovalSetting() == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
+            $pendingApprovalSetting = $this->refundConfigProvider->getPendingApprovalSetting(
+                $order->getStoreId()
+            );
+
+            if ($pendingApprovalSetting == RefundConfigProvider::PENDING_REFUND_ON_APPROVE) {
                 $creditmemo = $this->getCreditmemo();
                 $creditmemoItems = $creditmemo->getAllItems();
 

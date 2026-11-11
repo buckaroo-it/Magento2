@@ -85,7 +85,7 @@ class GetShippingMethods extends AbstractGooglepay
             $this->initializeQuote($postValues, $addressData);
 
             $shippingAddressRequest = $this->googlepayFormatData->getShippingAddressObject($addressData);
-            $this->quoteService->addAddressToQuote($shippingAddressRequest);
+            $this->quoteService->addAddressToQuote($shippingAddressRequest, true);
             $this->quoteService->setPaymentMethod(Googlepay::CODE);
 
             $shippingMethodsResult = $this->getShippingMethodsForQuote();
@@ -129,14 +129,11 @@ class GetShippingMethods extends AbstractGooglepay
      */
     private function initializeQuote(array $postValues, array $addressData)
     {
-        $cartHash = $postValues['id'] ?? null;
-
-        if (!$cartHash && isset($postValues['product'])) {
+        if (isset($postValues['product'])) {
             $this->createQuoteWithProduct($postValues['product'], $addressData);
-            $this->quoteService->getQuote();
-        } else {
-            $this->quoteService->getQuote($cartHash);
         }
+
+        $this->quoteService->getQuote();
     }
 
     /**

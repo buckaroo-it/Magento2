@@ -12,6 +12,7 @@
  */
 namespace Buckaroo\Magento2\Block\Config\Form\Field;
 
+use Buckaroo\Magento2\Model\Config\Source\PaypalButtonShape;
 use Buckaroo\Magento2\Model\Config\Source\PaypalButtonStyle;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
@@ -72,7 +73,8 @@ class PaypalButton extends Field
      */
     public function getButtonShape(): string
     {
-        return $this->shapeElement->getDataByKey('value') ?? "0";
+        return $this->shapeElement->getDataByKey('value')
+            ?? (string)PaypalButtonShape::SHAPE_RECTANGULAR;
     }
 
     /**

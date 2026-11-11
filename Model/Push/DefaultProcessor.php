@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Push;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Helper\Data;
@@ -35,6 +36,7 @@ use Buckaroo\Magento2\Model\GroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Exception;
@@ -208,6 +210,11 @@ class DefaultProcessor implements PushProcessorInterface
     protected $escaper;
 
     /**
+     * @var UninvoicedCaptures
+     */
+    protected $uninvoicedCaptures;
+
+    /**
      * Constructor
      *
      * @param OrderRequestService $orderRequestService
@@ -232,6 +239,7 @@ class DefaultProcessor implements PushProcessorInterface
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -256,7 +264,8 @@ class DefaultProcessor implements PushProcessorInterface
         TransactionRepositoryInterface                           $transactionRepository,
         SearchCriteriaBuilder                                    $searchCriteriaBuilder,
         OrderManagementInterface                                 $orderManagement,
-        Escaper                                                  $escaper
+        Escaper                                                  $escaper,
+        UninvoicedCaptures                                       $uninvoicedCaptures
     ) {
         $this->pushTransactionType = $pushTransactionType;
         $this->orderRequestService = $orderRequestService;
@@ -281,6 +290,7 @@ class DefaultProcessor implements PushProcessorInterface
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->orderManagement = $orderManagement;
         $this->escaper = $escaper;
+        $this->uninvoicedCaptures = $uninvoicedCaptures;
     }
 
     /**
@@ -435,12 +445,18 @@ class DefaultProcessor implements PushProcessorInterface
     /**
      * Check whether this push reports a capture.
      *
-     * A capture is either a capture Magento itself initiated, or a Klarna capture confirmation.
-     * The gateway's transaction_type codes are per card brand (C800 visa, C805 mastercard,
-     * C811 maestro), so they do not identify an action, and mutationtype=Collecting is present on
-     * every money-in push including ordinary pay pushes - neither can be used to detect a capture.
+     * A capture is one Magento itself initiated, a Klarna capture confirmation, or a capture
+     * started in Buckaroo Plaza. Plaza does not send service_action_from_magento=capture: it
+     * collects a new transaction on an order that is already authorized.
+     *
+     * transaction_type is per card brand, and mutationtype=Collecting is also sent for ordinary
+     * pay pushes, so the Plaza check also requires payment action "authorize" and a different
+     * transaction key than the stored authorization.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function isCaptureTransaction(): bool
     {
@@ -450,9 +466,30 @@ class DefaultProcessor implements PushProcessorInterface
             return true;
         }
 
-        return $this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
+        if ($this->pushRequest->hasPostData('transaction_method', ['klarnakp', 'KlarnaKp'])
             && !empty($this->pushRequest->getServiceKlarnakpCaptureid())
-            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS);
+            && ((int)$this->pushRequest->getStatusCode() === $this->buckarooStatusCode::SUCCESS)
+        ) {
+            return true;
+        }
+
+        if ($this->order === null || $this->payment === null) {
+            return false;
+        }
+
+        $captureKey = (string)$this->pushRequest->getTransactions();
+        $authorizationKey = (string)$this->payment->getAdditionalInformation(
+            BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
+        );
+
+        return $captureKey !== ''
+            && $authorizationKey !== ''
+            && $captureKey !== $authorizationKey
+            && $this->order->getState() === Order::STATE_PROCESSING
+            && (float)$this->order->getTotalDue() > 0
+            && (int)$this->pushRequest->getStatusCode() === BuckarooStatusCode::SUCCESS
+            && $this->pushRequest->hasPostData('mutationtype', ['Collecting', 'collecting'])
+            && $this->payment->getMethodInstance()->getConfigData('payment_action') === 'authorize';
     }
 
     /**
@@ -1065,7 +1102,20 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         // Fall back to general account config if method-specific setting not configured
-        return $this->configAccount->getInvoiceHandling();
+        return $this->configAccount->getInvoiceHandling($this->getOrderStoreId());
+    }
+
+    /**
+     * Get the store of the order being pushed, for scoping configuration reads.
+     *
+     * A push runs on the REST route without a store code, so the ambient store is the default
+     * store view. Every configuration read in a processor has to be given this instead.
+     *
+     * @return int|null
+     */
+    protected function getOrderStoreId(): ?int
+    {
+        return $this->order !== null ? StoreId::normalize($this->order->getStoreId()) : null;
     }
 
     /**
@@ -1139,8 +1189,11 @@ class DefaultProcessor implements PushProcessorInterface
             $payment->setAdditionalInformation('buckaroo_capture_transaction_key', $transactionKey);
         }
 
+        // Invoices created later draw on this instead of capturing the same money again.
+        $this->uninvoicedCaptures->record($payment, (string)$transactionKey, $captureAmount);
+
         // These fields are required for Magento to allow invoice creation later
-        $payment->setBaseAmountPaidOnline($captureAmount);
+        $payment->setBaseAmountPaidOnline((float)$payment->getBaseAmountPaidOnline() + $captureAmount);
 
         // Calculate amounts - handle null values from first payment
         $baseAmountPaid = (float)$payment->getBaseAmountPaid() ?: 0;
@@ -1515,7 +1568,10 @@ class DefaultProcessor implements PushProcessorInterface
             return $this->processPendingPaymentPush($newStatus, $statusMessage);
         }
 
-        $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        if ((int)$this->pushTransactionType->getStatusCode() !== 0) {
+            $this->orderRequestService->setOrderNotificationNote($statusMessage);
+        }
+
         return true;
     }
 
@@ -1623,21 +1679,7 @@ class DefaultProcessor implements PushProcessorInterface
             // payment review. Forcing STATE_PROCESSING here would hide that: the order would read as
             // paid while no invoice exists and the full amount is still due.
             if ($this->payment->getIsFraudDetected()) {
-                $this->logger->addDebug(sprintf(
-                    '[%s:%s] - CAPTURE_FRAUD_DETECTED - keeping order in payment review | order: %s',
-                    __METHOD__,
-                    __LINE__,
-                    $this->order->getIncrementId()
-                ));
-
-                $this->orderRequestService->updateOrderStatus(
-                    Order::STATE_PAYMENT_REVIEW,
-                    Order::STATUS_FRAUD,
-                    $description
-                );
-                $this->dontSaveOrderUponSuccessPush = true;
-
-                return true;
+                return $this->keepOrderInPaymentReview($description);
             }
 
             $this->orderRequestService->updateOrderStatus(
@@ -1663,12 +1705,51 @@ class DefaultProcessor implements PushProcessorInterface
         // Apply and save single giftcard metadata before order status update (redirect payment path)
         $this->applyAndSavePendingSingleGiftcardInfo('redirect');
 
+        // Same as for a capture: a payment that does not settle the order leaves no invoice and the
+        // payment flagged, so the order must not move to processing.
+        if ($this->payment->getIsFraudDetected()) {
+            return $this->keepOrderInPaymentReview(
+                'Payment status : <strong>' . $message . '</strong><br/>'
+                . 'The received amount of '
+                . $this->formatCommentAmount((float)$this->pushRequest->getAmount(), $this->getPaymentCurrencyCode())
+                . ' does not settle the order. The order is held for review.'
+            );
+        }
+
         $this->orderRequestService->updateOrderStatus(
             $paymentDetails['state'],
             $paymentDetails['newStatus'],
             $paymentDetails['description']
         );
         // updateOrderStatus persisted the order; skip the final save in processPush
+        $this->dontSaveOrderUponSuccessPush = true;
+
+        return true;
+    }
+
+    /**
+     * Keep the order in payment review after Magento flagged the payment as suspected fraud.
+     *
+     * @param string $description
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    private function keepOrderInPaymentReview(string $description): bool
+    {
+        $this->logger->addDebug(sprintf(
+            '[%s:%s] - FRAUD_DETECTED - keeping order in payment review | order: %s',
+            __METHOD__,
+            __LINE__,
+            $this->order->getIncrementId()
+        ));
+
+        $this->orderRequestService->updateOrderStatus(
+            Order::STATE_PAYMENT_REVIEW,
+            Order::STATUS_FRAUD,
+            $description
+        );
         $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
@@ -1830,7 +1911,7 @@ class DefaultProcessor implements PushProcessorInterface
         $capturedAmount = $this->pushRequest->getAmount();
 
         if ($isSameCurrency && !empty($capturedAmount)) {
-            return (float)$capturedAmount;
+            return $this->toBaseCurrencyAmount((float)$capturedAmount);
         }
 
         if ($isSameCurrency && $this->payment->isCaptureFinal($this->order->getGrandTotal())) {
@@ -1838,6 +1919,47 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return (float)$this->order->getBaseTotalDue();
+    }
+
+    /**
+     * Express a pushed amount in the base currency, in which Magento registers captures.
+     *
+     * Buckaroo charges and reports the order currency. A payment covering the amount due in that
+     * currency settles the base amount due; a smaller one is converted at the order's rate. An
+     * amount in a currency that is neither the order's nor the base currency counts for nothing.
+     *
+     * @param float $amount
+     *
+     * @return float
+     */
+    private function toBaseCurrencyAmount(float $amount): float
+    {
+        $currency = strtoupper((string)$this->pushRequest->getCurrency());
+        $baseCurrency = strtoupper((string)$this->order->getBaseCurrencyCode());
+
+        if ($currency === '' || $currency === $baseCurrency) {
+            return $amount;
+        }
+
+        if ($currency !== strtoupper((string)$this->order->getOrderCurrencyCode())) {
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Push currency %s matches neither the order nor the base currency | order: %s',
+                __METHOD__,
+                __LINE__,
+                $currency,
+                $this->order->getIncrementId()
+            ));
+
+            return 0.0;
+        }
+
+        if ($this->helper->areEqualAmounts($amount, (float)$this->order->getTotalDue())) {
+            return (float)$this->order->getBaseTotalDue();
+        }
+
+        $rate = (float)$this->order->getBaseToOrderRate();
+
+        return $rate > 0 ? round($amount / $rate, 2) : 0.0;
     }
 
     /**
@@ -1908,6 +2030,7 @@ class DefaultProcessor implements PushProcessorInterface
             }
 
             if (!$invoice->getEmailSent() && $this->configAccount->getInvoiceEmail($this->order->getStore())) {
+                $this->persistNewInvoice($invoice);
                 $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Send Invoice Email ');
                 $this->orderRequestService->sendInvoiceEmail($invoice, true);
             }
@@ -1919,6 +2042,29 @@ class DefaultProcessor implements PushProcessorInterface
         $this->dontSaveOrderUponSuccessPush = true;
 
         return true;
+    }
+
+    /**
+     * Save the invoice this push created, so its email shows the invoice number.
+     *
+     * Magento leaves the new invoice to the order save, which comes after the email, and only the
+     * save assigns the number. As in Observer\SendInvoiceMail, the invoice then records that it
+     * exists: the order save writes it again, and core observers that recognise a new invoice by its
+     * empty original data (stock deduction for virtual items, invoiced store credit, gift card and
+     * reward amounts) would otherwise process it twice.
+     *
+     * @param Invoice $invoice
+     *
+     * @return void
+     */
+    private function persistNewInvoice(Invoice $invoice): void
+    {
+        if ($invoice->getId()) {
+            return;
+        }
+
+        $this->invoiceRepository->save($invoice);
+        $invoice->setOrigData();
     }
 
     /**

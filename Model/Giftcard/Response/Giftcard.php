@@ -15,6 +15,7 @@ namespace Buckaroo\Magento2\Model\Giftcard\Response;
 
 use Buckaroo\Magento2\Model\Data\BuckarooResponseData;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\Data\CartInterface;
@@ -247,6 +248,8 @@ class Giftcard
     protected function createOrder()
     {
         $this->quote->collectTotals();
+        // Checked before the giftcard was charged (Giftcard request)
+        $this->quote->setData(VerificationGuard::FLAG_ALREADY_CHECKED, true);
         return $this->quoteManagement->submit($this->quote);
     }
 

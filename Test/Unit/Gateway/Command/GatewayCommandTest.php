@@ -231,6 +231,102 @@ class GatewayCommandTest extends BaseTest
         $this->createCommand(null, true, true, true, true)->execute($commandSubject);
     }
 
+    public function testGatewayRequestIsMarkedOnlyWhileWaitingForBuckaroo(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $calls = [];
+
+        $this->lockManager->method('lockOrder')->willReturnCallback(function () use (&$calls) {
+            $calls[] = 'lockOrder';
+            return true;
+        });
+        $this->lockManager->method('unlockOrder')->willReturnCallback(function () use (&$calls) {
+            $calls[] = 'unlockOrder';
+            return true;
+        });
+        $this->lockManager->expects($this->once())
+            ->method('markGatewayRequestStarted')
+            ->with(self::ORDER_INCREMENT_ID)
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'markStarted';
+                return true;
+            });
+        $this->lockManager->expects($this->once())
+            ->method('markGatewayRequestFinished')
+            ->with(self::ORDER_INCREMENT_ID)
+            ->willReturnCallback(function () use (&$calls) {
+                $calls[] = 'markFinished';
+                return true;
+            });
+
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+        $this->client->method('placeRequest')->willReturnCallback(function () use (&$calls) {
+            $calls[] = 'placeRequest';
+            return ['status' => 'success'];
+        });
+        $this->validator->method('validate')->willReturnCallback(function () use (&$calls) {
+            $calls[] = 'validate';
+            return $this->createValidationResult(true);
+        });
+        $this->handler->method('handle')->willReturnCallback(function () use (&$calls) {
+            $calls[] = 'handle';
+        });
+
+        $this->createCommand()->execute($commandSubject);
+
+        $this->assertSame(
+            ['lockOrder', 'markStarted', 'placeRequest', 'markFinished', 'validate', 'handle', 'unlockOrder'],
+            $calls
+        );
+    }
+
+    public function testGatewayRequestMarkIsRemovedWhenTheRequestFails(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+
+        $this->expectLockAcquiredAndReleased();
+        $this->lockManager->method('markGatewayRequestStarted')->willReturn(true);
+        $this->lockManager->expects($this->once())
+            ->method('markGatewayRequestFinished')
+            ->with(self::ORDER_INCREMENT_ID);
+
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+        $this->client->method('placeRequest')->willThrowException(new ClientException(__('Connection timed out')));
+
+        $this->expectException(CommandException::class);
+
+        $this->createCommand()->execute($commandSubject);
+    }
+
+    public function testGatewayRequestMarkTakenByAnOuterRequestIsLeftInPlace(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+
+        $this->expectLockAcquiredAndReleased();
+        $this->stubSuccessfulGatewayRoundTrip($commandSubject, ['status' => 'success']);
+        $this->validator->method('validate')->willReturn($this->createValidationResult(true));
+
+        $this->lockManager->expects($this->once())->method('markGatewayRequestStarted')->willReturn(false);
+        $this->lockManager->expects($this->never())->method('markGatewayRequestFinished');
+        $this->client->expects($this->once())->method('placeRequest');
+
+        $this->createCommand()->execute($commandSubject);
+    }
+
+    public function testSkippedCommandDoesNotMarkAGatewayRequest(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+
+        $this->expectLockAcquiredAndReleased();
+        $this->skipCommand->method('isSkip')->willReturn(true);
+        $this->lockManager->expects($this->never())->method('markGatewayRequestStarted');
+        $this->lockManager->expects($this->never())->method('markGatewayRequestFinished');
+
+        $this->createCommand(null, true, true, true, true)->execute($commandSubject);
+    }
+
     public function testExecuteProceedsWhenSkipCommandReturnsFalse(): void
     {
         $commandSubject = $this->createCommandSubject();

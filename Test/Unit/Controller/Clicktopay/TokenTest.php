@@ -20,6 +20,8 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay as ClicktopayConfig;
 use Buckaroo\Magento2\Service\OauthTokenService;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -45,6 +47,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createRequestMock('MagentoFrontend'),
+            'checkoutSession'   => $this->createCheckoutSessionMock(42),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -70,6 +74,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createRequestMock('MagentoFrontend'),
+            'checkoutSession'   => $this->createCheckoutSessionMock(42),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -98,6 +104,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createRequestMock('MagentoFrontend'),
+            'checkoutSession'   => $this->createCheckoutSessionMock(42),
             'config'            => $config,
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -125,6 +133,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createRequestMock('MagentoFrontend'),
+            'checkoutSession'   => $this->createCheckoutSessionMock(42),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -134,6 +144,70 @@ class TokenTest extends BaseTest
         $instance->execute();
 
         $this->assertArrayHasKey('error', $capturedData);
+    }
+
+    /**
+     * An unauthenticated request (no active quote, no valid form key) must be rejected
+     * with a 403 before the merchant credentials are ever used.
+     */
+    public function testExecuteRejectsUntrustedRequest(): void
+    {
+        $tokenService = $this->createMock(OauthTokenService::class);
+        $tokenService->expects($this->never())->method('getToken');
+
+        $capturedData = null;
+        $resultJsonFactory = $this->createJsonFactoryMock($capturedData);
+
+        $instance = $this->getInstance([
+            'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createRequestMock('evil.example.com'),
+            'checkoutSession'   => $this->createCheckoutSessionMock(null),
+            'config'            => $this->createConfigMock(),
+            'tokenService'      => $tokenService,
+            'logger'            => $this->createMock(BuckarooLoggerInterface::class),
+            'encryptor'         => $this->createEncryptorMock(),
+        ]);
+
+        $instance->execute();
+
+        $this->assertArrayHasKey('error', $capturedData);
+        $this->assertSame('Unauthorized request', $capturedData['error']);
+    }
+
+    /**
+     * Storefront request mock returning the given origin header.
+     *
+     * @param string $origin
+     *
+     * @return Http|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createRequestMock(string $origin)
+    {
+        $request = $this->getMockBuilder(Http::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getHeader'])
+            ->getMock();
+        $request->method('getHeader')->with('X-Requested-From')->willReturn($origin);
+
+        return $request;
+    }
+
+    /**
+     * Checkout session mock exposing a quote id.
+     *
+     * @param int|null $quoteId
+     *
+     * @return CheckoutSession|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function createCheckoutSessionMock($quoteId)
+    {
+        $session = $this->getMockBuilder(CheckoutSession::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getQuoteId'])
+            ->getMock();
+        $session->method('getQuoteId')->willReturn($quoteId);
+
+        return $session;
     }
 
     /**

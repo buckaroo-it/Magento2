@@ -229,12 +229,14 @@ class Giftcards extends AbstractConfigProvider
      *
      * @throws NoSuchEntityException
      *
+     * @param null|int|string $store Store whose allowed cards apply; defaults to the current store
+     *
      * @return array
      */
-    public function getAllIssuers(): array
+    public function getAllIssuers($store = null): array
     {
         // Get only allowed giftcards
-        $allowedCards = $this->getAllowedGiftcards();
+        $allowedCards = $this->getAllowedGiftcards($store);
         if (empty($allowedCards)) {
             return [];
         }
@@ -297,11 +299,13 @@ class Giftcards extends AbstractConfigProvider
      *
      * @throws NoSuchEntityException
      *
+     * @param null|int|string $store Store whose allowed cards apply; defaults to the current store
+     *
      * @return array
      */
-    public function formatIssuers(): array
+    public function formatIssuers($store = null): array
     {
-        return $this->getAllIssuers();
+        return $this->getAllIssuers($store);
     }
 
     /**

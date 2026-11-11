@@ -184,7 +184,7 @@ class RefundGroupTransactionService
     }
 
     /**
-     * Refund a single giftcard payment (not in group_transaction table)
+     * Refund a single giftcard payment (not in group_transaction table).
      *
      * @param array $buildSubject
      * @param Payment $payment
@@ -193,7 +193,7 @@ class RefundGroupTransactionService
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    private function refundSingleGiftcard(array $buildSubject, $payment): float
+    private function refundSingleGiftcard(array &$buildSubject, $payment): float
     {
         $servicecode = $payment->getAdditionalInformation('single_giftcard_servicecode');
         $transactionId = $payment->getAdditionalInformation('single_giftcard_transaction_id');
@@ -425,15 +425,9 @@ class RefundGroupTransactionService
                 ));
 
                 // Update refunded amount in database ONLY on success
-                foreach ($groupTransaction as $item) {
-                    $prevRefundAmount = $item->getData('refunded_amount');
-                    $newRefundAmount = $giftCardValue;
-
-                    if ($prevRefundAmount !== null) {
-                        $newRefundAmount += $prevRefundAmount;
-                    }
-                    $item->setData('refunded_amount', $newRefundAmount);
-                    $this->groupTransactionResource->save($item);
+                if ($groupTransaction->getEntityId()) {
+                    $groupTransaction->setRefundedAmount($groupTransaction->getRefundedAmount() + $giftCardValue);
+                    $this->groupTransactionResource->save($groupTransaction);
                 }
             } else {
                 // Refund FAILED - throw exception to prevent credit memo creation

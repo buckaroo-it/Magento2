@@ -47,8 +47,9 @@ class DbHandler extends Base
     }
 
     /**
-     * Buffer the log record; rows are written in batch to avoid a full ORM
-     * model save per log line. Accepts the Monolog 2 array or Monolog 3 LogRecord.
+     * Buffer the log record so rows are written in one batch.
+     *
+     * Avoids a full ORM model save per log line. Accepts the Monolog 2 array or Monolog 3 LogRecord.
      *
      * @param mixed $record
      */
@@ -86,8 +87,9 @@ class DbHandler extends Base
     }
 
     /**
-     * Write buffered rows in a single insert. Logging must never break the
-     * request being logged, so failures fall back to the PHP system log.
+     * Write buffered rows in a single insert.
+     *
+     * Logging must never break the request being logged, so failures fall back to the PHP system log.
      */
     private function flush(): void
     {

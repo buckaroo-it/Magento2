@@ -237,8 +237,8 @@ class BuckarooAdapter
         $accountMode = $configProviderAccount->getActive($storeId);
         $clientMode = $this->getClientMode($accountMode, $storeId, $paymentMethod, $skipActiveCheck, $originalTransactionWasTest);
 
-        // Prefer the order billing-country culture; fall back to the store/customer locale.
-        $culture = $cultureOverride ?? str_replace('_', '-', $this->localeResolver->getLocale());
+        // Prefer the order billing-country culture; fall back to the order store's locale.
+        $culture = $cultureOverride ?? str_replace('_', '-', $this->getStoreLocale($orderStoreId));
 
         $this->buckaroo = new BuckarooClient(new DefaultConfig(
             $this->encryptor->decrypt($configProviderAccount->getMerchantKey($storeId)),
@@ -292,6 +292,25 @@ class BuckarooAdapter
             null  // connectTimeout
         ));
         return $this->buckaroo->confirmCredential();
+    }
+
+    /**
+     * Locale of the order's store, or the current one when the request names no store
+     *
+     * @param int|null $orderStoreId
+     *
+     * @return string
+     */
+    private function getStoreLocale(?int $orderStoreId): string
+    {
+        if ($orderStoreId === null) {
+            return (string)$this->localeResolver->getLocale();
+        }
+
+        $locale = $this->localeResolver->emulate($orderStoreId);
+        $this->localeResolver->revert();
+
+        return (string)($locale ?: $this->localeResolver->getLocale());
     }
 
     /**
@@ -458,16 +477,23 @@ class BuckarooAdapter
     /**
      * Validate request
      *
-     * @param mixed $postData
-     * @param mixed $authHeader
-     * @param mixed $uri
+     * The store id must be the store of the order the push belongs to. The push endpoint is a REST
+     * route carrying no store code, so the ambient store is the default store view of the default
+     * website — validating against its keys would use the wrong secret on a multi-store install.
+     *
+     * @param mixed    $postData
+     * @param mixed    $authHeader
+     * @param mixed    $uri
+     * @param int|null $storeId    Order store id for per-store secret resolution; null = current store
      *
      * @throws Exception
+     *
+     * @return bool
      */
-    public function validate($postData, $authHeader, $uri): bool
+    public function validate($postData, $authHeader = null, $uri = null, ?int $storeId = null): bool
     {
         try {
-            $this->setClientSdk();
+            $this->setClientSdk('', $storeId);
             $replyHandler = new ReplyHandler($this->buckaroo->client()->config(), $postData, $authHeader, $uri);
             $replyHandler->validate();
             return $replyHandler->isValid();

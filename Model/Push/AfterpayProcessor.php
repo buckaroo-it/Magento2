@@ -36,6 +36,7 @@ use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -71,6 +72,7 @@ class AfterpayProcessor extends DefaultProcessor
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param OrderManagementInterface $orderManagement
      * @param Escaper $escaper
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -96,7 +98,8 @@ class AfterpayProcessor extends DefaultProcessor
         TransactionRepositoryInterface                          $transactionRepository,
         SearchCriteriaBuilder                                   $searchCriteriaBuilder,
         OrderManagementInterface                                $orderManagement,
-        \Magento\Framework\Escaper                              $escaper
+        \Magento\Framework\Escaper                              $escaper,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -120,7 +123,8 @@ class AfterpayProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->afterpayConfig = $afterpayConfig;
     }
@@ -139,7 +143,7 @@ class AfterpayProcessor extends DefaultProcessor
         if ($this->pushRequest->hasAdditionalInformation('initiated_by_magento', 1) &&
             (
                 $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'capture') &&
-                $this->afterpayConfig->isInvoiceCreatedAfterShipment()
+                $this->afterpayConfig->isInvoiceCreatedAfterShipment($this->getOrderStoreId())
             )) {
             $this->dontSaveOrderUponSuccessPush = true;
             return false;

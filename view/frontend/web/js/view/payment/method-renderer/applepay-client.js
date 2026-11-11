@@ -179,6 +179,7 @@ define(
                         "po_number": null,
                         "additional_data": {
                             "applepayTransaction": transactionData,
+                            "applepayCardNetwork": applepayPay.getCardNetwork(transactionResult),
                             "billingContact": transactionResult && transactionResult.billingContact ?
                                 JSON.stringify(transactionResult.billingContact) : ''
                         }

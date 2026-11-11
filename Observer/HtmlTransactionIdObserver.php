@@ -34,7 +34,6 @@ class HtmlTransactionIdObserver implements ObserverInterface
      */
     private $transactionRepository;
 
-
     /**
      * @var Escaper
      */

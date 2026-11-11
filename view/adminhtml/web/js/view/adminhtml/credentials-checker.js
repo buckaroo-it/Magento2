@@ -12,9 +12,8 @@
 
 define([
     'uiComponent',
-    'jquery',
-    'mage/url'
-], function (Component, $, urlBuilder) {
+    'jquery'
+], function (Component, $) {
     'use strict';
 
     return Component.extend({
@@ -29,6 +28,9 @@ define([
             if (config && config.element) {
                 this.element = $(config.element)[0];
             }
+
+            // Admin (ACL protected) endpoint, provided by the block
+            this.ajaxUrl = config && config.url ? config.url : null;
 
             this.bindEvents();
             return this;
@@ -77,11 +79,16 @@ define([
                 return;
             }
 
+            if (!this.ajaxUrl) {
+                self.showMessage('Unable to validate credentials: endpoint is not configured.', true);
+                return;
+            }
+
             // Show loading message
             self.showMessage('Checking credentials...', false);
 
             $.ajax({
-                url: urlBuilder.build('/buckaroo/credentialschecker/index'),
+                url: this.ajaxUrl,
                 type: 'POST',
                 dataType: 'json',
                 showLoader: true,

@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Method;
 
+use Buckaroo\Magento2\Helper\StoreId;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -33,7 +36,6 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Magento\Store\Api\Data\StoreInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -246,20 +248,81 @@ class BuckarooAdapter extends Adapter
     }
 
     /**
+     * Read a method config value in the store the payment belongs to
+     *
+     * The parent resolves $storeId === null against the ambient store. For an order payment that
+     * is the wrong store in every context that matters: an admin capture or refund runs in the
+     * admin scope, a push runs on a REST route with no store cookie, and cron has no store at all.
+     * Callers all over the module ask for getConfigData('field') without a store - the store is
+     * simply not in their hands - so defaulting it here closes the whole class of bug at once
+     * rather than at each call site.
+     *
+     * An explicit $storeId still wins, so callers that do know better are unaffected.
+     *
+     * @param string   $field
+     * @param int|null $storeId
+     *
+     * @return mixed
+     */
+    public function getConfigData($field, $storeId = null)
+    {
+        return parent::getConfigData($field, $storeId ?? $this->getResolvedStoreId());
+    }
+
+    /**
+     * Read the payment action in the store the payment belongs to
+     *
+     * The parent reads it without a store, bypassing getConfigData() above.
+     *
+     * @return mixed
+     */
+    public function getConfigPaymentAction()
+    {
+        return $this->getConfigData('payment_action');
+    }
+
+    /**
      * Resolve the current store to its integer id when possible.
+     *
+     * Magento only calls setStore() on a *quote* payment. An *order* payment never gets one, so
+     * on the admin order view, the order grid and the invoice/creditmemo create pages getStore()
+     * is empty and every getConfigData() read below would fall through to the ambient store —
+     * the default store view, not the store the order was placed in. Deriving the store from the
+     * payment's own order or quote closes that gap the way core's
+     * Payment\Helper\Data::getInfoBlockHtml() does with an explicit setStore().
      *
      * @return int|null
      */
     private function getResolvedStoreId(): ?int
     {
-        $store = $this->getStore();
+        $storeId = StoreId::normalize($this->getStore());
 
-        if ($store instanceof StoreInterface) {
-            return (int)$store->getId();
+        if ($storeId !== null) {
+            return $storeId;
         }
 
-        if (is_numeric($store)) {
-            return (int)$store;
+        return $this->getStoreIdFromInfoInstance();
+    }
+
+    /**
+     * Derive the store id from the order or quote the payment belongs to.
+     *
+     * @return int|null
+     */
+    private function getStoreIdFromInfoInstance(): ?int
+    {
+        try {
+            $info = $this->getInfoInstance();
+        } catch (\Exception $exception) {
+            return null;
+        }
+
+        if ($info instanceof OrderPayment && $info->getOrder() !== null) {
+            return StoreId::normalize($info->getOrder()->getStoreId());
+        }
+
+        if ($info instanceof QuotePayment && $info->getQuote() !== null) {
+            return StoreId::normalize($info->getQuote()->getStoreId());
         }
 
         return null;
@@ -291,7 +354,7 @@ class BuckarooAdapter extends Adapter
      */
     public function canPushInvoice(PushRequestInterface $responseData): bool
     {
-        if ($this->getConfigData('payment_action') == 'authorize') {
+        if ($this->getConfigData('payment_action', $this->getResolvedStoreId()) == 'authorize') {
             return false;
         }
 
@@ -309,7 +372,8 @@ class BuckarooAdapter extends Adapter
      */
     public function getTitle(): string
     {
-        $title = $this->getConfigData('title');
+        $storeId = $this->getResolvedStoreId();
+        $title = $this->getConfigData('title', $storeId);
 
         $configProvider = $this->configProviderMethodFactory
             ->get($this->buckarooPaymentMethodCode);
@@ -330,24 +394,26 @@ class BuckarooAdapter extends Adapter
             return $title;
         }
 
-        $paymentFee = trim((string)$configProvider->getPaymentFee());
+        $paymentFee = trim((string)$configProvider->getPaymentFee($storeId));
 
-        return $this->addPaymentFee($title, $paymentFee);
+        return $this->addPaymentFee($title, $paymentFee, $storeId);
     }
 
     /**
      * Add payment fee to the given title
      *
-     * @param string $title
-     * @param string $paymentFee
+     * @param string   $title
+     * @param string   $paymentFee
+     * @param int|null $storeId
      *
      * @return string
      */
-    protected function addPaymentFee(string $title, string $paymentFee): string
+    protected function addPaymentFee(string $title, string $paymentFee, ?int $storeId = null): string
     {
         if (!empty($paymentFee) && (float)$paymentFee >= 0.01) {
             if (strpos($paymentFee, '%') === false) {
-                return $title . ' + ' . $this->priceHelper->currency(number_format((float)$paymentFee, 2), true, false);
+                $fee = $this->priceHelper->currencyByStore(round((float)$paymentFee, 2), $storeId, true, false);
+                return $title . ' + ' . $fee;
             } else {
                 return $title . ' + ' . $paymentFee;
             }

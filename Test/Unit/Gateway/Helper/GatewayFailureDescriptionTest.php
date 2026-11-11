@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Gateway\Helper;
 
 use Buckaroo\Magento2\Gateway\Helper\GatewayFailureDescription;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class GatewayFailureDescriptionTest extends TestCase
 {
-    /**
-     * @dataProvider uninformativeDescriptionProvider
-     */
+    #[DataProvider('uninformativeDescriptionProvider')]
     public function testRecognisesDescriptionsWithoutAReason(string $description): void
     {
         $this->assertTrue(GatewayFailureDescription::isUninformative($description));
@@ -34,9 +33,7 @@ class GatewayFailureDescriptionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider informativeDescriptionProvider
-     */
+    #[DataProvider('informativeDescriptionProvider')]
     public function testKeepsDescriptionsThatCarryAReason(string $description): void
     {
         $this->assertFalse(GatewayFailureDescription::isUninformative($description));

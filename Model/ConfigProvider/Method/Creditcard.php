@@ -135,11 +135,13 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Get all available issuers filtered by allowed selection
      *
+     * @param null|int|string $store Store whose allowed cards apply; defaults to the current store
+     *
      * @return array
      */
-    public function getAllIssuers(): array
+    public function getAllIssuers($store = null): array
     {
-        $allowedCodes = $this->getAllowedCreditcards();
+        $allowedCodes = $this->getAllowedCreditcards($store);
 
         if (empty($allowedCodes)) {
             return [];
@@ -169,11 +171,13 @@ class Creditcard extends AbstractConfigProvider
     /**
      * Add the active flag to the creditcard list. This is used in the checkout process.
      *
+     * @param null|int|string $store Store whose allowed cards apply; defaults to the current store
+     *
      * @return array
      */
-    public function formatIssuers(): array
+    public function formatIssuers($store = null): array
     {
-        $sorted = $this->getSortedIssuers();
+        $sorted = $this->getSortedIssuers($store);
         $sorted = $sorted ? explode(',', $sorted) : [];
 
         if (!empty($sorted)) {
@@ -189,7 +193,7 @@ class Creditcard extends AbstractConfigProvider
             $allCreditcard[$item['code']] = $item;
         }
 
-        $allowed = explode(',', (string)$this->getAllowedCreditcards());
+        $allowed = explode(',', (string)$this->getAllowedCreditcards($store));
         $cards = [];
         foreach ($allowed as $value) {
             if (isset($allCreditcard[$value])) {

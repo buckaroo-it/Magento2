@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Plugin;
 
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use Buckaroo\Magento2\Plugin\OrderStatusHistoryCommentPlugin;
 use Buckaroo\Magento2\Service\CheckPaymentType;
 use Buckaroo\Magento2\Test\BaseTest;
@@ -37,6 +38,30 @@ class OrderStatusHistoryCommentPluginTest extends BaseTest
         $this->assertSame([$comment, 'closed'], $result);
     }
 
+    public function testKlarnaPartialCancellationCommentUsesTheRemainingAmount(): void
+    {
+        $orderMock = $this->getPartialCaptureOrderMock(41.40, 29.40);
+        $comment = 'Canceled order online Amount: €41.40.';
+
+        $result = $this->getInstance([
+            'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
+        ])->beforeAddStatusHistoryComment($orderMock, $comment, false);
+
+        $this->assertSame('Canceled order online Amount: €12.00.', $result[0]);
+    }
+
+    public function testFullKlarnaCancellationCommentIsLeftUntouched(): void
+    {
+        $orderMock = $this->getPartialCaptureOrderMock(41.40, 0.0);
+        $comment = 'Canceled order online Amount: €41.40.';
+
+        $result = $this->getInstance([
+            'checkPaymentType' => $this->getCheckPaymentTypeMock(true),
+        ])->beforeAddStatusHistoryComment($orderMock, $comment, false);
+
+        $this->assertSame([$comment, false], $result);
+    }
+
     public function testNonBuckarooOfflineRefundCommentIsLeftUntouched(): void
     {
         $orderMock = $this->getOrderMock(null);
@@ -64,6 +89,31 @@ class OrderStatusHistoryCommentPluginTest extends BaseTest
             ->onlyMethods(['getPayment'])
             ->getMock();
         $orderMock->method('getPayment')->willReturn($paymentMock);
+
+        return $orderMock;
+    }
+
+    private function getPartialCaptureOrderMock(float $baseGrandTotal, float $baseTotalPaid): Order
+    {
+        $paymentMock = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getMethod', 'formatAmount', 'formatPrice', 'getAdditionalInformation'])
+            ->getMock();
+        $paymentMock->method('getMethod')->willReturn(Klarnakp::CODE);
+        $paymentMock->method('formatAmount')->willReturnArgument(0);
+        $paymentMock->method('formatPrice')->willReturnCallback(
+            function ($amount) {
+                return '€' . number_format((float)$amount, 2, '.', '');
+            }
+        );
+
+        $orderMock = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getPayment', 'getBaseGrandTotal', 'getBaseTotalPaid'])
+            ->getMock();
+        $orderMock->method('getPayment')->willReturn($paymentMock);
+        $orderMock->method('getBaseGrandTotal')->willReturn($baseGrandTotal);
+        $orderMock->method('getBaseTotalPaid')->willReturn($baseTotalPaid);
 
         return $orderMock;
     }

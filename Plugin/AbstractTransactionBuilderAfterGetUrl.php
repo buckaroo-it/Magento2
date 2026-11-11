@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Plugin;
 
 use Buckaroo\Magento2\Service\CookieParamService;
+use Magento\Sales\Model\Order;
 
 class AbstractTransactionBuilderAfterGetUrl
 {
@@ -26,21 +27,24 @@ class AbstractTransactionBuilderAfterGetUrl
     /**
      * Append cookie-based url parameters to the transaction return url.
      *
-     * @param mixed $subject
-     * @param mixed $result
+     * @param mixed      $subject
+     * @param mixed      $result
+     * @param Order|null $order
      * @return mixed
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetReturnUrl(
         $subject,
-        $result
+        $result,
+        $order = null
     ) {
+        $storeId = $order instanceof Order ? $order->getStoreId() : null;
         try {
             if (strpos($result, '?') !== false) {
-                $result .= "&" . $this->cookieParamService->getUrlParamsByCookies();
+                $result .= "&" . $this->cookieParamService->getUrlParamsByCookies($storeId);
             } else {
-                $result .= "?" . $this->cookieParamService->getUrlParamsByCookies();
+                $result .= "?" . $this->cookieParamService->getUrlParamsByCookies($storeId);
             }
             //phpcs:ignore
         } catch (\Exception $e) {

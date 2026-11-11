@@ -205,6 +205,8 @@ class Idin extends AbstractConfigProvider
     /**
      * Get idin status for customer and Quote/Cart
      *
+     * "active" is true when the cart needs an iDIN age verification that has not been done yet.
+     *
      * @param Quote                  $quote
      * @param CustomerInterface|null $customer
      *
@@ -214,9 +216,9 @@ class Idin extends AbstractConfigProvider
      */
     public function getIdinStatus(Quote $quote, ?CustomerInterface $customer = null): array
     {
-        if (!$this->checkCountry($customer) ||
-            !$this->isIdinEnabled()
-        ) {
+        $store = $quote->getStoreId() ?: null;
+
+        if (!$this->isIdinEnabled($store) || !$this->checkCountry($customer)) {
             return ['active' => false, 'verified' => false];
         }
         $active = false;
@@ -227,6 +229,54 @@ class Idin extends AbstractConfigProvider
         }
 
         return ['active' => $active, 'verified' => $verified];
+    }
+
+    /**
+     * Get idin status for a quote, using the customer the quote belongs to
+     *
+     * @param Quote $quote
+     *
+     * @throws NoSuchEntityException
+     *
+     * @return array
+     */
+    public function getQuoteIdinStatus(Quote $quote): array
+    {
+        $customerId = $quote->getCustomerIsGuest() ? null : $quote->getCustomerId();
+
+        return $this->getIdinStatus($quote, $this->getCustomer($customerId));
+    }
+
+    /**
+     * Check if an express button must be hidden because iDIN verification is still needed
+     *
+     * On a product page the product decides, on other pages (cart) the items in the cart.
+     *
+     * @param Product|null $product
+     *
+     * @return bool
+     */
+    public function isVerificationRequiredForExpress(?Product $product = null): bool
+    {
+        try {
+            if (!$this->isIdinEnabled()) {
+                return false;
+            }
+
+            $customer = $this->getCustomer($this->customerSession->getCustomerId());
+            if (!$this->checkCountry($customer) || $this->isCustomerVerified($customer)) {
+                return false;
+            }
+
+            if ($product !== null) {
+                return $this->isProductRestricted($product);
+            }
+
+            return $this->isIdinActiveForQuote($this->checkoutSession->getQuote());
+        } catch (\Exception $e) {
+            // When the requirement cannot be determined, keep the express button hidden
+            return true;
+        }
     }
 
     /**
@@ -287,6 +337,9 @@ class Idin extends AbstractConfigProvider
     /**
      * Check if idin verification is required in cart/quote
      *
+     * Every item counts (child items of configurable and bundle products included):
+     * one restricted item is enough to require the verification.
+     *
      * @param Quote $quote
      *
      * @throws NoSuchEntityException
@@ -295,37 +348,66 @@ class Idin extends AbstractConfigProvider
      */
     public function isIdinActiveForQuote(Quote $quote): bool
     {
-        $active = false;
-        foreach ($quote->getAllVisibleItems() as $item) {
-            $productId = $item->getProductId();
-            $product = $this->productRepository->getById($productId);
+        $storeId = $quote->getStoreId() ?: null;
+        $checked = [];
 
-            switch ($this->configProviderAccount->getIdinMode($this->storeManager->getStore())) {
-                case 1:
-                    $active = $product->getCustomAttribute('buckaroo_product_idin')->getValue() == 1;
-                    break;
-                case 2:
-                    $active = $this->checkCategories($product);
-                    break;
-                default:
-                    $active = true;
-                    break;
+        foreach ($quote->getAllItems() as $item) {
+            $productId = (int)$item->getProductId();
+            if ($productId === 0 || isset($checked[$productId])) {
+                continue;
+            }
+            $checked[$productId] = true;
+
+            $product = $this->productRepository->getById($productId, false, $storeId);
+            if ($this->isProductRestricted($product, $storeId)) {
+                return true;
             }
         }
-        return $active;
+
+        return false;
+    }
+
+    /**
+     * Check if a product requires idin verification for the configured idin mode
+     *
+     * @param Product|\Magento\Catalog\Api\Data\ProductInterface $product
+     * @param mixed $store
+     *
+     * @throws NoSuchEntityException
+     *
+     * @return bool
+     */
+    public function isProductRestricted($product, $store = null): bool
+    {
+        $storeToUse = $store ?: $this->storeManager->getStore();
+
+        switch ((int)$this->configProviderAccount->getIdinMode($storeToUse)) {
+            case 1:
+                $attribute = $product->getCustomAttribute('buckaroo_product_idin');
+                return $attribute !== null && $attribute->getValue() == 1;
+            case 2:
+                return $this->checkCategories($product, $storeToUse);
+            default:
+                return true;
+        }
     }
 
     /**
      * Check if idin is required in product categories
      *
-     * @param Product $product
+     * @param Product|\Magento\Catalog\Api\Data\ProductInterface $product
+     * @param mixed $store
      *
      * @return bool
      */
-    protected function checkCategories(Product $product): bool
+    protected function checkCategories($product, $store = null): bool
     {
-        foreach ($product->getCategoryIds() as $cat) {
-            if (in_array($cat, explode(',', (string)$this->configProviderAccount->getIdinCategory()))) {
+        $idinCategories = array_filter(
+            array_map('trim', explode(',', (string)$this->configProviderAccount->getIdinCategory($store)))
+        );
+
+        foreach ((array)$product->getCategoryIds() as $cat) {
+            if (in_array((string)$cat, $idinCategories, true)) {
                 return true;
             }
         }

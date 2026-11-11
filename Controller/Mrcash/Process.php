@@ -18,6 +18,7 @@ use Buckaroo\Magento2\Service\SpamLimitService;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
 use Buckaroo\Magento2\Model\OrderStatusFactory;
@@ -31,7 +32,9 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
@@ -72,6 +75,11 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
     protected $lockManager;
 
     /**
+     * @var FormKeyValidator
+     */
+    private $formKeyValidator;
+
+    /**
      * @param Context $context
      * @param BuckarooLoggerInterface $logger
      * @param Quote $quote
@@ -92,6 +100,8 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
      * @param SpamLimitService $spamLimitService
      * @param CartRepositoryInterface $cartRepository
      * @param OrderPaymentRepositoryInterface $paymentRepository
+     * @param FormKeyValidator $formKeyValidator
+     * @param ReservationNumberStore $reservationNumberStore
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -114,7 +124,9 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         LockManagerWrapper $lockManagerWrapper,
         SpamLimitService $spamLimitService,
         CartRepositoryInterface $cartRepository,
-        OrderPaymentRepositoryInterface $paymentRepository
+        OrderPaymentRepositoryInterface $paymentRepository,
+        FormKeyValidator $formKeyValidator,
+        ReservationNumberStore $reservationNumberStore
     ) {
         parent::__construct(
             $context,
@@ -134,23 +146,40 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             $spamLimitService,
             $orderRepository,
             $cartRepository,
-            $paymentRepository
+            $paymentRepository,
+            $reservationNumberStore
         );
 
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->orderRepository = $orderRepository;
         $this->transactionRepository = $transactionRepository;
+        $this->formKeyValidator = $formKeyValidator;
     }
 
     /**
      * Redirect Process Mrcash
      *
+     * This action is only ever called by the storefront cancel button on the Bancontact QR page,
+     * so it requires a POST with a valid form key and it only acts on the order that the current
+     * session actually placed. The inherited Buckaroo signature bypass does not apply here.
+     *
      * @throws Exception
+     * @throws NotFoundException
      *
      * @return ResponseInterface
      */
     public function execute()
     {
+        if (!$this->isRequestTrusted()) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT - Mrcash] | [Controller] | [%s:%s] - Rejected cancel request: '
+                . 'not a POST or invalid form key',
+                __METHOD__,
+                __LINE__
+            ));
+            throw new NotFoundException(__('Page not found.'));
+        }
+
         if (!$this->getTransactionKey()) {
             return $this->_redirect('defaultNoRoute');
         }
@@ -169,15 +198,18 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
         $this->order = $order;
         $this->payment = $this->order->getPayment();
 
-        if ($this->customerSession->getCustomerId() != $this->order->getCustomerId()) {
+        if (!$this->isOrderOwnedByCurrentSession()) {
             $errorMessage = 'Customer is different then the customer that start Mrcash process request.';
             $this->logger->addError(sprintf(
-                '[REDIRECT - Mrcash] | [Controller] | [%s:%s] - %s - customerSessionid: %s != customerOrderId: %s',
+                '[REDIRECT - Mrcash] | [Controller] | [%s:%s] - %s - customerSessionid: %s'
+                . ' != customerOrderId: %s | sessionLastRealOrderId: %s != orderIncrementId: %s',
                 __METHOD__,
                 __LINE__,
                 $errorMessage,
                 var_export($this->customerSession->getCustomerId(), true),
-                var_export($this->order->getCustomerId(), true)
+                var_export($this->order->getCustomerId(), true),
+                var_export($this->checkoutSession->getLastRealOrderId(), true),
+                var_export($this->order->getIncrementId(), true)
             ));
             $this->messageManager->addErrorMessage($errorMessage);
             return $this->handleProcessedResponse(
@@ -204,6 +236,40 @@ class Process extends \Buckaroo\Magento2\Controller\Redirect\Process
             );
             return $this->handleProcessedResponse('checkout/cart');
         }
+    }
+
+    /**
+     * Only a storefront POST carrying a valid form key may cancel a payment
+     *
+     * @return bool
+     */
+    private function isRequestTrusted(): bool
+    {
+        /** @var \Magento\Framework\App\Request\Http $request */
+        $request = $this->getRequest();
+
+        return $request->isPost() && $this->formKeyValidator->validate($request);
+    }
+
+    /**
+     * Verify the resolved order belongs to the session issuing the cancel request
+     *
+     * A guest order carries no customer id, so comparing customer ids alone lets any anonymous
+     * session cancel any guest order. The order the current session placed is therefore the
+     * authoritative check; the customer id comparison is kept for logged in customers.
+     *
+     * @return bool
+     */
+    private function isOrderOwnedByCurrentSession(): bool
+    {
+        if ((int)$this->customerSession->getCustomerId() !== (int)$this->order->getCustomerId()) {
+            return false;
+        }
+
+        $lastRealOrderId = $this->checkoutSession->getLastRealOrderId();
+
+        return !empty($lastRealOrderId)
+            && (string)$lastRealOrderId === (string)$this->order->getIncrementId();
     }
 
     /**

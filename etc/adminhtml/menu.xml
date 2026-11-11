@@ -19,7 +19,7 @@
              title="Buckaroo Giftcards"
              module="Buckaroo_Magento2"
              sortOrder="100"
-             resource="Magento_Backend::content"
+             resource="Buckaroo_Magento2::buckaroo_giftcards"
              parent="Magento_Backend::other_settings"
              action="buckaroo/giftcard"
         />
@@ -27,7 +27,7 @@
              title="Buckaroo Log"
              module="Buckaroo_Magento2"
              sortOrder="9999"
-             resource="Magento_Backend::content"
+             resource="Buckaroo_Magento2::Log_view"
              parent="Magento_Backend::other_settings"
              action="buckaroo_magento2/log/index"
         />

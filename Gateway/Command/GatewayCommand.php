@@ -169,7 +169,15 @@ class GatewayCommand implements CommandInterface
                 return;
             }
 
-            $response = $this->executePaymentRequest($commandSubject);
+            $marked = $this->lockManager->markGatewayRequestStarted($orderIncrementId);
+            try {
+                $response = $this->executePaymentRequest($commandSubject);
+            } finally {
+                if ($marked) {
+                    $this->lockManager->markGatewayRequestFinished($orderIncrementId);
+                }
+            }
+
             $this->validateAndHandleResponse($commandSubject, $response, $paymentDO);
         } finally {
             $this->lockManager->unlockOrder($orderIncrementId);

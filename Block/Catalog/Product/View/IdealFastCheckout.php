@@ -18,8 +18,9 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
 use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\Encryption\Encryptor;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Buckaroo\Magento2\Model\ConfigProvider\Idin as IdinConfigProvider;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Asset\Repository;
@@ -59,6 +60,11 @@ class IdealFastCheckout extends Template implements ShortcutInterface
     protected $assetRepo;
 
     /**
+     * @var IdinConfigProvider|null
+     */
+    private $idinConfigProvider;
+
+    /**
      * @var Registry
      */
     private $registry;
@@ -78,6 +84,7 @@ class IdealFastCheckout extends Template implements ShortcutInterface
      * @param Repository $assetRepo
      * @param Registry|null $registry
      * @param array $data
+     * @param IdinConfigProvider|null $idinConfigProvider
      */
     public function __construct(
         Context $context,
@@ -86,7 +93,8 @@ class IdealFastCheckout extends Template implements ShortcutInterface
         Ideal $idealConfig,
         Repository $assetRepo,
         ?Registry $registry = null,
-        array $data = []
+        array $data = [],
+        ?IdinConfigProvider $idinConfigProvider = null
     ) {
         parent::__construct($context, $data);
         $this->configProviderAccount = $configProviderAccount;
@@ -94,6 +102,7 @@ class IdealFastCheckout extends Template implements ShortcutInterface
         $this->idealConfig = $idealConfig;
         $this->assetRepo = $assetRepo;
         $this->registry = $registry;
+        $this->idinConfigProvider = $idinConfigProvider;
     }
 
     /**
@@ -196,71 +205,17 @@ class IdealFastCheckout extends Template implements ShortcutInterface
     }
 
     /**
-     * Check if iDIN verification is required for this product
+     * Check if iDIN verification is still required for this context (product page or cart)
      *
      * @return bool
      */
     public function isIdinVerificationRequired()
     {
-        $idinMode = (int)$this->configProviderAccount->getIdinMode();
-
-        if (!$this->configProviderAccount->getIdin() || $idinMode === null) {
-            return false;
+        if ($this->idinConfigProvider === null) {
+            $this->idinConfigProvider = ObjectManager::getInstance()->get(IdinConfigProvider::class);
         }
 
-        if ($idinMode === 0) {
-            return true;
-        } elseif ($idinMode === 1) {
-            return $this->isProductPageWithIdinRequired();
-        } elseif ($idinMode === 2) {
-            return $this->isInIdinRequiredCategory();
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if current product page requires iDIN (Per Product mode)
-     *
-     * @return bool
-     */
-    private function isProductPageWithIdinRequired()
-    {
-        try {
-            $product = $this->getProduct();
-            if (!$product) {
-                return false; // Not a product page or cart page
-            }
-            $customAttribute = $product->getCustomAttribute('buckaroo_product_idin');
-            return $customAttribute !== null && $customAttribute->getValue() == 1;
-        } catch (LocalizedException $e) {
-            return false; // Not a product page
-        }
-    }
-
-    /**
-     * Check if products are in iDIN required category (Per Category mode)
-     *
-     * @return bool
-     */
-    private function isInIdinRequiredCategory()
-    {
-        try {
-            $product = $this->getProduct();
-            if (!$product) {
-                return false;
-            }
-
-            $idinCategories = explode(',', (string)$this->configProviderAccount->getIdinCategory());
-            foreach ($product->getCategoryIds() as $category) {
-                if (in_array($category, $idinCategories)) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (LocalizedException $e) {
-            return false; // Not a product page
-        }
+        return $this->idinConfigProvider->isVerificationRequiredForExpress($this->getProduct());
     }
 
     /**

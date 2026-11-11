@@ -42,7 +42,7 @@ class TransferOrderDataBuilder implements BuilderInterface
         $order = $paymentDO->getOrder()->getOrder();
         return [
             'dateDue'  => $this->transferConfig->getDueDateFormated($order->getStore()),
-            'sendMail' => $this->transferConfig->hasOrderEmail($order->getStore()),
+            'sendMail' => $this->transferConfig->hasPaymentInstructionEmail($order->getStore()),
         ];
     }
 }

@@ -13,6 +13,7 @@
 
 namespace Buckaroo\Magento2\Block\Adminhtml\Sales\Order\Creditmemo\Create;
 
+use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderMethodFactory;
 use LogicException;
@@ -122,7 +123,8 @@ class RoundingWarning extends Template
          * The warning should only be shown if the order's currency is supported by the payment method used.
          */
         $configProvider = $this->configProviderFactory->get($paymentMethodInstance->buckarooPaymentMethodCode);
-        if (!in_array($creditmemo->getOrderCurrencyCode(), $configProvider->getAllowedCurrencies())) {
+        $allowedCurrencies = $configProvider->getAllowedCurrencies(StoreId::normalize($creditmemo->getStoreId()));
+        if (!in_array($creditmemo->getOrderCurrencyCode(), $allowedCurrencies)) {
             return false;
         }
 

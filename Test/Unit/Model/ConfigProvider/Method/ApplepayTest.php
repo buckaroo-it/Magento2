@@ -143,5 +143,11 @@ class ApplepayTest extends BaseTest
         // Optional: ensure 'guid' key exists; value may be null or a string depending on env/config
         $this->assertArrayHasKey('guid', $applepay);
         $this->assertTrue($applepay['guid'] === null || is_string($applepay['guid']));
+
+        // American Express, Discover and JCB are not offered in the payment sheet
+        $this->assertSame(
+            ['masterCard', 'visa', 'maestro', 'vPay', 'cartesBancaires', 'privateLabel'],
+            $applepay['supportedNetworks']
+        );
     }
 }

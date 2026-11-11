@@ -18,7 +18,9 @@ use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
 use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
 use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\ChangeQuoteControlInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 
@@ -50,24 +52,40 @@ class Pay implements PayWithGiftcardInterface
     protected $payResponseFactory;
 
     /**
+     * @var AttemptLimit
+     */
+    private $attemptLimit;
+
+    /**
+     * @var ChangeQuoteControlInterface
+     */
+    private $changeQuoteControl;
+
+    /**
      * @param GiftcardRequest                $giftcardRequest
      * @param GiftcardResponse               $giftcardResponse
      * @param QuoteIdMaskFactory             $quoteIdMaskFactory
      * @param CartRepositoryInterface        $cartRepository
      * @param PayResponseSetInterfaceFactory $payResponseFactory
+     * @param AttemptLimit                   $attemptLimit
+     * @param ChangeQuoteControlInterface    $changeQuoteControl
      */
     public function __construct(
         GiftcardRequest $giftcardRequest,
         GiftcardResponse $giftcardResponse,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
-        PayResponseSetInterfaceFactory $payResponseFactory
+        PayResponseSetInterfaceFactory $payResponseFactory,
+        AttemptLimit $attemptLimit,
+        ChangeQuoteControlInterface $changeQuoteControl
     ) {
         $this->giftcardRequest = $giftcardRequest;
         $this->giftcardResponse = $giftcardResponse;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
         $this->payResponseFactory = $payResponseFactory;
+        $this->attemptLimit = $attemptLimit;
+        $this->changeQuoteControl = $changeQuoteControl;
     }
 
     /**
@@ -85,11 +103,17 @@ class Pay implements PayWithGiftcardInterface
 
         try {
             $quote = $this->getQuote($cartId);
+            $this->attemptLimit->assertWithinLimit($quote);
 
-            return $this->getResponse(
-                $quote,
-                $this->build($quote, $giftcardId, $payment)->send()
-            );
+            try {
+                return $this->getResponse(
+                    $quote,
+                    $this->build($quote, $giftcardId, $payment)->send()
+                );
+            } catch (ApiException $th) {
+                $this->attemptLimit->registerFailedAttempt($quote);
+                throw $th;
+            }
         } catch (ApiException $th) {
             throw $th;
         } catch (NoQuoteException $th) {
@@ -113,10 +137,16 @@ class Pay implements PayWithGiftcardInterface
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
-            return $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+            $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         } catch (\Throwable $th) {
-            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
+            throw new NoQuoteException((string)__("The cart isn't active."), 0, $th);
         }
+
+        if (!$this->changeQuoteControl->isAllowed($quote)) {
+            throw new NoQuoteException((string)__("The cart isn't active."));
+        }
+
+        return $quote;
     }
 
     /**

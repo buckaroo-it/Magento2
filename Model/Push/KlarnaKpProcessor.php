@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\OrderStatusFactory;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction;
 use Buckaroo\Magento2\Model\Service\GiftCardRefundService;
+use Buckaroo\Magento2\Model\Service\Order\ReservationNumberStore;
 use Buckaroo\Magento2\Service\Order\Uncancel;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Magento\Directory\Model\CurrencyFactory;
@@ -35,6 +36,7 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderPaymentRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Buckaroo\Magento2\Model\Service\UninvoicedCaptures;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -45,6 +47,11 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @var Klarnakp
      */
     private $klarnakpConfig;
+
+    /**
+     * @var ReservationNumberStore
+     */
+    private ReservationNumberStore $reservationNumberStore;
 
     /**
      * @param OrderRequestService $orderRequestService
@@ -70,6 +77,8 @@ class KlarnaKpProcessor extends DefaultProcessor
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param \Magento\Sales\Api\OrderManagementInterface $orderManagement
+     * @param ReservationNumberStore $reservationNumberStore
+     * @param UninvoicedCaptures $uninvoicedCaptures
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -95,7 +104,9 @@ class KlarnaKpProcessor extends DefaultProcessor
         GroupTransaction                $groupTransactionResource,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Sales\Api\OrderManagementInterface $orderManagement
+        \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        ReservationNumberStore $reservationNumberStore,
+        UninvoicedCaptures $uninvoicedCaptures
     ) {
         parent::__construct(
             $orderRequestService,
@@ -119,9 +130,11 @@ class KlarnaKpProcessor extends DefaultProcessor
             $transactionRepository,
             $searchCriteriaBuilder,
             $orderManagement,
-            $escaper
+            $escaper,
+            $uninvoicedCaptures
         );
         $this->klarnakpConfig = $klarnakpConfig;
+        $this->reservationNumberStore = $reservationNumberStore;
     }
 
     /**
@@ -339,8 +352,7 @@ class KlarnaKpProcessor extends DefaultProcessor
         ));
 
         if (!empty($reservationNumberFromPush)) {
-            $this->order->setBuckarooReservationNumber($reservationNumberFromPush);
-            $this->orderRepository->save($this->order);
+            $this->reservationNumberStore->save($this->order, (string)$reservationNumberFromPush);
 
             $this->logger->addDebug(sprintf(
                 '[KLARNA_KP] | [%s:%s] - Successfully saved reservation number from PUSH for order %s: %s',
@@ -380,7 +392,7 @@ class KlarnaKpProcessor extends DefaultProcessor
                 $this->pushRequest->hasPostData('transaction_method', 'KlarnaKp') &&
                 $this->pushRequest->hasAdditionalInformation('service_action_from_magento', 'pay') &&
                 empty($this->pushRequest->getServiceKlarnakpReservationnumber()) &&
-                $this->klarnakpConfig->isInvoiceCreatedAfterShipment()
+                $this->klarnakpConfig->isInvoiceCreatedAfterShipment($this->getOrderStoreId())
             )) {
             $this->dontSaveOrderUponSuccessPush = true;
             return false;

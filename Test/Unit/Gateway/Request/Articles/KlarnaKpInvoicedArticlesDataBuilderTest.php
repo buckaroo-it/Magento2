@@ -96,6 +96,31 @@ class KlarnaKpInvoicedArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\Ba
         $this->buildFor($articles, true, 1, $registry);
     }
 
+    /**
+     * When an earlier capture covers part of the last invoice, the rest of the reservation is
+     * captured by amount: Klarna rejects the invoice's lines (some are captured already) but takes
+     * an amount without lines when it equals what is left on the reservation.
+     */
+    public function testARemainderCaptureSendsNoLinesAndOnlyTheRemainder(): void
+    {
+        $articles = ['articles' => [
+            ['identifier' => '24-MB01', 'quantity' => 1, 'price' => 34.00],
+            ['identifier' => '24-UG06', 'quantity' => 2, 'price' => 7.00],
+        ]];
+
+        $registry = $this->getFakeMock('Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry')
+            ->getMock();
+        $registry->expects($this->once())
+            ->method('set')
+            ->with(
+                \Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry::CONTEXT_INVOICE,
+                '000000009',
+                32.15
+            );
+
+        $this->assertSame([], $this->buildFor($articles, false, 1, $registry, 32.15));
+    }
+
     public function testMalformedLinesAreDropped(): void
     {
         $articles = ['articles' => [
@@ -115,11 +140,17 @@ class KlarnaKpInvoicedArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\Ba
      * @param bool        $canInvoice
      * @param int         $invoiceCount
      * @param object|null $registry
+     * @param float|null  $captureRemainder
      *
      * @return array
      */
-    private function buildFor(array $articles, bool $canInvoice, int $invoiceCount, $registry = null): array
-    {
+    private function buildFor(
+        array $articles,
+        bool $canInvoice,
+        int $invoiceCount,
+        $registry = null,
+        ?float $captureRemainder = null
+    ): array {
         $handler = $this->getFakeMock(
             'Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler'
         )->getMock();
@@ -140,6 +171,11 @@ class KlarnaKpInvoicedArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\Ba
         $collection = $this->getFakeMock('Magento\Sales\Model\ResourceModel\Order\Invoice\Collection')
             ->getMock();
         $collection->method('count')->willReturn($invoiceCount);
+        $collection->method('getLastItem')->willReturn(new \Magento\Framework\DataObject(
+            $captureRemainder === null
+                ? []
+                : [\Buckaroo\Magento2\Model\Service\UninvoicedCaptures::INVOICE_CAPTURE_REMAINDER => $captureRemainder]
+        ));
 
         $order = $this->getFakeMock('Magento\Sales\Model\Order')->getMock();
         $order->method('getInvoiceCollection')->willReturn($collection);

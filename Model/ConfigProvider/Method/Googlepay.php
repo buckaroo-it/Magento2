@@ -38,6 +38,13 @@ class Googlepay extends AbstractConfigProvider
     public const XPATH_GOOGLE_MERCHANT_ID                          = 'google_merchant_id';
 
     /**
+     * Card networks offered in the Google Pay payment sheet.
+     *
+     * Buckaroo does not process American Express, Discover or JCB through Google Pay.
+     */
+    public const ALLOWED_CARD_NETWORKS = ['MASTERCARD', 'VISA'];
+
+    /**
      * @var array
      */
     protected $allowedCurrencies = [
@@ -103,7 +110,7 @@ class Googlepay extends AbstractConfigProvider
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
             'locale'                       => $this->getCultureCode(),
-            'allowedCardNetworks'          => ['AMEX', 'DISCOVER', 'JCB', 'MASTERCARD', 'VISA'],
+            'allowedCardNetworks'          => self::ALLOWED_CARD_NETWORKS,
         ]);
     }
 
@@ -243,7 +250,7 @@ class Googlepay extends AbstractConfigProvider
     {
         return $this->scopeConfig->getValue(
             'general/country/default',
-            ScopeInterface::SCOPE_WEBSITES
+            ScopeInterface::SCOPE_STORE
         );
     }
 
@@ -259,10 +266,14 @@ class Googlepay extends AbstractConfigProvider
     }
 
     /**
-     * Get Integration Mode
+     * Get Integration Mode (0 = inline, 1 = redirect)
+     *
+     * @param int|string|\Magento\Store\Api\Data\StoreInterface|null $store Defaults to the current store
+     *
+     * @throws NoSuchEntityException
      */
-    public function getIntegrationMode()
+    public function getIntegrationMode($store = null)
     {
-        return $this->getMethodConfigValue(self::XPATH_GOOGLEPAY_INTEGRATION_MODE, $this->storeManager->getStore());
+        return $this->getMethodConfigValue(self::XPATH_GOOGLEPAY_INTEGRATION_MODE, $store ?? $this->storeManager->getStore());
     }
 }

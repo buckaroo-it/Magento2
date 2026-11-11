@@ -20,6 +20,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLogger;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -310,6 +311,8 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
             );
         }
 
+        // Payment is already done; the order must be created
+        $quote->setData(VerificationGuard::FLAG_ALREADY_CHECKED, true);
         $order = $this->quoteManagement->submit($quote);
 
         // keep the quote active but remove the canceled order from it
