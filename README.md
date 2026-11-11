@@ -191,9 +191,13 @@ All changes are documented on the [releases page](https://github.com/buckaroo-it
 This module is released under the [MIT License](LICENSE).
 
 The Buckaroo name, logo and other Buckaroo brand assets are trademarks of
-Buckaroo B.V. and are not covered by the MIT License. The licence grants rights
+Buckaroo B.V. and are not covered by the MIT License. The license grants rights
 to the source code only; it does not grant permission to use the Buckaroo brand
 to endorse or promote derived works.
+
+Payment method, card scheme, bank and gift card logos included in this module
+are trademarks of their respective owners. They are included only to identify
+the payment methods and are not covered by the MIT License.
 
 ---
 
