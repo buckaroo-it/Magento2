@@ -22,6 +22,7 @@ define(
         'mage/url',
         'Magento_Ui/js/modal/alert',
         'Magento_Checkout/js/action/get-totals',
+        'Magento_Checkout/js/model/totals',
         'Magento_Customer/js/customer-data',
     ],
     function (
@@ -34,6 +35,7 @@ define(
         url,
         alert,
         getTotalsAction,
+        totals,
         customerData,
     ) {
         'use strict';
@@ -57,18 +59,51 @@ define(
             checkLabels();
         }
 
+        /**
+         * Reload the checkout totals and the minicart
+         *
+         * @returns {jQuery.Deferred}
+         */
         function refreshTotals()
         {
             var deferred = $.Deferred();
             getTotalsAction([], deferred);
             customerData.reload(['cart'], true);
+
+            return deferred;
+        }
+
+        /**
+         * Whether the checkout totals show the order as fully paid with at least one giftcard among
+         * the partial payments. A cart paid by vouchers alone is not a giftcard payment.
+         */
+        function isCoveredWithGiftcardByTotals()
+        {
+            const alreadyPaid = totals.getSegment('buckaroo_already_paid');
+            const remaining = totals.getSegment('remaining_amount');
+            if (!alreadyPaid || !(parseFloat(alreadyPaid.value) > 0) || !remaining) {
+                return false;
+            }
+
+            let payments = [];
+            try {
+                payments = JSON.parse(alreadyPaid.title);
+            } catch (e) {
+                return false;
+            }
+
+            const hasGiftcard = Array.isArray(payments) && payments.some(function (payment) {
+                return payment && payment.servicecode && payment.servicecode !== 'buckaroovoucher';
+            });
+
+            return hasGiftcard && (parseFloat(remaining.value) || 0) < 0.005;
         }
 
         return Component.extend(
             {
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_giftcards',
-                    alreadyFullPayed : false,
+                    alreadyFullPayedByApply: false,
                     cardNumber: null,
                     pin:        null,
                     currentGiftcard: null
@@ -78,7 +113,27 @@ define(
 
 
                 initObservable: function () {
-                    this._super().observe(['alreadyFullPayed','cardNumber','pin', 'currentGiftcard']);
+                    this._super().observe(['alreadyFullPayedByApply', 'cardNumber', 'pin', 'currentGiftcard']);
+
+                    /**
+                     * Giftcards already cover the whole order: only placing it is left. Read from the
+                     * checkout totals, so it also holds after a reload; right after a giftcard covered
+                     * the rest, the apply response says so until fresh totals arrive.
+                     */
+                    this.alreadyFullPayed = ko.pureComputed(function () {
+                        totals.totals();
+
+                        return this.alreadyFullPayedByApply() === true || isCoveredWithGiftcardByTotals();
+                    }, this);
+
+                    // Placing the order failed (e.g. the total changed): let fresh totals decide again
+                    this.isPlaceOrderActionAllowed.subscribe(function (allowed) {
+                        if (allowed && this.alreadyFullPayedByApply()) {
+                            this.alreadyFullPayedByApply(false);
+                            refreshTotals();
+                        }
+                    }, this);
+
                     return this;
                 },
 
@@ -178,7 +233,7 @@ define(
                     if (!this.validateForm()) {
                         return;
                     }
-                    self = this;
+                    const self = this;
 
                     $.ajax({
                         url: url.build('buckaroo/checkout/giftcard'),
@@ -186,52 +241,72 @@ define(
                         dataType: 'json',
                         showLoader: true, //use for display loader
                         data: {
-                            card: self.currentGiftcard,
+                            card: self.currentGiftcard(),
                             cardNumber: self.cardNumber(),
                             pin: self.pin()
                         }
                     }).done(function (data) {
+                        if (data.error) {
+                            self.displayError(data.error);
+                            return;
+                        }
+
                         self.cardNumber('');
                         self.pin('');
 
-                        if (data.alreadyPaid) {
-                            if (data.RemainderAmount == 0) {
-                                self.alreadyFullPayed(true);
-                                self.placeOrder(null, null);
-                            }
-                            checkPayments();
+                        const fullyPaid = (parseFloat(data.RemainderAmount) || 0) < 0.005;
+                        if (fullyPaid) {
+                            // Placing the order must not depend on the totals reload
+                            self.alreadyFullPayedByApply(true);
                         }
-                        // Refresh checkout summary totals so 'Already Paid' and 'Remaining Amount' appear immediately
-                        refreshTotals();
-                        if (data.error) {
-                                alert({
-                                    title: $t('Error'),
-                                    content: $t(data.error),
-                                    actions: {always: function (){} }
-                                });
-                                self.messageContainer.addErrorMessage({'message': $t(data.error)});
-                        } else {
-                            if (data.RemainderAmount != 0) {
-                                checkPayments();
-                                alert({
-                                    title: $t('Success'),
-                                    content: $t(data.message),
-                                    actions: {always: function (){} },
-                                    buttons: [{
-                                        text: $t(data.PayRemainingAmountButton),
-                                        class: 'action primary accept',
-                                        click: function () {
-                                            this.closeModal(true);
-                                            window.location.reload();
-                                        }
-                                    }]
-                                });
-                            }
-                            self.messageContainer.addSuccessMessage({'message': $t(data.message)});
-                        }
-                    });
+                        checkPayments();
 
+                        // Refresh the summary so 'Already Paid' and 'Remaining Amount' appear at once
+                        const totalsReload = refreshTotals();
+                        totalsReload.always(function () {
+                            if (totalsReload.state() === 'resolved') {
+                                // Fresh totals decide from here on
+                                self.alreadyFullPayedByApply(false);
+                            }
+
+                            self.messageContainer.addSuccessMessage({'message': data.message});
+                            if (fullyPaid) {
+                                self.placeOrder(null, null);
+                                return;
+                            }
+
+                            alert({
+                                title: $t('Success'),
+                                content: data.message,
+                                actions: {always: function () {} },
+                                buttons: [{
+                                    text: data.PayRemainingAmountButton,
+                                    class: 'action primary accept',
+                                    click: function () {
+                                        this.closeModal(true);
+                                        window.location.reload();
+                                    }
+                                }]
+                            });
+                        });
+                    }).fail(function (err) {
+                        self.displayError(
+                            err.responseJSON && err.responseJSON.error
+                                ? err.responseJSON.error
+                                : $t('The giftcard could not be applied. Please check the card number and PIN and try again.')
+                        );
+                    });
                 },
+
+                displayError: function (message) {
+                    alert({
+                        title: $t('Error'),
+                        content: message,
+                        actions: {always: function () {} }
+                    });
+                    this.messageContainer.addErrorMessage({'message': message});
+                },
+
                 /**
                  * Select giftcard method in individual mode
                  */

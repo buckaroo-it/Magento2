@@ -10,51 +10,59 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   MIT
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Model\Giftcard\Api;
 
 use Buckaroo\Magento2\Api\Data\Giftcard\PayRequestInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Api\PayWithGiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface as GiftcardRequest;
-use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
-use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\PartialPayment\ApplyService;
+use Buckaroo\Magento2\Model\PartialPayment\Instrument\GiftcardFactory;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentRejectedException;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentUnavailableException;
+use Magento\Framework\Webapi\Exception as WebapiException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\ChangeQuoteControlInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 
+/**
+ * REST entry point that applies a giftcard to a cart identified by its masked id.
+ *
+ * The work is done by the shared partial payment service; this class finds the cart, checks the
+ * caller may change it and turns the outcome into the response.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Pay implements PayWithGiftcardInterface
 {
     /**
-     * @var GiftcardRequest
+     * @var ApplyService
      */
-    protected $giftcardRequest;
+    private $applyService;
 
     /**
-     * @var GiftcardResponse
+     * @var GiftcardFactory
      */
-    protected $giftcardResponse;
+    private $giftcardFactory;
+
+    /**
+     * @var PartialPaymentMethods
+     */
+    private $partialPaymentMethods;
 
     /**
      * @var QuoteIdMaskFactory
      */
-    protected $quoteIdMaskFactory;
+    private $quoteIdMaskFactory;
 
     /**
      * @var CartRepositoryInterface
      */
-    protected $cartRepository;
-
-    /**
-     * @var PayResponseSetInterfaceFactory
-     */
-    protected $payResponseFactory;
-
-    /**
-     * @var AttemptLimit
-     */
-    private $attemptLimit;
+    private $cartRepository;
 
     /**
      * @var ChangeQuoteControlInterface
@@ -62,30 +70,43 @@ class Pay implements PayWithGiftcardInterface
     private $changeQuoteControl;
 
     /**
-     * @param GiftcardRequest                $giftcardRequest
-     * @param GiftcardResponse               $giftcardResponse
+     * @var PayResponseSetInterfaceFactory
+     */
+    private $payResponseFactory;
+
+    /**
+     * @var BuckarooLoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @param ApplyService                   $applyService
+     * @param GiftcardFactory                $giftcardFactory
+     * @param PartialPaymentMethods          $partialPaymentMethods
      * @param QuoteIdMaskFactory             $quoteIdMaskFactory
      * @param CartRepositoryInterface        $cartRepository
-     * @param PayResponseSetInterfaceFactory $payResponseFactory
-     * @param AttemptLimit                   $attemptLimit
      * @param ChangeQuoteControlInterface    $changeQuoteControl
+     * @param PayResponseSetInterfaceFactory $payResponseFactory
+     * @param BuckarooLoggerInterface        $logger
      */
     public function __construct(
-        GiftcardRequest $giftcardRequest,
-        GiftcardResponse $giftcardResponse,
+        ApplyService $applyService,
+        GiftcardFactory $giftcardFactory,
+        PartialPaymentMethods $partialPaymentMethods,
         QuoteIdMaskFactory $quoteIdMaskFactory,
         CartRepositoryInterface $cartRepository,
+        ChangeQuoteControlInterface $changeQuoteControl,
         PayResponseSetInterfaceFactory $payResponseFactory,
-        AttemptLimit $attemptLimit,
-        ChangeQuoteControlInterface $changeQuoteControl
+        BuckarooLoggerInterface $logger
     ) {
-        $this->giftcardRequest = $giftcardRequest;
-        $this->giftcardResponse = $giftcardResponse;
+        $this->applyService = $applyService;
+        $this->giftcardFactory = $giftcardFactory;
+        $this->partialPaymentMethods = $partialPaymentMethods;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->cartRepository = $cartRepository;
-        $this->payResponseFactory = $payResponseFactory;
-        $this->attemptLimit = $attemptLimit;
         $this->changeQuoteControl = $changeQuoteControl;
+        $this->payResponseFactory = $payResponseFactory;
+        $this->logger = $logger;
     }
 
     /**
@@ -94,100 +115,70 @@ class Pay implements PayWithGiftcardInterface
     public function pay(string $cartId, string $giftcardId, PayRequestInterface $payment)
     {
         if ($payment->getCardNumber() === null) {
-            throw new ApiException(__('Parameter `card_number` is required'));
+            throw new WebapiException(__('Parameter `card_number` is required'));
         }
-
         if ($payment->getCardPin() === null) {
-            throw new ApiException(__('Parameter `card_pin` is required'));
+            throw new WebapiException(__('Parameter `card_pin` is required'));
         }
 
         try {
-            $quote = $this->getQuote($cartId);
-            $this->attemptLimit->assertWithinLimit($quote);
-
-            try {
-                return $this->getResponse(
-                    $quote,
-                    $this->build($quote, $giftcardId, $payment)->send()
-                );
-            } catch (ApiException $th) {
-                $this->attemptLimit->registerFailedAttempt($quote);
-                throw $th;
-            }
-        } catch (ApiException $th) {
-            throw $th;
-        } catch (NoQuoteException $th) {
-            throw $th;
-        } catch (\Throwable $th) {
-            throw new ApiException(__('Unknown buckaroo error has occurred'), 0, $th);
+            $result = $this->applyService->apply(
+                $this->getQuote($cartId),
+                $this->giftcardFactory->create([
+                    'cardId'     => $giftcardId,
+                    'cardNumber' => (string)$payment->getCardNumber(),
+                    'pin'        => (string)$payment->getCardPin(),
+                ])
+            );
+        } catch (PartialPaymentRejectedException|PartialPaymentUnavailableException $e) {
+            throw new WebapiException(__($e->getMessage()));
+        } catch (\Throwable $e) {
+            $this->logger->addError(sprintf(
+                '[Giftcard] | [Webapi] | [%s:%s] - Apply giftcard failed | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                (string)$e
+            ));
+            throw new WebapiException(
+                __('The giftcard could not be applied. Please check the card number and PIN and try again.')
+            );
         }
+
+        $transaction = $result->getTransaction();
+        if ($transaction->getData('label') === null) {
+            $transaction->setData('label', $this->partialPaymentMethods->getLabel($transaction->getData('servicecode')));
+        }
+
+        return $this->payResponseFactory->create()->setData([
+            'remainderAmount' => $result->getRemainderAmount(),
+            'alreadyPaid'     => $result->getAlreadyPaid(),
+            'transaction'     => $transaction,
+        ]);
     }
 
     /**
-     * Get quote from masked cart id
+     * Active cart behind the masked id, if the caller may change it
      *
      * @param string $cartId
      *
-     * @throws NoQuoteException
+     * @throws PartialPaymentRejectedException
      *
      * @return Quote
      */
-    protected function getQuote(string $cartId): Quote
+    private function getQuote(string $cartId): Quote
     {
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
             $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
-        } catch (\Throwable $th) {
-            throw new NoQuoteException((string)__("The cart isn't active."), 0, $th);
+        } catch (\Throwable $e) {
+            throw new PartialPaymentRejectedException(__("The cart isn't active."), $e instanceof \Exception ? $e : null);
         }
 
         if (!$this->changeQuoteControl->isAllowed($quote)) {
-            throw new NoQuoteException((string)__("The cart isn't active."));
+            throw new PartialPaymentRejectedException(__("The cart isn't active."));
         }
 
         return $quote;
-    }
-
-    /**
-     * Get Giftcard Response
-     *
-     * @param Quote $quote
-     * @param mixed $response
-     *
-     * @throws ApiException
-     *
-     * @return mixed
-     */
-    protected function getResponse(Quote $quote, $response)
-    {
-        $this->giftcardResponse->set($response, $quote);
-
-        if ($this->giftcardResponse->getErrorMessage() !== null) {
-            throw new ApiException($this->giftcardResponse->getErrorMessage());
-        }
-        return $this->payResponseFactory->create()->setData([
-            'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
-            'alreadyPaid'     => $this->giftcardResponse->getAlreadyPaid($quote),
-            'transaction'     => $this->giftcardResponse->getCreatedTransaction()
-        ]);
-    }
-
-    /**
-     * Build giftcard request
-     *
-     * @param Quote               $quote
-     * @param string              $giftcardId
-     * @param PayRequestInterface $payment
-     *
-     * @return GiftcardRequest
-     */
-    protected function build(Quote $quote, string $giftcardId, PayRequestInterface $payment)
-    {
-        return $this->giftcardRequest
-            ->setCardId($giftcardId)
-            ->setCardNumber($payment->getCardNumber())
-            ->setPin($payment->getCardPin())
-            ->setQuote($quote);
     }
 }

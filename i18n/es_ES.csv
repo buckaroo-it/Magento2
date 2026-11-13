@@ -651,3 +651,5 @@
 "You paid successfully.","Ha pagado correctamente."
 "Your vouchers do not cover the order total yet. Apply a voucher for the remaining amount or choose another payment method.","Sus vales aún no cubren el total del pedido. Aplique un vale para el importe restante o elija otro método de pago."
 "Your vouchers cover the full order amount. Place your order to finish.","Sus vales cubren el importe total del pedido. Realice su pedido para finalizar."
+"This giftcard is not accepted in this store.","Esta tarjeta regalo no se acepta en esta tienda."
+"The giftcard could not be applied. Please check the card number and PIN and try again.","No se ha podido aplicar la tarjeta regalo. Compruebe el número de tarjeta y el PIN e inténtelo de nuevo."

@@ -260,6 +260,24 @@ class ApplyServiceTest extends TestCase
         $this->assertTrue($result->isFullyPaid());
     }
 
+    /**
+     * Without remainder details the rest is computed from amounts; float sums like 10.1 + 20.2 must
+     * not leave a tiny remainder that the checkout reads as still open
+     */
+    public function testComputedRemainderIsRoundedToCents(): void
+    {
+        $quote = $this->createQuote();
+        $quote->setGrandTotal(30.3);
+        $this->client->method('placeRequest')->willReturn(['object' => $this->createResponse(true, [], '20.20')]);
+        $this->groupTransaction->method('getAlreadyPaid')->willReturn(10.1 + 20.2);
+        $this->groupTransaction->method('getByTransactionIdWithName')
+            ->willReturn($this->createMock(GroupTransaction::class));
+
+        $result = $this->service->apply($quote, new Voucher('CODE'));
+
+        $this->assertSame(0.0, $result->getRemainderAmount());
+    }
+
     private function createQuote(): Quote
     {
         $quote = $this->getMockBuilder(Quote::class)
