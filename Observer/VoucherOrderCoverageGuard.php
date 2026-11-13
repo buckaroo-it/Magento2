@@ -16,9 +16,11 @@ namespace Buckaroo\Magento2\Observer;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 
 /**
@@ -65,6 +67,14 @@ class VoucherOrderCoverageGuard implements ObserverInterface
         }
 
         if ($order->getPayment()->getMethod() !== Voucher::CODE) {
+            return;
+        }
+
+        // The module itself submits an uncovered quote to record (and cancel) the order once the
+        // payment outcome is known, e.g. after a failed or cancelled partial payment. Only orders
+        // the shopper places are checked here.
+        $quote = $observer->getEvent()->getQuote();
+        if ($quote instanceof Quote && $quote->getData(VerificationGuard::FLAG_ALREADY_CHECKED)) {
             return;
         }
 

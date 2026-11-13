@@ -187,6 +187,21 @@ class ApplyServiceTest extends TestCase
         $this->service->apply($this->createQuote(), new Voucher('CODE'));
     }
 
+    /**
+     * The gateway accepted (and charged) the voucher, then storing the outcome failed: the
+     * shopper must not be told to check the code, the outcome is unknown to the shop
+     */
+    public function testAFailureAfterTheGatewayAcceptedIsReportedAsUnavailable(): void
+    {
+        $this->client->method('placeRequest')->willReturn(['object' => $this->createResponse(true, [], '10.00')]);
+        $this->gatewayResponse->method('set')->willThrowException(new \RuntimeException('db down'));
+        $this->attemptLimit->expects($this->never())->method('registerFailedAttempt');
+
+        $this->expectException(PartialPaymentUnavailableException::class);
+
+        $this->service->apply($this->createQuote(), new Voucher('CODE'));
+    }
+
     public function testGatewayRejectionShowsTheFullReasonAndCountsTheAttempt(): void
     {
         $quote = $this->createQuote();

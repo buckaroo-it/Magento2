@@ -15,11 +15,13 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Buckaroo\Magento2\Observer\VoucherOrderCoverageGuard;
 use Magento\Framework\DataObject;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -64,6 +66,22 @@ class VoucherOrderCoverageGuardTest extends TestCase
         ];
     }
 
+    /**
+     * The module itself submits an uncovered quote to record and cancel it after a failed or
+     * cancelled payment (push processor, giftcard response); that order must be created
+     */
+    public function testOrdersTheModuleCreatesAfterThePaymentOutcomeAreNotChecked(): void
+    {
+        $groupTransaction = $this->createMock(PaymentGroupTransaction::class);
+        $groupTransaction->expects($this->never())->method('getAlreadyPaid');
+
+        $quote = $this->getMockBuilder(Quote::class)->disableOriginalConstructor()->onlyMethods([])->getMock();
+        $quote->setData(VerificationGuard::FLAG_ALREADY_CHECKED, true);
+
+        (new VoucherOrderCoverageGuard($groupTransaction))
+            ->execute($this->createObserver('buckaroo_magento2_voucher', 34.0, $quote));
+    }
+
     public function testOtherMethodsAreNotChecked(): void
     {
         $groupTransaction = $this->createMock(PaymentGroupTransaction::class);
@@ -86,7 +104,7 @@ class VoucherOrderCoverageGuardTest extends TestCase
         return new VoucherOrderCoverageGuard($groupTransaction);
     }
 
-    private function createObserver(string $method, float $grandTotal): Observer
+    private function createObserver(string $method, float $grandTotal, ?Quote $quote = null): Observer
     {
         $payment = $this->createMock(Payment::class);
         $payment->method('getMethod')->willReturn($method);
@@ -99,6 +117,6 @@ class VoucherOrderCoverageGuardTest extends TestCase
         $order->method('getIncrementId')->willReturn('000000042');
         $order->method('getGrandTotal')->willReturn($grandTotal);
 
-        return new Observer(['event' => new Event(['order' => $order])]);
+        return new Observer(['event' => new Event(['order' => $order, 'quote' => $quote])]);
     }
 }

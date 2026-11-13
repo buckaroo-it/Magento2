@@ -147,14 +147,30 @@ class ApplyService
 
         $response = $this->send($quote, $instrument);
 
-        $this->gatewayResponse->set($response, $quote);
+        try {
+            $this->gatewayResponse->set($response, $quote);
 
-        if (!$response->isSuccess()) {
-            $this->attemptLimit->registerFailedAttempt($quote);
-            throw new PartialPaymentRejectedException(__($this->getRejectionMessage($instrument)));
+            if (!$response->isSuccess()) {
+                $this->attemptLimit->registerFailedAttempt($quote);
+                throw new PartialPaymentRejectedException(__($this->getRejectionMessage($instrument)));
+            }
+
+            return $this->createResult($quote, $response);
+        } catch (PartialPaymentRejectedException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // The gateway answered, possibly after taking the payment; what happened next is not
+            // known to the shop, so the shopper is not told to check the code
+            $this->logger->addError(sprintf(
+                '[PARTIAL_PAYMENT] | [Service] | [%s:%s] - %s response could not be processed | quote: %s | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                $instrument->getServiceCode(),
+                $quote->getId(),
+                (string)$e
+            ));
+            throw $this->unavailable($e);
         }
-
-        return $this->createResult($quote, $response);
     }
 
     /**
