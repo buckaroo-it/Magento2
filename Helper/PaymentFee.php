@@ -234,12 +234,12 @@ class PaymentFee extends AbstractHelper
                     continue;
                 }
 
-                // A voucher has no giftcard row and is refunded as a whole, like a giftcard that is
-                // not partially refundable
+                // A voucher has no giftcard row. It can be refunded in parts (the automatic refund
+                // does), so the row offers what is left on it, like a partially refundable giftcard.
                 $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
                     'servicecode',
                     $giftcard['servicecode']
-                ) ?? ['servicecode' => $partialPayment['code'], 'is_partial_refundable' => false];
+                ) ?? ['servicecode' => $partialPayment['code'], 'is_partial_refundable' => true];
 
                 $label = __('Paid with %1', $partialPayment['label']);
 

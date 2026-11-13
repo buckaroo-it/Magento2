@@ -392,6 +392,13 @@ class RefundGroupTransactionService
 
         $groupTransaction = $this->paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
+        if ($groupTransaction && $groupTransaction->getEntityId()) {
+            // Never credit more than is left on the transaction, e.g. after an earlier partial refund
+            $leftOnTransaction = (float)$groupTransaction->getData('amount')
+                - (float)$groupTransaction->getRefundedAmount();
+            $giftCardValue = min((float)$giftCardValue, max(0.0, $leftOnTransaction));
+        }
+
         if ($giftCardValue > 0 && $this->amountLeftToRefund > 0) {
             if ($this->amountLeftToRefund < $giftCardValue) {
                 $giftCardValue = $this->amountLeftToRefund;

@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Test\Unit\Observer;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Observer\VoucherOrderCoverageGuard;
+use Magento\Framework\DataObject;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
@@ -27,9 +28,10 @@ use PHPUnit\Framework\TestCase;
 class VoucherOrderCoverageGuardTest extends TestCase
 {
     #[DataProvider('coveredProvider')]
-    public function testVoucherOrderCoveredByVouchersIsPlaced(float $alreadyPaid): void
+    public function testVoucherOrderCoveredByVouchersIsPlaced(float $alreadyPaid, array $serviceCodes): void
     {
-        $this->createGuard($alreadyPaid)->execute($this->createObserver('buckaroo_magento2_voucher', 34.0));
+        $this->createGuard($alreadyPaid, $serviceCodes)
+            ->execute($this->createObserver('buckaroo_magento2_voucher', 34.0));
 
         $this->addToAssertionCount(1);
     }
@@ -37,25 +39,28 @@ class VoucherOrderCoverageGuardTest extends TestCase
     public static function coveredProvider(): array
     {
         return [
-            'exactly covered'          => [34.0],
-            'within rounding distance' => [33.995],
+            'exactly covered by a voucher'  => [34.0, ['buckaroovoucher']],
+            'within rounding distance'      => [33.995, ['buckaroovoucher']],
+            'giftcard and voucher together' => [34.0, ['vvvgiftcard', 'buckaroovoucher']],
         ];
     }
 
     #[DataProvider('notCoveredProvider')]
-    public function testVoucherOrderNotCoveredByVouchersIsRefused(float $alreadyPaid): void
+    public function testVoucherOrderNotCoveredByVouchersIsRefused(float $alreadyPaid, array $serviceCodes): void
     {
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage('Your vouchers do not cover the order total yet.');
 
-        $this->createGuard($alreadyPaid)->execute($this->createObserver('buckaroo_magento2_voucher', 34.0));
+        $this->createGuard($alreadyPaid, $serviceCodes)
+            ->execute($this->createObserver('buckaroo_magento2_voucher', 34.0));
     }
 
     public static function notCoveredProvider(): array
     {
         return [
-            'nothing paid' => [0.0],
-            'partly paid'  => [24.0],
+            'nothing paid'                 => [0.0, []],
+            'partly paid by a voucher'     => [24.0, ['buckaroovoucher']],
+            'fully paid without a voucher' => [34.0, ['vvvgiftcard']],
         ];
     }
 
@@ -68,10 +73,15 @@ class VoucherOrderCoverageGuardTest extends TestCase
             ->execute($this->createObserver('buckaroo_magento2_ideal', 34.0));
     }
 
-    private function createGuard(float $alreadyPaid): VoucherOrderCoverageGuard
+    private function createGuard(float $alreadyPaid, array $serviceCodes): VoucherOrderCoverageGuard
     {
         $groupTransaction = $this->createMock(PaymentGroupTransaction::class);
         $groupTransaction->method('getAlreadyPaid')->with('000000042')->willReturn($alreadyPaid);
+        $groupTransaction->method('getGroupTransactionItems')->with('000000042')->willReturn(
+            array_map(function (string $serviceCode) {
+                return new DataObject(['servicecode' => $serviceCode]);
+            }, $serviceCodes)
+        );
 
         return new VoucherOrderCoverageGuard($groupTransaction);
     }

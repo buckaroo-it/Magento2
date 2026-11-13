@@ -37,18 +37,29 @@ define(
         'use strict';
 
         /**
-         * Amount still open once applied vouchers are taken off, from the checkout totals
+         * Whether the checkout totals show the order as fully paid with at least one voucher among
+         * the partial payments. A cart paid by giftcards alone is not a voucher payment.
          */
-        function getRemainingAmount()
+        function isCoveredWithVoucherByTotals()
         {
             const alreadyPaid = totals.getSegment('buckaroo_already_paid');
-            if (!alreadyPaid || !(parseFloat(alreadyPaid.value) > 0)) {
-                return null;
+            const remaining = totals.getSegment('remaining_amount');
+            if (!alreadyPaid || !(parseFloat(alreadyPaid.value) > 0) || !remaining) {
+                return false;
             }
 
-            const remaining = totals.getSegment('remaining_amount');
+            let payments = [];
+            try {
+                payments = JSON.parse(alreadyPaid.title);
+            } catch (e) {
+                return false;
+            }
 
-            return remaining ? parseFloat(remaining.value) || 0 : null;
+            const hasVoucher = Array.isArray(payments) && payments.some(function (payment) {
+                return payment && payment.servicecode === 'buckaroovoucher';
+            });
+
+            return hasVoucher && (parseFloat(remaining.value) || 0) < 0.005;
         }
 
         return Component.extend(
@@ -56,23 +67,23 @@ define(
                 defaults: {
                     template: 'Buckaroo_Magento2/payment/buckaroo_magento2_voucher',
                     code: '',
-                    isSubmitting: false
+                    isSubmitting: false,
+                    coveredByApply: false
                 },
 
                 initObservable: function () {
-                    this._super().observe(['code', 'isSubmitting']);
+                    this._super().observe(['code', 'isSubmitting', 'coveredByApply']);
 
                     /**
                      * Vouchers already cover the whole order: there is nothing left to apply and
-                     * the order only has to be placed. Read from the totals, so it also holds
-                     * after the shopper reloads the checkout.
+                     * the order only has to be placed. Known from the apply response at once, and
+                     * from the totals after the shopper reloads the checkout.
                      */
                     this.isFullyPaid = ko.pureComputed(function () {
                         totals.totals();
-                        const remaining = getRemainingAmount();
 
-                        return remaining !== null && remaining < 0.005;
-                    });
+                        return this.coveredByApply() === true || isCoveredWithVoucherByTotals();
+                    }, this);
 
                     return this;
                 },
@@ -108,6 +119,10 @@ define(
                         data: JSON.stringify({voucherCode: this.code()})
                     }).done((data) => {
                         this.code('');
+                        if (!(parseFloat(data.remainder_amount) > 0)) {
+                            // Fully paid: placing the order must not depend on the totals reload
+                            this.coveredByApply(true);
+                        }
                         this.refreshTotals().always(() => {
                             this.isSubmitting(false);
 

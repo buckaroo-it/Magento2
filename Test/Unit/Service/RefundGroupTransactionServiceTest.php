@@ -110,6 +110,20 @@ class RefundGroupTransactionServiceTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * A posted amount above what is left on the transaction (a form opened before an earlier
+     * partial refund) is credited only up to the remaining amount
+     */
+    public function testARefundIsCappedAtWhatIsLeftOnTheTransaction(): void
+    {
+        $groupTransaction = $this->groupTransaction(5.00);
+
+        $this->service->createRefundGroupRequest([], 'B1DA75BE2400480B86D1D37817B81DB1|fashioncheque|10.00', 10.00);
+
+        $this->assertSame(10.0, $groupTransaction->getRefundedAmount());
+        $this->assertEqualsWithDelta(35.05, $this->service->getAmountLeftToRefund(), 0.001);
+    }
+
+    /**
      * A voucher has no row in the giftcard table. When it was not recognised here, an automatic
      * refund skipped it and took its amount off the remaining refund, so it was never paid back.
      */

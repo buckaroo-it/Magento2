@@ -52,6 +52,19 @@ class PaymentFeeCreditmemoTest extends TestCase
         );
     }
 
+    /**
+     * An automatic refund can take part of a voucher; the form then offers only what is left,
+     * as the gateway rejects a credit above the voucher's remaining amount
+     */
+    public function testAPartlyRefundedVoucherOffersOnlyWhatIsLeft(): void
+    {
+        $rows = $this->getCreditmemoRows([
+            $this->groupTransaction('VC-KEY', 'buckaroovoucher', 10.00, 5.00),
+        ]);
+
+        $this->assertSame(['VC-KEY|buckaroovoucher|10' => ['Paid with Voucher', -5.0]], $rows);
+    }
+
     public function testAFullyRefundedVoucherOffersNothingMore(): void
     {
         $rows = $this->getCreditmemoRows([
