@@ -65,6 +65,35 @@ class PaymentFeeCreditmemoTest extends TestCase
         $this->assertSame(['VC-KEY|buckaroovoucher|10' => ['Paid with Voucher', -5.0]], $rows);
     }
 
+    /**
+     * Two vouchers share one service code; a posted amount belongs to its own transaction only
+     */
+    public function testTwoVouchersKeepTheirOwnPostedAmounts(): void
+    {
+        $rows = $this->getCreditmemoRows(
+            [
+                $this->groupTransaction('VA-KEY', 'buckaroovoucher', 24.00),
+                $this->groupTransaction('VB-KEY', 'buckaroovoucher', 10.00),
+            ],
+            [
+                'creditmemo' => [
+                    'buckaroo_already_paid' => [
+                        'VA-KEY|buckaroovoucher|24' => '24',
+                        'VB-KEY|buckaroovoucher|10' => '10',
+                    ],
+                ],
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'VA-KEY|buckaroovoucher|24' => ['Paid with Voucher', -24.0],
+                'VB-KEY|buckaroovoucher|10' => ['Paid with Voucher', -10.0],
+            ],
+            $rows
+        );
+    }
+
     public function testAFullyRefundedVoucherOffersNothingMore(): void
     {
         $rows = $this->getCreditmemoRows([
@@ -76,13 +105,14 @@ class PaymentFeeCreditmemoTest extends TestCase
 
     /**
      * @param GroupTransaction[] $items
+     * @param array              $params posted request parameters
      *
      * @return array<string, array{0: string, 1: float}>
      */
-    private function getCreditmemoRows(array $items): array
+    private function getCreditmemoRows(array $items, array $params = []): array
     {
         $request = $this->createMock(RequestInterface::class);
-        $request->method('getParams')->willReturn([]);
+        $request->method('getParams')->willReturn($params);
         $context = $this->createMock(Context::class);
         $context->method('getRequest')->willReturn($request);
 

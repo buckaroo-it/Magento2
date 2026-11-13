@@ -76,13 +76,21 @@ define(
 
                     /**
                      * Vouchers already cover the whole order: there is nothing left to apply and
-                     * the order only has to be placed. Known from the apply response at once, and
-                     * from the totals after the shopper reloads the checkout.
+                     * the order only has to be placed. Read from the checkout totals. Right after a
+                     * voucher covered the rest, the apply response says so until fresh totals arrive.
                      */
                     this.isFullyPaid = ko.pureComputed(function () {
                         totals.totals();
 
                         return this.coveredByApply() === true || isCoveredWithVoucherByTotals();
+                    }, this);
+
+                    // Placing the order failed (e.g. the total changed): let fresh totals decide again
+                    this.isPlaceOrderActionAllowed.subscribe(function (allowed) {
+                        if (allowed && this.coveredByApply()) {
+                            this.coveredByApply(false);
+                            this.refreshTotals();
+                        }
                     }, this);
 
                     return this;
@@ -123,7 +131,12 @@ define(
                             // Fully paid: placing the order must not depend on the totals reload
                             this.coveredByApply(true);
                         }
-                        this.refreshTotals().always(() => {
+                        const totalsReload = this.refreshTotals();
+                        totalsReload.always(() => {
+                            if (totalsReload.state() === 'resolved') {
+                                // Fresh totals decide from here on
+                                this.coveredByApply(false);
+                            }
                             this.isSubmitting(false);
 
                             if (parseFloat(data.remainder_amount) > 0) {

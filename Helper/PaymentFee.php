@@ -218,12 +218,14 @@ class PaymentFee extends AbstractHelper
         if ($orderId !== null && $alreadyPayed > 0) {
             $requestParams = $this->_request->getParams();
             $items = $this->groupTransaction->getGroupTransactionItems($orderId);
-            $giftcards = [];
+            // Posted amounts per transaction id: several vouchers (or the same giftcard brand twice)
+            // share one service code, so the service code cannot tell their amounts apart
+            $postedAmounts = [];
 
             if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
                 foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
-                    $transaction = explode('|', $giftcardKey);
-                    $giftcards[$transaction[1]] = $value;
+                    $transaction = explode('|', (string)$giftcardKey);
+                    $postedAmounts[$transaction[0]] = $value;
                 }
             }
 
@@ -242,6 +244,7 @@ class PaymentFee extends AbstractHelper
                 ) ?? ['servicecode' => $partialPayment['code'], 'is_partial_refundable' => true];
 
                 $label = __('Paid with %1', $partialPayment['label']);
+                $transactionId = (string)$giftcard['transaction_id'];
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
                 $amountValue = (float)$giftcard['amount'];
@@ -251,10 +254,10 @@ class PaymentFee extends AbstractHelper
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
 
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
-                        (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
+                    if (array_key_exists($transactionId, $postedAmounts) &&
+                        (float)$postedAmounts[$transactionId] <= $residual
                     ) {
-                        $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
+                        $amountValue = (float)$postedAmounts[$transactionId];
                         $amountBaseValue = $amountValue;
                     } else {
                         $amountValue = $residual;
@@ -266,8 +269,8 @@ class PaymentFee extends AbstractHelper
                         $amountValue = 0;
                         $amountBaseValue = 0;
                     } elseif (is_array($foundGiftcard) &&
-                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
-                        empty((float)$giftcards[$foundGiftcard['servicecode']])
+                        array_key_exists($transactionId, $postedAmounts) &&
+                        empty((float)$postedAmounts[$transactionId])
                     ) {
                         $amountValue = 0;
                         $amountBaseValue = 0;
