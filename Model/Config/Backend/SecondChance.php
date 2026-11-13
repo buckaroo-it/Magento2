@@ -1,9 +1,14 @@
 <?php
 /**
- * Copyright © 2015 Buckaroo B.V.
+ * Buckaroo Magento 2 payment module (https://www.buckaroo.eu/)
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * Copyright (c) Buckaroo B.V.
+ * See LICENSE for license details.
+ *
+ * Support: support@buckaroo.nl
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   MIT
  */
 
 namespace Buckaroo\Magento2\Model\Config\Backend;

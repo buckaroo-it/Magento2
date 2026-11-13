@@ -31,7 +31,7 @@
         "ext-pcre": "*"
     },
     "type": "magento2-module",
-    "license": "CC-BY-NC-ND-3.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "Buckaroo",
