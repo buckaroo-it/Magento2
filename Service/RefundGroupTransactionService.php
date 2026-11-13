@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Service;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
@@ -508,6 +509,11 @@ class RefundGroupTransactionService
         foreach ($groupTransactions as $transaction) {
             $servicecode = $transaction->getData('servicecode');
 
+            if (!$this->isSuccessful($transaction)) {
+                // A rejected giftcard or voucher attempt is stored too; there is nothing to refund
+                continue;
+            }
+
             if (!$this->isGiftcardService($servicecode)) {
                 // Skip non-giftcard transactions; they are handled by the primary refund flow
                 continue;
@@ -561,8 +567,8 @@ class RefundGroupTransactionService
 
         foreach ($groupTransactions as $transaction) {
             $servicecode = $transaction->getData('servicecode');
-            // Check if servicecode is not a giftcard variant
-            if (!$this->isGiftcardService($servicecode)) {
+            // Check if servicecode is not a giftcard variant (and the payment succeeded)
+            if ($this->isSuccessful($transaction) && !$this->isGiftcardService($servicecode)) {
                 return $transaction;
             }
         }
@@ -721,5 +727,17 @@ class RefundGroupTransactionService
         }
 
         return $this->partialPaymentMethods;
+    }
+
+    /**
+     * Whether the group transaction is a successful payment (failed attempts are stored as well)
+     *
+     * @param GroupTransaction $transaction
+     *
+     * @return bool
+     */
+    private function isSuccessful($transaction): bool
+    {
+        return (int)$transaction->getData('status') === BuckarooStatusCode::SUCCESS;
     }
 }

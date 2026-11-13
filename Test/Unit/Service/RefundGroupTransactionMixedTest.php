@@ -76,6 +76,34 @@ class RefundGroupTransactionMixedTest extends TestCase
     }
 
     /**
+     * API / headless credit memo (no posted rows): only successful partial payments are refunded.
+     * A rejected voucher attempt is stored too and must not be sent as a refund.
+     */
+    public function testAutomaticRefundSkipsFailedVoucherAttempts(): void
+    {
+        $items = [
+            'VF-KEY' => $this->groupTransaction('VF-KEY', 'buckaroovoucher', 34.00, '490'),
+            'VC-KEY' => $this->groupTransaction('VC-KEY', 'buckaroovoucher', 10.00),
+            'ID-KEY' => $this->groupTransaction('ID-KEY', 'ideal', 24.00),
+        ];
+
+        $sent = [];
+        $service = $this->createService($items, [], $sent);
+
+        $buildSubject = ['payment' => $this->createPaymentDataObject(), 'amount' => 34.00];
+        $service->refundGroupTransactions($buildSubject);
+
+        $this->assertSame(
+            [
+                ['buckaroovoucher', 10.0, 'VC-KEY'],
+                ['ideal', 24.0, 'ID-KEY'],
+            ],
+            $sent
+        );
+        $this->assertNull($items['VF-KEY']->getData('refunded_amount'));
+    }
+
+    /**
      * @param array<string, GroupTransaction> $items
      * @param array                           $params
      * @param array                           $sent   receives [payment_method, amountCredit, originalTransactionKey]
@@ -151,8 +179,12 @@ class RefundGroupTransactionMixedTest extends TestCase
         return $paymentDO;
     }
 
-    private function groupTransaction(string $transactionId, string $serviceCode, float $amount): GroupTransaction
-    {
+    private function groupTransaction(
+        string $transactionId,
+        string $serviceCode,
+        float $amount,
+        string $status = '190'
+    ): GroupTransaction {
         $groupTransaction = $this->getMockBuilder(GroupTransaction::class)
             ->disableOriginalConstructor()
             ->onlyMethods([])
@@ -163,6 +195,7 @@ class RefundGroupTransactionMixedTest extends TestCase
             'servicecode'     => $serviceCode,
             'amount'          => $amount,
             'refunded_amount' => null,
+            'status'          => $status,
         ]);
 
         return $groupTransaction;
