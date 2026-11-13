@@ -228,16 +228,20 @@ class PaymentFee extends AbstractHelper
             }
 
             foreach ($items as $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                    'servicecode',
-                    $giftcard['servicecode']
-                );
-
-                if (!$foundGiftcard) {
+                // Every giftcard and voucher gets a row: the refund service refunds the posted rows
+                $partialPayment = $this->getPartialPaymentMethods()->find($giftcard['servicecode']);
+                if ($partialPayment === null) {
                     continue;
                 }
 
-                $label = __('Paid with ' . $foundGiftcard['label']);
+                // A voucher has no giftcard row and is refunded as a whole, like a giftcard that is
+                // not partially refundable
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                    'servicecode',
+                    $giftcard['servicecode']
+                ) ?? ['servicecode' => $partialPayment['code'], 'is_partial_refundable' => false];
+
+                $label = __('Paid with %1', $partialPayment['label']);
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
                 $amountValue = (float)$giftcard['amount'];
