@@ -17,7 +17,13 @@ namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 class Voucher extends AbstractConfigProvider
 {
     public const CODE = 'buckaroo_magento2_voucher';
-    public const XPATH_VOUCHER_PAYMENT_FEE           = 'payment/buckaroo_magento2_voucher/payment_fee';
+
+    /**
+     * Service code of a voucher transaction at Buckaroo, as stored on its group transaction
+     */
+    public const SERVICE_CODE = 'buckaroovoucher';
+
+    public const XPATH_VOUCHER_PAYMENT_FEE          = 'payment/buckaroo_magento2_voucher/payment_fee';
 
     /**
      * @var array

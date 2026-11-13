@@ -32,6 +32,8 @@ use PHPUnit\Framework\MockObject\MockObject;
  * `PaymentGroupTransaction::getGroupTransactionByTrxId()` returns ONE model. Iterating it with
  * foreach walks the model's (non-existent) public properties, so a successful giftcard refund
  * never recorded `refunded_amount`, and a later partial refund offered the same giftcard again.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RefundGroupTransactionServiceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -105,6 +107,32 @@ class RefundGroupTransactionServiceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->service->createRefundGroupRequest([], 'B1DA75BE2400480B86D1D37817B81DB1|fashioncheque|10.00', 6.00);
 
         $this->assertSame(10.0, $groupTransaction->getRefundedAmount());
+    }
+
+    /**
+     * A posted amount above what is left on the transaction (a form opened before an earlier
+     * partial refund) is credited only up to the remaining amount
+     */
+    public function testARefundIsCappedAtWhatIsLeftOnTheTransaction(): void
+    {
+        $groupTransaction = $this->groupTransaction(5.00);
+
+        $this->service->createRefundGroupRequest([], 'B1DA75BE2400480B86D1D37817B81DB1|fashioncheque|10.00', 10.00);
+
+        $this->assertSame(10.0, $groupTransaction->getRefundedAmount());
+        $this->assertEqualsWithDelta(35.05, $this->service->getAmountLeftToRefund(), 0.001);
+    }
+
+    /**
+     * A voucher has no row in the giftcard table. When it was not recognised here, an automatic
+     * refund skipped it and took its amount off the remaining refund, so it was never paid back.
+     */
+    public function testAVoucherIsRefundedOnItsOwnGroupTransaction(): void
+    {
+        $isGiftcardService = new \ReflectionMethod(RefundGroupTransactionService::class, 'isGiftcardService');
+
+        $this->assertTrue($isGiftcardService->invoke($this->service, 'buckaroovoucher'));
+        $this->assertFalse($isGiftcardService->invoke($this->service, 'ideal'));
     }
 
     /**

@@ -18,51 +18,50 @@ use Buckaroo\Magento2\Api\ApplyVoucherInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseInterface;
 use Buckaroo\Magento2\Api\Data\Giftcard\PayResponseSetInterfaceFactory;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
-use Buckaroo\Magento2\Model\Giftcard\Api\NoQuoteException;
-use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
+use Buckaroo\Magento2\Model\PartialPayment\ApplyResult;
+use Buckaroo\Magento2\Model\PartialPayment\ApplyService;
+use Buckaroo\Magento2\Model\PartialPayment\Instrument\VoucherFactory;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentRejectedException;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentUnavailableException;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
-use Magento\Framework\Webapi\Exception;
-use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Framework\Webapi\Exception as WebapiException;
 
 /**
+ * REST entry point that applies a voucher to the shopper's current cart (checkout session).
+ *
+ * Luma and Hyvä checkouts call it from the browser. The work is done by the shared partial
+ * payment service; this class only finds the cart and turns the outcome into the response.
+ *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyVoucher implements ApplyVoucherInterface
 {
     /**
-     * @var QuoteIdMaskFactory
+     * @var ApplyService
      */
-    protected $quoteIdMaskFactory;
+    private $applyService;
 
     /**
-     * @var CartRepositoryInterface
+     * @var VoucherFactory
      */
-    protected $cartRepository;
+    private $voucherFactory;
+
+    /**
+     * @var PartialPaymentMethods
+     */
+    private $partialPaymentMethods;
 
     /**
      * @var PayResponseSetInterfaceFactory
      */
-    protected $payResponseFactory;
-
-    /**
-     * @var ApplyVoucherRequestInterface
-     */
-    protected $voucherRequest;
+    private $payResponseFactory;
 
     /**
      * @var Session
      */
-    protected $checkoutSession;
-
-    /**
-     * @var GiftcardResponse
-     */
-    private $giftcardResponse;
+    private $checkoutSession;
 
     /**
      * @var BuckarooLoggerInterface
@@ -70,27 +69,24 @@ class ApplyVoucher implements ApplyVoucherInterface
     private $logger;
 
     /**
-     * @param ApplyVoucherRequestInterface   $voucherRequest
-     * @param GiftcardResponse               $giftcardResponse
-     * @param QuoteIdMaskFactory             $quoteIdMaskFactory
-     * @param CartRepositoryInterface        $cartRepository
+     * @param ApplyService                   $applyService
+     * @param VoucherFactory                 $voucherFactory
+     * @param PartialPaymentMethods          $partialPaymentMethods
      * @param PayResponseSetInterfaceFactory $payResponseFactory
      * @param Session                        $checkoutSession
      * @param BuckarooLoggerInterface        $logger
      */
     public function __construct(
-        ApplyVoucherRequestInterface $voucherRequest,
-        GiftcardResponse $giftcardResponse,
-        QuoteIdMaskFactory $quoteIdMaskFactory,
-        CartRepositoryInterface $cartRepository,
+        ApplyService $applyService,
+        VoucherFactory $voucherFactory,
+        PartialPaymentMethods $partialPaymentMethods,
         PayResponseSetInterfaceFactory $payResponseFactory,
         Session $checkoutSession,
         BuckarooLoggerInterface $logger
     ) {
-        $this->voucherRequest = $voucherRequest;
-        $this->giftcardResponse = $giftcardResponse;
-        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
-        $this->cartRepository = $cartRepository;
+        $this->applyService = $applyService;
+        $this->voucherFactory = $voucherFactory;
+        $this->partialPaymentMethods = $partialPaymentMethods;
         $this->payResponseFactory = $payResponseFactory;
         $this->checkoutSession = $checkoutSession;
         $this->logger = $logger;
@@ -102,137 +98,72 @@ class ApplyVoucher implements ApplyVoucherInterface
     public function apply(string $voucherCode): PayResponseInterface
     {
         try {
-            $quote = $this->getQuote();
-
-            return $this->getResponse(
+            $quote = $this->checkoutSession->getQuote();
+            $result = $this->applyService->apply(
                 $quote,
-                $this->build($quote, $voucherCode)->send()
+                $this->voucherFactory->create(['code' => $voucherCode])
             );
-        } catch (ApiException $th) {
-            $this->renderException($th->getMessage());
-        } catch (NoQuoteException $th) {
-            $this->renderException($th->getMessage());
-        } catch (\Throwable $th) {
-            $this->logger->addDebug((string)$th);
-            $this->renderException('Unknown buckaroo error has occurred');
-        }
-
-        return $this->payResponseFactory->create();
-    }
-
-    /**
-     * Get quote from session
-     *
-     * @throws NoQuoteException
-     *
-     * @return Quote
-     */
-    protected function getQuote()
-    {
-        try {
-            return $this->checkoutSession->getQuote();
-        } catch (\Throwable $th) {
-            throw new NoQuoteException(__("The cart isn't active."), 0, $th);
-        }
-    }
-
-    /**
-     * Get response based on the quote and API response.
-     *
-     * @param Quote $quote
-     * @param mixed $response
-     *
-     * @throws ApiException
-     * @throws LocalizedException
-     *
-     * @return mixed
-     */
-    protected function getResponse(Quote $quote, $response)
-    {
-
-        $this->giftcardResponse->set($response, $quote);
-
-        if ($this->giftcardResponse->getErrorMessage() !== null) {
-            $message = $this->giftcardResponse->getErrorMessage();
-            $messageParts = explode(":", $message);
-
-            if (isset($messageParts[1])) {
-                $message = $messageParts[1];
-            }
-            throw new ApiException($message);
-        }
-        return $this->payResponseFactory->create()->setData(
-            array_merge(
-                [
-                    'remainderAmount' => $this->giftcardResponse->getRemainderAmount(),
-                    'alreadyPaid'     => $this->giftcardResponse->getAlreadyPaid($quote),
-                    'transaction'     => $this->giftcardResponse->getCreatedTransaction()
-                ],
-                $this->getUserMessages()
-            )
-        );
-    }
-
-    /**
-     * Get response based on the quote and API response.
-     *
-     * @return array
-     */
-    protected function getUserMessages(): array
-    {
-
-        $remainingAmountMessage = '';
-
-        $remainingAmount = $this->giftcardResponse->getRemainderAmount();
-        $textMessage = __("Your paid successfully. Please finish your order");
-
-        if ($remainingAmount > 0) {
-            $textMessage = __(
-                'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4',
-                $this->giftcardResponse->getCurrency(),
-                $this->giftcardResponse->getAmountDebit(),
-                $this->giftcardResponse->getRemainderAmount(),
-                $this->giftcardResponse->getCurrency()
-            );
-
-            $remainingAmountMessage = __(
-                'Pay remaining amount: %1 %2',
-                $remainingAmount,
-                $this->giftcardResponse->getCurrency()
+        } catch (PartialPaymentRejectedException|PartialPaymentUnavailableException $e) {
+            throw new WebapiException(__($e->getMessage()));
+        } catch (\Throwable $e) {
+            $this->logger->addError(sprintf(
+                '[VOUCHER] | [Webapi] | [%s:%s] - Apply voucher failed | [ERROR]: %s',
+                __METHOD__,
+                __LINE__,
+                (string)$e
+            ));
+            throw new WebapiException(
+                __('The voucher could not be redeemed. Please check the code and try again.')
             );
         }
-        return [
-            'remainingAmountMessage' => $remainingAmountMessage,
-            'message'                => $textMessage
-        ];
+
+        return $this->createResponse($result);
     }
 
     /**
-     * Build gift card request
+     * REST response for an accepted voucher
      *
-     * @param Quote  $quote
-     * @param string $voucherCode
+     * @param ApplyResult $result
      *
-     * @return ApplyVoucherRequestInterface
+     * @return PayResponseInterface
      */
-    protected function build(Quote $quote, string $voucherCode): ApplyVoucherRequestInterface
+    private function createResponse(ApplyResult $result): PayResponseInterface
     {
-        return $this->voucherRequest
-            ->setVoucherCode($voucherCode)
-            ->setQuote($quote);
+        $transaction = $result->getTransaction();
+        if ($transaction->getData('label') === null) {
+            $transaction->setData('label', $this->partialPaymentMethods->getLabel($transaction->getData('servicecode')));
+        }
+
+        return $this->payResponseFactory->create()->setData([
+            'remainderAmount'        => $result->getRemainderAmount(),
+            'alreadyPaid'            => $result->getAlreadyPaid(),
+            'transaction'            => $transaction,
+            'message'                => $this->getMessage($result),
+            'remainingAmountMessage' => $result->isFullyPaid()
+                ? ''
+                : __('Pay remaining amount: %1 %2', $result->getRemainderAmount(), $result->getCurrency()),
+        ]);
     }
 
     /**
-     * Render and throw an exception with the provided message.
+     * Message shown to the shopper after an accepted voucher
      *
-     * @param string $message
+     * @param ApplyResult $result
      *
-     * @throws Exception
+     * @return Phrase
      */
-    public function renderException(string $message)
+    private function getMessage(ApplyResult $result): Phrase
     {
-        throw new Exception(
-            new Phrase($message)
+        if ($result->isFullyPaid()) {
+            return __('You paid successfully.');
+        }
+
+        return __(
+            'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4',
+            $result->getCurrency(),
+            $result->getAmountDebit(),
+            $result->getRemainderAmount(),
+            $result->getCurrency()
         );
     }
 }

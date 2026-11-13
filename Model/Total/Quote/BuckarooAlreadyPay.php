@@ -21,6 +21,7 @@ use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
 use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 
 class BuckarooAlreadyPay extends AbstractTotal
 {
@@ -38,6 +39,11 @@ class BuckarooAlreadyPay extends AbstractTotal
      * @var Collection
      */
     protected $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * Constructor
@@ -80,18 +86,9 @@ class BuckarooAlreadyPay extends AbstractTotal
                 $items = $this->groupTransaction->getGroupTransactionItemsNotRefunded($orderId);
 
                 foreach ($items as $giftcard) {
-                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                        'servicecode',
-                        $giftcard['servicecode']
-                    );
+                    $label = $this->getPartialPaymentMethods()->getLabel($giftcard['servicecode']);
 
-                    if ($foundGiftcard !== null || $giftcard['servicecode'] === 'buckaroovoucher') {
-                        if ($giftcard['servicecode'] === 'buckaroovoucher') {
-                            $label = __('Voucher');
-                        } else {
-                            $label = $foundGiftcard['label'];
-                        }
-
+                    if ($label !== null) {
                         $customTitle[] = [
                             'label'          => __('Paid with') . ' ' . $label,
                             'amount'         => -$giftcard['amount'],
@@ -158,16 +155,8 @@ class BuckarooAlreadyPay extends AbstractTotal
             return null;
         }
 
-        // Try to find the giftcard in the collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
-
-        if ($foundGiftcard !== null) {
-            $label = $foundGiftcard['label'];
-        } elseif ($servicecode === 'buckaroovoucher') {
-            $label = __('Voucher');
-        } else {
-            $label = ucfirst($servicecode) . ' Giftcard';
-        }
+        $label = $this->getPartialPaymentMethods()->getLabel($servicecode)
+            ?? ucfirst($servicecode) . ' Giftcard';
 
         return [
             'label'          => __('Paid with') . ' ' . $label,
@@ -186,5 +175,19 @@ class BuckarooAlreadyPay extends AbstractTotal
     public function getLabel()
     {
         return __('Paid with Giftcard');
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this class already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

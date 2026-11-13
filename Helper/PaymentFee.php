@@ -20,6 +20,7 @@ use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
@@ -49,6 +50,11 @@ class PaymentFee extends AbstractHelper
 
     /** @var GiftcardCollection */
     protected $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @param Context                     $context
@@ -181,15 +187,11 @@ class PaymentFee extends AbstractHelper
                     $servicecode = $item['servicecode'];
                     $amount = (float)$item['amount'];
 
-                    // Check if it's a giftcard
-                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
-
-                    if ($foundGiftcard) {
-                        $label = __('Paid with %1', $foundGiftcard['label']);
-                    } else {
-                        // It's a regular payment method (ideal, alipay, etc)
-                        $label = __('Paid with %1', ucfirst($servicecode));
-                    }
+                    // A giftcard or voucher has its own label; other methods (ideal, alipay, ...) their code
+                    $label = __(
+                        'Paid with %1',
+                        $this->getPartialPaymentMethods()->getLabel($servicecode) ?? ucfirst($servicecode)
+                    );
 
                     $this->addTotalToTotals(
                         $totals,
@@ -216,26 +218,33 @@ class PaymentFee extends AbstractHelper
         if ($orderId !== null && $alreadyPayed > 0) {
             $requestParams = $this->_request->getParams();
             $items = $this->groupTransaction->getGroupTransactionItems($orderId);
-            $giftcards = [];
+            // Posted amounts per transaction id: several vouchers (or the same giftcard brand twice)
+            // share one service code, so the service code cannot tell their amounts apart
+            $postedAmounts = [];
 
             if (isset($requestParams['creditmemo']['buckaroo_already_paid'])) {
                 foreach ($requestParams['creditmemo']['buckaroo_already_paid'] as $giftcardKey => $value) {
-                    $transaction = explode('|', $giftcardKey);
-                    $giftcards[$transaction[1]] = $value;
+                    $transaction = explode('|', (string)$giftcardKey);
+                    $postedAmounts[$transaction[0]] = $value;
                 }
             }
 
             foreach ($items as $giftcard) {
-                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-                    'servicecode',
-                    $giftcard['servicecode']
-                );
-
-                if (!$foundGiftcard) {
+                // Every giftcard and voucher gets a row: the refund service refunds the posted rows
+                $partialPayment = $this->getPartialPaymentMethods()->find($giftcard['servicecode']);
+                if ($partialPayment === null) {
                     continue;
                 }
 
-                $label = __('Paid with ' . $foundGiftcard['label']);
+                // A voucher has no giftcard row. It can be refunded in parts (the automatic refund
+                // does), so the row offers what is left on it, like a partially refundable giftcard.
+                $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
+                    'servicecode',
+                    $giftcard['servicecode']
+                ) ?? ['servicecode' => $partialPayment['code'], 'is_partial_refundable' => true];
+
+                $label = __('Paid with %1', $partialPayment['label']);
+                $transactionId = (string)$giftcard['transaction_id'];
 
                 $refundedAlreadyPaidSaved = $giftcard->getRefundedAmount() ?? 0.0;
                 $amountValue = (float)$giftcard['amount'];
@@ -245,10 +254,10 @@ class PaymentFee extends AbstractHelper
                 if (!empty($foundGiftcard['is_partial_refundable'])) {
                     $residual = $amountValue - (float)$refundedAlreadyPaidSaved;
 
-                    if (array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
-                        (float)$giftcards[$foundGiftcard['servicecode']] <= $residual
+                    if (array_key_exists($transactionId, $postedAmounts) &&
+                        (float)$postedAmounts[$transactionId] <= $residual
                     ) {
-                        $amountValue = (float)$giftcards[$foundGiftcard['servicecode']];
+                        $amountValue = (float)$postedAmounts[$transactionId];
                         $amountBaseValue = $amountValue;
                     } else {
                         $amountValue = $residual;
@@ -260,8 +269,8 @@ class PaymentFee extends AbstractHelper
                         $amountValue = 0;
                         $amountBaseValue = 0;
                     } elseif (is_array($foundGiftcard) &&
-                        array_key_exists($foundGiftcard['servicecode'], $giftcards) &&
-                        empty((float)$giftcards[$foundGiftcard['servicecode']])
+                        array_key_exists($transactionId, $postedAmounts) &&
+                        empty((float)$postedAmounts[$transactionId])
                     ) {
                         $amountValue = 0;
                         $amountBaseValue = 0;
@@ -394,5 +403,19 @@ class PaymentFee extends AbstractHelper
         }
 
         $totals[] = $total;
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this helper already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

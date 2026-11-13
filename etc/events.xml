@@ -23,6 +23,7 @@
     <event name="sales_model_service_quote_submit_before">
         <observer name="buckaroo_magento2_fee_set" instance="Buckaroo\Magento2\Observer\SetBuckarooFee" />
         <observer name="buckaroo_magento2_set_existing_order_items" instance="Buckaroo\Magento2\Observer\SetExistingOrderItems" />
+        <observer name="buckaroo_magento2_voucher_order_coverage" instance="Buckaroo\Magento2\Observer\VoucherOrderCoverageGuard" />
     </event>
     <event name="sales_model_service_quote_submit_failure">
         <observer name="buckaroo_failed_quote_order" instance="Buckaroo\Magento2\Observer\HandleFailedQuoteOrder"/>

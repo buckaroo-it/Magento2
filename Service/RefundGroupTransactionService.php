@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Service;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
+use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\GroupTransaction;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\RequestInterface;
@@ -30,6 +31,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -93,6 +95,11 @@ class RefundGroupTransactionService
      * @var GiftcardCollection
      */
     private $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
@@ -176,11 +183,7 @@ class RefundGroupTransactionService
             return false;
         }
 
-        // Check if it's in the giftcard collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
-
-        // Also check for buckaroovoucher
-        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+        return $this->getPartialPaymentMethods()->isPartialPayment($transactionMethod);
     }
 
     /**
@@ -390,6 +393,13 @@ class RefundGroupTransactionService
 
         $groupTransaction = $this->paymentGroupTransaction->getGroupTransactionByTrxId($transaction[0]);
 
+        if ($groupTransaction && $groupTransaction->getEntityId()) {
+            // Never credit more than is left on the transaction, e.g. after an earlier partial refund
+            $leftOnTransaction = (float)$groupTransaction->getData('amount')
+                - (float)$groupTransaction->getRefundedAmount();
+            $giftCardValue = min((float)$giftCardValue, max(0.0, $leftOnTransaction));
+        }
+
         if ($giftCardValue > 0 && $this->amountLeftToRefund > 0) {
             if ($this->amountLeftToRefund < $giftCardValue) {
                 $giftCardValue = $this->amountLeftToRefund;
@@ -499,6 +509,11 @@ class RefundGroupTransactionService
         foreach ($groupTransactions as $transaction) {
             $servicecode = $transaction->getData('servicecode');
 
+            if (!$this->isSuccessful($transaction)) {
+                // A rejected giftcard or voucher attempt is stored too; there is nothing to refund
+                continue;
+            }
+
             if (!$this->isGiftcardService($servicecode)) {
                 // Skip non-giftcard transactions; they are handled by the primary refund flow
                 continue;
@@ -552,8 +567,8 @@ class RefundGroupTransactionService
 
         foreach ($groupTransactions as $transaction) {
             $servicecode = $transaction->getData('servicecode');
-            // Check if servicecode is not a giftcard variant
-            if (!$this->isGiftcardService($servicecode)) {
+            // Check if servicecode is not a giftcard variant (and the payment succeeded)
+            if ($this->isSuccessful($transaction) && !$this->isGiftcardService($servicecode)) {
                 return $transaction;
             }
         }
@@ -576,14 +591,8 @@ class RefundGroupTransactionService
             return false;
         }
 
-        // Use the giftcard collection to check if this service code is a giftcard
-        // This is the same approach used in PaymentFee helper
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-            'servicecode',
-            $servicecode
-        );
-
-        return $foundGiftcard !== null;
+        // Giftcards and the voucher: both are refunded on their own group transaction
+        return $this->getPartialPaymentMethods()->isPartialPayment($servicecode);
     }
 
     /**
@@ -704,5 +713,31 @@ class RefundGroupTransactionService
             $logContext,
             $order->getIncrementId()
         ));
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this class already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
+    }
+
+    /**
+     * Whether the group transaction is a successful payment (failed attempts are stored as well)
+     *
+     * @param GroupTransaction $transaction
+     *
+     * @return bool
+     */
+    private function isSuccessful($transaction): bool
+    {
+        return (int)$transaction->getData('status') === BuckarooStatusCode::SUCCESS;
     }
 }

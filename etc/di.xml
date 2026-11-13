@@ -226,6 +226,10 @@
 
     <type name="Buckaroo\Magento2\Model\ConfigProvider\Factory">
         <arguments>
+            <!-- Gateway service codes whose config provider has a different name -->
+            <argument name="mapPaymentMethods" xsi:type="array">
+                <item name="buckaroovoucher" xsi:type="string">voucher</item>
+            </argument>
             <argument name="configProviders" xsi:type="array">
                 <item name="account" xsi:type="array">
                     <item name="type" xsi:type="string">account</item>
@@ -3731,6 +3735,19 @@
     </type>
     <!-- END Voucher Commands infrastructure -->
     <!-- END Payment Method: Voucher -->
+
+    <!-- Partial payments (voucher; giftcards to follow) -->
+    <type name="Buckaroo\Magento2\Model\PartialPayment\ApplyService">
+        <arguments>
+            <argument name="client" xsi:type="object">Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder</argument>
+        </arguments>
+    </type>
+    <type name="Buckaroo\Magento2\Model\PartialPayment\RequestBodyBuilder">
+        <arguments>
+            <argument name="cartRepository" xsi:type="object">Magento\Quote\Api\CartRepositoryInterface\Proxy</argument>
+        </arguments>
+    </type>
+    <!-- END Partial payments -->
 
     <!-- Payment Method: PayPal -->
     <!-- PayPal Payment Method Facade configuration -->
