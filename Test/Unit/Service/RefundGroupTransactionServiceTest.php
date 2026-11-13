@@ -108,6 +108,18 @@ class RefundGroupTransactionServiceTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * A voucher has no row in the giftcard table. When it was not recognised here, an automatic
+     * refund skipped it and took its amount off the remaining refund, so it was never paid back.
+     */
+    public function testAVoucherIsRefundedOnItsOwnGroupTransaction(): void
+    {
+        $isGiftcardService = new \ReflectionMethod(RefundGroupTransactionService::class, 'isGiftcardService');
+
+        $this->assertTrue($isGiftcardService->invoke($this->service, 'buckaroovoucher'));
+        $this->assertFalse($isGiftcardService->invoke($this->service, 'ideal'));
+    }
+
+    /**
      * @param float|null $refundedAmount
      *
      * @return GroupTransaction

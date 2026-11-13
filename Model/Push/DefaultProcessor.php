@@ -57,6 +57,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Sales\Model\Order\Payment as OrderPayment;
 use Magento\Sales\Model\Order\Payment\Transaction;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -162,6 +163,11 @@ class DefaultProcessor implements PushProcessorInterface
      * @var GiftcardCollection
      */
     private $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * Temporary storage for single giftcard payment info to apply before final save
@@ -2680,11 +2686,7 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
-        // Check if it's in the giftcard collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
-
-        // Also check for buckaroovoucher
-        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+        return $this->getPartialPaymentMethods()->isPartialPayment($transactionMethod);
     }
 
     /**
@@ -2816,5 +2818,19 @@ class DefaultProcessor implements PushProcessorInterface
             $this->order->getOrderCurrencyCode()
             ?: $this->order->getBaseCurrencyCode()
         );
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this class already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

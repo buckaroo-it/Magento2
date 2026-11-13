@@ -18,6 +18,7 @@ use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollect
 use Magento\Framework\DataObject;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 
 class GiftcardTotals extends Template
 {
@@ -30,6 +31,11 @@ class GiftcardTotals extends Template
      * @var GiftcardCollection
      */
     protected $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @param Context $context
@@ -149,17 +155,9 @@ class GiftcardTotals extends Template
             return null;
         }
 
-        // Try to find the giftcard in the collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
-
-        if ($foundGiftcard) {
-            // It's a real giftcard
-            $label = $foundGiftcard['label'];
-        } elseif ($servicecode === 'buckaroovoucher') {
-            // It's a buckaroo voucher
-            $label = __('Voucher');
-        } else {
-            // It's NOT a giftcard (e.g., ideal, paypal, etc.)
+        $label = $this->getPartialPaymentMethods()->getLabel($servicecode);
+        if ($label === null) {
+            // It's NOT a giftcard or voucher (e.g., ideal, paypal, etc.)
             // Don't display it as a giftcard total
             return null;
         }
@@ -170,5 +168,19 @@ class GiftcardTotals extends Template
             'value' => (float)$amount,
             'base_value' => (float)$amount,
         ];
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this class already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

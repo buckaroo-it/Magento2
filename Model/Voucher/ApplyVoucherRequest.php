@@ -37,8 +37,12 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Voucher as VoucherConfig;
 
 /**
+ * @deprecated Vouchers are sent by \Buckaroo\Magento2\Model\PartialPayment\ApplyService. Kept so code
+ *             that still injects this class keeps working; it is no longer used by the module.
+ * @see \Buckaroo\Magento2\Model\PartialPayment\ApplyService
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyVoucherRequest implements ApplyVoucherRequestInterface
@@ -204,7 +208,7 @@ class ApplyVoucherRequest implements ApplyVoucherRequestInterface
 
         $ip = $this->getIp($this->getStoreId());
         $body = [
-            "payment_method"  => "buckaroovoucher",
+            "payment_method"  => VoucherConfig::SERVICE_CODE,
             "currency"        => $this->getCurrency(),
             'amountDebit'     => $this->getAmount(),
             "invoice"         => $incrementId,

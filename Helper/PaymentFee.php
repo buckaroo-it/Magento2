@@ -20,6 +20,7 @@ use Magento\Framework\App\Helper\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Factory as MethodConfigProviderFactory;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
@@ -49,6 +50,11 @@ class PaymentFee extends AbstractHelper
 
     /** @var GiftcardCollection */
     protected $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @param Context                     $context
@@ -181,15 +187,11 @@ class PaymentFee extends AbstractHelper
                     $servicecode = $item['servicecode'];
                     $amount = (float)$item['amount'];
 
-                    // Check if it's a giftcard
-                    $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
-
-                    if ($foundGiftcard) {
-                        $label = __('Paid with %1', $foundGiftcard['label']);
-                    } else {
-                        // It's a regular payment method (ideal, alipay, etc)
-                        $label = __('Paid with %1', ucfirst($servicecode));
-                    }
+                    // A giftcard or voucher has its own label; other methods (ideal, alipay, ...) their code
+                    $label = __(
+                        'Paid with %1',
+                        $this->getPartialPaymentMethods()->getLabel($servicecode) ?? ucfirst($servicecode)
+                    );
 
                     $this->addTotalToTotals(
                         $totals,
@@ -394,5 +396,19 @@ class PaymentFee extends AbstractHelper
         }
 
         $totals[] = $total;
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this helper already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

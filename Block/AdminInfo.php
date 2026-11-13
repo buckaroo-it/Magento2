@@ -15,6 +15,7 @@ namespace Buckaroo\Magento2\Block;
 
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\DataObject;
@@ -43,6 +44,11 @@ class AdminInfo extends ConfigurableInfo
      * @var GiftcardCollection
      */
     protected $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @var LogoService
@@ -138,20 +144,12 @@ class AdminInfo extends ConfigurableInfo
         if ($this->getInfo()->getOrder() && $this->getInfo()->getOrder()->getIncrementId()) {
             $items = $this->groupTransaction->getGroupTransactionItems($this->getInfo()->getOrder()->getIncrementId());
             foreach ($items as $giftcard) {
-                if ($foundGiftcard = $this->giftcardCollection
-                    ->getItemByColumnValue('servicecode', $giftcard['servicecode'])
-                ) {
+                $partialPayment = $this->getPartialPaymentMethods()->find($giftcard['servicecode']);
+                if ($partialPayment !== null) {
                     $result[] = [
-                        'code'  => $giftcard['servicecode'],
-                        'label' => $foundGiftcard['label'],
-                        'logo'  => $foundGiftcard['logo']
-                    ];
-                }
-
-                if ($giftcard['servicecode'] == 'buckaroovoucher') {
-                    $result[] = [
-                        'code'  => $giftcard['servicecode'],
-                        'label' => 'Buckaroo Voucher',
+                        'code'  => $partialPayment['code'],
+                        'label' => $partialPayment['label'],
+                        'logo'  => $partialPayment['logo']
                     ];
                 }
             }
@@ -222,28 +220,17 @@ class AdminInfo extends ConfigurableInfo
             return null;
         }
 
-        // Try to find the giftcard in the collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
-
-        if ($foundGiftcard) {
-            return [
-                'code'  => $servicecode,
-                'label' => $foundGiftcard['label'],
-                'logo'  => $foundGiftcard['logo']
-            ];
+        $partialPayment = $this->getPartialPaymentMethods()->find($servicecode);
+        if ($partialPayment === null) {
+            // It's NOT a giftcard or voucher - don't display it
+            return null;
         }
 
-        // Special case for buckaroo voucher
-        if ($servicecode == 'buckaroovoucher') {
-            return [
-                'code'  => $servicecode,
-                'label' => 'Buckaroo Voucher',
-                'logo'  => null
-            ];
-        }
-
-        // It's NOT a giftcard - don't display it
-        return null;
+        return [
+            'code'  => $partialPayment['code'],
+            'label' => $partialPayment['label'],
+            'logo'  => $partialPayment['logo']
+        ];
     }
 
     /**
@@ -268,25 +255,15 @@ class AdminInfo extends ConfigurableInfo
         foreach ($items as $item) {
             $servicecode = $item['servicecode'];
 
-            // Check if it's a giftcard
-            $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $servicecode);
+            $partialPayment = $this->getPartialPaymentMethods()->find($servicecode);
 
-            if ($foundGiftcard) {
-                // It's a giftcard
+            if ($partialPayment !== null) {
+                // A giftcard or voucher
                 $result[] = [
                     'type' => 'giftcard',
-                    'code' => $servicecode,
-                    'label' => $foundGiftcard['label'],
-                    'logo' => $foundGiftcard['logo'],
-                    'amount' => $item['amount'] ?? null
-                ];
-            } elseif ($servicecode == 'buckaroovoucher') {
-                // Special case for buckaroo voucher
-                $result[] = [
-                    'type' => 'giftcard',
-                    'code' => $servicecode,
-                    'label' => 'Buckaroo Voucher',
-                    'logo' => null,
+                    'code' => $partialPayment['code'],
+                    'label' => $partialPayment['label'],
+                    'logo' => $partialPayment['logo'],
                     'amount' => $item['amount'] ?? null
                 ];
             } else {
@@ -508,5 +485,19 @@ class AdminInfo extends ConfigurableInfo
                 )
             );
         }
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this block already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }

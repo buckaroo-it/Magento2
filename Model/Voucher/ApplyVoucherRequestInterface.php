@@ -16,6 +16,10 @@ namespace Buckaroo\Magento2\Model\Voucher;
 
 use Magento\Quote\Api\Data\CartInterface;
 
+/**
+ * @deprecated Vouchers are sent by \Buckaroo\Magento2\Model\PartialPayment\ApplyService
+ * @see \Buckaroo\Magento2\Model\PartialPayment\ApplyService
+ */
 interface ApplyVoucherRequestInterface
 {
     /**

@@ -71,8 +71,10 @@ class PayResponse extends DataObject implements PayResponseInterface, PayRespons
      */
     public function getTransaction(): TransactionResponseInterface
     {
+        $transaction = $this->getData('transaction');
+
         return $this->trResponseFactory->create()->addData(
-            $this->getData('transaction')->getData()
+            $transaction instanceof DataObject ? $transaction->getData() : []
         );
     }
 

@@ -24,7 +24,7 @@ class TransactionResponse extends DataObject implements TransactionResponseInter
      */
     public function getTransactionId(): string
     {
-        return $this->getData('transaction_id');
+        return (string)$this->getData('transaction_id');
     }
 
     /**
@@ -48,7 +48,7 @@ class TransactionResponse extends DataObject implements TransactionResponseInter
      */
     public function getCurrency(): string
     {
-        return $this->getData('currency');
+        return (string)$this->getData('currency');
     }
 
     /**

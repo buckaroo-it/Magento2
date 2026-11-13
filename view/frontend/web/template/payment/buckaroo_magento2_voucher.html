@@ -35,6 +35,7 @@
             <!--/ko-->
         </div>
 
+        <!-- ko ifnot: isFullyPaid() -->
         <div class="payment-method-second-col billing-address-form">
             <form data-bind="mageInit: { 'validation': [] },
                   attr: {'data-hasrequired': $t('* Required Fields')}">
@@ -64,13 +65,20 @@
                 <button id="button-action-checkout-voucher" class="action primary checkout" type="submit" data-bind="
                         click: applyVoucher,
                         attr: {title: $t('Apply Voucher')},
-                        disabled:  isSubmitting ,
-                        css: {disabled: !isSubmitting }
+                        disabled: isSubmitting,
+                        css: {disabled: isSubmitting}
                         ">
                     <span data-bind="i18n: 'Apply Voucher'"></span>
                 </button>
             </div>
         </div>
+        <!-- /ko -->
+
+        <!-- ko if: isFullyPaid() -->
+        <div class="message info">
+            <span data-bind="i18n: 'Your vouchers cover the full order amount. Place your order to finish.'"></span>
+        </div>
+        <!-- /ko -->
 
         <!-- ko if: payWithBaseCurrency() -->
         <div class="buckaroo_magento2_currency-notification">
@@ -89,6 +97,21 @@
             <!-- /ko -->
             <!--/ko-->
         </div>
+
+        <!-- ko if: isFullyPaid() -->
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout" type="submit" data-bind="
+                        click: placeOrder,
+                        attr: {title: $t('Place Order')},
+                        enable: isPlaceOrderActionAllowed(),
+                        css: {disabled: !isPlaceOrderActionAllowed()}
+                        ">
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+        <!-- /ko -->
 
     </div>
 </div>

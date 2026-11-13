@@ -30,6 +30,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection as GiftcardCollection;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -93,6 +94,11 @@ class RefundGroupTransactionService
      * @var GiftcardCollection
      */
     private $giftcardCollection;
+
+    /**
+     * @var PartialPaymentMethods|null
+     */
+    private $partialPaymentMethods;
 
     /**
      * @var \Buckaroo\Magento2\Model\ResourceModel\GroupTransaction
@@ -176,11 +182,7 @@ class RefundGroupTransactionService
             return false;
         }
 
-        // Check if it's in the giftcard collection
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue('servicecode', $transactionMethod);
-
-        // Also check for buckaroovoucher
-        return $foundGiftcard !== null || $transactionMethod === 'buckaroovoucher';
+        return $this->getPartialPaymentMethods()->isPartialPayment($transactionMethod);
     }
 
     /**
@@ -576,14 +578,8 @@ class RefundGroupTransactionService
             return false;
         }
 
-        // Use the giftcard collection to check if this service code is a giftcard
-        // This is the same approach used in PaymentFee helper
-        $foundGiftcard = $this->giftcardCollection->getItemByColumnValue(
-            'servicecode',
-            $servicecode
-        );
-
-        return $foundGiftcard !== null;
+        // Giftcards and the voucher: both are refunded on their own group transaction
+        return $this->getPartialPaymentMethods()->isPartialPayment($servicecode);
     }
 
     /**
@@ -704,5 +700,19 @@ class RefundGroupTransactionService
             $logContext,
             $order->getIncrementId()
         ));
+    }
+
+    /**
+     * Giftcards and the voucher, built from the giftcard collection this class already has
+     *
+     * @return PartialPaymentMethods
+     */
+    private function getPartialPaymentMethods(): PartialPaymentMethods
+    {
+        if ($this->partialPaymentMethods === null) {
+            $this->partialPaymentMethods = new PartialPaymentMethods($this->giftcardCollection);
+        }
+
+        return $this->partialPaymentMethods;
     }
 }
