@@ -36,6 +36,8 @@ use Magento\Quote\Model\Quote;
  * Everything the instruments share happens here once: the cart and method checks, the failed
  * attempt limit, the amount and currency, sending the request, storing the group transaction and
  * reading the answer. Callers (REST, controllers, Magewire) only translate the result.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyService
 {
@@ -90,6 +92,8 @@ class ApplyService
     private $logger;
 
     /**
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     *
      * @param RequestBodyBuilder      $requestBodyBuilder
      * @param SDKTransferFactory      $transferFactory
      * @param ClientInterface         $client
@@ -147,7 +151,7 @@ class ApplyService
 
         if (!$response->isSuccess()) {
             $this->attemptLimit->registerFailedAttempt($quote);
-            throw new PartialPaymentRejectedException(__($this->getRejectionMessage($response, $instrument)));
+            throw new PartialPaymentRejectedException(__($this->getRejectionMessage($instrument)));
         }
 
         return $this->createResult($quote, $response);
@@ -285,12 +289,11 @@ class ApplyService
     /**
      * Reason the gateway gave, in the instrument's words, or the instrument's fallback
      *
-     * @param TransactionResponse $response
      * @param InstrumentInterface $instrument
      *
      * @return string
      */
-    private function getRejectionMessage(TransactionResponse $response, InstrumentInterface $instrument): string
+    private function getRejectionMessage(InstrumentInterface $instrument): string
     {
         $message = (string)$this->gatewayResponse->getErrorMessage();
         $message = $message === '' ? '' : $instrument->formatRejectionMessage($message);

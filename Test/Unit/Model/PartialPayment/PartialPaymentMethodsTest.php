@@ -27,13 +27,9 @@ class PartialPaymentMethodsTest extends TestCase
     protected function setUp(): void
     {
         $collection = $this->createMock(GiftcardCollection::class);
-        $collection->method('getItemByColumnValue')->willReturnCallback(
-            function (string $column, string $value) {
-                return $value === 'vvvgiftcard'
-                    ? new DataObject(['label' => 'VVV Cadeaukaart', 'logo' => 'giftcards/vvv.png'])
-                    : null;
-            }
-        );
+        $collection->method('getItemByColumnValue')->willReturnMap([
+            ['servicecode', 'vvvgiftcard', new DataObject(['label' => 'VVV Cadeaukaart', 'logo' => 'giftcards/vvv.png'])],
+        ]);
 
         $this->methods = new PartialPaymentMethods($collection);
     }

@@ -27,13 +27,14 @@ use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentUnavailableException;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Phrase;
 use Magento\Framework\Webapi\Exception as WebapiException;
-use Magento\Quote\Model\Quote;
 
 /**
  * REST entry point that applies a voucher to the shopper's current cart (checkout session).
  *
  * Luma and Hyvä checkouts call it from the browser. The work is done by the shared partial
  * payment service; this class only finds the cart and turns the outcome into the response.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ApplyVoucher implements ApplyVoucherInterface
 {
@@ -116,18 +117,17 @@ class ApplyVoucher implements ApplyVoucherInterface
             );
         }
 
-        return $this->createResponse($quote, $result);
+        return $this->createResponse($result);
     }
 
     /**
      * REST response for an accepted voucher
      *
-     * @param Quote       $quote
      * @param ApplyResult $result
      *
      * @return PayResponseInterface
      */
-    private function createResponse(Quote $quote, ApplyResult $result): PayResponseInterface
+    private function createResponse(ApplyResult $result): PayResponseInterface
     {
         $transaction = $result->getTransaction();
         if ($transaction->getData('label') === null) {

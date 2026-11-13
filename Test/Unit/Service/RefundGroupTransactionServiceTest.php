@@ -32,6 +32,8 @@ use PHPUnit\Framework\MockObject\MockObject;
  * `PaymentGroupTransaction::getGroupTransactionByTrxId()` returns ONE model. Iterating it with
  * foreach walks the model's (non-existent) public properties, so a successful giftcard refund
  * never recorded `refunded_amount`, and a later partial refund offered the same giftcard again.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RefundGroupTransactionServiceTest extends \Buckaroo\Magento2\Test\BaseTest
 {
