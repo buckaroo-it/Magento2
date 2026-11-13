@@ -1,0 +1,35 @@
+name: License headers
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  license-headers:
+    name: License headers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # On pull requests the checkout is the PR merged into its target branch, so an older branch that still
+      # adds files with the pre-MIT header fails here even if its own diff looks fine.
+      - name: No pre-MIT license headers
+        run: |
+          pattern='NOTICE OF LICENSE|tldrlegal\.com/license|Do not edit or add to this file|CC-BY-NC-ND'
+          files=$(git grep -l -I -E "$pattern" -- . ':!.github/workflows/license-headers.yml' || true)
+          if [ -n "$files" ]; then
+            for f in $files; do
+              echo "::error file=$f,line=1::Old license header. Use the MIT header from any other file (Copyright (c) Buckaroo B.V. / @license MIT)."
+            done
+            echo "Files with the old license header:"
+            echo "$files"
+            exit 1
+          fi
+          echo "No old license headers found."
