@@ -16,6 +16,12 @@ namespace Buckaroo\Magento2\Model\Giftcard\Request;
 
 use Magento\Quote\Api\Data\CartInterface;
 
+/**
+ * @deprecated Inline giftcards are applied by \Buckaroo\Magento2\Model\PartialPayment\ApplyService with
+ *             \Buckaroo\Magento2\Model\PartialPayment\Instrument\Giftcard. Kept for code that still uses it
+ *             (e.g. Buckaroo Hyvä Checkout up to 2.4.0).
+ * @see \Buckaroo\Magento2\Model\PartialPayment\ApplyService
+ */
 interface GiftcardInterface
 {
     /**

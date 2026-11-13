@@ -42,6 +42,11 @@ use Magento\Store\Model\StoreManagerInterface;
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
+ *
+ * @deprecated Inline giftcards are applied by \Buckaroo\Magento2\Model\PartialPayment\ApplyService with
+ *             \Buckaroo\Magento2\Model\PartialPayment\Instrument\Giftcard. Kept for code that still uses it
+ *             (e.g. Buckaroo Hyvä Checkout up to 2.4.0).
+ * @see \Buckaroo\Magento2\Model\PartialPayment\ApplyService
  */
 class Giftcard implements GiftcardInterface
 {

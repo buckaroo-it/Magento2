@@ -65,9 +65,11 @@ class ApplyResult
         ?string $currency,
         GroupTransaction $transaction
     ) {
-        $this->amountDebit = $amountDebit;
-        $this->remainderAmount = max(0.0, $remainderAmount);
-        $this->alreadyPaid = $alreadyPaid;
+        // Amounts are money: cents, so float sums (10.1 + 20.2) never leave a tiny remainder that
+        // a caller reads as still open
+        $this->amountDebit = round($amountDebit, 2);
+        $this->remainderAmount = max(0.0, round($remainderAmount, 2));
+        $this->alreadyPaid = round($alreadyPaid, 2);
         $this->currency = $currency;
         $this->transaction = $transaction;
     }
