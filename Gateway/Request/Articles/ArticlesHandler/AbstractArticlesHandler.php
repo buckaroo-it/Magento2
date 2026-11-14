@@ -1460,8 +1460,8 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     protected function sumArticleLines(array $articles): float
     {
-        // Kept in step with ArticleTotalRegistry::sumArticles(), which the data builders use to
-        // derive the amount from these same lines.
+        // Same line sum as ArticleTotalRegistry::sumArticles(), which the data builders use to derive
+        // the amount; the registry also counts shippingCosts a handler sends outside the article lines.
         $sum = 0.0;
         foreach (($articles['articles'] ?? []) as $article) {
             if (!is_array($article)) {

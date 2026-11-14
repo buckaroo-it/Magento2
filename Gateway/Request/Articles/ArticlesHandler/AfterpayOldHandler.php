@@ -135,4 +135,49 @@ class AfterpayOldHandler extends AbstractArticlesHandler
 
         return $shippingCostsArticle;
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function absorbRoundingResidual(array $articles, float $targetTotal): array
+    {
+        return parent::absorbRoundingResidual($articles, $this->getArticlesTarget($articles, $targetTotal));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function reconcileArticlesWithGrandTotal(
+        array $articles,
+        float $grandTotal,
+        ?float $totalTaxAmount = null
+    ): array {
+        $lineKeys = array_keys($articles['articles'] ?? []);
+
+        $articles = parent::reconcileArticlesWithGrandTotal(
+            $articles,
+            $this->getArticlesTarget($articles, $grandTotal),
+            $totalTaxAmount
+        );
+
+        // The parent passes a VAT percentage for the added line, AfterPay expects a tax category.
+        foreach (array_diff(array_keys($articles['articles']), $lineKeys) as $key) {
+            $articles['articles'][$key]['vatCategory'] = self::DEFAULT_TAX_CATEGORY;
+        }
+
+        return $articles;
+    }
+
+    /**
+     * Get the amount the article lines add up to, without the separately sent shipping costs
+     *
+     * @param array $articles
+     * @param float $grandTotal
+     *
+     * @return float
+     */
+    private function getArticlesTarget(array $articles, float $grandTotal): float
+    {
+        return round($grandTotal - (float)($articles['shippingCosts'] ?? 0), 2);
+    }
 }
