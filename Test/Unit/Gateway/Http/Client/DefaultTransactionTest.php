@@ -27,6 +27,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 #[AllowMockObjectsWithoutExpectations]
 class DefaultTransactionTest extends BaseTest
 {
