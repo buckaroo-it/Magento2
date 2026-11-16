@@ -10,212 +10,153 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   MIT
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
-use Buckaroo\Magento2\Model\Giftcard\Api\ApiException;
-use Buckaroo\Magento2\Model\Giftcard\Request\GiftcardInterface;
-use Buckaroo\Magento2\Model\Giftcard\Response\Giftcard as GiftcardResponse;
-use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Magento2\Model\PartialPayment\ApplyResult;
+use Buckaroo\Magento2\Model\PartialPayment\ApplyService;
+use Buckaroo\Magento2\Model\PartialPayment\Instrument\GiftcardFactory;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentRejectedException;
+use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentUnavailableException;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Quote\Model\Quote;
+use Magento\Framework\Phrase;
 
 /**
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * Applies an inline giftcard to the shopper's cart (Luma checkout).
+ *
+ * The work is done by the shared partial payment service; this controller reads the posted card
+ * and keeps the JSON response the checkout expects.
  */
 class Giftcard extends Action implements HttpPostActionInterface
 {
-    /**
-     * @var BuckarooLoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @var GiftcardInterface
-     */
-    protected $giftcardRequest;
-
-    /**
-     * @var GiftcardResponse
-     */
-    protected $giftcardResponse;
-
     /**
      * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @var AttemptLimit
+     * @var BuckarooLoggerInterface
      */
-    private $attemptLimit;
+    protected $logger;
+
+    /**
+     * @var ApplyService
+     */
+    private $applyService;
+
+    /**
+     * @var GiftcardFactory
+     */
+    private $giftcardFactory;
 
     /**
      * @param Context                 $context
      * @param Session                 $checkoutSession
-     * @param GiftcardInterface       $giftcardRequest
-     * @param GiftcardResponse        $giftcardResponse
+     * @param ApplyService            $applyService
+     * @param GiftcardFactory         $giftcardFactory
      * @param BuckarooLoggerInterface $logger
-     * @param AttemptLimit            $attemptLimit
      */
     public function __construct(
         Context $context,
         Session $checkoutSession,
-        GiftcardInterface $giftcardRequest,
-        GiftcardResponse $giftcardResponse,
-        BuckarooLoggerInterface $logger,
-        AttemptLimit $attemptLimit
+        ApplyService $applyService,
+        GiftcardFactory $giftcardFactory,
+        BuckarooLoggerInterface $logger
     ) {
         parent::__construct($context);
         $this->checkoutSession = $checkoutSession;
-        $this->giftcardRequest = $giftcardRequest;
-        $this->giftcardResponse = $giftcardResponse;
+        $this->applyService = $applyService;
+        $this->giftcardFactory = $giftcardFactory;
         $this->logger = $logger;
-        $this->attemptLimit = $attemptLimit;
     }
 
     /**
-     * Process action
-     *
-     * @throws \Exception
+     * Apply the posted giftcard
      *
      * @return Json
      */
     public function execute(): Json
     {
-        if (!$this->checkoutSession->getQuote()->getId()) {
-            return $this->displayError(__('Invalid request.'));
-        }
-
-        if ($this->getRequest()->getParam('cardNumber') === null) {
-            return $this->displayError(__('A card number is required'));
-        }
-
-        if ($this->getRequest()->getParam('pin') === null) {
-            return $this->displayError(__('A card pin is required'));
-        }
-
-        if ($this->getRequest()->getParam('card') === null) {
-            return $this->displayError(__('A card type is required'));
-        }
-
         try {
             $quote = $this->checkoutSession->getQuote();
-            $this->attemptLimit->assertWithinLimit($quote);
-
-            try {
-                return $this->getGiftcardResponse(
-                    $quote,
-                    $this->build($quote)->send()
-                );
-            } catch (ApiException $inner) {
-                $this->attemptLimit->registerFailedAttempt($quote);
-                throw $inner;
-            }
-        } catch (ApiException $th) {
+            $result = $this->applyService->apply(
+                $quote,
+                $this->giftcardFactory->create([
+                    'cardId'     => (string)$this->getRequest()->getParam('card'),
+                    'cardNumber' => (string)$this->getRequest()->getParam('cardNumber'),
+                    'pin'        => (string)$this->getRequest()->getParam('pin'),
+                ])
+            );
+        } catch (PartialPaymentRejectedException|PartialPaymentUnavailableException $e) {
+            return $this->displayError($e->getMessage());
+        } catch (\Throwable $e) {
             $this->logger->addError(sprintf(
                 '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
-                $th->getMessage()
+                (string)$e
             ));
-            return $this->displayError(__('Unable to apply giftcard. Please try again.'));
-        } catch (\Throwable $th) {
-            $this->logger->addError(sprintf(
-                '[Giftcard] | [Controller] | [%s:%s] - Apply Inline Giftcard | [ERROR]: %s',
-                __METHOD__,
-                __LINE__,
-                $th->getMessage()
-            ));
-            return $this->displayError(__('Unknown buckaroo error has occurred'));
+            return $this->displayError(
+                (string)__('The giftcard could not be applied. Please check the card number and PIN and try again.')
+            );
         }
+
+        return $this->createResponse($result);
     }
 
     /**
-     * Return response with error message
+     * Error response the checkout shows to the shopper
      *
-     * @param \Magento\Framework\Phrase|string $message
+     * @param Phrase|string $message
      *
      * @return Json
      */
     protected function displayError($message): Json
     {
-        /** @var Json $result */
         $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
         return $result->setData([
-            "error" => $message
+            'error' => (string)$message
         ]);
     }
 
     /**
-     * Get inline giftcard response
+     * Response for an accepted giftcard, in the shape the Luma giftcard component reads
      *
-     * @param Quote               $quote
-     * @param TransactionResponse $response
-     *
-     * @throws ApiException|\Magento\Framework\Exception\LocalizedException
+     * @param ApplyResult $result
      *
      * @return Json
      */
-    protected function getGiftcardResponse(Quote $quote, TransactionResponse $response): Json
+    private function createResponse(ApplyResult $result): Json
     {
-        $this->giftcardResponse->set($response, $quote);
-
-        if ($this->giftcardResponse->getErrorMessage() !== null) {
-            throw new ApiException($this->giftcardResponse->getErrorMessage());
-        }
-
-        $buttonMessage = '';
-
-        $remainingAmount = $this->giftcardResponse->getRemainderAmount();
-        $textMessage = __("Your paid successfully. Please finish your order");
-
-        if ($remainingAmount > 0) {
-            $textMessage = __(
+        if ($result->isFullyPaid()) {
+            $message = __('You paid successfully.');
+            $buttonMessage = '';
+        } else {
+            $message = __(
                 'A partial payment of %1 %2 was successfully performed on a requested amount. Remainder amount %3 %4',
-                $this->giftcardResponse->getCurrency(),
-                $this->giftcardResponse->getAmountDebit(),
-                $this->giftcardResponse->getRemainderAmount(),
-                $this->giftcardResponse->getCurrency()
+                $result->getCurrency(),
+                $result->getAmountDebit(),
+                $result->getRemainderAmount(),
+                $result->getCurrency()
             );
-
-            $buttonMessage = __(
-                'Pay remaining amount: %1 %2',
-                $remainingAmount,
-                $this->giftcardResponse->getCurrency()
-            );
+            $buttonMessage = __('Pay remaining amount: %1 %2', $result->getRemainderAmount(), $result->getCurrency());
         }
 
-        /** @var Json $result */
-        $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
-        return $result->setData([
-            'RemainderAmount' => $remainingAmount,
-            'alreadyPaid' => $this->giftcardResponse->getAlreadyPaid(),
-            'PayRemainingAmountButton' => $buttonMessage,
-            'message' => $textMessage
-        ]);
-    }
+        $json = $this->resultFactory->create(ResultFactory::TYPE_JSON);
 
-    /**
-     * Build giftcard request
-     *
-     * @param Quote $quote
-     *
-     * @return GiftcardInterface
-     */
-    protected function build(Quote $quote)
-    {
-        return $this->giftcardRequest
-            ->setCardId($this->getRequest()->getParam('card'))
-            ->setCardNumber($this->getRequest()->getParam('cardNumber'))
-            ->setPin($this->getRequest()->getParam('pin'))
-            ->setQuote($quote);
+        return $json->setData([
+            'RemainderAmount'          => $result->getRemainderAmount(),
+            'alreadyPaid'              => $result->getAlreadyPaid(),
+            'PayRemainingAmountButton' => (string)$buttonMessage,
+            'message'                  => (string)$message,
+        ]);
     }
 }

@@ -127,7 +127,7 @@ define(
                         data: JSON.stringify({voucherCode: this.code()})
                     }).done((data) => {
                         this.code('');
-                        if (!(parseFloat(data.remainder_amount) > 0)) {
+                        if ((parseFloat(data.remainder_amount) || 0) < 0.005) {
                             // Fully paid: placing the order must not depend on the totals reload
                             this.coveredByApply(true);
                         }
@@ -139,7 +139,7 @@ define(
                             }
                             this.isSubmitting(false);
 
-                            if (parseFloat(data.remainder_amount) > 0) {
+                            if ((parseFloat(data.remainder_amount) || 0) >= 0.005) {
                                 this.showPartialPayment(data);
                                 return;
                             }

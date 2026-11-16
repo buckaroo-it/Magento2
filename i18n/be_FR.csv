@@ -218,3 +218,5 @@
 "You paid successfully.","Vous avez payé avec succès."
 "Your vouchers do not cover the order total yet. Apply a voucher for the remaining amount or choose another payment method.","Vos bons d'achat ne couvrent pas encore le total de la commande. Appliquez un bon d'achat pour le montant restant ou choisissez un autre moyen de paiement."
 "Your vouchers cover the full order amount. Place your order to finish.","Vos bons d'achat couvrent le montant total de la commande. Passez votre commande pour terminer."
+"This giftcard is not accepted in this store.","Cette carte cadeau n'est pas acceptée dans cette boutique."
+"The giftcard could not be applied. Please check the card number and PIN and try again.","La carte cadeau n'a pas pu être appliquée. Vérifiez le numéro de carte et le code PIN et réessayez."
