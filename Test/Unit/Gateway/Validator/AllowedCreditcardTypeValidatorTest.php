@@ -42,7 +42,7 @@ class AllowedCreditcardTypeValidatorTest extends \Buckaroo\Magento2\Test\BaseTes
         $created = [];
         $resultFactory = $this->getFakeMock(ResultInterfaceFactory::class)->onlyMethods(['create'])->getMock();
         $resultFactory->method('create')->willReturnCallback(function ($data) use (&$created) {
-            $created[] = $data['isValid'];
+            $created[] = $data;
             return $this->getFakeMock(ResultInterface::class)->getMock();
         });
 
@@ -54,20 +54,27 @@ class AllowedCreditcardTypeValidatorTest extends \Buckaroo\Magento2\Test\BaseTes
         $validator = new AllowedCreditcardTypeValidator($resultFactory, $config);
         $validator->validate(['payment' => $payment, 'storeId' => 2]);
 
-        $this->assertSame([$isValid], $created);
+        $this->assertSame($isValid, $created[0]['isValid']);
+
+        if ($cardType === null || $cardType === '') {
+            $this->assertSame(
+                'A credit card or debit card brand must be provided.',
+                (string)$created[0]['failsDescription'][0]
+            );
+        }
     }
 
     public static function cardTypeProvider(): array
     {
         return [
-            'allowed brand'                   => ['visa', 'visa,mastercard', true],
-            'allowed brand in another case'   => ['MasterCard', 'visa,mastercard', true],
-            'brand that is not allowed'       => ['amex', 'visa,mastercard', false],
-            'no brands allowed'               => ['visa', null, false],
-            'part of an allowed code'         => ['vis', 'visa,mastercard', false],
-            'not a single value'              => [['visa'], 'visa,mastercard', false],
-            'no brand chosen'                 => [null, 'visa,mastercard', true],
-            'empty brand'                     => ['', 'visa,mastercard', true],
+            'allowed brand'                 => ['visa', 'visa,mastercard', true],
+            'allowed brand in another case' => ['MasterCard', 'visa,mastercard', true],
+            'brand that is not allowed'     => ['amex', 'visa,mastercard', false],
+            'no brands allowed'             => ['visa', null, false],
+            'part of an allowed code'       => ['vis', 'visa,mastercard', false],
+            'not a single value'            => [['visa'], 'visa,mastercard', false],
+            'no brand chosen'               => [null, 'visa,mastercard', false],
+            'empty brand'                   => ['', 'visa,mastercard', false],
         ];
     }
 }
