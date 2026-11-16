@@ -219,7 +219,7 @@ class PushTransactionTypeTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertSame(12345, $instance->getStatusCode());
         $this->assertSame('BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL', $instance->getStatusKey());
-        $this->assertSame('Onbekende responsecode: 12345', $instance->getStatusMessage());
+        $this->assertSame('Unknown response code: 12345', $instance->getStatusMessage());
     }
 
     public function testGroupTransactionIsDetectedFromI150TransactionType(): void

@@ -142,7 +142,7 @@ class PushTest extends BaseTest
 
         $this->assertSame(
             [
-                'message' => 'Onbekende responsecode: 999',
+                'message' => 'Unknown response code: 999',
                 'status'  => 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL',
                 'code'    => 999,
             ],

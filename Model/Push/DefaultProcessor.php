@@ -1156,9 +1156,11 @@ class DefaultProcessor implements PushProcessorInterface
 
         $this->recordCaptureWithoutInvoice($payment, $captureAmount);
 
-        $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-            . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
-            . ' has been captured. Invoice will be created on shipment.';
+        $description = __('Capture status: %1', '<strong>' . __($message) . '</strong>') . '<br/>'
+            . __(
+                'Total amount of %1 has been captured. Invoice will be created on shipment.',
+                $this->formatCommentAmount($amount, $amountCurrency)
+            );
 
         $this->orderRequestService->updateOrderStatus(
             Order::STATE_PROCESSING,
@@ -1672,9 +1674,8 @@ class DefaultProcessor implements PushProcessorInterface
                 return $this->handleCaptureWithDeferredInvoicing($amount, $message, $newStatus, $amountCurrency);
             }
 
-            $description = 'Capture status : <strong>' . $message . '</strong><br/>'
-                . 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
-                . ' has been captured.';
+            $description = __('Capture status: %1', '<strong>' . __($message) . '</strong>') . '<br/>'
+                . __('Total amount of %1 has been captured.', $this->formatCommentAmount($amount, $amountCurrency));
 
             if (!$this->saveInvoice()) {
                 $this->logger->addDebug(sprintf('[%s:%s] - CAPTURE_INVOICE_FAILED', __METHOD__, __LINE__));
@@ -1715,10 +1716,11 @@ class DefaultProcessor implements PushProcessorInterface
         // payment flagged, so the order must not move to processing.
         if ($this->payment->getIsFraudDetected()) {
             return $this->keepOrderInPaymentReview(
-                'Payment status : <strong>' . $message . '</strong><br/>'
-                . 'The received amount of '
-                . $this->formatCommentAmount((float)$this->pushRequest->getAmount(), $this->getPaymentCurrencyCode())
-                . ' does not settle the order. The order is held for review.'
+                __('Payment Push Status: %1', '<strong>' . __($message) . '</strong>') . '<br/>'
+                . __(
+                    'The received amount of %1 does not settle the order. The order is held for review.',
+                    $this->formatCommentAmount((float)$this->pushRequest->getAmount(), $this->getPaymentCurrencyCode())
+                )
             );
         }
 
@@ -2200,7 +2202,7 @@ class DefaultProcessor implements PushProcessorInterface
             return false;
         }
 
-        $description = 'Payment status : ' . $message;
+        $description = (string)__('Payment Push Status: %1', __($message));
 
         if (!empty($this->pushRequest->getServiceAntifraudAction())) {
             $description .= $this->pushRequest->getServiceAntifraudAction() .
@@ -2291,7 +2293,7 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         // Add clear failure message to order history
-        $this->order->addCommentToStatusHistory('Payment failed: ' . $message);
+        $this->order->addCommentToStatusHistory((string)__('Payment failed: %1', __($message)));
 
         $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
@@ -2381,7 +2383,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function buildPendingPaymentDescription(string $statusMessage): string
     {
-        $description = 'Payment Push Status: ' . __($statusMessage);
+        $description = (string)__('Payment Push Status: %1', __($statusMessage));
         $transferDetails = $this->getTransferDetails();
 
         if (!empty($transferDetails)) {
@@ -2447,19 +2449,22 @@ class DefaultProcessor implements PushProcessorInterface
         $isShipmentMode = ($invoiceHandlingMode == InvoiceHandlingOptions::SHIPMENT);
 
         if ($this->canPushInvoice() && !$isShipmentMode) {
-            $description = 'Payment status : <strong>' . $message . "</strong><br/>";
+            $description = __('Payment Push Status: %1', '<strong>' . __($message) . '</strong>') . '<br/>';
             $amount = $this->order->getBaseTotalDue();
             $amountCurrency = $this->order->getBaseCurrencyCode();
-            $description .= 'Total amount of ' .
-                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
+            $description .= __('Total amount of %1 has been paid', $this->formatCommentAmount($amount, $amountCurrency));
         } else {
-            $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
+            $description = __('Authorization status: %1', '<strong>' . __($message) . '</strong>') . '<br/>';
             if ($isShipmentMode) {
-                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
-                    . ' has been authorized. Payment will be captured when order is shipped.';
+                $description .= __(
+                    'Total amount of %1 has been authorized. Payment will be captured when order is shipped.',
+                    $this->formatCommentAmount($amount, $amountCurrency)
+                );
             } else {
-                $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
-                    . ' has been authorized. Please create an invoice to capture the authorized amount.';
+                $description .= __(
+                    'Total amount of %1 has been authorized. Please create an invoice to capture the authorized amount.',
+                    $this->formatCommentAmount($amount, $amountCurrency)
+                );
             }
         }
 

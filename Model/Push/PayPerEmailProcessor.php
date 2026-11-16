@@ -585,15 +585,16 @@ class PayPerEmailProcessor extends DefaultProcessor
         $this->dontSaveOrderUponSuccessPush = false;
 
         if ($this->canPushInvoice()) {
-            $description = 'Payment status : <strong>' . $message . "</strong><br/>";
+            $description = __('Payment Push Status: %1', '<strong>' . __($message) . '</strong>') . '<br/>';
             $amount = $this->order->getBaseTotalDue();
             $amountCurrency = $this->order->getBaseCurrencyCode();
-            $description .= 'Total amount of ' .
-                $this->formatCommentAmount($amount, $amountCurrency) . ' has been paid';
+            $description .= __('Total amount of %1 has been paid', $this->formatCommentAmount($amount, $amountCurrency));
         } else {
-            $description = 'Authorization status : <strong>' . $message . "</strong><br/>";
-            $description .= 'Total amount of ' . $this->formatCommentAmount($amount, $amountCurrency)
-                . ' has been authorized. Please create an invoice to capture the authorized amount.';
+            $description = __('Authorization status: %1', '<strong>' . __($message) . '</strong>') . '<br/>';
+            $description .= __(
+                'Total amount of %1 has been authorized. Please create an invoice to capture the authorized amount.',
+                $this->formatCommentAmount($amount, $amountCurrency)
+            );
         }
 
         if ($this->isPayPerEmailB2BModePushInitial) {
