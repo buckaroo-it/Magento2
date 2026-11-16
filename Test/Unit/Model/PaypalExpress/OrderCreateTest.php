@@ -405,4 +405,21 @@ class OrderCreateTest extends BaseTest
         $this->expectException(NoSuchEntityException::class);
         $this->callMethod($instance, 'getQuote', ['masked-cart-id']);
     }
+
+    public static function missingCartIdProvider(): array
+    {
+        return ['null' => [null], 'empty' => ['']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('missingCartIdProvider')]
+    public function testExecuteWithoutCartIdThrowsPaypalExpressException(?string $cartId): void
+    {
+        $quoteManagement = $this->getFakeMock(CartManagementInterface::class)->getMock();
+        $quoteManagement->expects($this->never())->method('placeOrder');
+
+        $instance = $this->makeOrderCreate(['quoteManagement' => $quoteManagement]);
+
+        $this->expectException(PaypalExpressException::class);
+        $instance->execute('PAYPAL-ORDER-1', $cartId);
+    }
 }

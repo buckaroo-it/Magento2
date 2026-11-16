@@ -20,6 +20,7 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
 use Buckaroo\Magento2\Service\TransactionOperationValidator;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
@@ -32,6 +33,8 @@ use PHPUnit\Framework\TestCase;
  * `buckaroo_magento2/account/active` is an on/off switch; test/live comes from the payment
  * method. Installs upgraded from 1.x can still hold the legacy value 2 (the old "Live"),
  * for example from app/etc/config.php, which a data patch cannot rewrite.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BuckarooAdapterClientModeTest extends TestCase
 {
@@ -68,13 +71,76 @@ class BuckarooAdapterClientModeTest extends TestCase
         $this->getClientMode('2', '0');
     }
 
-    private function getClientMode(string $accountActive, string $methodActive): string
+    public static function serviceCodeProvider(): array
     {
+        return [
+            'Bancontact via PayPerEmail' => ['bancontactmrcash', 'buckaroo_magento2_mrcash', 'mrcash'],
+            'card brand'                 => ['visa', 'buckaroo_magento2_creditcard', 'creditcard'],
+            'Przelewy24'                 => ['przelewy24', 'buckaroo_magento2_p24', 'p24'],
+        ];
+    }
+
+    /**
+     * Requests can carry the Buckaroo service code, the config providers are keyed by method code.
+     */
+    #[DataProvider('serviceCodeProvider')]
+    public function testServiceCodeIsLookedUpByItsMethodCode(
+        string $serviceCode,
+        string $resolvedMethodCode,
+        string $expectedProviderType
+    ): void {
+        $resolver = $this->createMock(PaymentMethodCodeResolver::class);
+        $resolver->method('resolve')->with($serviceCode)->willReturn($resolvedMethodCode);
+
+        $requestedTypes = [];
+        $mode = $this->getClientMode('1', '2', $serviceCode, $resolver, $requestedTypes);
+
+        $this->assertSame(Config::LIVE_MODE, $mode);
+        $this->assertSame([$expectedProviderType], $requestedTypes);
+    }
+
+    public function testUnknownServiceCodeIsLookedUpUnchanged(): void
+    {
+        $resolver = $this->createMock(PaymentMethodCodeResolver::class);
+        $resolver->method('resolve')->willReturn(null);
+
+        $requestedTypes = [];
+        $this->getClientMode('1', '2', 'afterpay', $resolver, $requestedTypes);
+
+        $this->assertSame(['afterpay'], $requestedTypes);
+    }
+
+    /**
+     * @param string                         $accountActive
+     * @param string                         $methodActive
+     * @param string                         $paymentMethod
+     * @param PaymentMethodCodeResolver|null $resolver
+     * @param array                          $requestedTypes Filled with the types asked from the factory
+     *
+     * @return string
+     */
+    private function getClientMode(
+        string $accountActive,
+        string $methodActive,
+        string $paymentMethod = 'ideal',
+        ?PaymentMethodCodeResolver $resolver = null,
+        array &$requestedTypes = []
+    ): string {
         $methodConfig = $this->createMock(AbstractConfigProvider::class);
         $methodConfig->method('getActive')->willReturn($methodActive);
 
         $configProviderFactory = $this->createMock(ConfigProviderFactory::class);
-        $configProviderFactory->method('get')->willReturn($methodConfig);
+        $configProviderFactory->method('get')->willReturnCallback(
+            function (string $type) use ($methodConfig, &$requestedTypes) {
+                $requestedTypes[] = $type;
+                return $methodConfig;
+            }
+        );
+
+        if ($resolver === null) {
+            $resolver = $this->createMock(PaymentMethodCodeResolver::class);
+            $resolver->method('resolve')->willReturnCallback(fn(string $code) => 'buckaroo_magento2_' . $code);
+        }
 
         $adapter = new BuckarooAdapter(
             $configProviderFactory,
@@ -83,11 +149,13 @@ class BuckarooAdapterClientModeTest extends TestCase
             $this->createMock(ProductMetadataInterface::class),
             $this->createMock(Resolver::class),
             $this->createMock(StoreManagerInterface::class),
-            $this->createMock(TransactionOperationValidator::class)
+            $this->createMock(TransactionOperationValidator::class),
+            null,
+            $resolver
         );
 
         $method = new \ReflectionMethod(BuckarooAdapter::class, 'getClientMode');
 
-        return $method->invoke($adapter, $accountActive, 1, 'ideal');
+        return $method->invoke($adapter, $accountActive, 1, $paymentMethod);
     }
 }

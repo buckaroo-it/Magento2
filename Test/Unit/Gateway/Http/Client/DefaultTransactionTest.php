@@ -158,6 +158,23 @@ class DefaultTransactionTest extends BaseTest
         $this->assertSame(['object' => $this->transactionResponseMock], $result);
     }
 
+    public function testEncryptedCardDataDoesNotChangeTheActionOfLaterRequests(): void
+    {
+        $actions = [];
+        $this->adapterMock->method('execute')->willReturnCallback(
+            function (string $action) use (&$actions) {
+                $actions[] = $action;
+                return $this->transactionResponseMock;
+            }
+        );
+
+        $client = $this->createClient();
+        $client->placeRequest($this->createTransfer(['payment_method' => 'mrcash', 'encryptedCardData' => 'BLOB']));
+        $client->placeRequest($this->createTransfer(['payment_method' => 'ideal']));
+
+        $this->assertSame([TransactionType::PAY_ENCRYPTED, TransactionType::PAY], $actions);
+    }
+
     public function testPlaceRequestLogsRequestAndResponseViaPaymentLogger(): void
     {
         $body = [

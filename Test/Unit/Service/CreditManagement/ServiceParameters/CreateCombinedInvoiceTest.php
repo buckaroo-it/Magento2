@@ -150,4 +150,24 @@ class CreateCombinedInvoiceTest extends BaseTest
 
         $this->assertEquals($expected, $result);
     }
+
+    public function testGiftcardIsReplacedByTheGiftcardsAllowedInTheOrderStore()
+    {
+        $giftcardConfigMock = $this->getFakeMock(\Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards::class)
+            ->onlyMethods(['getAllowedGiftcards'])
+            ->getMock();
+        $giftcardConfigMock->expects($this->once())
+            ->method('getAllowedGiftcards')
+            ->with(3)
+            ->willReturn('vvvgiftcard,fashioncheque');
+
+        $factoryMock = $this->getFakeMock(Factory::class)->onlyMethods(['get'])->getMock();
+        $factoryMock->method('get')->with('giftcards')->willReturn($giftcardConfigMock);
+
+        $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
+
+        $result = $this->invokeArgs('appendGiftcards', ['ideal,giftcard', 3], $instance);
+
+        $this->assertSame('ideal,vvvgiftcard,fashioncheque', $result);
+    }
 }

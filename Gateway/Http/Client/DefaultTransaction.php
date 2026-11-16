@@ -131,9 +131,9 @@ class DefaultTransaction implements ClientInterface
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {
-        if (isset($data['encryptedCardData'])) {
-            $this->action = TransactionType::PAY_ENCRYPTED;
-        }
-        return $this->adapter->execute($this->action, $paymentMethod, $data);
+        // A local variable: the client is shared, so changing $this->action would carry over to later requests.
+        $action = isset($data['encryptedCardData']) ? TransactionType::PAY_ENCRYPTED : $this->action;
+
+        return $this->adapter->execute($action, $paymentMethod, $data);
     }
 }

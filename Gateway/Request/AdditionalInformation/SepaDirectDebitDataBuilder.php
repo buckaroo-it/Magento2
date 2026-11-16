@@ -39,7 +39,7 @@ class SepaDirectDebitDataBuilder implements BuilderInterface
         ];
 
         if (!empty($customerBic)) {
-            $data = ['bic' => $customerBic];
+            $data['bic'] = $customerBic;
         }
 
         return $data;

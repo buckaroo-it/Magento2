@@ -109,7 +109,8 @@ class CapayableDataBuilder extends AbstractRecipientDataBuilder
 
         $phoneData = $this->addressFormatter->formatTelephone($phone, $this->getAddress()->getCountryId());
 
-        return $phoneData['clean'];
+        // 'clean' is false when there is no phone number.
+        return (string)($phoneData['clean'] ?: '');
     }
 
     /**

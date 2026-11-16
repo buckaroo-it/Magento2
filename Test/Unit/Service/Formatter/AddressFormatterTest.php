@@ -40,4 +40,15 @@ class AddressFormatterTest extends BaseTest
         $this->assertCount(3, $result['street']);
         $this->assertCount(4, $result['telephone']);
     }
+
+    public function testMissingTelephoneGivesTheEmptyPhoneResult()
+    {
+        $phoneFormatter = $this->getObject(\Buckaroo\Magento2\Service\Formatter\Address\PhoneFormatter::class);
+        $instance = $this->getInstance(['phoneFormatter' => $phoneFormatter]);
+
+        $result = $instance->formatTelephone(null, 'NL');
+
+        $this->assertFalse($result['clean']);
+        $this->assertFalse($result['valid']);
+    }
 }

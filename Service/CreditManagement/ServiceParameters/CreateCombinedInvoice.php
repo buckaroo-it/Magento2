@@ -228,7 +228,7 @@ class CreateCombinedInvoice
             return '';
         }
 
-        $allowedServices = $this->appendGiftcards($allowedServices);
+        $allowedServices = $this->appendGiftcards($allowedServices, $storeId);
 
         if ($payment->getMethod() === PayPerEmail::CODE) {
             return str_replace("p24,", "", $allowedServices);
@@ -241,10 +241,12 @@ class CreateCombinedInvoice
      * Append active giftcards if giftcard is enabled
      *
      * @param string $allowedServices
+     * @param int|null $storeId
      *
      * @return string
+     * @throws Exception
      */
-    private function appendGiftcards(string $allowedServices): string
+    private function appendGiftcards(string $allowedServices, ?int $storeId = null): string
     {
         $services = explode(',', $allowedServices);
         if (!in_array('giftcard', $services)) {
@@ -259,10 +261,7 @@ class CreateCombinedInvoice
         /** @var \Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards */
         $giftcardConfig = $this->configProviderMethodFactory->get('giftcards');
 
-        if (!method_exists($giftcardConfig, 'getAllowedCards')) {
-            return $allowedServices;
-        }
-        $activeGiftcardIssuers = $giftcardConfig->getAllowedCards();
+        $activeGiftcardIssuers = $giftcardConfig->getAllowedGiftcards($storeId);
 
         if (!is_string($activeGiftcardIssuers) || strlen(trim($activeGiftcardIssuers)) === 0) {
             return $allowedServices;

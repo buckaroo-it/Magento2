@@ -128,6 +128,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         string $paypal_order_id,
         ?string $cart_id = null
     ) {
+        if ($cart_id === null || trim($cart_id) === '') {
+            throw new PaypalExpressException(__('Cart id is required'));
+        }
+
         try {
             $orderId = $this->createOrder($paypal_order_id, $cart_id);
         } catch (NoSuchEntityException $th) {
