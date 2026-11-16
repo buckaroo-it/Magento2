@@ -44,16 +44,17 @@ class CreditManagmentProcessor extends DefaultProcessor
 
         $amount = floatval($this->pushRequest->getAmountDebit());
         $amount = $this->formatCommentAmount($amount);
-        $statusMessage = 'Payment push status : Creditmanagement invoice with a total amount of '
-            . $amount . ' has been paid';
+        $status = __('Credit Management invoice with a total amount of %1 has been paid', $amount);
 
         if (!$isPaid && !$canInvoice) {
-            $statusMessage = 'Payment push status : Creditmanagement invoice has been (partially) refunded';
+            $status = __('Credit Management invoice has been (partially) refunded');
         }
 
         if (!$isPaid && $canInvoice) {
-            $statusMessage = 'Payment push status : Waiting for consumer';
+            $status = __('Waiting on consumer action');
         }
+
+        $statusMessage = (string)__('Payment Push Status: %1', $status);
 
         if ($isPaid && $canInvoice) {
             $originalKey = BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY;

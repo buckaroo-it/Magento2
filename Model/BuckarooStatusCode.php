@@ -78,7 +78,7 @@ class BuckarooStatusCode
      */
     public function getResponseMessage(int $responseCode): string
     {
-        return self::BPE_RESPONSE_MESSAGES[$responseCode] ?? 'Onbekende responsecode: ' . $responseCode;
+        return self::BPE_RESPONSE_MESSAGES[$responseCode] ?? (string)__('Unknown response code: %1', $responseCode);
     }
 
     /**

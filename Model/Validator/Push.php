@@ -101,7 +101,7 @@ class Push implements ValidatorInterface
             ];
         } else {
             return [
-                'message' => 'Onbekende responsecode: ' . $code,
+                'message' => (string)__('Unknown response code: %1', $code),
                 'status'  => 'BUCKAROO_MAGENTO2_STATUSCODE_NEUTRAL',
                 'code'    => $code,
             ];
