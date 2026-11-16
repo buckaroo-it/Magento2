@@ -318,7 +318,7 @@ class DefaultProcessor implements PushProcessorInterface
 
         // Check Push Duplicates
         if ($this->receivePushCheckDuplicates()) {
-            throw new BuckarooException(__('Skipped handling this push, duplicate'));
+            return $this->acknowledgeDuplicatePush();
         }
 
         // Check if the order can be updated
@@ -550,6 +550,57 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return false;
+    }
+
+    /**
+     * Acknowledge a push that was already processed.
+     *
+     * Answering with an error makes Buckaroo retry the push (up to 10 times), so a duplicate is confirmed with
+     * a success response instead. The push can still carry data that was not known at the first delivery
+     * (e.g. the account holder name after a bank reconciliation), so the stored details are refreshed.
+     *
+     * @return bool
+     */
+    protected function acknowledgeDuplicatePush(): bool
+    {
+        $this->logger->addDebug('[' . __METHOD__ . ':' . __LINE__ . '] - Duplicate push acknowledged');
+
+        try {
+            $this->refreshStoredTransactionDetails();
+        } catch (\Throwable $exception) {
+            $this->logger->addError(sprintf(
+                '[%s:%s] - Could not refresh the transaction details of a duplicate push: %s',
+                __METHOD__,
+                __LINE__,
+                $exception->getMessage()
+            ));
+        }
+
+        return true;
+    }
+
+    /**
+     * Store the details of a duplicate push when they differ from what is already saved for the transaction.
+     *
+     * @throws LocalizedException
+     * @return void
+     */
+    private function refreshStoredTransactionDetails(): void
+    {
+        $transactionKey = (string)$this->pushRequest->getTransactions();
+        if ($transactionKey === '' || !$this->payment) {
+            return;
+        }
+
+        $rawInfo = $this->helper->getTransactionAdditionalInfo($this->pushRequest->getData());
+        $rawDetails = $this->payment->getAdditionalInformation(Transaction::RAW_DETAILS) ?: [];
+        if (($rawDetails[$transactionKey] ?? null) === $rawInfo) {
+            return;
+        }
+
+        $rawDetails[$transactionKey] = $rawInfo;
+        $this->payment->setAdditionalInformation(Transaction::RAW_DETAILS, $rawDetails);
+        $this->paymentRepository->save($this->payment);
     }
 
     /**

@@ -771,4 +771,84 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         return $instance;
     }
+
+    public function testDuplicatePushIsAcknowledgedInsteadOfRejected(): void
+    {
+        $instance = $this->getMockBuilder($this->instanceClass)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['initializeFields', 'skipPush', 'receivePushCheckDuplicates', 'canUpdateOrderStatus'])
+            ->getMock();
+        $instance->method('skipPush')->willReturn(false);
+        $instance->method('receivePushCheckDuplicates')->willReturn(true);
+        $instance->expects($this->never())->method('canUpdateOrderStatus');
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest(['brq_transactions' => 'TRX']), $instance);
+
+        $this->assertTrue($instance->processPush($this->duplicatePushRequest([])));
+    }
+
+    public function testDuplicatePushRefreshesTheStoredTransactionDetails(): void
+    {
+        $instance = $this->getMockBuilder($this->instanceClass)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['initializeFields', 'skipPush', 'receivePushCheckDuplicates'])
+            ->getMock();
+        $instance->method('skipPush')->willReturn(false);
+        $instance->method('receivePushCheckDuplicates')->willReturn(true);
+
+        $data = ['brq_transactions' => 'TRX', 'brq_service_ideal_consumername' => 'J Doe'];
+        $payment = $this->getFakeMock(\Magento\Sales\Model\Order\Payment::class)
+            ->onlyMethods(['getAdditionalInformation', 'setAdditionalInformation'])
+            ->getMock();
+        $payment->method('getAdditionalInformation')
+            ->willReturn(['TRX' => ['brq_transactions' => 'TRX']]);
+        $payment->expects($this->once())
+            ->method('setAdditionalInformation')
+            ->with(\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS, ['TRX' => $data]);
+        $this->helperMock->method('getTransactionAdditionalInfo')->willReturn($data);
+
+        $paymentRepository = $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')->getMock();
+        $paymentRepository->expects($this->once())->method('save')->with($payment);
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('helper', $this->helperMock, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('paymentRepository', $paymentRepository, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest($data), $instance);
+
+        $this->assertTrue($instance->processPush($this->duplicatePushRequest($data)));
+    }
+
+    public function testDuplicatePushStaysAcknowledgedWhenRefreshingTheDetailsFails(): void
+    {
+        $instance = $this->getMockBuilder($this->instanceClass)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['initializeFields', 'skipPush', 'receivePushCheckDuplicates'])
+            ->getMock();
+        $instance->method('skipPush')->willReturn(false);
+        $instance->method('receivePushCheckDuplicates')->willReturn(true);
+
+        $payment = $this->getFakeMock(\Magento\Sales\Model\Order\Payment::class)->getMock();
+        $this->helperMock->method('getTransactionAdditionalInfo')->willReturn(['a' => 'b']);
+        $paymentRepository = $this->getFakeMock('Magento\Sales\Api\OrderPaymentRepositoryInterface')->getMock();
+        $paymentRepository->method('save')->willThrowException(new \RuntimeException('db down'));
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('helper', $this->helperMock, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('paymentRepository', $paymentRepository, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest(['brq_transactions' => 'TRX']), $instance);
+
+        $this->assertTrue($instance->processPush($this->duplicatePushRequest([])));
+    }
+
+    private function duplicatePushRequest(array $data)
+    {
+        $request = $this->getFakeMock(\Buckaroo\Magento2\Model\RequestPush\HttppostPushRequest::class)->getMock();
+        $request->method('getTransactions')->willReturn($data['brq_transactions'] ?? null);
+        $request->method('getData')->willReturn($data);
+
+        return $request;
+    }
 }

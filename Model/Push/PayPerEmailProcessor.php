@@ -187,7 +187,7 @@ class PayPerEmailProcessor extends DefaultProcessor
 
         // Check Push Duplicates
         if ($this->receivePushCheckDuplicates()) {
-            throw new BuckarooException(__('Skipped handling this push, duplicate'));
+            return $this->acknowledgeDuplicatePush();
         }
 
         // Check if the order can be updated
