@@ -27,6 +27,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 #[AllowMockObjectsWithoutExpectations]
 class DefaultTransactionTest extends BaseTest
 {
@@ -253,6 +256,47 @@ class DefaultTransactionTest extends BaseTest
         $this->expectExceptionMessage('SDK failure');
 
         $this->createClient()->placeRequest($this->createTransfer($body));
+    }
+
+    /**
+     * @return array<string, array{0: \Buckaroo\Exceptions\BuckarooException}>
+     */
+    public static function sdkExceptionProvider(): array
+    {
+        return [
+            'connection failure' => [new \Buckaroo\Exceptions\TransferException(
+                'Transfer failed: cURL error 28: Operation timed out for https://testcheckout.buckaroo.nl/json/Transaction'
+            )],
+            'rejected credentials' => [new \Buckaroo\Exceptions\AuthenticationException(
+                'Status code: 400 Message: Access is denied'
+            )],
+            'non-JSON response' => [new \Buckaroo\Exceptions\BuckarooApiException(
+                'Status code: 502 Message: <html>Bad Gateway</html>'
+            )],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('sdkExceptionProvider')]
+    public function testSdkExceptionShowsGenericMessageAndLogsTheDetails(
+        \Buckaroo\Exceptions\BuckarooException $sdkException
+    ): void {
+        $this->adapterMock->method('execute')->willThrowException($sdkException);
+
+        $this->loggerMock->expects($this->once())
+            ->method('critical')
+            ->with($sdkException->getMessage());
+
+        try {
+            $this->createClient()->placeRequest($this->createTransfer(['payment_method' => 'ideal']));
+            $this->fail('Expected a ClientException');
+        } catch (ClientException $e) {
+            $this->assertSame(
+                'Unfortunately an error occurred while processing your payment. Please try again. '
+                . 'If this error persists, please choose a different payment method.',
+                $e->getMessage()
+            );
+            $this->assertSame($sdkException, $e->getPrevious());
+        }
     }
 
     public function testEmptyExceptionMessageFallsBackToGenericMessage(): void

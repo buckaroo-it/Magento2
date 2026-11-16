@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
+use Buckaroo\Exceptions\BuckarooException as SdkException;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Payment\Gateway\Http\ClientException;
@@ -96,6 +97,16 @@ class DefaultTransaction implements ClientInterface
 
         try {
             $response['object'] = $this->process($paymentMethod, $data);
+        } catch (SdkException $e) {
+            // The SDK message carries HTTP and connection details: log it, show a generic message.
+            $this->logger->critical($e->getMessage());
+            throw new ClientException(
+                __(
+                    'Unfortunately an error occurred while processing your payment. Please try again. '
+                    . 'If this error persists, please choose a different payment method.'
+                ),
+                $e
+            );
         } catch (\Exception $e) {
             $message = __($e->getMessage() ?: 'Sorry, but something went wrong');
             $this->logger->critical($message);
