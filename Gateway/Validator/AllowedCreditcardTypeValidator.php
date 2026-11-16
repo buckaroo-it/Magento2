@@ -25,6 +25,8 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
  *
  * Registered as the "global" validator, so it runs when the payment is assigned and placed, and
  * not on capture or refund of an order whose brand was allowed at the time.
+ *
+ * A missing brand is rejected here, before the Buckaroo SDK turns it into "Missing creditcard name".
  */
 class AllowedCreditcardTypeValidator extends AbstractValidator
 {
@@ -57,9 +59,8 @@ class AllowedCreditcardTypeValidator extends AbstractValidator
         $payment = $validationSubject['payment'] ?? null;
         $cardType = $payment ? $payment->getAdditionalInformation(DataAssignObserver::CARD_TYPE) : null;
 
-        // Without a chosen brand the shopper picks one on the Buckaroo payment page
         if ($cardType === null || $cardType === '') {
-            return $this->createResult(true);
+            return $this->createResult(false, [__('A credit card or debit card brand must be provided.')]);
         }
 
         $allowed = array_map(
