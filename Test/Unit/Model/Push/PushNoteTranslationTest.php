@@ -31,8 +31,8 @@ class PushNoteTranslationTest extends \Buckaroo\Magento2\Test\BaseTest
     protected $instanceClass = DefaultProcessor::class;
 
     private const GERMAN = [
-        'Payment Push Status: %1'    => 'Zahlungsstatus: %1',
-        'Waiting for processor'      => 'Warten auf den Zahlungsdienstleister',
+        'Payment Push Status: %1'    => 'Push-Zahlungsstatus: %1',
+        'Waiting for processor'      => 'Warten auf Verarbeitung',
         'Waiting on consumer action' => 'Warten auf den Kunden',
         'Unknown response code: %1'  => 'Unbekannter Antwortcode: %1',
         'Success'                    => 'Erfolgreich',
@@ -85,7 +85,7 @@ class PushNoteTranslationTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $note = $this->invokeArgs('buildPendingPaymentDescription', ['Waiting for processor'], $instance);
 
-        $this->assertSame('Zahlungsstatus: Warten auf den Zahlungsdienstleister', (string)$note);
+        $this->assertSame('Push-Zahlungsstatus: Warten auf Verarbeitung', (string)$note);
     }
 
     public function testSuccessPushNoteIsTranslated(): void
@@ -118,7 +118,7 @@ class PushNoteTranslationTest extends \Buckaroo\Magento2\Test\BaseTest
         $details = $this->invokeArgs('getPaymentDetails', ['Success'], $instance);
 
         $this->assertSame(
-            'Zahlungsstatus: <strong>Erfolgreich</strong><br/>Gesamtbetrag von €29.04 wurde bezahlt',
+            'Push-Zahlungsstatus: <strong>Erfolgreich</strong><br/>Gesamtbetrag von €29.04 wurde bezahlt',
             (string)$details['description']
         );
     }
@@ -160,7 +160,7 @@ class PushNoteTranslationTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->invoke('updateCm3InvoiceStatus', $instance);
 
-        $this->assertSame('Zahlungsstatus: Warten auf den Kunden', $saved);
+        $this->assertSame('Push-Zahlungsstatus: Warten auf den Kunden', $saved);
     }
 
     public function testUnknownStatusCodeFallbackIsTranslatable(): void
