@@ -341,4 +341,26 @@ class PayPerEmailProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
             $instance
         ));
     }
+
+    public function testDuplicatePushIsAcknowledgedInsteadOfRejected(): void
+    {
+        $instance = $this->getMockBuilder($this->instanceClass)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['initializeFields', 'skipPush', 'receivePushCheckDuplicates', 'canUpdateOrderStatus'])
+            ->getMock();
+        $instance->method('skipPush')->willReturn(false);
+        $instance->method('receivePushCheckDuplicates')->willReturn(true);
+        $instance->expects($this->never())->method('canUpdateOrderStatus');
+
+        $pushRequest = $this->getFakeMock(\Buckaroo\Magento2\Model\RequestPush\HttppostPushRequest::class)
+            ->getMock();
+        $pushRequest->method('getAdditionalInformation')->willReturn(null);
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+        $this->setProperty('pushTransactionType', $this->pushTransactionTypeMock, $instance);
+        $this->setProperty('order', $this->getFakeMock('Magento\Sales\Model\Order')->getMock(), $instance);
+
+        $this->assertTrue($instance->processPush($pushRequest));
+    }
 }
