@@ -586,8 +586,16 @@ define(
                     return;
                 }
 
-                var buttonStyle = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay.buttonStyle || 'black';
+                var applepayConfig = window.checkoutConfig.payment.buckaroo.buckaroo_magento2_applepay;
+                var buttonStyle = applepayConfig.buttonStyle || 'black';
                 appleButton.setAttribute('buttonstyle', buttonStyle);
+
+                // The setting covers the product page and cart only; the checkout step keeps its
+                // own button type. Missing on pages cached before this setting existed; never
+                // write an empty type, Apple's button throws on type="".
+                if ((this.payMode === 'product' || this.payMode === 'cart') && applepayConfig.buttonType) {
+                    appleButton.setAttribute('type', applepayConfig.buttonType);
+                }
 
                 var paymentRef = this.payment;
                 appleButton.addEventListener('click', function (event) {

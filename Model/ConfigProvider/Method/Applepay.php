@@ -14,6 +14,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Config\Source\ApplepayButtonType;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -32,6 +33,7 @@ class Applepay extends AbstractConfigProvider
     public const XPATH_APPLEPAY_ACTIVE                            = 'active';
     public const XPATH_APPLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_APPLEPAY_BUTTON_STYLE                      = 'button_style';
+    public const XPATH_APPLEPAY_BUTTON_TYPE                       = 'button_type';
     public const XPATH_APPLEPAY_INTEGRATION_MODE                  = 'integration_mode';
     public const XPATH_APPLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
     public const XPATH_ACCOUNT_MERCHANT_GUID                      = 'merchant_guid';
@@ -62,6 +64,11 @@ class Applepay extends AbstractConfigProvider
     private $storeManager;
 
     /**
+     * @var ApplepayButtonType
+     */
+    private $buttonTypes;
+
+    /**
      * @param Repository            $assetRepo
      * @param ScopeConfigInterface  $scopeConfig
      * @param AllowedCurrencies     $allowedCurrencies
@@ -69,6 +76,7 @@ class Applepay extends AbstractConfigProvider
      * @param LogoService           $logoService
      * @param StoreManagerInterface $storeManager
      * @param Resolver              $localeResolver
+     * @param ApplepayButtonType    $buttonTypes
      */
     public function __construct(
         Repository $assetRepo,
@@ -77,12 +85,14 @@ class Applepay extends AbstractConfigProvider
         PaymentFee $paymentFeeHelper,
         LogoService $logoService,
         StoreManagerInterface $storeManager,
-        Resolver $localeResolver
+        Resolver $localeResolver,
+        ApplepayButtonType $buttonTypes
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
+        $this->buttonTypes = $buttonTypes;
     }
 
     /**
@@ -102,6 +112,7 @@ class Applepay extends AbstractConfigProvider
             'guid'                         => $this->getMerchantGuid(),
             'availableButtons'             => $this->getAvailableButtons(),
             'buttonStyle'                  => $this->getButtonStyle(),
+            'buttonType'                   => $this->getButtonType(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
             'supportedNetworks'            => self::SUPPORTED_NETWORKS,
@@ -148,6 +159,20 @@ class Applepay extends AbstractConfigProvider
     public function getButtonStyle($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_APPLEPAY_BUTTON_STYLE, $store);
+    }
+
+    /**
+     * Get the configured Apple Pay button type; unknown or empty values fall back to "buy".
+     *
+     * @param int|string|Store $store
+     *
+     * @return string
+     */
+    public function getButtonType($store = null): string
+    {
+        return $this->buttonTypes->normalize(
+            $this->getMethodConfigValue(self::XPATH_APPLEPAY_BUTTON_TYPE, $store)
+        );
     }
 
     /**
