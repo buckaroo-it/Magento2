@@ -69,7 +69,7 @@ class ArticleTotalRegistry
     }
 
     /**
-     * Sum the line totals of an assembled article list.
+     * Sum the line totals of an assembled article list, plus shipping costs sent outside the lines.
      *
      * @param array $articles
      *
@@ -77,7 +77,7 @@ class ArticleTotalRegistry
      */
     public function sumArticles(array $articles): float
     {
-        $total = 0.0;
+        $total = (float)($articles['shippingCosts'] ?? 0);
 
         foreach (($articles['articles'] ?? []) as $article) {
             if (!is_array($article)) {
