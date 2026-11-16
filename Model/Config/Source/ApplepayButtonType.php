@@ -1,0 +1,81 @@
+<?php
+/**
+ * Buckaroo Magento 2 payment module (https://www.buckaroo.eu/)
+ *
+ * Copyright (c) Buckaroo B.V.
+ * See LICENSE for license details.
+ *
+ * Support: support@buckaroo.nl
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   MIT
+ */
+declare(strict_types=1);
+
+namespace Buckaroo\Magento2\Model\Config\Source;
+
+use Magento\Framework\Data\OptionSourceInterface;
+
+/**
+ * Call to action shown on the Apple Pay button (the `type` attribute of <apple-pay-button>).
+ *
+ * The default "buy" is what every Apple Pay button renders today, so installations that never
+ * touch the setting see no change. Apple's donate, contribute, support and tip types are
+ * deliberately not offered. Labels are unique keys so the module's translations cannot
+ * retranslate other modules' strings; the admin preview shows Apple's localised button text.
+ */
+class ApplepayButtonType implements OptionSourceInterface
+{
+    public const TYPE_DEFAULT = 'buy';
+
+    /**
+     * Return the selectable button types.
+     *
+     * @return array
+     */
+    public function toOptionArray(): array
+    {
+        $options = [];
+        foreach ($this->getLabels() as $value => $label) {
+            $options[] = ['value' => $value, 'label' => $label];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Return the stored value if it is an offered type, otherwise the default.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function normalize($value): string
+    {
+        return is_string($value) && isset($this->getLabels()[$value]) ? $value : self::TYPE_DEFAULT;
+    }
+
+    /**
+     * Apple `type` value => admin label (literal phrases so i18n:collect-phrases finds them)
+     *
+     * @return array
+     */
+    private function getLabels(): array
+    {
+        return [
+            'buy'       => __('Buy with Apple Pay'),
+            'check-out' => __('Check out with Apple Pay'),
+            'order'     => __('Order with Apple Pay'),
+            'pay'       => __('Pay with Apple Pay'),
+            'book'      => __('Book with Apple Pay'),
+            'subscribe' => __('Subscribe with Apple Pay'),
+            'continue'  => __('Continue with Apple Pay'),
+            'rent'      => __('Rent with Apple Pay'),
+            'set-up'    => __('Set up Apple Pay'),
+            'reload'    => __('Reload with Apple Pay'),
+            'add-money' => __('Add money with Apple Pay'),
+            'top-up'    => __('Top up with Apple Pay'),
+            'plain'     => __('Apple Pay logo only'),
+        ];
+    }
+}
