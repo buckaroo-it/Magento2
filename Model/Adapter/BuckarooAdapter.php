@@ -28,10 +28,12 @@ use Buckaroo\Magento2\Model\Config\Source\Enablemode;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
+use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Service\TransactionOperationValidator;
 use Buckaroo\PaymentMethods\CreditManagement\CreditManagement;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Locale\Resolver;
@@ -88,14 +90,20 @@ class BuckarooAdapter
     private $transactionOperationValidator;
 
     /**
-     * @param ConfigProviderFactory         $configProviderFactory
-     * @param Encryptor                     $encryptor
-     * @param BuckarooLoggerInterface       $logger
-     * @param ProductMetadataInterface      $productMetadata
-     * @param Resolver                      $localeResolver
-     * @param StoreManagerInterface         $storeManager
-     * @param TransactionOperationValidator $transactionOperationValidator
-     * @param array|null                    $mapPaymentMethods
+     * @var PaymentMethodCodeResolver|null
+     */
+    private $paymentMethodCodeResolver;
+
+    /**
+     * @param ConfigProviderFactory          $configProviderFactory
+     * @param Encryptor                      $encryptor
+     * @param BuckarooLoggerInterface        $logger
+     * @param ProductMetadataInterface       $productMetadata
+     * @param Resolver                       $localeResolver
+     * @param StoreManagerInterface          $storeManager
+     * @param TransactionOperationValidator  $transactionOperationValidator
+     * @param array|null                     $mapPaymentMethods
+     * @param PaymentMethodCodeResolver|null $paymentMethodCodeResolver
      */
     public function __construct(
         ConfigProviderFactory $configProviderFactory,
@@ -105,7 +113,8 @@ class BuckarooAdapter
         Resolver $localeResolver,
         StoreManagerInterface $storeManager,
         TransactionOperationValidator $transactionOperationValidator,
-        ?array $mapPaymentMethods = null
+        ?array $mapPaymentMethods = null,
+        ?PaymentMethodCodeResolver $paymentMethodCodeResolver = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;
@@ -115,6 +124,7 @@ class BuckarooAdapter
         $this->localeResolver = $localeResolver;
         $this->storeManager = $storeManager;
         $this->transactionOperationValidator = $transactionOperationValidator;
+        $this->paymentMethodCodeResolver = $paymentMethodCodeResolver;
     }
 
     /**
@@ -358,7 +368,9 @@ class BuckarooAdapter
 
         if ($paymentMethod) {
             /** @var  AbstractConfigProvider $configProviderPaymentMethod */
-            $configProviderPaymentMethod = $this->configProviderFactory->get($paymentMethod);
+            $configProviderPaymentMethod = $this->configProviderFactory->get(
+                $this->resolveConfigProviderType($paymentMethod)
+            );
             $isActivePaymentMethod = $configProviderPaymentMethod->getActive($storeId);
 
             // Only validate if payment method is active when NOT skipping active check
@@ -386,6 +398,28 @@ class BuckarooAdapter
         }
 
         return $clientMode;
+    }
+
+    /**
+     * Config provider type for the payment method code a request carries.
+     *
+     * A request can carry the Buckaroo service code instead of the Magento method code, for example
+     * the stored actual payment method of a PayPerEmail order paid with Bancontact
+     * ("bancontactmrcash") or a card order ("visa"). The config providers are keyed by method code.
+     *
+     * @param string $paymentMethod
+     *
+     * @return string
+     */
+    private function resolveConfigProviderType(string $paymentMethod): string
+    {
+        if ($this->paymentMethodCodeResolver === null) {
+            $this->paymentMethodCodeResolver = ObjectManager::getInstance()->get(PaymentMethodCodeResolver::class);
+        }
+
+        $methodCode = $this->paymentMethodCodeResolver->resolve($paymentMethod);
+
+        return $methodCode === null ? $paymentMethod : str_replace('buckaroo_magento2_', '', $methodCode);
     }
 
     /**

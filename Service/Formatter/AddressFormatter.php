@@ -81,6 +81,6 @@ class AddressFormatter
      */
     public function formatTelephone(?string $phoneNumber, string $country): array
     {
-        return $this->phoneFormatter->format($phoneNumber, $country);
+        return $this->phoneFormatter->format((string)$phoneNumber, $country);
     }
 }

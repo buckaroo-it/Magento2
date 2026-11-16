@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Gateway\Request\BasicParameter;
 
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Trustly;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
@@ -96,7 +97,7 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         // trustly anyway should be w/o private ip
-        if (($order->getPayment()->getMethod() == 'trustly')
+        if (($order->getPayment()->getMethod() === Trustly::CODE)
             && $this->isIpPrivate($ip)
             && $order->getXForwardedFor()
         ) {

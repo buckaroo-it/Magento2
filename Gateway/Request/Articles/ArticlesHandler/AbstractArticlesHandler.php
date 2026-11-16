@@ -1716,12 +1716,12 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     public function getCreditMemoArticlesData(Order $order, InfoInterface $payment): array
     {
+        $this->setPayment($payment);
+        $this->setOrder($order);
+
         if ($this->payReminderService->isPayRemainder($order)) {
             return ['articles' => [0 => $this->getCreditmemoArticleDataPayRemainder()]];
         }
-
-        $this->setPayment($payment);
-        $this->setOrder($order);
 
         /** @var Creditmemo $creditmemo */
         $creditmemo = $payment->getCreditmemo();
