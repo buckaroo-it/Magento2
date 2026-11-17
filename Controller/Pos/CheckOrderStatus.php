@@ -14,7 +14,6 @@
 namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Exception;
-use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -24,7 +23,6 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
@@ -60,11 +58,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
     private $urlBuilder;
 
     /**
-     * @var FormKey
-     */
-    private $formKey;
-
-    /**
      * @var Session
      */
     private $customerSession;
@@ -76,7 +69,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
      * @param Factory               $configProviderFactory
      * @param StoreManagerInterface $storeManager
      * @param UrlInterface          $urlBuilder
-     * @param FormKey               $formKey
      * @param Session               $customerSession
      * @param CheckoutSession       $checkoutSession
      *
@@ -91,7 +83,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         Factory $configProviderFactory,
         StoreManagerInterface $storeManager,
         UrlInterface $urlBuilder,
-        FormKey $formKey,
         Session $customerSession,
         CheckoutSession $checkoutSession
     ) {
@@ -101,7 +92,6 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
         $this->accountConfig = $configProviderFactory->get('account');
         $this->storeManager = $storeManager;
         $this->urlBuilder = $urlBuilder;
-        $this->formKey = $formKey;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
     }
@@ -129,22 +119,23 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                 $url = '';
 
                 if (in_array($this->order->getState(), ['processing', 'complete'])) {
-                    $url = $store->getBaseUrl() . '/' . $this->accountConfig->getSuccessRedirect($store);
+                    $url = $this->getStoreUrl(
+                        (string)($this->accountConfig->getSuccessRedirect($store) ?: 'checkout/onepage/success'),
+                        (int)$store->getId()
+                    );
                 }
 
                 if (in_array($this->order->getState(), ['canceled', 'closed'])) {
-                    $url = $this->urlBuilder->getRouteUrl(
-                        'buckaroo/redirect/process',
-                        ['_scope' => $store->getId()]
-                    ) . '?form_key=' . $this->formKey->getFormKey();
-
-                    $extraData = [
-                        'brq_invoicenumber' => $params['orderId'],
-                        'brq_ordernumber'   => $params['orderId'],
-                        'brq_statuscode'    => BuckarooStatusCode::ORDER_FAILED,
-                    ];
-
-                    $url = $url . '&' . http_build_query($extraData);
+                    // The cart was converted into this order; give it back so the customer can try again
+                    $this->checkoutSession->restoreQuote();
+                    $this->messageManager->addErrorMessage(
+                        // phpcs:ignore Generic.Files.LineLength.TooLong -- one literal so the phrase stays translatable
+                        __('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')
+                    );
+                    $url = $this->getStoreUrl(
+                        (string)($this->accountConfig->getFailureRedirect($store) ?: 'checkout/cart'),
+                        (int)$store->getId()
+                    );
                 }
 
                 $response = ['success' => 'true', 'redirect' => $url];
@@ -155,6 +146,22 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
 
         $resultJson = $this->resultJsonFactory->create();
         return $resultJson->setData($response);
+    }
+
+    /**
+     * Build a URL in the order's store from a configured path, keeping a #fragment (e.g. checkout#payment)
+     *
+     * @param string $path
+     * @param int    $storeId
+     *
+     * @return string
+     */
+    private function getStoreUrl(string $path, int $storeId): string
+    {
+        [$route, $fragment] = array_pad(explode('#', $path, 2), 2, null);
+        $url = $this->urlBuilder->getUrl(trim($route, '/'), ['_scope' => $storeId]);
+
+        return $fragment !== null ? rtrim($url, '/') . '#' . $fragment : $url;
     }
 
     /**

@@ -93,4 +93,100 @@ class CheckOrderStatusTest extends BaseTest
 
         $this->assertFalse($this->invoke('isOrderOwnedByCurrentVisitor', $instance));
     }
+
+    public static function orderStateProvider(): array
+    {
+        return [
+            'paid on the terminal'   => ['processing', 'https://shop.test/nl/checkout/onepage/success/', false],
+            'failed on the terminal' => ['canceled', 'https://shop.test/nl/checkout/cart/', true],
+            'still waiting'          => ['new', '', false],
+            'paid, success redirect setting empty' => ['processing', 'https://shop.test/nl/checkout/onepage/success/', false, null],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('orderStateProvider')]
+    public function testRedirectFollowsTheOrderState(
+        string $state,
+        string $expectedRedirect,
+        bool $restoresCart,
+        ?string $successRedirect = 'checkout/onepage/success'
+    ): void
+    {
+        $store = $this->getFakeMock(\Magento\Store\Model\Store::class)->onlyMethods(['getId'])->getMock();
+        $store->method('getId')->willReturn(2);
+
+        $order = $this->getFakeMock(Order::class)
+            ->onlyMethods(['loadByIncrementId', 'getStore'])
+            ->getMock();
+        $order->method('getStore')->willReturn($store);
+        $order->setData(['id' => 5, 'entity_id' => 5, 'increment_id' => '100000123', 'state' => $state]);
+
+        $accountConfig = $this->getFakeMock(\Buckaroo\Magento2\Model\ConfigProvider\Account::class)
+            ->onlyMethods(['getSuccessRedirect', 'getFailureRedirect'])
+            ->getMock();
+        $accountConfig->method('getSuccessRedirect')->willReturn($successRedirect);
+        $accountConfig->method('getFailureRedirect')->willReturn('checkout/cart');
+
+        $urlBuilder = $this->getMockForAbstractClass(\Magento\Framework\UrlInterface::class);
+        $urlBuilder->method('getUrl')->willReturnCallback(
+            function (string $route, array $params) {
+                $this->assertSame(['_scope' => 2], $params);
+                return 'https://shop.test/nl/' . $route . '/';
+            }
+        );
+
+        $checkoutSession = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\SessionStub2::class)
+            ->onlyMethods(['getLastRealOrderId', 'restoreQuote'])->getMock();
+        $checkoutSession->method('getLastRealOrderId')->willReturn('100000123');
+        $checkoutSession->expects($restoresCart ? $this->once() : $this->never())->method('restoreQuote');
+
+        $customerSession = $this->getFakeMock(CustomerSession::class)->onlyMethods(['getCustomerId'])->getMock();
+        $customerSession->method('getCustomerId')->willReturn(null);
+
+        $request = $this->getMockForAbstractClass(\Magento\Framework\App\RequestInterface::class);
+        $request->method('getParams')->willReturn(['orderId' => '100000123']);
+
+        $messageManager = $this->getMockForAbstractClass(\Magento\Framework\Message\ManagerInterface::class);
+        $messageManager->expects($restoresCart ? $this->once() : $this->never())->method('addErrorMessage');
+
+        $json = $this->getFakeMock(\Magento\Framework\Controller\Result\Json::class)
+            ->onlyMethods(['setData'])->getMock();
+        $json->expects($this->once())->method('setData')
+            ->with(['success' => 'true', 'redirect' => $expectedRedirect])
+            ->willReturnSelf();
+        $jsonFactory = $this->getFakeMock(\Magento\Framework\Controller\Result\JsonFactory::class)
+            ->onlyMethods(['create'])->getMock();
+        $jsonFactory->method('create')->willReturn($json);
+
+        $instance = $this->objectManagerHelper->getObject(CheckOrderStatus::class, []);
+        foreach ([
+            '_request'          => $request,
+            'messageManager'    => $messageManager,
+            '_actionFlag'       => $this->getFakeMock(\Magento\Framework\App\ActionFlag::class, true),
+            'order'             => $order,
+            'accountConfig'     => $accountConfig,
+            'urlBuilder'        => $urlBuilder,
+            'checkoutSession'   => $checkoutSession,
+            'customerSession'   => $customerSession,
+            'resultJsonFactory' => $jsonFactory,
+        ] as $property => $value) {
+            $this->setProperty($property, $value, $instance);
+        }
+
+        $instance->execute();
+    }
+
+    public function testStoreUrlKeepsAFragment(): void
+    {
+        $urlBuilder = $this->getMockForAbstractClass(\Magento\Framework\UrlInterface::class);
+        $urlBuilder->method('getUrl')->with('checkout', ['_scope' => 2])->willReturn('https://shop.test/checkout/');
+
+        $instance = $this->objectManagerHelper->getObject(CheckOrderStatus::class, []);
+        $this->setProperty('urlBuilder', $urlBuilder, $instance);
+
+        $this->assertSame(
+            'https://shop.test/checkout#payment',
+            $this->invokeArgs('getStoreUrl', ['checkout#payment', 2], $instance)
+        );
+    }
 }
