@@ -119,7 +119,10 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                 $url = '';
 
                 if (in_array($this->order->getState(), ['processing', 'complete'])) {
-                    $url = $this->getStoreUrl($this->accountConfig->getSuccessRedirect($store), (int)$store->getId());
+                    $url = $this->getStoreUrl(
+                        (string)($this->accountConfig->getSuccessRedirect($store) ?: 'checkout/onepage/success'),
+                        (int)$store->getId()
+                    );
                 }
 
                 if (in_array($this->order->getState(), ['canceled', 'closed'])) {
@@ -130,7 +133,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                         __('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')
                     );
                     $url = $this->getStoreUrl(
-                        $this->accountConfig->getFailureRedirect($store) ?: 'checkout/cart',
+                        (string)($this->accountConfig->getFailureRedirect($store) ?: 'checkout/cart'),
                         (int)$store->getId()
                     );
                 }

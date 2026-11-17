@@ -100,11 +100,17 @@ class CheckOrderStatusTest extends BaseTest
             'paid on the terminal'   => ['processing', 'https://shop.test/nl/checkout/onepage/success/', false],
             'failed on the terminal' => ['canceled', 'https://shop.test/nl/checkout/cart/', true],
             'still waiting'          => ['new', '', false],
+            'paid, success redirect setting empty' => ['processing', 'https://shop.test/nl/checkout/onepage/success/', false, null],
         ];
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('orderStateProvider')]
-    public function testRedirectFollowsTheOrderState(string $state, string $expectedRedirect, bool $restoresCart): void
+    public function testRedirectFollowsTheOrderState(
+        string $state,
+        string $expectedRedirect,
+        bool $restoresCart,
+        ?string $successRedirect = 'checkout/onepage/success'
+    ): void
     {
         $store = $this->getFakeMock(\Magento\Store\Model\Store::class)->onlyMethods(['getId'])->getMock();
         $store->method('getId')->willReturn(2);
@@ -118,7 +124,7 @@ class CheckOrderStatusTest extends BaseTest
         $accountConfig = $this->getFakeMock(\Buckaroo\Magento2\Model\ConfigProvider\Account::class)
             ->onlyMethods(['getSuccessRedirect', 'getFailureRedirect'])
             ->getMock();
-        $accountConfig->method('getSuccessRedirect')->willReturn('checkout/onepage/success');
+        $accountConfig->method('getSuccessRedirect')->willReturn($successRedirect);
         $accountConfig->method('getFailureRedirect')->willReturn('checkout/cart');
 
         $urlBuilder = $this->getMockForAbstractClass(\Magento\Framework\UrlInterface::class);
