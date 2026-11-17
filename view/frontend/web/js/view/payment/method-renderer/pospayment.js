@@ -54,6 +54,9 @@ define(
                     template: 'Buckaroo_Magento2/payment/default'
                 },
 
+                // Stay on the checkout while the customer pays on the terminal; checkOrderState redirects
+                redirectAfterPlaceOrder: false,
+
                 afterPlaceOrder: function () {
                     var response = window.checkoutConfig.payment.buckaroo.responseData;
                     checkoutCommon.redirectHandle(response);

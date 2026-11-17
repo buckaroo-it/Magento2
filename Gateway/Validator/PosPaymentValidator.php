@@ -15,11 +15,16 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Validator;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface as BuckarooLog;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Pospayment as PospaymentConfig;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 
 class PosPaymentValidator extends AbstractValidator
 {
@@ -39,30 +44,36 @@ class PosPaymentValidator extends AbstractValidator
     private $buckarooLog;
 
     /**
-     * @var array
+     * @var PospaymentConfig
      */
-    private $errorMessages = [];
+    private $pospaymentConfig;
 
     /**
      * @param ResultInterfaceFactory $resultFactory
      * @param CookieManagerInterface $cookieManager
      * @param BuckarooLog            $buckarooLog
      * @param Header                 $header
+     * @param PospaymentConfig       $pospaymentConfig
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
         CookieManagerInterface $cookieManager,
         BuckarooLog $buckarooLog,
-        Header $header
+        Header $header,
+        PospaymentConfig $pospaymentConfig
     ) {
         $this->header = $header;
         $this->cookieManager = $cookieManager;
         $this->buckarooLog = $buckarooLog;
+        $this->pospaymentConfig = $pospaymentConfig;
         parent::__construct($resultFactory);
     }
 
     /**
      * Validate POS payment method
+     *
+     * Runs both as part of the method's buckaroo_availability check (subject: quote) and as
+     * Magento's availability check once a payment info instance is set (subject: payment).
      *
      * @param array $validationSubject
      *
@@ -70,40 +81,27 @@ class PosPaymentValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-        $this->validatePayment($validationSubject);
-        $this->validateTerminalId();
-        $this->validateUserAgent($validationSubject);
-
-        if (empty($this->errorMessages)) {
-            return $this->createResult(true);
+        $quote = $validationSubject['quote'] ?? null;
+        $paymentDO = $validationSubject['payment'] ?? null;
+        if ($quote instanceof CartInterface) {
+            $storeId = (int)$quote->getStoreId();
+        } elseif ($paymentDO instanceof PaymentDataObjectInterface) {
+            $storeId = $this->getStoreId($paymentDO);
         } else {
-            return $this->createResult(
-                false,
-                $this->errorMessages
-            );
+            return $this->createResult(false, [__('Payment method instance does not exist')]);
         }
-    }
 
-    /**
-     * Validate if payment instance exists
-     *
-     * @param array $validationSubject
-     */
-    private function validatePayment(array $validationSubject)
-    {
-        if (!isset($validationSubject['payment'])) {
-            $this->errorMessages[] = __('Payment method instance does not exist');
-        }
-    }
+        $errorMessages = [];
 
-    /**
-     * Validate if POS Terminal ID is set
-     */
-    private function validateTerminalId()
-    {
         if (!$this->getPosPaymentTerminalId()) {
-            $this->errorMessages[] = __('POS Terminal Id it is not set.');
+            $errorMessages[] = __('POS Terminal Id it is not set.');
         }
+
+        if (!$this->isUserAgentAllowed($storeId)) {
+            $errorMessages[] = __('Wrong User Agent configuration');
+        }
+
+        return $this->createResult(empty($errorMessages), $errorMessages);
     }
 
     /**
@@ -120,21 +118,43 @@ class PosPaymentValidator extends AbstractValidator
     }
 
     /**
-     * Validate if User Agent is set as expected
+     * Check the request user agent against the user agent configured for the store
      *
-     * @param array $validationSubject
+     * @param int|null $storeId
+     *
+     * @return bool
      */
-    private function validateUserAgent(array $validationSubject)
+    private function isUserAgentAllowed(?int $storeId): bool
     {
-        $paymentMethodInstance = $validationSubject['payment'];
+        $userAgentConfiguration = $this->pospaymentConfig->getUserAgent($storeId);
+        if ($userAgentConfiguration === '') {
+            return true;
+        }
 
-        $userAgent = $this->header->getHttpUserAgent();
-        $userAgentConfiguration = trim((string)$paymentMethodInstance->getPayment()->getConfigData('user_agent'));
-
+        $userAgent = (string)$this->header->getHttpUserAgent();
         $this->buckarooLog->addDebug(var_export([$userAgent, $userAgentConfiguration], true));
 
-        if (strlen($userAgentConfiguration) > 0 && $userAgent != $userAgentConfiguration) {
-            $this->errorMessages[] = __('Wrong User Agent configuration');
+        return $userAgent === $userAgentConfiguration;
+    }
+
+    /**
+     * Get the store id of the quote or order the payment belongs to
+     *
+     * @param PaymentDataObjectInterface $paymentDO
+     *
+     * @return int|null
+     */
+    private function getStoreId(PaymentDataObjectInterface $paymentDO): ?int
+    {
+        $payment = $paymentDO->getPayment();
+        if ($payment instanceof QuotePayment && $payment->getQuote()) {
+            return (int)$payment->getQuote()->getStoreId();
         }
+
+        if ($payment instanceof OrderPayment && $payment->getOrder()) {
+            return (int)$payment->getOrder()->getStoreId();
+        }
+
+        return null;
     }
 }

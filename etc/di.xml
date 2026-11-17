@@ -4139,9 +4139,22 @@
     <virtualType name="PospaymentValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="buckaroo_availability" xsi:type="string">PospaymentAvailabilityValidator</item>
                 <item name="country" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\CountryValidator</item>
                 <item name="availability" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\PosPaymentValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- The terminal check must run while the method list is built, not only once a payment info instance is set -->
+    <virtualType name="PospaymentAvailabilityValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">BuckarooAvailabilityValidator</item>
+                <item name="pos_terminal" xsi:type="string">Buckaroo\Magento2\Gateway\Validator\PosPaymentValidator</item>
+            </argument>
+            <argument name="chainBreakingValidators" xsi:type="array">
+                <item name="buckaroo_availability" xsi:type="string">buckaroo_availability</item>
+                <item name="pos_terminal" xsi:type="string">pos_terminal</item>
             </argument>
         </arguments>
     </virtualType>
