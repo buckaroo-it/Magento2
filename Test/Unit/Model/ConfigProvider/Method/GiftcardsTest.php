@@ -95,4 +95,21 @@ class GiftcardsTest extends BaseTest
 
         $this->assertEmpty($result);
     }
+
+    /**
+     * The advanced export setting lives under buckaroo_magento2/account, not under the method's payment path.
+     */
+    public function testHasAdvancedExportGiftcardsReadsTheAccountSettingForTheStore()
+    {
+        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
+            ->getMock();
+        $scopeConfigMock->expects($this->once())
+            ->method('getValue')
+            ->with(Giftcards::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, ScopeInterface::SCOPE_STORE, 2)
+            ->willReturn('1');
+
+        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
+
+        $this->assertTrue($instance->hasAdvancedExportGiftcards(2));
+    }
 }
