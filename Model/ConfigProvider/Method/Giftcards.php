@@ -347,7 +347,7 @@ class Giftcards extends AbstractConfigProvider
      */
     public function hasAdvancedExportGiftcards($store = null): bool
     {
-        return (bool)$this->getMethodConfigValue(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
+        return (bool)$this->getConfigFromXpath(self::XPATH_ACCOUNT_ADVANCED_EXPORT_GIFTCARDS, $store);
     }
 
     /**

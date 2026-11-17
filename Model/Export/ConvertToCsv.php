@@ -28,6 +28,11 @@ use Magento\Ui\Model\Export\MetadataProvider;
 class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
 {
     /**
+     * Only rows of the sales order grid are orders that can carry giftcard payments
+     */
+    private const ORDER_GRID_COMPONENT = 'sales_order_grid';
+
+    /**
      * @var DirectoryList
      */
     protected $directory;
@@ -136,10 +141,13 @@ class ConvertToCsv extends \Magento\Ui\Model\Export\ConvertToCsv
             ->setCurrentPage($i)
             ->setPageSize($this->pageSize);
         $totalCount = (int)$dataProvider->getSearchResult()->getTotalCount();
+        $isOrderGrid = $component->getName() === self::ORDER_GRID_COMPONENT;
         while ($totalCount > 0) {
             $items = $dataProvider->getSearchResult()->getItems();
             foreach ($items as $item) {
-                if ($this->giftcardConfig->hasAdvancedExportGiftcards($this->storeManager->getStore())) {
+                if ($isOrderGrid
+                    && $this->giftcardConfig->hasAdvancedExportGiftcards($item->getData('store_id'))
+                ) {
                     $this->convertGiftCardsValue($item);
                 }
                 $this->metadataProvider->convertDate($item, $component->getName());
