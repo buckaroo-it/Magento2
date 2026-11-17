@@ -19,15 +19,16 @@ use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards;
 use Buckaroo\Magento2\Model\Export\ConvertToCsv;
 use Buckaroo\Magento2\Model\ResourceModel\Giftcard\Collection;
+use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\Search\DocumentInterface;
 use Magento\Framework\Api\Search\SearchCriteria;
 use Magento\Framework\Api\Search\SearchResultInterface;
-use Magento\Framework\DataObject;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\WriteInterface;
 use Magento\Framework\Filesystem\File\WriteInterface as FileWriteInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponent\DataProvider\DataProviderInterface;
+use Magento\Framework\View\Element\UiComponent\DataProvider\Document;
 use Magento\Framework\View\Element\UiComponentInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -37,6 +38,11 @@ use Magento\Ui\Model\Export\MetadataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * The export needs its full collaborator set (filesystem, UI component, data provider, metadata, order lookup)
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ConvertToCsvTest extends TestCase
 {
     /** @var Filter|MockObject */
@@ -150,42 +156,15 @@ class ConvertToCsvTest extends TestCase
         $this->filter->method('getComponent')->willReturn($component);
     }
 
-    private function createDocument(int $entityId, int $storeId, string $paymentMethod): DocumentInterface
+    private function createDocument(int $entityId, int $storeId, string $paymentMethod): Document
     {
-        return new class([
+        $document = new Document($this->createMock(AttributeValueFactory::class));
+        $document->setData([
             'entity_id'      => $entityId,
             'store_id'       => $storeId,
             'payment_method' => $paymentMethod,
-        ]) extends DataObject implements DocumentInterface {
-            public function getId()
-            {
-                return $this->getData('entity_id');
-            }
+        ]);
 
-            public function setId($id)
-            {
-                return $this->setData('entity_id', $id);
-            }
-
-            public function getCustomAttribute($attributeCode)
-            {
-                return null;
-            }
-
-            public function setCustomAttribute($attributeCode, $attributeValue)
-            {
-                return $this;
-            }
-
-            public function getCustomAttributes()
-            {
-                return [];
-            }
-
-            public function setCustomAttributes(array $attributes)
-            {
-                return $this;
-            }
-        };
+        return $document;
     }
 }
