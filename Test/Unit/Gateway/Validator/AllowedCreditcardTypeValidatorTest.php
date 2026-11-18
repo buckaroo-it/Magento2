@@ -64,6 +64,44 @@ class AllowedCreditcardTypeValidatorTest extends \Buckaroo\Magento2\Test\BaseTes
         }
     }
 
+    /**
+     * @param mixed $cardType
+     * @param bool  $isValid
+     */
+    #[DataProvider('quoteCardTypeProvider')]
+    public function testQuotePaymentMayLackABrandUntilTheOrderIsPlaced($cardType, bool $isValid): void
+    {
+        $config = $this->getFakeMock(Creditcard::class)->onlyMethods(['getAllowedCreditcards'])->getMock();
+        $config->method('getAllowedCreditcards')->willReturn('visa,mastercard');
+
+        $created = [];
+        $resultFactory = $this->getFakeMock(ResultInterfaceFactory::class)->onlyMethods(['create'])->getMock();
+        $resultFactory->method('create')->willReturnCallback(function ($data) use (&$created) {
+            $created[] = $data;
+            return $this->getFakeMock(ResultInterface::class)->getMock();
+        });
+
+        $payment = $this->getFakeMock(\Magento\Quote\Model\Quote\Payment::class)
+            ->onlyMethods(['getAdditionalInformation'])
+            ->getMock();
+        $payment->method('getAdditionalInformation')->willReturnMap([['card_type', $cardType]]);
+
+        $validator = new AllowedCreditcardTypeValidator($resultFactory, $config);
+        $validator->validate(['payment' => $payment, 'storeId' => 2]);
+
+        $this->assertSame($isValid, $created[0]['isValid']);
+    }
+
+    public static function quoteCardTypeProvider(): array
+    {
+        return [
+            'no brand chosen yet'       => [null, true],
+            'empty brand'               => ['', true],
+            'allowed brand'             => ['visa', true],
+            'brand that is not allowed' => ['amex', false],
+        ];
+    }
+
     public static function cardTypeProvider(): array
     {
         return [
