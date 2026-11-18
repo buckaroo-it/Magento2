@@ -96,13 +96,7 @@ class ClientIPDataBuilder implements BuilderInterface
             return $remoteIp ?: '0.0.0.0';
         }
 
-        // trustly anyway should be w/o private ip
-        if (($order->getPayment()->getMethod() === Trustly::CODE)
-            && $this->isIpPrivate($ip)
-            && $order->getXForwardedFor()
-        ) {
-            $ip = $order->getXForwardedFor();
-        }
+        $ip = $this->getTrustlyIp($order, (string)$ip);
 
         if (!$ip) {
             $remoteAddress = new RemoteAddress(
@@ -149,5 +143,44 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         return false;
+    }
+
+    /**
+     * Trustly needs the shopper's public address: behind a proxy, take it from X-Forwarded-For
+     *
+     * @param Order  $order
+     * @param string $ip
+     *
+     * @return string
+     */
+    private function getTrustlyIp(Order $order, string $ip): string
+    {
+        if ($order->getPayment()->getMethod() !== Trustly::CODE
+            || !$this->isIpPrivate($ip)
+            || !$order->getXForwardedFor()
+        ) {
+            return $ip;
+        }
+
+        return $this->getFirstPublicIp((string)$order->getXForwardedFor()) ?: $ip;
+    }
+
+    /**
+     * First public address in an X-Forwarded-For value ("client, proxy1, proxy2")
+     *
+     * @param string $forwardedFor
+     *
+     * @return string|null
+     */
+    private function getFirstPublicIp(string $forwardedFor): ?string
+    {
+        foreach (explode(',', $forwardedFor) as $candidate) {
+            $candidate = trim($candidate);
+            if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }

@@ -87,10 +87,8 @@ class DefaultProcessorPlugin
         $authenticationFunction = 'getService' . ucfirst($card) . 'Authentication';
         $enrolledFunction = 'getService' . ucfirst($card) . 'Enrolled';
 
-        if (!\is_object($pushRequest)
-            || !\method_exists($pushRequest, $authenticationFunction)
-            || !\method_exists($pushRequest, $enrolledFunction)
-        ) {
+        // The push request answers these through its magic __call(), so method_exists() is always false for them
+        if (!\is_object($pushRequest)) {
             return $result;
         }
 
@@ -116,6 +114,9 @@ class DefaultProcessorPlugin
                     break;
                 case 'mastercard':
                     $putOrderOnHold = (bool)$this->configProviderCreditcard->getMastercardUnsecureHold($storeId);
+                    break;
+                case 'dankort':
+                    $putOrderOnHold = (bool)$this->configProviderCreditcard->getDankortUnsecureHold($storeId);
                     break;
                 default:
                     $putOrderOnHold = false;

@@ -37,6 +37,7 @@ class Creditcard extends AbstractConfigProvider
     public const XPATH_CREDITCARD_MASTERCARD_UNSECURE_HOLD = 'mastercard_unsecure_hold';
     public const XPATH_CREDITCARD_VISA_UNSECURE_HOLD       = 'visa_unsecure_hold';
     public const XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD    = 'maestro_unsecure_hold';
+    public const XPATH_CREDITCARD_DANKORT_UNSECURE_HOLD    = 'dankort_unsecure_hold';
 
     public const XPATH_CREDITCARD_ALLOWED_CREDITCARDS = 'payment/buckaroo_magento2_creditcard/allowed_issuers';
     public const XPATH_SORTED_ISSUERS                 = 'sorted_issuers';
@@ -215,6 +216,8 @@ class Creditcard extends AbstractConfigProvider
      * @param string $extension
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) The card logos are always SVG; the signature is the parent's
      */
     public function getImageUrl($imgName, string $extension = 'png')
     {
@@ -373,6 +376,18 @@ class Creditcard extends AbstractConfigProvider
     public function getMaestroUnsecureHold($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_CREDITCARD_MAESTRO_UNSECURE_HOLD, $store);
+    }
+
+    /**
+     * Get the Dankort unsecure hold setting.
+     *
+     * @param null|int|string $store
+     *
+     * @return mixed
+     */
+    public function getDankortUnsecureHold($store = null)
+    {
+        return $this->getMethodConfigValue(self::XPATH_CREDITCARD_DANKORT_UNSECURE_HOLD, $store);
     }
 
     /**

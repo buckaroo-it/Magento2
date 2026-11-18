@@ -136,14 +136,14 @@
             <field id="min_order_amount" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Minimum Order Amount</label>
                 <comment><![CDATA[Leave empty for no minimum.]]></comment>
-                <config_path>payment/buckaroo_magento2_clicktopay/min_order_amount</config_path>
+                <config_path>payment/buckaroo_magento2_clicktopay/min_amount</config_path>
                 <validate>validate-number</validate>
             </field>
 
             <field id="max_order_amount" translate="label comment" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Maximum Order Amount</label>
                 <comment><![CDATA[Leave empty for no maximum.]]></comment>
-                <config_path>payment/buckaroo_magento2_clicktopay/max_order_amount</config_path>
+                <config_path>payment/buckaroo_magento2_clicktopay/max_amount</config_path>
                 <validate>validate-number</validate>
             </field>
 

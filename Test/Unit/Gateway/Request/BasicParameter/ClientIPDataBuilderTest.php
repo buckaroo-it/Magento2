@@ -97,6 +97,26 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         $this->assertSame('203.0.113.7', $result['clientIP']['address']);
     }
 
+    public function testTrustlyOrderBehindSeveralProxiesUsesTheFirstPublicForwardedIp(): void
+    {
+        $this->createOrderMock('10.0.0.5', 'buckaroo_magento2_trustly', '203.0.113.7, 172.70.1.2');
+        $this->configProviderAccountMock->method('getIpHeader')->willReturn('');
+
+        $result = $this->clientIPDataBuilder->build(['payment' => $this->getPaymentDOMock()]);
+
+        $this->assertSame('203.0.113.7', $result['clientIP']['address']);
+    }
+
+    public function testTrustlyOrderWithOnlyPrivateForwardedIpsKeepsTheRemoteIp(): void
+    {
+        $this->createOrderMock('10.0.0.5', 'buckaroo_magento2_trustly', '10.1.1.1, 172.16.0.2');
+        $this->configProviderAccountMock->method('getIpHeader')->willReturn('');
+
+        $result = $this->clientIPDataBuilder->build(['payment' => $this->getPaymentDOMock()]);
+
+        $this->assertSame('10.0.0.5', $result['clientIP']['address']);
+    }
+
     public function testOtherMethodKeepsThePrivateRemoteIp(): void
     {
         $this->createOrderMock('10.0.0.5', 'buckaroo_magento2_ideal', '203.0.113.7');
