@@ -19,10 +19,11 @@ use Magento\Framework\Data\OptionSourceInterface;
 /**
  * Call to action shown on the Google Pay button (`buttonType` in the Google Pay ButtonOptions).
  *
- * The default "buy" is what every Google Pay button renders today, so installations that never
- * touch the setting see no change. Google's legacy "long" and "short" values are aliases for buy
- * and plain and are not offered. Labels are unique keys so the module's translations cannot
- * retranslate other modules' strings; Google renders the localised button text itself.
+ * The default "buy" is what every Google Pay button rendered before this setting existed, so
+ * installations that never touch the setting see no change. Google's legacy "long" and "short"
+ * values are aliases for buy and plain and are not offered. Labels are unique keys so the module's
+ * translations cannot retranslate other modules' strings; Google renders the localised button
+ * text itself.
  */
 class GooglepayButtonType implements OptionSourceInterface
 {

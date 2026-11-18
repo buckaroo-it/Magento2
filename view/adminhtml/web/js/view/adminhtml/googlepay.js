@@ -97,7 +97,7 @@ define([
         },
 
         /**
-         * Render the Google Pay button with the selected colour and type
+         * Render the Google Pay button with the selected colour, type and the store's language
          */
         renderButton: function () {
             if (!this.isGooglePayLoaded()) {
@@ -121,7 +121,7 @@ define([
                 return;
             }
 
-            // A white button needs a dark background to be visible
+            // Google's brand guidelines show the white button on a dark background
             container.css('background', this.buttonStyle === 'white' ? '#333' : '#f9f9f9');
             container.empty().append(button);
         },

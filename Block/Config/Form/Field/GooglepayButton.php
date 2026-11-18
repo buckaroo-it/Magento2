@@ -85,7 +85,7 @@ class GooglepayButton extends Field
     }
 
     /**
-     * Get the configured Google Pay button colour, "black" like the storefront when not set.
+     * Get the configured Google Pay button colour, "black" like the storefront when not set or unknown.
      *
      * @return string
      */
