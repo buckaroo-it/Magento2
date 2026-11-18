@@ -19,6 +19,7 @@ use Buckaroo\Magento2\Observer\DataAssignObserver;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
 
 /**
  * Accept a chosen card brand only when the merchant allows it.
@@ -26,7 +27,9 @@ use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
  * Registered as the "global" validator, so it runs when the payment is assigned and placed, and
  * not on capture or refund of an order whose brand was allowed at the time.
  *
- * A missing brand is rejected here, before the Buckaroo SDK turns it into "Missing creditcard name".
+ * A missing brand is rejected when the order is placed, before the Buckaroo SDK turns it into
+ * "Missing creditcard name". While the method is only being saved on the quote, the brand may not
+ * be chosen yet (Hyvä selects it afterwards), so a missing brand is accepted there.
  */
 class AllowedCreditcardTypeValidator extends AbstractValidator
 {
@@ -60,6 +63,10 @@ class AllowedCreditcardTypeValidator extends AbstractValidator
         $cardType = $payment ? $payment->getAdditionalInformation(DataAssignObserver::CARD_TYPE) : null;
 
         if ($cardType === null || $cardType === '') {
+            if ($payment instanceof QuotePayment) {
+                return $this->createResult(true);
+            }
+
             return $this->createResult(false, [__('A credit card or debit card brand must be provided.')]);
         }
 
