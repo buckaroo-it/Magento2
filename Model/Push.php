@@ -23,8 +23,12 @@ use Buckaroo\Magento2\Model\Push\PushTransactionType;
 use Buckaroo\Magento2\Model\RequestPush\RequestPushFactory;
 use Buckaroo\Magento2\Service\Push\KlarnaMorDataRequestPushDetector;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
+use Buckaroo\Magento2\Service\Push\ReceivedTransactionStatusRestorer;
 use Buckaroo\Magento2\Service\Store\StoreEmulator;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Push implements PushInterface
 {
     /**
@@ -73,6 +77,11 @@ class Push implements PushInterface
     private ?StoreEmulator $storeEmulator;
 
     /**
+     * @var ReceivedTransactionStatusRestorer|null
+     */
+    private $statusRestorer;
+
+    /**
      * @param BuckarooLoggerInterface           $logger
      * @param RequestPushFactory                $requestPushFactory
      * @param PushProcessorsFactory             $pushProcessorsFactory
@@ -81,6 +90,7 @@ class Push implements PushInterface
      * @param LockManagerWrapper                $lockManager
      * @param KlarnaMorDataRequestPushDetector  $klarnaMorDataRequestPushDetector
      * @param StoreEmulator|null                $storeEmulator
+     * @param ReceivedTransactionStatusRestorer|null $statusRestorer
      */
     public function __construct(
         BuckarooLoggerInterface $logger,
@@ -90,7 +100,8 @@ class Push implements PushInterface
         PushTransactionType $pushTransactionType,
         LockManagerWrapper $lockManager,
         KlarnaMorDataRequestPushDetector $klarnaMorDataRequestPushDetector,
-        ?StoreEmulator $storeEmulator = null
+        ?StoreEmulator $storeEmulator = null,
+        ?ReceivedTransactionStatusRestorer $statusRestorer = null
     ) {
         $this->logger = $logger;
         $this->pushRequest = $requestPushFactory->create();
@@ -100,6 +111,7 @@ class Push implements PushInterface
         $this->lockManager = $lockManager;
         $this->klarnaMorDataRequestPushDetector = $klarnaMorDataRequestPushDetector;
         $this->storeEmulator = $storeEmulator;
+        $this->statusRestorer = $statusRestorer;
     }
 
     /**
@@ -223,7 +235,12 @@ class Push implements PushInterface
         $pushTransactionType = $this->pushTransactionType->getPushTransactionType($this->pushRequest, $order);
         $pushProcessor = $this->pushProcessorsFactory->get($pushTransactionType);
 
-        return $pushProcessor->processPush($this->pushRequest);
+        try {
+            return $pushProcessor->processPush($this->pushRequest);
+        } catch (\Throwable $e) {
+            $this->restoreRecordedTransactionStatus($pushProcessor);
+            throw $e;
+        }
     }
 
     /**
@@ -257,5 +274,43 @@ class Push implements PushInterface
         }
 
         return false;
+    }
+
+    /**
+     * Put back the received status the failed push stored, so Buckaroo's retry is applied instead of acknowledged
+     * as a duplicate
+     *
+     * @param mixed $pushProcessor
+     *
+     * @return void
+     */
+    private function restoreRecordedTransactionStatus($pushProcessor): void
+    {
+        if ($this->statusRestorer === null || !method_exists($pushProcessor, 'getRecordedTransactionStatus')) {
+            return;
+        }
+
+        $recorded = $pushProcessor->getRecordedTransactionStatus();
+        if ($recorded === null) {
+            return;
+        }
+
+        try {
+            $this->statusRestorer->restore($recorded);
+            $this->logger->addDebug(sprintf(
+                '[PUSH] | [Webapi] | [%s:%s] - Push not applied; received status of %s removed for the retry',
+                __METHOD__,
+                __LINE__,
+                $recorded['transaction_key']
+            ));
+        } catch (\Throwable $e) {
+            $this->logger->addError(sprintf(
+                '[PUSH] | [Webapi] | [%s:%s] - Could not remove the received status of %s: %s',
+                __METHOD__,
+                __LINE__,
+                $recorded['transaction_key'],
+                $e->getMessage()
+            ));
+        }
     }
 }

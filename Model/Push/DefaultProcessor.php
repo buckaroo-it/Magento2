@@ -300,6 +300,13 @@ class DefaultProcessor implements PushProcessorInterface
     }
 
     /**
+     * Received status entry stored by the current push (see rememberRecordedTransactionStatus())
+     *
+     * @var array|null
+     */
+    private $recordedTransactionStatus = null;
+
+    /**
      * Process push notification from payment provider
      *
      * @param PushRequestInterface $pushRequest
@@ -402,6 +409,7 @@ class DefaultProcessor implements PushProcessorInterface
      */
     protected function initializeFields(PushRequestInterface $pushRequest): void
     {
+        $this->recordedTransactionStatus = null;
         $this->pushRequest = $pushRequest;
         $this->order = $this->orderRequestService->getOrderByRequest();
         $this->payment = $this->order->getPayment();
@@ -656,6 +664,7 @@ class DefaultProcessor implements PushProcessorInterface
                 return true;
             }
             if ($save) {
+                $this->rememberRecordedTransactionStatus();
                 $this->setReceivedTransactionStatuses();
                 $this->paymentRepository->save($this->payment);
             }
@@ -714,6 +723,41 @@ class DefaultProcessor implements PushProcessorInterface
         }
 
         return false;
+    }
+
+    /**
+     * Remember the received status entry this push is about to store, and the value it replaces
+     *
+     * Model\Push puts the entry back when applying the push fails, so Buckaroo's retry is not taken for a duplicate.
+     *
+     * @return void
+     */
+    private function rememberRecordedTransactionStatus(): void
+    {
+        $transactionKey = (string)$this->pushRequest->getTransactions();
+        if ($transactionKey === '' || empty($this->pushRequest->getStatusCode())) {
+            return;
+        }
+
+        $statuses = $this->payment->getAdditionalInformation(self::BUCKAROO_RECEIVED_TRANSACTIONS_STATUSES);
+        $statuses = is_array($statuses) ? $statuses : [];
+
+        $this->recordedTransactionStatus = [
+            'payment_id'      => (int)$this->payment->getId(),
+            'transaction_key' => $transactionKey,
+            'had_previous'    => array_key_exists($transactionKey, $statuses),
+            'previous'        => $statuses[$transactionKey] ?? null,
+        ];
+    }
+
+    /**
+     * The received status entry stored by the current push, if any
+     *
+     * @return array|null payment_id, transaction_key, had_previous, previous
+     */
+    public function getRecordedTransactionStatus(): ?array
+    {
+        return $this->recordedTransactionStatus;
     }
 
     /**
@@ -2338,6 +2382,12 @@ class DefaultProcessor implements PushProcessorInterface
                     __LINE__,
                     $th->getMessage()
                 ));
+
+                // Answer with an error so Buckaroo retries, unless the order did get canceled and only a later
+                // step (history comment, giftcard refund, status) failed: a retry would find it canceled anyway
+                if (!$this->isOrderCanceledAfterError()) {
+                    throw $th;
+                }
             }
 
             return true;
@@ -2349,6 +2399,22 @@ class DefaultProcessor implements PushProcessorInterface
         $this->orderRequestService->updateOrderStatus(Order::STATE_CANCELED, $newStatus, $description);
 
         return true;
+    }
+
+    /**
+     * Re-read the order after a failed cancel and tell whether it is canceled
+     *
+     * @return bool
+     */
+    private function isOrderCanceledAfterError(): bool
+    {
+        try {
+            $this->orderRequestService->loadOrder();
+        } catch (\Throwable $th) {
+            return false;
+        }
+
+        return $this->order->getState() === Order::STATE_CANCELED;
     }
 
     /**

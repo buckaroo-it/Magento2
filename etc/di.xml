@@ -783,6 +783,7 @@
     <type name="Buckaroo\Magento2\Model\Push">
         <arguments>
             <argument name="storeEmulator" xsi:type="object">Buckaroo\Magento2\Service\Store\StoreEmulator</argument>
+            <argument name="statusRestorer" xsi:type="object">Buckaroo\Magento2\Service\Push\ReceivedTransactionStatusRestorer</argument>
         </arguments>
     </type>
     <type name="Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\ArticlesHandlerFactory">
