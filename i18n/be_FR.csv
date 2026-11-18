@@ -245,3 +245,4 @@
 "Total amount of %1 has been captured. Invoice will be created on shipment.","Le montant total de %1 a été capturé. La facture sera créée lors de l'expédition."
 "Total amount of %1 has been captured.","Le montant total de %1 a été capturé."
 "The received amount of %1 does not settle the order. The order is held for review.","Le montant reçu de %1 ne règle pas la commande. La commande est retenue pour vérification."
+"This payment was completed at checkout, so there is nothing to capture online. Create the invoice with 'Capture Offline'.","Ce paiement a déjà été effectué lors de la commande, il n'y a donc rien à capturer en ligne. Créez la facture avec 'Capture Offline'."

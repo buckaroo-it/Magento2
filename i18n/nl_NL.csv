@@ -937,3 +937,4 @@
 "Total amount of %1 has been captured. Invoice will be created on shipment.","Totaalbedrag van %1 is geïnd. De factuur wordt bij verzending aangemaakt."
 "Total amount of %1 has been captured.","Totaalbedrag van %1 is geïnd."
 "The received amount of %1 does not settle the order. The order is held for review.","Het ontvangen bedrag van %1 dekt de bestelling niet. De bestelling wordt vastgehouden voor controle."
+"This payment was completed at checkout, so there is nothing to capture online. Create the invoice with 'Capture Offline'.","Deze betaling is bij het afrekenen al voltooid, er valt online niets vast te leggen. Maak de factuur aan met 'Capture Offline'."

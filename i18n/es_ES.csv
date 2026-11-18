@@ -984,3 +984,4 @@
 "Top up with Apple Pay","Añadir saldo con Apple Pay"
 "Apple Pay logo only","Solo el logotipo de Apple Pay"
 "Read how to set up and test analytics tracking in the <a href=""https://docs.buckaroo.io/docs/magento-2-built-in-features"" target=""_blank"">Buckaroo documentation</a>.","Lea cómo configurar y probar el seguimiento analítico en la <a href=""https://docs.buckaroo.io/docs/magento-2-built-in-features"" target=""_blank"">documentación de Buckaroo</a>."
+"This payment was completed at checkout, so there is nothing to capture online. Create the invoice with 'Capture Offline'.","Este pago ya se completó al finalizar la compra, por lo que no hay nada que capturar en línea. Cree la factura con 'Capture Offline'."
