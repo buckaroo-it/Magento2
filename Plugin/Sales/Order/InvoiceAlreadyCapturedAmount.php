@@ -35,6 +35,9 @@ use Magento\Sales\Model\Order\Invoice;
  *   amount without order lines only when it equals what is left on the reservation, which is
  *   exactly this remainder.
  * - Otherwise the invoice is captured as before.
+ *
+ * An invoice registered as paid offline (in the admin, or by the plugin when the money already reached the order)
+ * also uses up the recorded capture; otherwise a later invoice would be paid from money that is already invoiced.
  */
 class InvoiceAlreadyCapturedAmount
 {
@@ -111,6 +114,53 @@ class InvoiceAlreadyCapturedAmount
         ));
 
         return $proceed();
+    }
+
+    /**
+     * Use up the recorded capture for an invoice registered as paid offline.
+     *
+     * "Capture Offline" goes straight to Invoice::pay() and never reaches aroundCapture(), so without this the
+     * amount stays recorded and a later invoice is paid from it again.
+     *
+     * @param Invoice $subject
+     * @param Invoice $result
+     *
+     * @return Invoice
+     */
+    public function afterRegister(Invoice $subject, $result)
+    {
+        if ($subject->getData('requested_capture_case') !== Invoice::CAPTURE_OFFLINE
+            || (int)$subject->getState() !== Invoice::STATE_PAID
+        ) {
+            return $result;
+        }
+
+        $order = $subject->getOrder();
+        if (!$this->checkPaymentType->isBuckarooPayment($order->getPayment())) {
+            return $result;
+        }
+
+        $captured = $this->uninvoicedCaptures->getAmount($order);
+        $invoiceTotal = round((float)$subject->getGrandTotal(), 2);
+        if ($captured < 0.01 || $invoiceTotal < 0.01) {
+            return $result;
+        }
+
+        $used = min($captured, $invoiceTotal);
+        $this->uninvoicedCaptures->consume($order, $used);
+
+        $this->logger->addDebug(sprintf(
+            '[UNINVOICED_CAPTURE] | [%s:%s] - Order %s: offline invoice of %s used %s of the earlier capture;'
+            . ' %s left',
+            __METHOD__,
+            __LINE__,
+            $order->getIncrementId(),
+            $invoiceTotal,
+            $used,
+            $this->uninvoicedCaptures->getAmount($order)
+        ));
+
+        return $result;
     }
 
     /**
