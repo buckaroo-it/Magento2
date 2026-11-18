@@ -931,3 +931,4 @@
 "Zero VAT Tax Classes","Classi IVA ad aliquota zero"
 "iDIN Mode","Modalità iDIN"
 "lees meer.","leggi di più."
+"This payment was completed at checkout, so there is nothing to capture online. Create the invoice with 'Capture Offline'.","Questo pagamento è già stato completato al checkout, quindi non c'è nulla da acquisire online. Crea la fattura con 'Capture Offline'."

@@ -26,6 +26,8 @@ use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\CapayableIn3;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Payment\Gateway\Command\CommandManagerInterface;
 use Magento\Payment\Gateway\Command\CommandPoolInterface;
@@ -213,6 +215,25 @@ class BuckarooAdapter extends Adapter
         }
 
         return parent::cancel($payment);
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * Methods that only pay at checkout (Google Pay, Click to Pay, giftcards) have no capture command; tell the
+     * admin how to invoice instead of showing Magento's "command doesn't exist".
+     */
+    public function capture(InfoInterface $payment, $amount)
+    {
+        try {
+            return parent::capture($payment, $amount);
+        } catch (NotFoundException $e) {
+            throw new LocalizedException(
+                // phpcs:ignore Generic.Files.LineLength.TooLong -- one literal so the phrase stays translatable
+                __("This payment was completed at checkout, so there is nothing to capture online. Create the invoice with 'Capture Offline'."),
+                $e
+            );
+        }
     }
 
     /**

@@ -96,13 +96,7 @@ class ClientIPDataBuilder implements BuilderInterface
             return $remoteIp ?: '0.0.0.0';
         }
 
-        // trustly anyway should be w/o private ip
-        if (($order->getPayment()->getMethod() === Trustly::CODE)
-            && $this->isIpPrivate($ip)
-            && $order->getXForwardedFor()
-        ) {
-            $ip = $order->getXForwardedFor();
-        }
+        $ip = $this->getTrustlyIp($order, (string)$ip);
 
         if (!$ip) {
             $remoteAddress = new RemoteAddress(
@@ -149,5 +143,47 @@ class ClientIPDataBuilder implements BuilderInterface
         }
 
         return false;
+    }
+
+    /**
+     * Trustly needs the shopper's public address: behind a proxy, take it from X-Forwarded-For
+     *
+     * @param Order  $order
+     * @param string $ip
+     *
+     * @return string
+     */
+    private function getTrustlyIp(Order $order, string $ip): string
+    {
+        if ($order->getPayment()->getMethod() !== Trustly::CODE
+            || !$this->isIpPrivate($ip)
+            || !$order->getXForwardedFor()
+        ) {
+            return $ip;
+        }
+
+        return $this->getFirstPublicIp((string)$order->getXForwardedFor()) ?: $ip;
+    }
+
+    /**
+     * Public address recorded by the nearest proxy in an X-Forwarded-For value ("client, proxy1, proxy2")
+     *
+     * Proxies append to the right, so the list is read from the right and the shop's own (private) proxies are
+     * skipped; entries further left come from earlier hops and are not used.
+     *
+     * @param string $forwardedFor
+     *
+     * @return string|null
+     */
+    private function getFirstPublicIp(string $forwardedFor): ?string
+    {
+        foreach (array_reverse(explode(',', $forwardedFor)) as $candidate) {
+            $candidate = trim($candidate);
+            if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }

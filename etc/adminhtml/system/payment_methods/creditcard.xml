@@ -86,19 +86,6 @@
 
             <group id="buckaroo_magento2_card_specific" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Card specific settings</label>
-                <!-- American Express specific -->
-                <field id="heading_american_express" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>American Express Specific</label>
-                    <frontend_model>Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
-                </field>
-
-                <field id="amex_address_verification" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Verify address</label>
-                    <comment><![CDATA[Set true to verify the address at American Express. Set false to disable address verification.]]></comment>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <config_path>payment/buckaroo_magento2_creditcard/amex_address_verification</config_path>
-                </field>
-
                 <!-- Mastercard specific -->
                 <field id="heading_mastercard" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mastercard Specific</label>
