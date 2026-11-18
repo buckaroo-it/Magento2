@@ -13,6 +13,7 @@
 
 namespace Buckaroo\Magento2\Block\Widget\Button;
 
+use Buckaroo\Magento2\Helper\JsString;
 use Magento\Backend\Block\Widget\Button\ButtonList;
 use Magento\Backend\Block\Widget\Button\Toolbar as ToolbarContext;
 use Magento\Framework\View\Element\AbstractBlock;
@@ -114,7 +115,7 @@ class Toolbar
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
                 'Open a new window to the Buckaroo Plaza</a>.'
             );
-            $onClick = "confirmSetLocation('{$message}', '#')";
+            $onClick = 'confirmSetLocation(' . JsString::encode($message) . ", '#')";
 
             $buttonList->update('capture', 'onclick', $onClick);
         }
@@ -129,7 +130,7 @@ class Toolbar
                 '<a href="https://plaza.buckaroo.nl" target="_blank">' .
                 'Open a new window to the Buckaroo Plaza</a>.'
             );
-            $onClick = "confirmSetLocation('{$message}', '#')";
+            $onClick = 'confirmSetLocation(' . JsString::encode($message) . ", '#')";
 
             $buttonList->update('capture', 'onclick', $onClick);
         }

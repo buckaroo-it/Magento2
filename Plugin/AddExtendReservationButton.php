@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\JsString;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Service\Order\ExtendReservation;
 use Magento\Backend\Block\Widget\Button\ButtonList;
@@ -105,9 +106,9 @@ class AddExtendReservationButton
             [
                 'label'   => __('Extend Klarna Reservation'),
                 'onclick' => sprintf(
-                    "confirmSetLocation('%s', '%s')",
-                    __('Are you sure you want to extend the Klarna reservation?'),
-                    $actionUrl
+                    'confirmSetLocation(%s, %s)',
+                    JsString::encode(__('Are you sure you want to extend the Klarna reservation?')),
+                    JsString::encode($actionUrl)
                 ),
                 'class'   => 'reset',
             ],

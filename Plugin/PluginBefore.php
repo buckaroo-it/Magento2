@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Plugin;
 
+use Buckaroo\Magento2\Helper\JsString;
 use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -94,9 +95,9 @@ class PluginBefore
                     [
                         'label'   => __('Create Paylink'),
                         'onclick' => sprintf(
-                            "confirmSetLocation('%s', '%s')",
-                            __('Are you sure you want create Paylink?'),
-                            $viewUrl
+                            'confirmSetLocation(%s, %s)',
+                            JsString::encode(__('Are you sure you want create Paylink?')),
+                            JsString::encode($viewUrl)
                         ),
                         'class'   => 'reset',
                     ],
