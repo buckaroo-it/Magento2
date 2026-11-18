@@ -166,7 +166,10 @@ class ClientIPDataBuilder implements BuilderInterface
     }
 
     /**
-     * First public address in an X-Forwarded-For value ("client, proxy1, proxy2")
+     * Public address recorded by the nearest proxy in an X-Forwarded-For value ("client, proxy1, proxy2")
+     *
+     * Proxies append to the right, so the list is read from the right and the shop's own (private) proxies are
+     * skipped; entries further left come from earlier hops and are not used.
      *
      * @param string $forwardedFor
      *
@@ -174,7 +177,7 @@ class ClientIPDataBuilder implements BuilderInterface
      */
     private function getFirstPublicIp(string $forwardedFor): ?string
     {
-        foreach (explode(',', $forwardedFor) as $candidate) {
+        foreach (array_reverse(explode(',', $forwardedFor)) as $candidate) {
             $candidate = trim($candidate);
             if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                 return $candidate;
