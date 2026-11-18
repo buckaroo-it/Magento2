@@ -86,7 +86,7 @@
 
             <field id="merchant_guid" translate="label comment tooltip" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>(Merchant) Guid</label>
-                <comment><![CDATA[Enter your Buckaroo merchant guid.]]></comment>
+                <comment><![CDATA[Enter your Buckaroo merchant GUID.]]></comment>
                 <tooltip>The (Merchant) Guid can be retrieved in Buckaroo Plaza under My Buckaroo > General > Guid.</tooltip>
                 <config_path>payment/buckaroo_magento2_applepay/merchant_guid</config_path>
                 <depends>

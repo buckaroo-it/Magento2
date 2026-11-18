@@ -161,7 +161,7 @@
                 </field>
 
                 <field id="cm3_due_date" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credit Management Due date</label>
+                    <label>Credit Management Due Date</label>
                     <comment><![CDATA[The amount of days after the order date, after which the Credit Management scheme will start.]]></comment>
                     <config_path>payment/buckaroo_magento2_payperemail/cm3_due_date</config_path>
                     <validate>required-entry</validate>

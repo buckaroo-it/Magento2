@@ -72,7 +72,7 @@
         </field>
 
         <group id="buckaroo_magento2_default" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Method specific configuration</label>
+            <label>Method Specific Configuration</label>
 
             <field id="client_id" translate="label comment tooltip" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Client ID</label>

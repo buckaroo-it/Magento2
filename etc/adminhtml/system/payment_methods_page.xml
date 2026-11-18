@@ -23,17 +23,17 @@
                 <ul id="legend">
                     <li class="disabled">
                         <span class="img"></span>
-                        <span class="text">Payment Method: </span>
+                        <span class="text">Payment method: </span>
                         <span class="status">Disabled</span>
                     </li>
                     <li class="test">
                         <span class="img"></span>
-                        <span class="text">Payment Method: </span>
+                        <span class="text">Payment method: </span>
                         <span class="status">Test Mode</span>
                     </li>
                     <li class="live">
                         <span class="img"></span>
-                        <span class="text">Payment Method: </span>
+                        <span class="text">Payment method: </span>
                         <span class="status">Live Mode</span>
                     </li>
                 </ul>
