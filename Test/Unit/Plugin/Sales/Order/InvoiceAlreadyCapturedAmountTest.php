@@ -55,6 +55,68 @@ class InvoiceAlreadyCapturedAmountTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->plugin($captures)->aroundCapture($invoice, $this->failingProceed());
     }
 
+    public static function offlineInvoiceProvider(): array
+    {
+        return [
+            'offline invoice smaller than the capture uses part of it' => [34.00, 34.00, 34.00],
+            'offline invoice larger than the capture uses all of it'    => [20.00, 34.00, 20.00],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('offlineInvoiceProvider')]
+    public function testAnOfflineInvoiceUsesUpTheEarlierCapture(float $captured, float $invoiceTotal, float $used): void
+    {
+        $captures = $this->makeCaptures($captured, 'PLAZA_KEY');
+        $captures->expects($this->once())->method('consume')->with($this->anything(), $used);
+
+        $invoice = $this->makeRegisteredInvoice(
+            $this->makeOrder('buckaroo_magento2_klarnakp', true),
+            $invoiceTotal,
+            \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
+        );
+
+        $this->assertSame($invoice, $this->plugin($captures)->afterRegister($invoice, $invoice));
+    }
+
+    public static function untouchedInvoiceProvider(): array
+    {
+        return [
+            'online capture is handled by aroundCapture' => ['buckaroo_magento2_klarnakp', 'online', 2, 34.00],
+            'invoice not captured is not paid'           => ['buckaroo_magento2_klarnakp', 'not_capture', 1, 34.00],
+            'invoice that charges nothing'               => ['buckaroo_magento2_klarnakp', 'offline', 2, 0.00],
+            'other payment provider'                     => ['checkmo', 'offline', 2, 34.00],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('untouchedInvoiceProvider')]
+    public function testOtherInvoicesLeaveTheEarlierCaptureAlone(
+        string $method,
+        string $captureCase,
+        int $state,
+        float $invoiceTotal
+    ): void {
+        $captures = $this->makeCaptures(34.00, 'PLAZA_KEY');
+        $captures->expects($this->never())->method('consume');
+
+        $invoice = $this->makeRegisteredInvoice($this->makeOrder($method, true), $invoiceTotal, $captureCase, $state);
+
+        $this->plugin($captures)->afterRegister($invoice, $invoice);
+    }
+
+    /**
+     * @return object
+     */
+    private function makeRegisteredInvoice($order, float $grandTotal, string $captureCase, int $state = 2)
+    {
+        $invoice = $this->makeInvoice($order, $grandTotal);
+        $invoice->method('getData')->willReturnCallback(
+            static fn($key = '') => $key === 'requested_capture_case' ? $captureCase : null
+        );
+        $invoice->method('getState')->willReturn($state);
+
+        return $invoice;
+    }
+
     /**
      * Klarna accepts a capture without lines only for exactly what is left on the reservation.
      */
