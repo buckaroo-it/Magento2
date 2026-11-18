@@ -142,7 +142,7 @@
                 </field>
 
                 <field id="cm3_due_date" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credit Management Due date</label>
+                    <label>Credit Management Due Date</label>
                     <comment><![CDATA[The amount of days after the order date, after which the Credit Management scheme will start.]]></comment>
                     <config_path>payment/buckaroo_magento2_transfer/cm3_due_date</config_path>
                     <validate>required-entry</validate>
@@ -152,7 +152,7 @@
                 </field>
 
                 <field id="payment_method_after_expiry" translate="label comment" type="multiselect" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Credit Management payment methods</label>
+                    <label>Credit Management Payment Methods</label>
                     <comment><![CDATA[Select which payment methods can be used at Transfer.]]></comment>
                     <source_model>Buckaroo\Magento2\Model\Config\Source\PaymentMethods\AfterExpiry</source_model>
                     <config_path>payment/buckaroo_magento2_transfer/payment_method_after_expiry</config_path>
