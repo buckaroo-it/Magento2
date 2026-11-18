@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.UnusedLocalVariable) false positive on the anonymous push request's __call()
+ * @SuppressWarnings(PHPMD.UnusedFormalParameter) __call() must accept the arguments it does not use
  */
 class DefaultProcessorPluginTest extends TestCase
 {
