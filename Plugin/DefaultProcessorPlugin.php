@@ -123,7 +123,8 @@ class DefaultProcessorPlugin
                     break;
             }
 
-            if ($putOrderOnHold) {
+            // Magento refuses hold() for complete, closed, canceled, payment review or already held orders
+            if ($putOrderOnHold && $order->canHold()) {
                 $order
                     ->hold()
                     ->addCommentToStatusHistory(

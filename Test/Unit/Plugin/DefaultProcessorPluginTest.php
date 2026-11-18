@@ -40,6 +40,7 @@ class DefaultProcessorPluginTest extends TestCase
             'dankort, not 3-D Secure, hold on'     => ['dankort', 'U', true, true],
             'visa, 3-D Secure passed, hold on'     => ['visa', 'Y', true, false],
             'visa, not 3-D Secure, hold off'       => ['visa', 'U', false, false],
+            'order that cannot be held'            => ['visa', 'U', true, false, false],
         ];
     }
 
@@ -48,7 +49,8 @@ class DefaultProcessorPluginTest extends TestCase
         string $card,
         string $authentication,
         bool $holdSetting,
-        bool $expectHold
+        bool $expectHold,
+        bool $canHold = true
     ): void {
         $config = $this->createMock(Creditcard::class);
         foreach (['getVisaUnsecureHold', 'getMastercardUnsecureHold', 'getMaestroUnsecureHold', 'getDankortUnsecureHold']
@@ -57,6 +59,7 @@ class DefaultProcessorPluginTest extends TestCase
         }
 
         $order = $this->createOrder($card);
+        $order->method('canHold')->willReturn($canHold);
         $order->expects($expectHold ? $this->once() : $this->never())->method('hold')->willReturnSelf();
         $repository = $this->createMock(OrderRepositoryInterface::class);
         $repository->expects($expectHold ? $this->once() : $this->never())->method('save');
