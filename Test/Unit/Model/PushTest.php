@@ -294,4 +294,53 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertTrue($this->getInstance()->receivePush());
     }
+
+    /**
+     * Arrange a push that reaches the processor; returns the processor mock
+     */
+    private function arrangePushReachingProcessor(): \Buckaroo\Magento2\Model\Push\DefaultProcessor
+    {
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getIncrementId')->willReturn('123456');
+        $orderMock->method('getStore')->willReturn($this->getFakeMock(Store::class)->getMock());
+        $orderMock->method('getStoreId')->willReturn('1');
+        $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->lockManagerMock->method('lockOrder')->willReturn(true);
+        $this->pushRequestMock->method('validate')->willReturn(true);
+        $this->pushTransactionTypeMock->method('getPushTransactionType')
+            ->willReturn($this->getFakeMock(PushTransactionType::class)->getMock());
+
+        $processorMock = $this->getFakeMock(\Buckaroo\Magento2\Model\Push\DefaultProcessor::class)
+            ->onlyMethods(['processPush', 'getRecordedTransactionStatus'])
+            ->getMock();
+        $this->pushProcessorsFactoryMock->method('get')->willReturn($processorMock);
+
+        return $processorMock;
+    }
+
+    public function testAPushThatFailsToApplyRemovesTheStatusItRecorded(): void
+    {
+        $recorded = ['payment_id' => 7, 'transaction_key' => 'KEY1', 'had_previous' => false, 'previous' => null];
+        $processorMock = $this->arrangePushReachingProcessor();
+        $processorMock->method('processPush')->willThrowException(new \RuntimeException('order save failed'));
+        $processorMock->method('getRecordedTransactionStatus')->willReturn($recorded);
+
+        $restorer = $this->createMock(\Buckaroo\Magento2\Service\Push\ReceivedTransactionStatusRestorer::class);
+        $restorer->expects($this->once())->method('restore')->with($recorded);
+        $this->lockManagerMock->expects($this->once())->method('unlockOrder')->with('123456');
+
+        $this->expectException(\RuntimeException::class);
+        $this->getInstance(['statusRestorer' => $restorer])->receivePush();
+    }
+
+    public function testAPushThatIsAppliedKeepsTheStatusItRecorded(): void
+    {
+        $processorMock = $this->arrangePushReachingProcessor();
+        $processorMock->method('processPush')->willReturn(true);
+
+        $restorer = $this->createMock(\Buckaroo\Magento2\Service\Push\ReceivedTransactionStatusRestorer::class);
+        $restorer->expects($this->never())->method('restore');
+
+        $this->assertTrue($this->getInstance(['statusRestorer' => $restorer])->receivePush());
+    }
 }
