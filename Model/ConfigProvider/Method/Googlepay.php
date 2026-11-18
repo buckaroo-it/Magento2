@@ -14,6 +14,7 @@
 namespace Buckaroo\Magento2\Model\ConfigProvider\Method;
 
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Model\Config\Source\GooglepayButtonType;
 use Buckaroo\Magento2\Model\ConfigProvider\AllowedCurrencies;
 use Buckaroo\Magento2\Service\LogoService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -32,6 +33,7 @@ class Googlepay extends AbstractConfigProvider
     public const XPATH_GOOGLEPAY_ACTIVE                            = 'active';
     public const XPATH_GOOGLEPAY_AVAILABLE_BUTTONS                 = 'available_buttons';
     public const XPATH_GOOGLEPAY_BUTTON_STYLE                      = 'button_style';
+    public const XPATH_GOOGLEPAY_BUTTON_TYPE                       = 'button_type';
     public const XPATH_GOOGLEPAY_INTEGRATION_MODE                  = 'integration_mode';
     public const XPATH_GOOGLEPAY_DONT_ASK_BILLING_INFO_IN_CHECKOUT = 'dont_ask_billing_info_in_checkout';
     public const XPATH_ACCOUNT_MERCHANT_GUID                       = 'merchant_guid';
@@ -63,6 +65,11 @@ class Googlepay extends AbstractConfigProvider
     private $storeManager;
 
     /**
+     * @var GooglepayButtonType
+     */
+    private $buttonTypes;
+
+    /**
      * @param Repository            $assetRepo
      * @param ScopeConfigInterface  $scopeConfig
      * @param AllowedCurrencies     $allowedCurrencies
@@ -70,6 +77,7 @@ class Googlepay extends AbstractConfigProvider
      * @param LogoService           $logoService
      * @param StoreManagerInterface $storeManager
      * @param Resolver              $localeResolver
+     * @param GooglepayButtonType   $buttonTypes
      */
     public function __construct(
         Repository $assetRepo,
@@ -78,12 +86,14 @@ class Googlepay extends AbstractConfigProvider
         PaymentFee $paymentFeeHelper,
         LogoService $logoService,
         StoreManagerInterface $storeManager,
-        Resolver $localeResolver
+        Resolver $localeResolver,
+        GooglepayButtonType $buttonTypes
     ) {
         parent::__construct($assetRepo, $scopeConfig, $allowedCurrencies, $paymentFeeHelper, $logoService);
 
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
+        $this->buttonTypes = $buttonTypes;
     }
 
     /**
@@ -107,6 +117,7 @@ class Googlepay extends AbstractConfigProvider
             'merchantId'                   => $this->getGoogleMerchantId(),
             'availableButtons'             => $this->getAvailableButtons(),
             'buttonStyle'                  => $this->getButtonStyle(),
+            'buttonType'                   => $this->getButtonType(),
             'dontAskBillingInfoInCheckout' => (int)$this->getDontAskBillingInfoInCheckout(),
             'integrationMode'              => $this->getIntegrationMode(),
             'locale'                       => $this->getCultureCode(),
@@ -166,6 +177,20 @@ class Googlepay extends AbstractConfigProvider
     public function getButtonStyle($store = null)
     {
         return $this->getMethodConfigValue(self::XPATH_GOOGLEPAY_BUTTON_STYLE, $store);
+    }
+
+    /**
+     * Get the call to action on the Google Pay button, falling back to "buy" for an unknown value.
+     *
+     * @param int|string|Store $store
+     *
+     * @return string
+     */
+    public function getButtonType($store = null): string
+    {
+        return $this->buttonTypes->normalize(
+            $this->getMethodConfigValue(self::XPATH_GOOGLEPAY_BUTTON_TYPE, $store)
+        );
     }
 
     /**

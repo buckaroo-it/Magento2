@@ -102,13 +102,26 @@
 #google-pay-wrapper .gpay-button:hover,
 #google-pay-wrapper .gpay-button:focus,
 #google-pay-wrapper .gpay-button:focus-visible {
-    background-color: #000 !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
     background-size: contain !important;
     background-origin: content-box !important;
     border: 0 !important;
+}
+
+/* Keep each colour's own background on hover, so the theme's button hover cannot replace it */
+#google-pay-wrapper .gpay-button.black:hover,
+#google-pay-wrapper .gpay-button.black:focus,
+#google-pay-wrapper .gpay-button.black:focus-visible {
+    background-color: #000 !important;
     outline: 1px solid #757575 !important;
+}
+
+#google-pay-wrapper .gpay-button.white:hover,
+#google-pay-wrapper .gpay-button.white:focus,
+#google-pay-wrapper .gpay-button.white:focus-visible {
+    background-color: #f8f8f8 !important;
+    outline: 1px solid #3c4043 !important;
 }
 
 @supports (-webkit-appearance: none) {

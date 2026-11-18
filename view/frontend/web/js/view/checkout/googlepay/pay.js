@@ -365,7 +365,9 @@ define(
 
                     // Button styling
                     buttonColor: config.buttonStyle || 'black', // 'black', 'white', 'default'
-                    buttonType: 'buy', // 'book', 'buy', 'checkout', 'donate', 'order', 'pay', 'plain', 'subscribe'
+                    // One setting for product page, cart and checkout. Missing on pages cached
+                    // before this setting existed, so fall back to Google's default.
+                    buttonType: config.buttonType || 'buy',
                     buttonContainerId: buttonContainerId,
                     buttonLocale: config.locale || 'en',
 
