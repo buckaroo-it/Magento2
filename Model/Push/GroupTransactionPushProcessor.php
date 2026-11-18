@@ -136,6 +136,13 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
     }
 
     /**
+     * Whether the current push was handed to the default processor
+     *
+     * @var bool
+     */
+    private $delegatedToDefaultProcessor = false;
+
+    /**
      * @inheritdoc
      *
      * @throws LocalizedException
@@ -143,6 +150,7 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     public function processPush(PushRequestInterface $pushRequest): bool
     {
+        $this->delegatedToDefaultProcessor = false;
         $this->pushRequest = $pushRequest;
         $this->order = $this->orderRequestService->getOrderByRequest($pushRequest);
 
@@ -177,7 +185,20 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
             return true;
         }
 
+        $this->delegatedToDefaultProcessor = true;
         return $this->defaultProcessor->processPush($pushRequest);
+    }
+
+    /**
+     * The received status entry stored while this push was applied, if it was handed to the default processor
+     *
+     * Model\Push puts it back when applying fails, so Buckaroo's retry is not taken for a duplicate.
+     *
+     * @return array|null
+     */
+    public function getRecordedTransactionStatus(): ?array
+    {
+        return $this->delegatedToDefaultProcessor ? $this->defaultProcessor->getRecordedTransactionStatus() : null;
     }
 
     /**
