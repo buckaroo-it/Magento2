@@ -140,7 +140,13 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
     public function testReceiveRefundPushDisabled()
     {
         $postDataMock = $this->createMock(PushRequestInterface::class);
+        $postDataMock->method('getTransactions')->willReturn('trans123');
+
+        $creditmemoCollectionMock = $this->getFakeMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class)->getMock();
+        $creditmemoCollectionMock->method('getItemsByColumnValue')->willReturn([]);
+
         $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getCreditmemosCollection')->willReturn($creditmemoCollectionMock);
 
         $this->configRefundMock->method('getAllowPush')->willReturn(false);
 
@@ -170,6 +176,53 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $result = $instance->receiveRefundPush($postDataMock, true, $orderMock);
 
         $this->assertFalse($result);
+    }
+
+    /**
+     * A refund made from a Magento credit memo already has its credit memo; its push is
+     * acknowledged even when refunds from Plaza are not accepted.
+     */
+    public function testReceiveRefundPushForExistingCreditmemoIsAcknowledgedWhenPlazaRefundsAreDisabled()
+    {
+        $postDataMock = $this->createMock(PushRequestInterface::class);
+        $postDataMock->method('getTransactions')->willReturn('trans123');
+
+        $creditmemoCollectionMock = $this->getFakeMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class)->getMock();
+        $creditmemoCollectionMock->method('getItemsByColumnValue')
+            ->with('transaction_id', 'trans123')
+            ->willReturn([new \stdClass()]);
+
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getCreditmemosCollection')->willReturn($creditmemoCollectionMock);
+
+        $this->configRefundMock->method('getAllowPush')->willReturn(false);
+        $this->creditmemoFactoryMock->expects($this->never())->method('createByOrder');
+
+        $result = $this->getInstance()->receiveRefundPush($postDataMock, true, $orderMock);
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * A push without a transaction key must not match credit memos that have no transaction id.
+     */
+    public function testReceiveRefundPushWithoutTransactionKeyIsNotTreatedAsAlreadyRefunded()
+    {
+        $postDataMock = $this->createMock(PushRequestInterface::class);
+        $postDataMock->method('getTransactions')->willReturn('');
+
+        $creditmemoCollectionMock = $this->getFakeMock(\Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection::class)->getMock();
+        $creditmemoCollectionMock->expects($this->never())->method('getItemsByColumnValue');
+
+        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock->method('getCreditmemosCollection')->willReturn($creditmemoCollectionMock);
+
+        $this->configRefundMock->method('getAllowPush')->willReturn(false);
+
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('Buckaroo refund is disabled');
+
+        $this->getInstance()->receiveRefundPush($postDataMock, true, $orderMock);
     }
 
     public function testReceiveRefundPushInvalidSignature()

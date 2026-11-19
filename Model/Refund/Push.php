@@ -155,13 +155,15 @@ class Push
             $this->order->getId()
         ));
 
-        $this->validateRefundConfiguration();
         $this->validateRefundRequest($signatureValidation);
 
+        // A refund made from a Magento credit memo already has its credit memo, so its push is
+        // acknowledged whatever the "accept refunds from Plaza" setting is.
         if ($this->isAlreadyRefunded()) {
             return false;
         }
 
+        $this->validateRefundConfiguration();
         $this->validateRefundStatus();
 
         $creditmemo = $this->createCreditmemo();
@@ -249,10 +251,18 @@ class Push
      */
     private function isAlreadyRefunded(): bool
     {
+        $transactionKey = (string)$this->postData->getTransactions();
+
+        // getItemsByColumnValue() compares loosely: an empty key would match offline credit memos,
+        // which have no transaction id.
+        if ($transactionKey === '') {
+            return false;
+        }
+
         $creditmemoCollection = $this->order->getCreditmemosCollection();
         $creditmemosByTransactionId = $creditmemoCollection->getItemsByColumnValue(
             'transaction_id',
-            $this->postData->getTransactions()
+            $transactionKey
         );
 
         if (count($creditmemosByTransactionId) > 0) {
