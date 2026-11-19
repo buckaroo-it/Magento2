@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Push;
 
+use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
@@ -103,6 +104,9 @@ class TransferInvoiceHandlingTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->setProperty('order', $order, $instance);
         $this->setProperty('payment', $payment, $instance);
+        $pushRequest = $this->getFakeMock(PushRequestInterface::class)->getMock();
+        $pushRequest->method('getTransactions')->willReturn('trx-1');
+        $this->setProperty('pushRequest', $pushRequest, $instance);
 
         return $instance;
     }

@@ -12,6 +12,8 @@ use Magento\Sales\Model\Order;
 
 class TransferProcessor extends DefaultProcessor
 {
+    public const BUCKAROO_APPLIED_TRANSFER_TRANSACTIONS = 'buckaroo_applied_transfer_transactions';
+
     /**
      * Get the payment details (amount, description) for the push.
      *
@@ -75,6 +77,20 @@ class TransferProcessor extends DefaultProcessor
             ], true)
         ));
 
+        if ($this->isTransactionKeyApplied()) {
+            // This payment is already part of the order totals: keep the order as it is.
+            $paymentDetails['state'] = $this->order->getState();
+            $paymentDetails['newStatus'] = $this->order->getStatus();
+            $paymentDetails['description'] = __(
+                'Payment Push Status: %1',
+                '<strong>' . __('already processed') . '</strong>'
+            );
+
+            return false;
+        }
+
+        $this->rememberAppliedTransactionKey();
+
         if ($this->settlesOrderWithInvoiceOnPayment((float)$amount)) {
             return true;
         }
@@ -111,6 +127,75 @@ class TransferProcessor extends DefaultProcessor
         }
 
         return $saveInvoice;
+    }
+
+    /**
+     * Do not keep the transaction key as applied when the invoice for this payment could not be created.
+     *
+     * @return bool
+     */
+    protected function saveInvoice(): bool
+    {
+        $saved = parent::saveInvoice();
+        if (!$saved) {
+            $this->forgetAppliedTransactionKey();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Whether the transaction key of this push was already added to the order totals.
+     *
+     * @return bool
+     */
+    private function isTransactionKeyApplied(): bool
+    {
+        $key = (string)$this->pushRequest->getTransactions();
+
+        return $key !== '' && in_array($key, $this->getAppliedTransactionKeys(), true);
+    }
+
+    /**
+     * Store the transaction key of this push, saved together with the updated order totals.
+     *
+     * @return void
+     * @throws LocalizedException
+     */
+    private function rememberAppliedTransactionKey(): void
+    {
+        $key = (string)$this->pushRequest->getTransactions();
+        if ($key === '') {
+            return;
+        }
+
+        $keys = $this->getAppliedTransactionKeys();
+        $keys[] = $key;
+        $this->payment->setAdditionalInformation(self::BUCKAROO_APPLIED_TRANSFER_TRANSACTIONS, $keys);
+    }
+
+    /**
+     * Remove the transaction key of this push from the applied keys.
+     *
+     * @return void
+     */
+    private function forgetAppliedTransactionKey(): void
+    {
+        $key = (string)$this->pushRequest->getTransactions();
+        $keys = array_values(array_diff($this->getAppliedTransactionKeys(), [$key]));
+        $this->payment->setAdditionalInformation(self::BUCKAROO_APPLIED_TRANSFER_TRANSACTIONS, $keys);
+    }
+
+    /**
+     * Transaction keys already added to the order totals.
+     *
+     * @return string[]
+     */
+    private function getAppliedTransactionKeys(): array
+    {
+        $keys = $this->payment->getAdditionalInformation(self::BUCKAROO_APPLIED_TRANSFER_TRANSACTIONS);
+
+        return is_array($keys) ? $keys : [];
     }
 
     /**
