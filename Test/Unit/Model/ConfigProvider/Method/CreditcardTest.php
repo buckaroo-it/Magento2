@@ -167,4 +167,18 @@ class CreditcardTest extends BaseTest
         // Assert
         $this->assertNull($result);
     }
+
+    /**
+     * The checkout template only renders the card picker for selection type 1 or 2, so a store
+     * without a saved value must fall back to a default from etc/config.xml.
+     */
+    public function testConfigXmlHasDefaultSelectionTypeForCreditcard()
+    {
+        $configXml = simplexml_load_file(dirname(__DIR__, 5) . '/etc/config.xml');
+        $this->assertNotFalse($configXml);
+
+        $creditcard = $configXml->default->payment->buckaroo_magento2_creditcard;
+        $this->assertTrue(isset($creditcard->selection_type));
+        $this->assertSame('1', (string)$creditcard->selection_type);
+    }
 }

@@ -142,6 +142,7 @@
                 <model>CreditcardFacade</model>
                 <order_status>pending</order_status>
                 <title>Creditcard and Debit Card</title>
+                <selection_type>1</selection_type>
                 <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>30</sort_order>
