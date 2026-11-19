@@ -729,6 +729,7 @@
                 <model>GooglepayFacade</model>
                 <order_status>pending</order_status>
                 <title>Google Pay</title>
+                <button_type>buy</button_type>
                 <display_subtext>0</display_subtext>
                 <allowspecific>0</allowspecific>
                 <sort_order>245</sort_order>
