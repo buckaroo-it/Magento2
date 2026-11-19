@@ -39,7 +39,6 @@
                 <value id="buckaroo-media-img" type="host">https://www.buckaroo.nl</value>
                 <value id="paypal-img" type="host">https://www.paypalobjects.com</value>
                 <value id="googlepay-img" type="host">https://pay.google.com</value>
-                <value id="googlepay-developers-img" type="host">https://developers.google.com</value>
                 <value id="applepay-img" type="host">https://applepay.cdn-apple.com</value>
                 <value id="clicktopay-up-img" type="host">https://up.cybersource.com</value>
                 <value id="clicktopay-visa-img" type="host">https://assets.secure.checkout.visa.com</value>
