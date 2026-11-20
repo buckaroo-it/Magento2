@@ -24,10 +24,12 @@ namespace Buckaroo\Magento2\Helper;
 class JsString
 {
     /**
-     * @param mixed $value text or a Phrase
+     * Encode a value as a JavaScript string literal
      *
+     * @param mixed $value text or a Phrase
      * @return string a double-quoted literal with no raw quote, apostrophe or angle bracket inside
      */
+    // phpcs:ignore Magento2.Functions.StaticFunction -- pure stateless encoder, interception has no value
     public static function encode($value): string
     {
         $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE
