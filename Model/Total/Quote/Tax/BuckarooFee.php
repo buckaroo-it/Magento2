@@ -166,7 +166,8 @@ class BuckarooFee extends CommonTaxCollector
 
         $result = $this->calculate->calculatePaymentFee($quote, $total);
 
-        if ($result === null) {
+        // Same lower bound as the main fee total collector: skip sub-0.01 (incl. negative) fees
+        if ($result === null || $result->getAmount() < 0.01) {
             return $this;
         }
 
