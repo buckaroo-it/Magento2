@@ -82,14 +82,14 @@ class Push implements PushInterface
     private $statusRestorer;
 
     /**
-     * @param BuckarooLoggerInterface           $logger
-     * @param RequestPushFactory                $requestPushFactory
-     * @param PushProcessorsFactory             $pushProcessorsFactory
-     * @param OrderRequestService               $orderRequestService
-     * @param PushTransactionType               $pushTransactionType
-     * @param LockManagerWrapper                $lockManager
-     * @param KlarnaMorDataRequestPushDetector  $klarnaMorDataRequestPushDetector
-     * @param StoreEmulator|null                $storeEmulator
+     * @param BuckarooLoggerInterface                $logger
+     * @param RequestPushFactory                     $requestPushFactory
+     * @param PushProcessorsFactory                  $pushProcessorsFactory
+     * @param OrderRequestService                    $orderRequestService
+     * @param PushTransactionType                    $pushTransactionType
+     * @param LockManagerWrapper                     $lockManager
+     * @param KlarnaMorDataRequestPushDetector       $klarnaMorDataRequestPushDetector
+     * @param StoreEmulator|null                     $storeEmulator
      * @param ReceivedTransactionStatusRestorer|null $statusRestorer
      */
     public function __construct(
@@ -277,8 +277,9 @@ class Push implements PushInterface
     }
 
     /**
-     * Put back the received status the failed push stored, so Buckaroo's retry is applied instead of acknowledged
-     * as a duplicate
+     * Put back the received status the failed push stored
+     *
+     * So Buckaroo's retry is applied instead of acknowledged as a duplicate.
      *
      * @param mixed $pushProcessor
      *
