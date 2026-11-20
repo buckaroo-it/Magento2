@@ -23,12 +23,18 @@ namespace Buckaroo\Magento2\Block\Catalog\Product\View;
 
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\View\Element\Template;
+use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\View\Element\Template\Context;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal;
 
 class PaypalExpress extends Template
 {
+    /**
+     * Buckaroo client SDK served by the test checkout
+     */
+    public const TEST_SDK_URL = '//testcheckout.buckaroo.nl/api/buckaroosdk/script';
+
     /**
      * @var \Buckaroo\Magento2\Model\ConfigProvider\Account
      */
@@ -61,6 +67,26 @@ class PaypalExpress extends Template
         return $this->isModuleActive() &&
             $this->paypalConfig->canShowButtonForPage($page, $this->_storeManager->getStore()) &&
             $this->paypalConfig->isPayPalEnabled($this->_storeManager->getStore());
+    }
+
+    /**
+     * Check if PayPal is in test mode
+     *
+     * @return bool
+     */
+    public function isTestMode()
+    {
+        return $this->paypalConfig->isPayPalEnabled($this->_storeManager->getStore()) == Data::MODE_TEST;
+    }
+
+    /**
+     * Get the RequireJS configuration that loads the Buckaroo SDK from the test checkout
+     *
+     * @return string
+     */
+    public function getTestSdkRequireConfig()
+    {
+        return 'require.config({map:{"*":{"BuckarooSDK":' . json_encode(self::TEST_SDK_URL) . '}}});';
     }
 
     /**
@@ -119,6 +145,16 @@ class PaypalExpress extends Template
      */
     protected function getMerchantId()
     {
+        if ($this->isTestMode()) {
+            $sandboxMerchantId = $this->paypalConfig->getExpressSandboxMerchantId(
+                $this->_storeManager->getStore()
+            );
+
+            if (!empty($sandboxMerchantId)) {
+                return $sandboxMerchantId;
+            }
+        }
+
         return $this->paypalConfig->getExpressMerchantId(
             $this->_storeManager->getStore()
         );

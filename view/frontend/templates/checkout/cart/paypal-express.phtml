@@ -18,10 +18,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   https://tldrlegal.com/license/mit-license
  */
-/** @var string $block */
+/** @var \Buckaroo\Magento2\Block\Catalog\Product\View\PaypalExpress $block */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
 
 ?>
 <?php if ($block->canShowButton('Cart')): ?>
+    <?php if ($block->isTestMode()): ?>
+        <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $block->getTestSdkRequireConfig(), false) ?>
+    <?php endif; ?>
 <div id="paypal-express-button-component" data-bind="scope:'paypalExpress'">
     <!-- ko template: getTemplate() --><!-- /ko -->
     <div class="buckaroo-paypal-express"></div>

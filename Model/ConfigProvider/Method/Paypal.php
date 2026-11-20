@@ -57,6 +57,8 @@ class Paypal extends AbstractConfigProvider
 
     public const XPATH_PAYPAL_EXPRESS_BUTTONS          = 'payment/buckaroo_magento2_paypal/available_buttons';
     public const XPATH_PAYPAL_EXPRESS_MERCHANT_ID          = 'payment/buckaroo_magento2_paypal/express_merchant_id';
+    public const XPATH_PAYPAL_EXPRESS_SANDBOX_MERCHANT_ID =
+        'payment/buckaroo_magento2_paypal/express_sandbox_merchant_id';
 
     /**
      * @return array|void
@@ -102,6 +104,18 @@ class Paypal extends AbstractConfigProvider
     public function getExpressMerchantId($store = null)
     {
         return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_MERCHANT_ID, $store);
+    }
+
+    /**
+     * Get PayPal sandbox merchant ID
+     *
+     * @param null|int|string $store
+     *
+     * @return mixed
+     */
+    public function getExpressSandboxMerchantId($store = null)
+    {
+        return $this->getConfigFromXpath(self::XPATH_PAYPAL_EXPRESS_SANDBOX_MERCHANT_ID, $store);
     }
     /**
      * Test if express button is enabled for the $page
