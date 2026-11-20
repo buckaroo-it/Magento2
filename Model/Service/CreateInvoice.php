@@ -258,7 +258,7 @@ class CreateInvoice
             BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY
         );
 
-        if (strlen($transactionKey) <= 0) {
+        if (!is_string($transactionKey) || $transactionKey === '') {
             throw new \Buckaroo\Magento2\Exception(__('There was no transaction ID found'));
         }
 
