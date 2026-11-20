@@ -14,11 +14,15 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Model\Service;
 
+use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
 use Buckaroo\Magento2\Model\Service\CreateInvoice;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order\Shipment\Item as ShipmentItem;
 
@@ -172,6 +176,76 @@ class CreateInvoiceTest extends BaseTest
             [10 => 3.0, 11 => 3.0],
             $instance->getQtysFromShipment($shipmentMock)
         );
+    }
+
+    /**
+     * @return array
+     */
+    public static function missingTransactionKeyProvider(): array
+    {
+        return [
+            'null' => [null],
+            'empty string' => [''],
+        ];
+    }
+
+    /**
+     * Invoice after shipment on an order without a Buckaroo transaction key must raise the
+     * handled module exception, not a TypeError from strlen(null) under strict_types.
+     *
+     * @dataProvider missingTransactionKeyProvider
+     *
+     * @param mixed $storedKey
+     */
+    public function testAddTransactionDataThrowsWhenNoTransactionKeyIsStored($storedKey)
+    {
+        $paymentMock = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getAdditionalInformation', 'setTransactionId', 'setParentTransactionId'])
+            ->getMock();
+        $paymentMock->method('getAdditionalInformation')
+            ->with(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY)
+            ->willReturn($storedKey);
+        $paymentMock->expects($this->never())->method('setTransactionId');
+        $paymentMock->expects($this->never())->method('setParentTransactionId');
+
+        $instance = $this->getInstance();
+
+        $this->expectException(BuckarooException::class);
+        $this->expectExceptionMessage('There was no transaction ID found');
+
+        $instance->addTransactionData($paymentMock);
+    }
+
+    public function testAddTransactionDataSetsCaptureAndParentTransactionFromStoredKey()
+    {
+        $paymentMock = $this->getMockBuilder(Payment::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getAdditionalInformation',
+                'setAdditionalInformation',
+                'setTransactionAdditionalInfo',
+                'setTransactionId',
+                'setParentTransactionId',
+            ])
+            ->getMock();
+        $paymentMock->method('getAdditionalInformation')->willReturnMap([
+            [BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, 'ABC123'],
+            [Transaction::RAW_DETAILS, ['ABC123' => ['status' => '190']]],
+            ['buckaroo_capture_transaction_key', null],
+        ]);
+        $paymentMock->expects($this->once())
+            ->method('setTransactionAdditionalInfo')
+            ->with(Transaction::RAW_DETAILS, ['status' => '190']);
+        $paymentMock->expects($this->once())->method('setTransactionId')->with('ABC123-capture');
+        $paymentMock->expects($this->once())->method('setParentTransactionId')->with('ABC123');
+        $paymentMock->expects($this->once())
+            ->method('setAdditionalInformation')
+            ->with(BuckarooAdapter::BUCKAROO_ORIGINAL_TRANSACTION_KEY_KEY, 'ABC123');
+
+        $instance = $this->getInstance();
+
+        $this->assertSame($paymentMock, $instance->addTransactionData($paymentMock));
     }
 
     /**
