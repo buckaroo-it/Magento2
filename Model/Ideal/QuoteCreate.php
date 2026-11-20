@@ -30,6 +30,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Model\Method\Ideal;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal as IdealConfig;
+use Buckaroo\Magento2\Model\Config\Source\AvailableButtons;
+use Magento\Framework\App\ObjectManager;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Api\AddressRepositoryInterface;
@@ -54,6 +57,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
     protected $logger;
     protected $quote;
     protected $storeManager;
+    /**
+     * @var IdealConfig
+     */
+    protected $idealConfig;
 
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
@@ -65,7 +72,8 @@ class QuoteCreate implements IdealQuoteCreateInterface
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
         Log $logger,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        ?IdealConfig $idealConfig = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -77,6 +85,7 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
         $this->storeManager = $storeManager;
+        $this->idealConfig = $idealConfig ?? ObjectManager::getInstance()->get(IdealConfig::class);
     }
 
     /**
@@ -89,6 +98,10 @@ class QuoteCreate implements IdealQuoteCreateInterface
      */
     public function execute(string $page, ?string $form_data = null)
     {
+        if (!$this->isFastCheckoutAvailable($page)) {
+            throw new IdealException("iDEAL Fast Checkout is not available");
+        }
+
         try {
             if ($page === 'product' && is_string($form_data)) {
                 $this->quote = $this->createQuote($form_data);
@@ -115,6 +128,25 @@ class QuoteCreate implements IdealQuoteCreateInterface
         $this->restoreStoreContext();
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
+    }
+
+    /**
+     * Check that iDEAL, Fast Checkout and its button for the requested page are enabled
+     *
+     * @param  string $page
+     * @return bool
+     */
+    protected function isFastCheckoutAvailable(string $page): bool
+    {
+        if (!$this->idealConfig->isIDealEnabled() || !$this->idealConfig->isFastCheckoutEnabled()) {
+            return false;
+        }
+
+        if ($page === 'product') {
+            return $this->idealConfig->canShowButtonForPage(AvailableButtons::BUTTON_PRODUCT);
+        }
+
+        return $this->idealConfig->canShowButtonForPage(AvailableButtons::BUTTON_CART);
     }
 
     /**

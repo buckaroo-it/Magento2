@@ -27,6 +27,9 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\QuoteRepository;
 use Buckaroo\Magento2\Model\Method\Paypal;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal as PaypalConfig;
+use Magento\Framework\App\ObjectManager;
+use Buckaroo\Magento2\Model\Config\Source\AvailableButtons;
 use Magento\Quote\Api\ShipmentEstimationInterface;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -82,6 +85,11 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
      */
     protected $quote;
 
+    /**
+     * @var PaypalConfig
+     */
+    protected $paypalConfig;
+
     public function __construct(
         QuoteCreateResponseInterfaceFactory $responseFactory,
         QuoteBuilderInterfaceFactory $quoteBuilderInterfaceFactory,
@@ -90,7 +98,8 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         CheckoutSession $checkoutSession,
         QuoteRepository $quoteRepository,
         ShipmentEstimationInterface $shipmentEstimation,
-        Log $logger
+        Log $logger,
+        ?PaypalConfig $paypalConfig = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteBuilderInterfaceFactory = $quoteBuilderInterfaceFactory;
@@ -100,6 +109,7 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         $this->quoteRepository = $quoteRepository;
         $this->shipmentEstimation = $shipmentEstimation;
         $this->logger = $logger;
+        $this->paypalConfig = $paypalConfig ?? ObjectManager::getInstance()->get(PaypalConfig::class);
     }
     /** @inheritDoc */
     public function execute(
@@ -107,6 +117,10 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
         string $page,
         ?string $form_data = null
     ) {
+        if (!$this->isExpressCheckoutAvailable($page)) {
+            throw new PaypalExpressException(__("PayPal Express checkout is not available"));
+        }
+
         if ($page === 'product' && is_string($form_data)) {
             $this->quote = $this->createQuote($form_data);
         } else {
@@ -124,6 +138,26 @@ class QuoteCreate implements PaypalExpressQuoteCreateInterface
 
         $this->calculateQuoteTotals();
         return $this->responseFactory->create(["quote" => $this->quote]);
+    }
+
+    /**
+     * Check that PayPal and its express button for the requested page are enabled
+     *
+     * @param string $page
+     *
+     * @return bool
+     */
+    protected function isExpressCheckoutAvailable(string $page): bool
+    {
+        if (!$this->paypalConfig->isPayPalEnabled()) {
+            return false;
+        }
+
+        if ($page === 'product') {
+            return $this->paypalConfig->canShowButtonForPage(AvailableButtons::BUTTON_PRODUCT);
+        }
+
+        return $this->paypalConfig->canShowButtonForPage(AvailableButtons::BUTTON_CART);
     }
 
     /**

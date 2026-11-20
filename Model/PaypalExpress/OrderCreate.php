@@ -23,6 +23,8 @@ namespace Buckaroo\Magento2\Model\PaypalExpress;
 
 use Magento\Quote\Model\Quote;
 use Buckaroo\Magento2\Logging\Log;
+use Buckaroo\Magento2\Model\ConfigProvider\Method\Paypal as PaypalConfig;
+use Magento\Framework\App\ObjectManager;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Quote\Api\CartManagementInterface;
@@ -81,6 +83,11 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
      */
     protected $logger;
 
+    /**
+     * @var PaypalConfig
+     */
+    protected $paypalConfig;
+
     public function __construct(
         OrderCreateResponseInterfaceFactory $responseFactory,
         CartManagementInterface $quoteManagement,
@@ -90,7 +97,8 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         CartRepositoryInterface $quoteRepository,
         OrderRepositoryInterface $orderRepository,
         OrderUpdateFactory $orderUpdateFactory,
-        Log $logger
+        Log $logger,
+        ?PaypalConfig $paypalConfig = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->quoteManagement = $quoteManagement;
@@ -101,6 +109,7 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         $this->orderRepository = $orderRepository;
         $this->orderUpdateFactory = $orderUpdateFactory;
         $this->logger = $logger;
+        $this->paypalConfig = $paypalConfig ?? ObjectManager::getInstance()->get(PaypalConfig::class);
     }
 
     /** @inheritDoc */
@@ -108,6 +117,10 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         string $paypal_order_id,
         ?string $cart_id = null
     ) {
+        if (!$this->isExpressCheckoutAvailable()) {
+            throw new PaypalExpressException(__("PayPal Express checkout is not available"));
+        }
+
         try {
             $orderId = $this->createOrder($paypal_order_id, $cart_id);
         } catch (NoSuchEntityException $th) {
@@ -119,6 +132,18 @@ class OrderCreate implements PaypalExpressOrderCreateInterface
         }
 
         return $this->responseFactory->create(["orderId" => $orderId]);
+    }
+
+    /**
+     * Check that PayPal and at least one of its express buttons are enabled
+     *
+     * @return bool
+     */
+    protected function isExpressCheckoutAvailable(): bool
+    {
+        $buttons = $this->paypalConfig->getExpressButtons();
+
+        return $this->paypalConfig->isPayPalEnabled() && is_string($buttons) && $buttons !== '';
     }
 
     /**
