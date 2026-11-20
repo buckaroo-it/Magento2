@@ -25,6 +25,7 @@ use Buckaroo\Magento2\Model\PaypalExpress\PaypalExpressException;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Type\Onepage;
 use Magento\Customer\Model\Group;
+use Magento\Framework\App\ObjectManager;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\DataObjectFactory;
@@ -66,21 +67,29 @@ class QuoteBuilder implements QuoteBuilderInterface
     protected $quote;
 
     /**
+     * @var BuyRequestFilter
+     */
+    protected $buyRequestFilter;
+
+    /**
      * @param QuoteFactory               $quoteFactory
      * @param ProductRepositoryInterface $productRepository
      * @param DataObjectFactory          $dataObjectFactory
      * @param CustomerSession            $customer
+     * @param BuyRequestFilter|null      $buyRequestFilter
      */
     public function __construct(
         QuoteFactory $quoteFactory,
         ProductRepositoryInterface $productRepository,
         DataObjectFactory $dataObjectFactory,
-        CustomerSession $customer
+        CustomerSession $customer,
+        ?BuyRequestFilter $buyRequestFilter = null
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customer = $customer;
+        $this->buyRequestFilter = $buyRequestFilter ?? ObjectManager::getInstance()->get(BuyRequestFilter::class);
     }
 
     /**
@@ -152,8 +161,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $formData)
     {
-        $data = [];
-        parse_str($formData, $data);
+        $data = $this->buyRequestFilter->fromFormString($formData);
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);

@@ -21,7 +21,9 @@
 
 namespace Buckaroo\Magento2\Model\Ideal;
 
+use Buckaroo\Magento2\Model\Service\BuyRequestFilter;
 use Magento\Customer\Model\Group;
+use Magento\Framework\App\ObjectManager;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Checkout\Model\Type\Onepage;
@@ -62,16 +64,23 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected $quote;
 
+    /**
+     * @var BuyRequestFilter
+     */
+    protected $buyRequestFilter;
+
     public function __construct(
         QuoteFactory               $quoteFactory,
         ProductRepositoryInterface $productRepository,
         DataObjectFactory          $dataObjectFactory,
-        CustomerSession            $customer
+        CustomerSession            $customer,
+        ?BuyRequestFilter $buyRequestFilter = null
     ) {
         $this->quoteFactory = $quoteFactory;
         $this->productRepository = $productRepository;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->customer = $customer;
+        $this->buyRequestFilter = $buyRequestFilter ?? ObjectManager::getInstance()->get(BuyRequestFilter::class);
     }
 
     /** @inheritDoc */
@@ -144,8 +153,7 @@ class QuoteBuilder implements QuoteBuilderInterface
      */
     protected function formatFormData(string $form_data)
     {
-        $data = [];
-        parse_str($form_data, $data);
+        $data = $this->buyRequestFilter->fromFormString($form_data);
         $dataObject = $this->dataObjectFactory->create();
 
         return $dataObject->setData($data);
