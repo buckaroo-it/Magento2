@@ -55,6 +55,8 @@ class OrderUpdate
         $this->updateItem($address, OrderAddressInterface::LASTNAME, 'payerLastname');
         $this->updateItem($address, OrderAddressInterface::STREET, 'address_line_1');
         $this->updateItem($address, OrderAddressInterface::EMAIL, 'payerEmail');
+        // Phone is optional since PayPal doesn't always provide it
+        $this->updateItemOptional($address, OrderAddressInterface::TELEPHONE, 'payerPhone');
         return $address;
     }
     protected function updateItem($address, $addressField, $responseField)
@@ -64,6 +66,20 @@ class OrderUpdate
                 $addressField,
                 $this->responseAddressInfo[$responseField]
             );
+        }
+    }
+
+    /**
+     * Set the address field only when the response holds a non-empty value
+     *
+     * @param mixed  $address
+     * @param string $addressField
+     * @param string $responseField
+     */
+    private function updateItemOptional($address, $addressField, $responseField)
+    {
+        if ($this->valueExists($responseField) && trim($this->responseAddressInfo[$responseField]) !== '') {
+            $address->setData($addressField, $this->responseAddressInfo[$responseField]);
         }
     }
 
