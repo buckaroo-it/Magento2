@@ -26,6 +26,7 @@ use Magento\Checkout\Model\Cart;
 use Magento\Checkout\Model\CompositeConfigProvider;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Registry;
 
 class Idin extends Template

@@ -22,6 +22,7 @@
 namespace Buckaroo\Magento2\Controller\Adminhtml\Giftcard;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\LocalizedException;
 
 class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
 {
@@ -54,7 +55,7 @@ class Save extends \Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index
                     $result          = $uploaderFactory->save($destinationPath);
 
                     if (!$result) {
-                        throw new LocalizedException(__('File cannot be saved to path: $1', $destinationPath));
+                        throw new LocalizedException(__('File cannot be saved to path: %1', $destinationPath));
                     }
 
                     $formData['logo'] = 'buckaroo' . $result['file'];

@@ -6,6 +6,8 @@ on:
       - 'releases/**'
   pull_request:
     types: [opened, synchronize, reopened]
+    branches-ignore:
+      - develop-1.x
 
 name: SonarQube PR Analysis
 jobs:

@@ -32,18 +32,6 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\State\CommandInterface as MagentoCommandInterface;
 
 /**
- * No-op Log stub: avoids Log::__destruct() calling $this->mail->mailMessage() (which
- * crashes when the constructor is disabled/bypassed). Extending Log satisfies the type hint.
- */
-// phpcs:ignore PSR1.Classes.ClassDeclaration
-class LogStub extends \Buckaroo\Magento2\Logging\Log
-{
-    public function __construct() {} // phpcs:ignore
-    public function addDebug(string $message): bool { return true; } // phpcs:ignore
-    public function __destruct() {} // phpcs:ignore
-}
-
-/**
  * Unit tests for Plugin\CommandInterface.
  *
  * Note: this test file uses createMock() throughout for PHPUnit 10 compatibility.
