@@ -42,10 +42,9 @@ class BuckarooFeeTest extends BaseTest
     /**
      * @param Result|null $feeResult
      * @param PriceCurrencyInterface $priceCurrency
-     * @param ShippingAssignmentInterface $shippingAssignment
      * @return array{0: BuckarooFee, 1: Quote, 2: Total}
      */
-    private function buildCollector($feeResult, $priceCurrency, $shippingAssignment): array
+    private function buildCollector($feeResult, $priceCurrency): array
     {
         $quote = $this->getFakeMock(Quote::class)->onlyMethods(['getReservedOrderId', 'getStore'])->getMock();
         $quote->method('getReservedOrderId')->willReturn('100000001');
@@ -102,7 +101,7 @@ class BuckarooFeeTest extends BaseTest
         $shippingAssignment->expects($this->never())->method('getShipping');
 
         $feeResult = $amount === null ? null : $this->createFeeResult($amount);
-        [$instance, $quote, $total] = $this->buildCollector($feeResult, $priceCurrency, $shippingAssignment);
+        [$instance, $quote, $total] = $this->buildCollector($feeResult, $priceCurrency);
 
         $this->assertSame($instance, $instance->collect($quote, $shippingAssignment, $total));
     }
@@ -120,11 +119,7 @@ class BuckarooFeeTest extends BaseTest
         $shippingAssignment = $this->getFakeMock(ShippingAssignmentInterface::class, true);
         $shippingAssignment->method('getItems')->willReturn([new \stdClass()]);
 
-        [$instance, $quote, $total] = $this->buildCollector(
-            $this->createFeeResult(1.5),
-            $priceCurrency,
-            $shippingAssignment
-        );
+        [$instance, $quote, $total] = $this->buildCollector($this->createFeeResult(1.5), $priceCurrency);
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('fee taxable reached');
