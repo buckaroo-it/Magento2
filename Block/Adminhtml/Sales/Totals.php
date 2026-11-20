@@ -68,7 +68,11 @@ class Totals extends Template
     }
 
     /**
-     * For credit memo display the fees from invoice/order, check if invoice has that fee and set selected
+     * Fee totals for the source; a credit memo being created offers the invoice/order fee to refund
+     *
+     * A saved credit memo shows only the fee it refunded, as a plain total the parent block formats.
+     * A credit memo being created (new form, update qty) gets the invoice/order fee rendered by the
+     * buckaroo_fee block as a refund checkbox, checked when the collected credit memo refunds it.
      *
      * @param mixed $source
      *
@@ -76,7 +80,7 @@ class Totals extends Template
      */
     protected function getTotalsForCreditmemo($source)
     {
-        if ($source instanceof Creditmemo) {
+        if ($source instanceof Creditmemo && !$source->getId()) {
             $creditTotals = $this->helper->getTotals($source);
             $order = $source->getOrder();
             $invoice = $source->getInvoice();
