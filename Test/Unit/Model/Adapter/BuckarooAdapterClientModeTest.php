@@ -150,7 +150,6 @@ class BuckarooAdapterClientModeTest extends TestCase
             $this->createMock(Resolver::class),
             $this->createMock(StoreManagerInterface::class),
             $this->createMock(TransactionOperationValidator::class),
-            null,
             $resolver
         );
 
