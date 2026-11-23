@@ -21,7 +21,13 @@
  * is selected, so the inline display is what it clears -- a stylesheet rule would not be reversible.
  */
 $_code = $block->escapeHtml($block->getMethodCode());
-$customerDetails = method_exists($block, 'getPPeCustomerDetails') ? $block->getPPeCustomerDetails() : null;
+// The view model is injected as "ppe_customer_details" on the parent order_create_billing_form block,
+// not on this method form block.
+$parentBlock = $block->getParentBlock();
+$ppeViewModel = $parentBlock ? $parentBlock->getData('ppe_customer_details') : null;
+$customerDetails = $ppeViewModel instanceof \Buckaroo\Magento2\ViewModel\PpeCustomerDetails
+    ? $ppeViewModel->getPPeCustomerDetails()
+    : null;
 $mageInit = json_encode(['Buckaroo_Magento2/js/order/create/payperemail' => ['code' => $_code]]);
 ?>
 <div id="payment_form_<?= $_code ?>"

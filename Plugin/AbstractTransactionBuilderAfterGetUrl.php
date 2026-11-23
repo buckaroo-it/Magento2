@@ -41,10 +41,9 @@ class AbstractTransactionBuilderAfterGetUrl
     ) {
         $storeId = $order instanceof Order ? $order->getStoreId() : null;
         try {
-            if (strpos($result, '?') !== false) {
-                $result .= "&" . $this->cookieParamService->getUrlParamsByCookies($storeId);
-            } else {
-                $result .= "?" . $this->cookieParamService->getUrlParamsByCookies($storeId);
+            $params = (string)$this->cookieParamService->getUrlParamsByCookies($storeId);
+            if ($params !== '') {
+                $result .= (strpos((string)$result, '?') !== false ? '&' : '?') . $params;
             }
             //phpcs:ignore
         } catch (\Exception $e) {

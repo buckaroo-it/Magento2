@@ -548,9 +548,6 @@ class Recreate
         } else {
             $this->logger->addWarning('Second Chance: No payment method on original quote to copy');
         }
-
-        // Set payment flag if needed
-        $this->setPaymentFromFlag($quote, $oldQuote);
     }
 
     /**
@@ -591,33 +588,6 @@ class Recreate
         } catch (\Exception $e) {
             $this->logger->addError('Second Chance: Error checking payment method availability');
             return false;
-        }
-    }
-
-    /**
-     * Set payment from flag
-     *
-     * @param Quote $quote
-     * @param Quote $oldQuote
-     */
-    protected function setPaymentFromFlag($quote, $oldQuote)
-    {
-        try {
-            if ($oldQuote->getPayment() && $oldQuote->getPayment()->getMethod()) {
-                $oldMethod = $oldQuote->getPayment()->getMethod();
-                $currentMethod = $quote->getPayment()->getMethod();
-
-                // Only set if not already set
-                if (!$currentMethod || $currentMethod !== $oldMethod) {
-                    $quote->getPayment()->setMethod($oldMethod);
-                    $this->logger->addDebug('Second Chance: Payment method set from flag', [
-                        'old_method' => $oldMethod,
-                        'current_method' => $currentMethod
-                    ]);
-                }
-            }
-        } catch (\Exception $e) {
-            $this->logger->addError('Second Chance: Error setting payment from flag');
         }
     }
 }
