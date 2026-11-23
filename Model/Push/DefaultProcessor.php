@@ -2035,7 +2035,7 @@ class DefaultProcessor implements PushProcessorInterface
      *
      * @return float
      */
-    private function toBaseCurrencyAmount(float $amount): float
+    protected function toBaseCurrencyAmount(float $amount): float
     {
         $currency = strtoupper((string)$this->pushRequest->getCurrency());
         $baseCurrency = strtoupper((string)$this->order->getBaseCurrencyCode());

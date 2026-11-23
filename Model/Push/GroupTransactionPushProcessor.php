@@ -21,6 +21,7 @@ use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Buckaroo\Magento2\Service\Push\OrderRequestService;
 use Buckaroo\Magento2\Model\Idin\VerificationGuard;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -370,13 +371,13 @@ class GroupTransactionPushProcessor implements PushProcessorInterface
      */
     private function savePartGroupTransaction()
     {
-        $items = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
-        if (is_array($items) && count($items) > 0) {
-            foreach ($items as $item) {
-                $item2['status'] = $this->pushRequest->getStatusCode();
-                $item2['entity_id'] = $item['entity_id'];
-                $this->groupTransaction->updateGroupTransaction($item2);
-            }
+        // getGroupTransactionByTrxId() returns a single model (the collection's first item), not an array
+        $groupTransaction = $this->groupTransaction->getGroupTransactionByTrxId($this->pushRequest->getTransactions());
+        if ($groupTransaction instanceof DataObject && $groupTransaction->getEntityId()) {
+            $this->groupTransaction->updateGroupTransaction([
+                'entity_id' => $groupTransaction->getEntityId(),
+                'status'    => $this->pushRequest->getStatusCode(),
+            ]);
         }
     }
 

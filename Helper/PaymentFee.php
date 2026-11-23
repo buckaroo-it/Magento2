@@ -92,8 +92,7 @@ class PaymentFee extends AbstractHelper
         $totals = [];
         $store = $this->getStoreFromDataObject($dataObject);
 
-        $taxClassId = $this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
-        $isIncludingTax = $this->isFeeDisplayTypeIncludingTax($taxClassId);
+        $displayType = $this->configProviderBuckarooFee->getSalesDisplayType($store);
 
         $label = $this->getBuckarooPaymentFeeLabel();
         $fee = $dataObject->getBuckarooFee();
@@ -101,22 +100,23 @@ class PaymentFee extends AbstractHelper
         $baseFee = $dataObject->getBaseBuckarooFee();
         $baseFeeTaxAmount = $dataObject->getBuckarooFeeBaseTaxAmount();
 
-        // Add the fee total line depending on the display type
-        if ($isIncludingTax) {
-            $this->addTotalToTotals(
-                $totals,
-                'buckaroo_fee_incl',
-                $fee + $feeTaxAmount,
-                $baseFee + $baseFeeTaxAmount,
-                $label . __(' (Incl. Tax)')
-            );
-        } else {
+        // Add the fee total line(s) depending on the configured display type
+        if ($this->isFeeDisplayTypeExcludingTax($displayType)) {
             $this->addTotalToTotals(
                 $totals,
                 'buckaroo_fee',
                 $fee,
                 $baseFee,
                 $label . __(' (Excl. Tax)')
+            );
+        }
+        if ($this->isFeeDisplayTypeIncludingTax($displayType)) {
+            $this->addTotalToTotals(
+                $totals,
+                'buckaroo_fee_incl',
+                $fee + $feeTaxAmount,
+                $baseFee + $baseFeeTaxAmount,
+                $label . __(' (Incl. Tax)')
             );
         }
 
@@ -147,7 +147,7 @@ class PaymentFee extends AbstractHelper
     }
 
     /**
-     * Determine if the fee display type is set to "Including Tax".
+     * Determine if the fee is shown including tax ("Including Tax" or "Both").
      *
      * @param mixed $displayType
      *
@@ -155,7 +155,23 @@ class PaymentFee extends AbstractHelper
      */
     protected function isFeeDisplayTypeIncludingTax($displayType)
     {
-        return (int)$displayType === DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
+        return in_array(
+            (int)$displayType,
+            [DisplayType::DISPLAY_TYPE_INCLUDING_TAX, DisplayType::DISPLAY_TYPE_BOTH],
+            true
+        );
+    }
+
+    /**
+     * Determine if the fee is shown excluding tax ("Excluding Tax", "Both", or no valid setting).
+     *
+     * @param mixed $displayType
+     *
+     * @return bool
+     */
+    protected function isFeeDisplayTypeExcludingTax($displayType)
+    {
+        return (int)$displayType !== DisplayType::DISPLAY_TYPE_INCLUDING_TAX;
     }
 
     /**
@@ -197,7 +213,7 @@ class PaymentFee extends AbstractHelper
                         $totals,
                         'buckaroo_already_paid_' . $item['transaction_id'],
                         $amount,
-                        $amount,
+                        $this->toBaseCurrencyAmount($dataObject, $amount),
                         $label
                     );
                 }
@@ -207,7 +223,7 @@ class PaymentFee extends AbstractHelper
                     $totals,
                     'buckaroo_already_paid',
                     $alreadyPayed,
-                    $alreadyPayed,
+                    $this->toBaseCurrencyAmount($dataObject, (float)$alreadyPayed),
                     __('Paid with Giftcard / Voucher')
                 );
             }
@@ -288,6 +304,32 @@ class PaymentFee extends AbstractHelper
                 );
             }
         }
+    }
+
+    /**
+     * Express a group transaction amount, which is in the order currency, in the base currency.
+     *
+     * @param mixed $dataObject Order, Invoice or Creditmemo
+     * @param float $amount
+     *
+     * @return float
+     */
+    protected function toBaseCurrencyAmount($dataObject, float $amount): float
+    {
+        $order = $dataObject instanceof Order ? $dataObject : null;
+        if ($dataObject instanceof Invoice || $dataObject instanceof Creditmemo) {
+            $order = $dataObject->getOrder();
+        }
+
+        if (!$order instanceof Order
+            || $order->getBaseCurrencyCode() === $order->getOrderCurrencyCode()
+        ) {
+            return $amount;
+        }
+
+        $rate = (float)$order->getBaseToOrderRate();
+
+        return $rate > 0 ? round($amount / $rate, 2) : $amount;
     }
 
     /**

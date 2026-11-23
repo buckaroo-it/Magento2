@@ -77,7 +77,6 @@ class BuckarooFee extends DefaultTotal
     public function getTotalsForDisplay(): array
     {
         $order    = $this->getOrder();
-        $store    = $order->getStore();
         $label    = rtrim($this->paymentFee->getBuckarooPaymentFeeLabel(), ':');
         /** @phpstan-ignore-next-line */
         $fontSize = $this->getFontSize() ?: 7;
@@ -94,17 +93,11 @@ class BuckarooFee extends DefaultTotal
         }
         $amountIncl = $order->formatPriceTxt($incl);
 
-        // test stubs ScopeConfig->getValue() to return the desired display type
         $displayType = (int)$this->scopeConfig->getValue(
-            'buckaroo/fee/display', // path not asserted in the test
+            ConfigProviderBuckarooFee::XPATH_SALES_DISPLAY_BUCKAROO_FEE,
             ScopeInterface::SCOPE_STORE,
-            $store
+            $order->getStoreId()
         );
-
-        // optional fallback to your current provider if needed
-        if (!$displayType && method_exists($this->configProviderBuckarooFee, 'getBuckarooFeeTaxClass')) {
-            $displayType = (int)$this->configProviderBuckarooFee->getBuckarooFeeTaxClass($store);
-        }
 
         switch ($displayType) {
             case DisplayType::DISPLAY_TYPE_INCLUDING_TAX:
