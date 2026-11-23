@@ -41,12 +41,23 @@ class PayPerEmailTemplateTest extends TestCase
             return htmlspecialchars((string)$value, ENT_QUOTES);
         });
 
-        $render = function (string $template) use ($block): string {
-            ob_start();
-            include $template;
-            return (string)ob_get_clean();
-        };
-        return $render(self::TEMPLATE);
+        return $this->includeTemplate(self::TEMPLATE, $block);
+    }
+
+    /**
+     * Include the template the way Magento's PHP template engine does: with $block in scope
+     *
+     * @param string $template
+     * @param Form   $block
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    private function includeTemplate(string $template, Form $block): string
+    {
+        ob_start();
+        include $template;
+        return (string)ob_get_clean();
     }
 
     private function parentWith($viewModel): AbstractBlock
