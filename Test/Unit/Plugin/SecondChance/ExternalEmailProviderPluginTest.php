@@ -32,6 +32,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * "Fallback to Magento Mail" is respected both when the provider throws and when it reports a failure.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ExternalEmailProviderPluginTest extends TestCase
 {

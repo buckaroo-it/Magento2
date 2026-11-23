@@ -17,6 +17,7 @@ namespace Buckaroo\Magento2\Test\Unit\Service\Sales\Quote;
 
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Service\Sales\Quote\Recreate;
+use Buckaroo\Magento2\Test\Unit\Stubs\PaymentInfoStub;
 use Magento\Framework\DataObject;
 use Magento\Payment\Helper\Data as PaymentHelper;
 use Magento\Payment\Model\MethodInterface;
@@ -69,17 +70,7 @@ class RecreatePaymentMethodTest extends TestCase
 
     private function payment(array $data = []): DataObject
     {
-        return new class($data) extends DataObject {
-            /**
-             * Same contract as the payment info's setAdditionalInformation($key, $value)
-             */
-            public function setAdditionalInformation($key, $value = null)
-            {
-                $info = (array)$this->getData('additional_information');
-                $info[$key] = $value;
-                return $this->setData('additional_information', $info);
-            }
-        };
+        return new PaymentInfoStub($data);
     }
 
     private function oldPayment(): DataObject
