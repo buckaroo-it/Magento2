@@ -109,15 +109,18 @@ class TransferProcessor extends DefaultProcessor
                 $saveInvoice = false;
             }
 
+            // The pushed amount is in the order currency; the base_* totals need it in the base currency.
+            $baseAmount = $this->toBaseCurrencyAmount((float)$amount);
+
             $this->order->setTotalDue($this->order->getTotalDue() - $amount);
-            $this->order->setBaseTotalDue($this->order->getBaseTotalDue() - $amount);
+            $this->order->setBaseTotalDue($this->order->getBaseTotalDue() - $baseAmount);
 
             $totalPaid = $this->order->getTotalPaid() + $amount;
             $this->order->setTotalPaid(
                 $totalPaid > $this->order->getGrandTotal() ? $this->order->getGrandTotal() : $totalPaid
             );
 
-            $baseTotalPaid = $this->order->getBaseTotalPaid() + $amount;
+            $baseTotalPaid = $this->order->getBaseTotalPaid() + $baseAmount;
             $this->order->setBaseTotalPaid(
                 $baseTotalPaid > $this->order->getBaseGrandTotal() ?
                     $this->order->getBaseGrandTotal() : $baseTotalPaid

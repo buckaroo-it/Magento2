@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -96,7 +97,7 @@ class GroupTransactionRegister implements ObserverInterface
                 var_export([$order->getTotalPaid(), $item['amount']], true)
             ));
             $totalPaid = $order->getTotalPaid() + $item['amount'];
-            $baseTotalPaid = $order->getBaseTotalPaid() + $item['amount'];
+            $baseTotalPaid = $order->getBaseTotalPaid() + $this->toBaseCurrencyAmount($order, $item);
             if (($totalPaid < $order->getGrandTotal())
                 || ($this->helper->areEqualAmounts($totalPaid, $order->getGrandTotal()))
             ) {
@@ -108,5 +109,28 @@ class GroupTransactionRegister implements ObserverInterface
                 $order->setBaseTotalPaid($baseTotalPaid);
             }
         }
+    }
+
+    /**
+     * Express a group transaction amount, which is in the transaction (order) currency, in the base currency
+     *
+     * @param Order        $order
+     * @param array|object $item
+     *
+     * @return float
+     */
+    private function toBaseCurrencyAmount(Order $order, $item): float
+    {
+        $amount = (float)$item['amount'];
+        $baseCurrency = strtoupper((string)$order->getBaseCurrencyCode());
+        $currency = strtoupper((string)($item['currency'] ?? $order->getOrderCurrencyCode()));
+
+        if ($currency === '' || $currency === $baseCurrency) {
+            return $amount;
+        }
+
+        $rate = (float)$order->getBaseToOrderRate();
+
+        return $rate > 0 ? round($amount / $rate, 2) : 0.0;
     }
 }

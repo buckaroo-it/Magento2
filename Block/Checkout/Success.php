@@ -139,11 +139,19 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     /**
      * Format price in order currency.
      *
+     * The transfer amount is already in the order currency (it is the Buckaroo transaction amount),
+     * so it must be formatted without converting it from base to the current display currency.
+     *
      * @param float $amount
      * @return string
      */
     public function formatPrice(float $amount): string
     {
+        $order = $this->getOrder();
+        if ($order instanceof \Magento\Sales\Model\Order && $order->getOrderCurrencyCode()) {
+            return $order->getOrderCurrency()->formatPrecision($amount, 2, [], false);
+        }
+
         return $this->priceHelper->currency($amount, true, false);
     }
 

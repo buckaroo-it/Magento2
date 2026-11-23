@@ -35,6 +35,8 @@ use Magento\Payment\Gateway\ConfigInterface;
  */
 class AdminInfo extends ConfigurableInfo
 {
+    use GroupTransactionAmountFormatter;
+
     /**
      * @var PaymentGroupTransaction
      */
@@ -264,7 +266,8 @@ class AdminInfo extends ConfigurableInfo
                     'code' => $partialPayment['code'],
                     'label' => $partialPayment['label'],
                     'logo' => $partialPayment['logo'],
-                    'amount' => $item['amount'] ?? null
+                    'amount' => $item['amount'] ?? null,
+                    'currency' => $item['currency'] ?? null
                 ];
             } else {
                 // It's a regular payment method (ideal, alipay, paypal, etc)
@@ -274,7 +277,8 @@ class AdminInfo extends ConfigurableInfo
                     'code' => strtolower($servicecode),
                     'label' => $label,
                     'logo' => null,
-                    'amount' => $item['amount'] ?? null
+                    'amount' => $item['amount'] ?? null,
+                    'currency' => $item['currency'] ?? null
                 ];
             }
         }

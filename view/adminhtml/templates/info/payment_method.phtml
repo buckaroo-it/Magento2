@@ -36,7 +36,7 @@ if (!empty($allPaymentMethods)) {
             <div class="bk-label-wrap">
                 <?php echo $block->escapeHtml($paymentMethod['label']) ?>
                 <?php if (isset($paymentMethod['amount'])): ?>
-                    <span style="color: #666; font-size: 0.9em;"> (€<?php echo $block->escapeHtml(number_format((float)$paymentMethod['amount'], 2)) ?>)</span>
+                    <span style="color: #666; font-size: 0.9em;"> (<?php echo $block->escapeHtml($block->formatGroupTransactionAmount($paymentMethod['amount'], $paymentMethod['currency'] ?? null)) ?>)</span>
                 <?php endif; ?>
             </div>
         </div>

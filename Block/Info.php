@@ -27,6 +27,8 @@ use Magento\Framework\View\Element\Template\Context;
 
 class Info extends \Magento\Payment\Block\Info
 {
+    use GroupTransactionAmountFormatter;
+
     /**
      * @var PaymentGroupTransaction
      */
@@ -216,7 +218,8 @@ class Info extends \Magento\Payment\Block\Info
                     'code' => $partialPayment['code'],
                     'label' => $partialPayment['label'],
                     'logo' => $partialPayment['logo'],
-                    'amount' => $item['amount'] ?? null
+                    'amount' => $item['amount'] ?? null,
+                    'currency' => $item['currency'] ?? null
                 ];
             } elseif ($issuer = $this->getCreditcardIssuerByCode($servicecode)) {
                 // It's a creditcard brand (visa, mastercard, amex, ...) used for the remainder payment
@@ -225,7 +228,8 @@ class Info extends \Magento\Payment\Block\Info
                     'code' => strtolower($servicecode),
                     'label' => $issuer['name'],
                     'logo' => null,
-                    'amount' => $item['amount'] ?? null
+                    'amount' => $item['amount'] ?? null,
+                    'currency' => $item['currency'] ?? null
                 ];
             } else {
                 // It's a regular payment method (ideal, alipay, paypal, etc)
@@ -235,7 +239,8 @@ class Info extends \Magento\Payment\Block\Info
                     'code' => strtolower($servicecode),
                     'label' => $label,
                     'logo' => null,
-                    'amount' => $item['amount'] ?? null
+                    'amount' => $item['amount'] ?? null,
+                    'currency' => $item['currency'] ?? null
                 ];
             }
         }

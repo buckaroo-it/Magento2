@@ -166,8 +166,27 @@ class GiftcardTotals extends Template
             'code'  => 'buckaroo_giftcard_' . $servicecode,
             'label' => __('Paid with %1', $label),
             'value' => (float)$amount,
-            'base_value' => (float)$amount,
+            'base_value' => $this->toBaseCurrencyAmount($order, (float)$amount),
         ];
+    }
+
+    /**
+     * Express an amount in the order currency (the Buckaroo transaction currency) in the base currency
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @param float                      $amount
+     *
+     * @return float
+     */
+    private function toBaseCurrencyAmount($order, float $amount): float
+    {
+        if ($order->getBaseCurrencyCode() === $order->getOrderCurrencyCode()) {
+            return $amount;
+        }
+
+        $rate = (float)$order->getBaseToOrderRate();
+
+        return $rate > 0 ? round($amount / $rate, 2) : $amount;
     }
 
     /**

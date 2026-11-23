@@ -50,5 +50,13 @@
         <section id="payment">
             <include path="Buckaroo_Magento2::system/payment_methods.xml"/>
         </section>
+        <section id="tax">
+            <group id="sales_display">
+                <field id="buckaroo_fee" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Display Buckaroo Payment Fee</label>
+                    <source_model>Buckaroo\Magento2\Model\Config\Source\Display\Type</source_model>
+                </field>
+            </group>
+        </section>
     </system>
 </config>
