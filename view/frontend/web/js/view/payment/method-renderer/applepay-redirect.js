@@ -23,7 +23,8 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'buckaroo/checkout/common',
         'buckaroo/applepay/pay',
-        'BuckarooSdk'
+        'BuckarooSdk',
+        'mage/url'
     ],
     function (
         $,
@@ -35,7 +36,9 @@ define(
         checkoutData,
         selectPaymentMethodAction,
         checkoutCommon,
-        applepayPay
+        applepayPay,
+        BuckarooSdk,
+        url
     ) {
         'use strict';
 

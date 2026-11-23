@@ -19,6 +19,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\ExternalEmailProvider as ExternalEmai
 use Buckaroo\Magento2\Model\ConfigProvider\SecondChance as SecondChanceConfig;
 use Buckaroo\Magento2\Service\EmailProvider\EmailSender;
 use Buckaroo\Magento2\Logging\Log;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Mail\Template\FactoryInterface as TemplateFactory;
@@ -154,9 +155,12 @@ class ExternalEmailProviderPlugin
                 return $proceed($order, $secondChance, $step);
             }
 
-            $this->logger->addError("{$providerName} failed and fallback is disabled: " .
-                               ($result['error'] ?? 'Unknown error'));
-            return $proceed($order, $secondChance, $step);
+            // Fallback disabled: do not send through Magento mail; fail like the exception path does
+            throw new LocalizedException(__(
+                '%1 failed and fallback is disabled: %2',
+                $providerName,
+                $result['error'] ?? 'Unknown error'
+            ));
         } catch (\Exception $e) {
             // Log error
             $this->logger->addError('External email provider error: ' . $e->getMessage());
