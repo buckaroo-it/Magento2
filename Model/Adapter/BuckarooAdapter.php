@@ -33,7 +33,6 @@ use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Service\TransactionOperationValidator;
 use Buckaroo\PaymentMethods\CreditManagement\CreditManagement;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Locale\Resolver;
@@ -90,20 +89,20 @@ class BuckarooAdapter
     private $transactionOperationValidator;
 
     /**
-     * @var PaymentMethodCodeResolver|null
+     * @var PaymentMethodCodeResolver
      */
     private $paymentMethodCodeResolver;
 
     /**
-     * @param ConfigProviderFactory          $configProviderFactory
-     * @param Encryptor                      $encryptor
-     * @param BuckarooLoggerInterface        $logger
-     * @param ProductMetadataInterface       $productMetadata
-     * @param Resolver                       $localeResolver
-     * @param StoreManagerInterface          $storeManager
-     * @param TransactionOperationValidator  $transactionOperationValidator
-     * @param array|null                     $mapPaymentMethods
-     * @param PaymentMethodCodeResolver|null $paymentMethodCodeResolver
+     * @param ConfigProviderFactory         $configProviderFactory
+     * @param Encryptor                     $encryptor
+     * @param BuckarooLoggerInterface       $logger
+     * @param ProductMetadataInterface      $productMetadata
+     * @param Resolver                      $localeResolver
+     * @param StoreManagerInterface         $storeManager
+     * @param TransactionOperationValidator $transactionOperationValidator
+     * @param PaymentMethodCodeResolver     $paymentMethodCodeResolver
+     * @param array|null                    $mapPaymentMethods
      */
     public function __construct(
         ConfigProviderFactory $configProviderFactory,
@@ -113,8 +112,8 @@ class BuckarooAdapter
         Resolver $localeResolver,
         StoreManagerInterface $storeManager,
         TransactionOperationValidator $transactionOperationValidator,
-        ?array $mapPaymentMethods = null,
-        ?PaymentMethodCodeResolver $paymentMethodCodeResolver = null
+        PaymentMethodCodeResolver $paymentMethodCodeResolver,
+        ?array $mapPaymentMethods = null
     ) {
         $this->mapPaymentMethods = $mapPaymentMethods;
         $this->logger = $logger;
@@ -413,10 +412,6 @@ class BuckarooAdapter
      */
     private function resolveConfigProviderType(string $paymentMethod): string
     {
-        if ($this->paymentMethodCodeResolver === null) {
-            $this->paymentMethodCodeResolver = ObjectManager::getInstance()->get(PaymentMethodCodeResolver::class);
-        }
-
         $methodCode = $this->paymentMethodCodeResolver->resolve($paymentMethod);
 
         return $methodCode === null ? $paymentMethod : str_replace('buckaroo_magento2_', '', $methodCode);
