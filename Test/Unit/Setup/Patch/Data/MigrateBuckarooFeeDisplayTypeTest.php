@@ -39,7 +39,7 @@ class MigrateBuckarooFeeDisplayTypeTest extends TestCase
 
         $inserted = [];
         $connection->method('insert')->willReturnCallback(function ($table, array $data) use (&$inserted) {
-            $inserted[] = [$data['scope'], $data['scope_id'], $data['path'], $data['value']];
+            $inserted[] = [$table, $data['scope'], $data['scope_id'], $data['path'], $data['value']];
             return 1;
         });
 
@@ -47,9 +47,9 @@ class MigrateBuckarooFeeDisplayTypeTest extends TestCase
 
         $this->assertSame(
             [
-                ['default', 0, 'tax/sales_display/buckaroo_fee', '2'],
-                ['websites', 1, 'tax/sales_display/buckaroo_fee', '1'],
-                ['stores', 3, 'tax/sales_display/buckaroo_fee', '1'],
+                ['core_config_data', 'default', 0, 'tax/sales_display/buckaroo_fee', '2'],
+                ['core_config_data', 'websites', 1, 'tax/sales_display/buckaroo_fee', '1'],
+                ['core_config_data', 'stores', 3, 'tax/sales_display/buckaroo_fee', '1'],
             ],
             $inserted
         );

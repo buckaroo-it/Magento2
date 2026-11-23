@@ -49,7 +49,9 @@ class CheckoutSupportTest extends BaseTest
     {
         $moduleManager = $this->createMock(ModuleManager::class);
         $moduleManager->method('isEnabled')->willReturnCallback(
-            static fn (string $module): bool => $modules[$module] ?? false
+            static function (string $module) use ($modules): bool {
+                return $modules[$module] ?? false;
+            }
         );
 
         $storeValue = static function (string $path, string $scope, $storeId) use ($config) {
@@ -60,7 +62,9 @@ class CheckoutSupportTest extends BaseTest
         $scopeConfig = $this->createMock(ScopeConfigInterface::class);
         $scopeConfig->method('getValue')->willReturnCallback($storeValue);
         $scopeConfig->method('isSetFlag')->willReturnCallback(
-            static fn (string $path, string $scope, $storeId): bool => !empty($storeValue($path, $scope, $storeId))
+            static function (string $path, string $scope, $storeId) use ($storeValue): bool {
+                return !empty($storeValue($path, $scope, $storeId));
+            }
         );
 
         return new CheckoutSupport($scopeConfig, $moduleManager, $stepClass);
