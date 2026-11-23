@@ -10,9 +10,12 @@ use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\RequestPush\JsonPushRequest;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Validator\PushSDK;
+use Buckaroo\Magento2\Service\Push\RequestUriResolver;
 use Buckaroo\Magento2\Service\Store\PushUrlBuilder;
 use Buckaroo\Magento2\Test\BaseTest;
+use Laminas\Uri\Http as HttpUri;
 use Magento\Framework\Encryption\Encryptor;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Webapi\Request;
@@ -61,6 +64,24 @@ class PushSdkSignatureTest extends BaseTest
         }
     }
 
+    /**
+     * End to end over the real HMAC: the gateway called a URL with index.php that the rebuilt
+     * push URL does not reproduce. Reading it from the request is what makes this verify; the
+     * same signature presented on a different path must not.
+     */
+    public function testSignatureOverTheCalledUriVerifiesWithoutTheRebuiltUrl(): void
+    {
+        $called = 'https://shop.example/index.php/rest/default/V1/buckaroo/push';
+        $payload = ['Transaction' => ['Invoice' => 'SIGNED-ORDER', 'Status' => ['Code' => ['Code' => 190]]]];
+        $header = (new Generator(new DefaultConfig(self::WEBSITE, self::SECRET), $payload, $called))->generate();
+
+        $this->assertTrue($this->validator(json_encode($payload), $header, $called)->validate(null));
+        $this->assertFalse(
+            $this->validator(json_encode($payload), $header, 'https://shop.example/rest/other/V1/buckaroo/push')
+                ->validate(null)
+        );
+    }
+
     public function testAdapterStillSelectsHttpPostForFormPayloads(): void
     {
         $payload = [
@@ -88,15 +109,25 @@ class PushSdkSignatureTest extends BaseTest
         return new JsonPushRequest($payload, $this->validator(json_encode($payload), $header));
     }
 
-    private function validator(string $content, $header): PushSDK
+    private function validator(string $content, $header, string $calledUri = self::URI): PushSDK
     {
         $httpRequest = $this->createStub(Request::class);
         $httpRequest->method('getContent')->willReturn($content);
-        $httpRequest->method('getHeader')->willReturn($header);
+        $httpRequest->method('getHeader')->willReturnCallback(
+            fn(string $name) => $name === 'Authorization' ? $header : false
+        );
+        $httpRequest->method('getUri')->willReturn(new HttpUri($calledUri));
+        $httpRequest->method('getScheme')->willReturn('https');
         $pushUrlBuilder = $this->createStub(PushUrlBuilder::class);
         $pushUrlBuilder->method('getCandidateUris')->willReturn([self::URI]);
 
-        return new PushSDK($this->adapter(), $httpRequest, $pushUrlBuilder);
+        return new PushSDK(
+            $this->adapter(),
+            $httpRequest,
+            $pushUrlBuilder,
+            new RequestUriResolver($httpRequest),
+            $this->createStub(BuckarooLoggerInterface::class)
+        );
     }
 
     private function adapter(): BuckarooAdapter
