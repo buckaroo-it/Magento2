@@ -26,6 +26,7 @@ use Magento\Sales\Model\Order as MagentoOrder;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Buckaroo\Magento2\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
@@ -36,6 +37,11 @@ use Magento\Framework\DB\Sql\Expression;
  */
 class Order
 {
+    /**
+     * @var CancelGuard|null
+     */
+    private ?CancelGuard $cancelGuard = null;
+
     /**
      * Days past the due date that the expiry crons still act on an order.
      *
@@ -326,6 +332,59 @@ class Order
      * @return bool
      */
     public function cancel(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool
+    {
+        if (!$order->getId()) {
+            return $this->cancelUnlocked($order, $statusCode, $statusMessage);
+        }
+
+        // Under the order lock the push uses, on the order as it is now: a push may have paid it meanwhile
+        $result = $this->getCancelGuard()->runLocked(
+            (int)$order->getId(),
+            'payment failed or expired',
+            function (MagentoOrder $freshOrder) use ($statusCode, $statusMessage) {
+                if ($freshOrder->getState() !== MagentoOrder::STATE_CANCELED) {
+                    $blocker = $this->getCancelGuard()->getCancelBlocker($freshOrder);
+                    if ($blocker !== null && $freshOrder->getPayment()->getMethod() !== 'buckaroo_magento2_payperemail') {
+                        $this->logger->addDebug(sprintf(
+                            '[CANCEL_ORDER] | [Service] | [%s:%s] - Not cancelling order %s: %s',
+                            __METHOD__,
+                            __LINE__,
+                            $freshOrder->getIncrementId(),
+                            $blocker
+                        ));
+                        return false;
+                    }
+                }
+
+                return $this->cancelUnlocked($freshOrder, $statusCode, $statusMessage);
+            }
+        );
+
+        return $result === true;
+    }
+
+    /**
+     * Get cancel guard
+     *
+     * @return CancelGuard
+     */
+    private function getCancelGuard(): CancelGuard
+    {
+        return $this->cancelGuard ??= \Magento\Framework\App\ObjectManager::getInstance()->get(CancelGuard::class);
+    }
+
+    /**
+     * Cancel the order as given, without taking the order lock
+     *
+     * @param MagentoOrder $order
+     * @param int|null     $statusCode
+     * @param string|null  $statusMessage
+     *
+     * @throws LocalizedException
+     *
+     * @return bool
+     */
+    private function cancelUnlocked(MagentoOrder $order, ?int $statusCode, ?string $statusMessage = null): bool
     {
         $paymentMethodCode = $order->getPayment()->getMethod();
         $paymentMethodName = str_replace('buckaroo_magento2_', '', $paymentMethodCode);

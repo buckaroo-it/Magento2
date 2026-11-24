@@ -32,6 +32,9 @@ use Buckaroo\Magento2\Model\PaymentMethodCodeResolver;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Service\TransactionOperationValidator;
 use Buckaroo\PaymentMethods\CreditManagement\CreditManagement;
+use Buckaroo\Transaction\Client as SdkTransactionClient;
+use Buckaroo\Transaction\Request\Request as SdkRequest;
+use Buckaroo\Transaction\Response\Response as SdkResponse;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Encryption\Encryptor;
@@ -43,6 +46,9 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class BuckarooAdapter
 {
+    /** Total and connect timeout (seconds) for status lookups after a lost answer */
+    private const LOOKUP_TIMEOUTS = [6, 3];
+
     /**
      * @var BuckarooClient
      */
@@ -218,6 +224,7 @@ class BuckarooAdapter
      * @param bool        $skipActiveCheck
      * @param bool|null   $originalTransactionWasTest  Whether original transaction was in test mode
      * @param string|null $cultureOverride             Culture code derived from the order billing country
+     * @param array|null  $timeouts                    [total, connect] in seconds, instead of the configured ones
      * @throws \Exception
      * @return void
      */
@@ -226,7 +233,8 @@ class BuckarooAdapter
         ?int $orderStoreId = null,
         bool $skipActiveCheck = false,
         ?bool $originalTransactionWasTest = null,
-        ?string $cultureOverride = null
+        ?string $cultureOverride = null,
+        ?array $timeouts = null
     ): void {
         /** @var Account $configProviderAccount */
         $configProviderAccount = $this->configProviderFactory->get('account');
@@ -265,9 +273,89 @@ class BuckarooAdapter
             $culture,
             null, // channel
             null, // logger: the SDK falls back to its own DefaultLogger
-            $configProviderAccount->getHttpTimeout($storeId),
-            $configProviderAccount->getHttpConnectTimeout($storeId)
+            $timeouts[0] ?? $configProviderAccount->getHttpTimeout($storeId),
+            $timeouts[1] ?? $configProviderAccount->getHttpConnectTimeout($storeId)
         ));
+    }
+
+    /**
+     * Every transaction Buckaroo has for an invoice number: [['key' => ..., 'status' => int], ...]
+     *
+     * Used after a request whose answer was lost, so it runs with short timeouts.
+     *
+     * @param string    $method
+     * @param int|null  $orderStoreId
+     * @param string    $invoice
+     * @param bool|null $originalTransactionWasTest
+     *
+     * @throws \Throwable
+     *
+     * @return array
+     */
+    public function getTransactionsByInvoice(
+        string $method,
+        ?int $orderStoreId,
+        string $invoice,
+        ?bool $originalTransactionWasTest = null
+    ): array {
+        $this->setClientSdk($method, $orderStoreId, true, $originalTransactionWasTest, null, self::LOOKUP_TIMEOUTS);
+
+        $client = new class($this->buckaroo->client()->config()) extends SdkTransactionClient {
+            /**
+             * Transactions of the invoices in the request
+             *
+             * @param SdkRequest $request
+             *
+             * @return SdkResponse
+             */
+            public function statuses(SdkRequest $request): SdkResponse
+            {
+                return $this->call(
+                    'POST',
+                    SdkResponse::class,
+                    $request,
+                    $this->getEndpoint('json/Transaction/Statuses')
+                );
+            }
+        };
+
+        $request = new SdkRequest();
+        $request['Transactions'] = [['Invoice' => $invoice]];
+
+        $transactions = [];
+        foreach ((array)($client->statuses($request)->toArray()['Transactions'] ?? []) as $transaction) {
+            if (!empty($transaction['Key'])) {
+                $transactions[] = [
+                    'key'    => (string)$transaction['Key'],
+                    'status' => (int)($transaction['Status']['Code']['Code'] ?? 0),
+                ];
+            }
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * Full status of one transaction, shaped like the answer to the request that created it
+     *
+     * @param string    $method
+     * @param int|null  $orderStoreId
+     * @param string    $transactionKey
+     * @param bool|null $originalTransactionWasTest
+     *
+     * @throws \Throwable
+     *
+     * @return TransactionResponse
+     */
+    public function getTransactionStatus(
+        string $method,
+        ?int $orderStoreId,
+        string $transactionKey,
+        ?bool $originalTransactionWasTest = null
+    ): TransactionResponse {
+        $this->setClientSdk($method, $orderStoreId, true, $originalTransactionWasTest, null, self::LOOKUP_TIMEOUTS);
+
+        return $this->buckaroo->transaction($transactionKey)->status();
     }
 
     /**
