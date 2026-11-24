@@ -53,7 +53,7 @@ class Add extends AbstractApplepay
             '[ApplePay] | [Controller] | [%s:%s] - Add Product to Cart | Request Params: %s',
             __METHOD__,
             __LINE__,
-            var_export($params, true)
+            var_export(array_keys((array)$params), true)
         ));
 
         $data = $this->addService->process($params);
