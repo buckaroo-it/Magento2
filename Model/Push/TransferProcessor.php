@@ -80,8 +80,8 @@ class TransferProcessor extends DefaultProcessor
         if ($this->isTransactionKeyApplied()) {
             // This payment is already part of the order totals: keep the order as it is.
             $paymentDetails['state'] = $this->order->getState();
-            $paymentDetails['newStatus'] = $this->order->getStatus();
-            $paymentDetails['description'] = __(
+            $paymentDetails['newStatus'] = (string)$this->order->getStatus();
+            $paymentDetails['description'] = (string)__(
                 'Payment Push Status: %1',
                 '<strong>' . __('already processed') . '</strong>'
             );

@@ -43,6 +43,9 @@ class TransferTransactionKeyTest extends \Buckaroo\Magento2\Test\BaseTest
         // the repeated payment leaves the order state and status as they are
         $this->assertSame(Order::STATE_NEW, $second['state']);
         $this->assertSame('pending', $second['newStatus']);
+        // updateOrderStatus() takes strings under strict_types, so no Phrase may reach it
+        $this->assertIsString($second['description']);
+        $this->assertStringContainsString('already processed', $second['description']);
     }
 
     public function testNewTransactionKeyIsAppliedAgain(): void
