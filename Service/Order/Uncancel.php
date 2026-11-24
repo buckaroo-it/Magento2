@@ -13,6 +13,7 @@
 
 namespace Buckaroo\Magento2\Service\Order;
 
+use Magento\Framework\App\ObjectManager;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Module\Manager;
@@ -23,6 +24,8 @@ use Magento\Sales\Model\Order;
 
 /**
  * Service to properly uncancel/reactivate orders
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Uncancel
 {
@@ -140,36 +143,143 @@ class Uncancel
      */
     private function updateOrderItems(OrderInterface $order): void
     {
-        /** @var OrderItemInterface $item */
-        foreach ($order->getAllItems() as $item) {
-            if ($this->isInventorySalesApiEnabled) {
-                $this->restoreInventoryReservation($item);
-            }
+        // What the cancel gave back to stock, read before the items are reset
+        $released = $this->getReleasedQuantities($order);
 
+        foreach ($order->getAllItems() as $item) {
             $this->uncancelItem($item);
+        }
+
+        if ($released !== []) {
+            $this->reserveStockAgain($order, $released);
         }
     }
 
     /**
-     * Restore inventory reservation for MSI
+     * Quantities the cancel returned to stock, per simple product: [sku => [productId, qty]]
      *
-     * @param OrderItemInterface $item
+     * @param OrderInterface $order
+     *
+     * @return array
+     */
+    private function getReleasedQuantities(OrderInterface $order): array
+    {
+        $released = [];
+
+        foreach ($order->getAllItems() as $item) {
+            // Stock is kept on the simple products: skip parents (configurable, bundle) that have children
+            if (!empty($item->getChildrenItems()) || (float)$item->getQtyCanceled() <= 0) {
+                continue;
+            }
+
+            $sku = (string)$item->getSku();
+            $released[$sku] = [
+                (int)$item->getProductId(),
+                ($released[$sku][1] ?? 0) + (float)$item->getQtyCanceled(),
+                (string)$item->getProductType(),
+            ];
+        }
+
+        return $released;
+    }
+
+    /**
+     * Take the stock the cancel released again, as placing the order did
+     *
+     * @param OrderInterface $order
+     * @param array          $released
+     *
      * @return void
      */
-    private function restoreInventoryReservation(OrderItemInterface $item): void
+    private function reserveStockAgain(OrderInterface $order, array $released): void
     {
         try {
-            // For MSI (Multi-Source Inventory), we need to restore the reservation
-            // This is handled through events that MSI modules listen to
-            $this->eventManager->dispatch('sales_order_item_uncancel', ['item' => $item]);
-        } catch (\Exception $e) {
-            $this->logger->addDebug(sprintf(
-                '[UNCANCEL_ORDER] | [Service] | [%s:%s] - Failed to restore inventory for item %s: %s',
+            if ($this->isInventorySalesApiEnabled) {
+                $this->placeInventoryReservations($order, $released);
+            } else {
+                $this->registerLegacyStockSale($order, $released);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->addError(sprintf(
+                '[UNCANCEL_ORDER] | [Service] | [%s:%s] - Could not reserve stock again for order %s: %s',
                 __METHOD__,
                 __LINE__,
-                $item->getSku(),
+                $order->getIncrementId(),
                 $e->getMessage()
             ));
+        }
+    }
+
+    /**
+     * Multi-Source Inventory: a reservation per product, like the one made when the order was placed
+     *
+     * @param OrderInterface $order
+     * @param array          $released
+     *
+     * @return void
+     */
+    private function placeInventoryReservations(OrderInterface $order, array $released): void
+    {
+        $objectManager = ObjectManager::getInstance();
+        $isManaged = $objectManager->get(
+            \Magento\InventoryConfigurationApi\Model\IsSourceItemManagementAllowedForProductTypeInterface::class
+        );
+
+        $items = [];
+        foreach ($released as $sku => [, $qty, $productType]) {
+            if ($productType !== '' && !$isManaged->execute($productType)) {
+                continue;
+            }
+            $items[] = $objectManager->create(
+                \Magento\InventorySalesApi\Api\Data\ItemToSellInterface::class,
+                ['sku' => (string)$sku, 'qty' => -(float)$qty]
+            );
+        }
+
+        if ($items === []) {
+            return;
+        }
+
+        $salesChannel = $objectManager->create(
+            \Magento\InventorySalesApi\Api\Data\SalesChannelInterface::class,
+            ['data' => [
+                'type' => \Magento\InventorySalesApi\Api\Data\SalesChannelInterface::TYPE_WEBSITE,
+                'code' => $order->getStore()->getWebsite()->getCode(),
+            ]]
+        );
+        $salesEvent = $objectManager->create(
+            \Magento\InventorySalesApi\Api\Data\SalesEventInterface::class,
+            [
+                'type'       => \Magento\InventorySalesApi\Api\Data\SalesEventInterface::EVENT_ORDER_PLACED,
+                'objectType' => \Magento\InventorySalesApi\Api\Data\SalesEventInterface::OBJECT_TYPE_ORDER,
+                'objectId'   => (string)$order->getEntityId(),
+            ]
+        );
+
+        $objectManager->get(\Magento\InventorySalesApi\Api\PlaceReservationsForSalesEventInterface::class)
+            ->execute($items, $salesChannel, $salesEvent);
+    }
+
+    /**
+     * Single-source stock (no MSI): deduct the quantities again
+     *
+     * @param OrderInterface $order
+     * @param array          $released
+     *
+     * @return void
+     */
+    private function registerLegacyStockSale(OrderInterface $order, array $released): void
+    {
+        $quantities = [];
+        foreach ($released as [$productId, $qty]) {
+            if ($productId > 0) {
+                $quantities[$productId] = ($quantities[$productId] ?? 0) + $qty;
+            }
+        }
+
+        if ($quantities !== []) {
+            ObjectManager::getInstance()->get(\Magento\CatalogInventory\Api\StockManagementInterface::class)
+                ->registerProductsSale($quantities, (int)$order->getStore()->getWebsiteId());
         }
     }
 
