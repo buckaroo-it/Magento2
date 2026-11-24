@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service\Googlepay;
 
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Api\Data\BuckarooResponseDataInterface;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -25,6 +26,7 @@ use Magento\Sales\Model\Order;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class SaveOrderProcessor
 {
@@ -121,7 +123,7 @@ class SaveOrderProcessor
         $this->setQuoteShippingMethod($quote, $payload);
         $this->submitQuote($quote, $payload['extra'], $payload['payment']);
 
-        return $this->handleResponse((int)$quote->getStoreId());
+        return $this->handleResponse((int)$quote->getStoreId(), (string)$quote->getReservedOrderId());
     }
 
     /**
@@ -280,15 +282,20 @@ class SaveOrderProcessor
     /**
      * Handle response and prepare redirect or success data
      *
-     * @param int $storeId Store of the submitted quote
+     * @param int    $storeId         Store of the submitted quote
+     * @param string $reservedOrderId Order placed for the quote
      *
      * @return array
      * @throws Exception
      */
-    private function handleResponse(int $storeId): array
+    private function handleResponse(int $storeId, string $reservedOrderId = ''): array
     {
         $response = $this->buckarooResponseData->getResponse();
         if (!$response) {
+            // Buckaroo's answer was lost but the order was placed pending: the shopper may have paid
+            if ($reservedOrderId !== '' && $this->isWaitingForBuckaroo($reservedOrderId, $storeId)) {
+                return $this->prepareRedirect($reservedOrderId, $storeId);
+            }
             return [];
         }
 
@@ -301,6 +308,23 @@ class SaveOrderProcessor
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * Whether the order was placed pending because Buckaroo's answer to the payment was lost
+     *
+     * @param string $incrementId
+     * @param int    $storeId
+     *
+     * @return bool
+     */
+    private function isWaitingForBuckaroo(string $incrementId, int $storeId): bool
+    {
+        $order = $this->orderByIncrementId->get($incrementId, $storeId);
+
+        return $order !== null
+            && $order->getPayment()
+            && (bool)$order->getPayment()->getAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN);
     }
 
     /**
