@@ -5,6 +5,10 @@
             <schedule>0 */6 * * *</schedule>
         </job>
 
+        <job instance="Buckaroo\Magento2\Cron\ReconcileUnknownOutcomes" method="execute" name="buckaroo_magento2_reconcile_unknown_outcomes">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+
         <job instance="Buckaroo\Magento2\Cron\LogCleaner" method="execute" name="buckaroo_magento2_log_cleaner">
             <schedule>17 * * * *</schedule>
         </job>
