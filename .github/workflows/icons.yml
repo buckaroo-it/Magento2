@@ -38,7 +38,13 @@ jobs:
       - name: Copy payment issuers icons
         run: |
             cd Media
-            cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/view/base/web/images/ideal/
+            # The Media repo removed "iDEAL bank issuers" (Media#95). Keep the logos already in
+            # view/base/web/images/ideal/ (used by Pay by Bank) and only sync when the folder exists.
+            if [ -d "iDEAL bank issuers/SVG" ]; then
+              cp -R "iDEAL bank issuers/SVG/." ${{ github.workspace }}/view/base/web/images/ideal/
+            else
+              echo "Media repo has no 'iDEAL bank issuers/SVG' folder; keeping the existing issuer logos."
+            fi
       - name: Copy Identification methods icons
         run: |
           cd "${{ github.workspace }}/Media/Identification methods/SVG/"
