@@ -19,6 +19,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Idin as IdinConfigProvider;
 use Buckaroo\Magento2\Model\Idin\CheckoutSupport;
 use Buckaroo\Magento2\Model\Idin\VerificationGuard;
 use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
@@ -42,6 +43,9 @@ class VerificationGuardTest extends BaseTest
     /** @var CheckoutSupport|MockObject */
     private $checkoutSupport;
 
+    /** @var UserContextInterface|MockObject */
+    private $userContext;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -50,6 +54,7 @@ class VerificationGuardTest extends BaseTest
         $this->appState = $this->createMock(State::class);
         $this->logger = $this->createMock(BuckarooLoggerInterface::class);
         $this->checkoutSupport = $this->createMock(CheckoutSupport::class);
+        $this->userContext = $this->createMock(UserContextInterface::class);
     }
 
     private function getGuard(): VerificationGuard
@@ -58,7 +63,8 @@ class VerificationGuardTest extends BaseTest
             $this->idinConfigProvider,
             $this->appState,
             $this->logger,
-            $this->checkoutSupport
+            $this->checkoutSupport,
+            $this->userContext
         );
     }
 
@@ -76,16 +82,21 @@ class VerificationGuardTest extends BaseTest
     public static function shopperAreaProvider(): array
     {
         return [
-            'storefront' => [Area::AREA_FRONTEND],
-            'rest'       => [Area::AREA_WEBAPI_REST],
-            'graphql'    => [Area::AREA_GRAPHQL],
+            'storefront'       => [Area::AREA_FRONTEND, null],
+            'rest guest'       => [Area::AREA_WEBAPI_REST, UserContextInterface::USER_TYPE_GUEST],
+            'rest customer'    => [Area::AREA_WEBAPI_REST, UserContextInterface::USER_TYPE_CUSTOMER],
+            'soap customer'    => [Area::AREA_WEBAPI_SOAP, UserContextInterface::USER_TYPE_CUSTOMER],
+            'graphql guest'    => [Area::AREA_GRAPHQL, UserContextInterface::USER_TYPE_GUEST],
+            'graphql customer' => [Area::AREA_GRAPHQL, UserContextInterface::USER_TYPE_CUSTOMER],
+            'graphql no user'  => [Area::AREA_GRAPHQL, null],
         ];
     }
 
     #[DataProvider('shopperAreaProvider')]
-    public function testRefusesUnverifiedQuote(string $area): void
+    public function testRefusesUnverifiedQuote(string $area, ?int $userType): void
     {
         $this->appState->method('getAreaCode')->willReturn($area);
+        $this->userContext->method('getUserType')->willReturn($userType);
         $this->idinConfigProvider->method('getQuoteIdinStatus')->willReturn(['active' => true, 'verified' => false]);
 
         $this->expectException(LocalizedException::class);
@@ -118,6 +129,46 @@ class VerificationGuardTest extends BaseTest
     {
         $this->appState->method('getAreaCode')->willReturn(Area::AREA_ADMINHTML);
         $this->idinConfigProvider->expects($this->never())->method('getQuoteIdinStatus');
+
+        $this->getGuard()->assertVerified($this->getQuote());
+    }
+
+    public function testSkipsCronOrders(): void
+    {
+        $this->appState->method('getAreaCode')->willReturn(Area::AREA_CRONTAB);
+        $this->idinConfigProvider->expects($this->never())->method('getQuoteIdinStatus');
+
+        $this->getGuard()->assertVerified($this->getQuote());
+    }
+
+    public static function importAreaProvider(): array
+    {
+        return [
+            'rest integration'    => [Area::AREA_WEBAPI_REST, UserContextInterface::USER_TYPE_INTEGRATION],
+            'rest admin'          => [Area::AREA_WEBAPI_REST, UserContextInterface::USER_TYPE_ADMIN],
+            'soap integration'    => [Area::AREA_WEBAPI_SOAP, UserContextInterface::USER_TYPE_INTEGRATION],
+            'graphql integration' => [Area::AREA_GRAPHQL, UserContextInterface::USER_TYPE_INTEGRATION],
+            'graphql admin'       => [Area::AREA_GRAPHQL, UserContextInterface::USER_TYPE_ADMIN],
+        ];
+    }
+
+    #[DataProvider('importAreaProvider')]
+    public function testSkipsWebApiOrdersWithIntegrationOrAdminToken(string $area, int $userType): void
+    {
+        $this->appState->method('getAreaCode')->willReturn($area);
+        $this->userContext->method('getUserType')->willReturn($userType);
+        $this->idinConfigProvider->expects($this->never())->method('getQuoteIdinStatus');
+
+        $this->getGuard()->assertVerified($this->getQuote());
+    }
+
+    public function testDoesNotTrustUserContextOnTheStorefront(): void
+    {
+        $this->appState->method('getAreaCode')->willReturn(Area::AREA_FRONTEND);
+        $this->userContext->method('getUserType')->willReturn(UserContextInterface::USER_TYPE_ADMIN);
+        $this->idinConfigProvider->method('getQuoteIdinStatus')->willReturn(['active' => true, 'verified' => false]);
+
+        $this->expectException(LocalizedException::class);
 
         $this->getGuard()->assertVerified($this->getQuote());
     }
