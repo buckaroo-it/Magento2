@@ -132,10 +132,7 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
                         // phpcs:ignore Generic.Files.LineLength.TooLong -- one literal so the phrase stays translatable
                         __('Unfortunately an error occurred while processing your payment. Please try again. If this error persists, please choose a different payment method.')
                     );
-                    $url = $this->getStoreUrl(
-                        (string)($this->accountConfig->getFailureRedirect($store) ?: 'checkout/cart'),
-                        (int)$store->getId()
-                    );
+                    $url = $this->getFailureUrl($store);
                 }
 
                 $response = ['success' => 'true', 'redirect' => $url];
@@ -149,17 +146,42 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
     }
 
     /**
+     * Where to send the shopper after a failed payment, same settings as Redirect/Process::redirectFailure()
+     *
+     * @param \Magento\Store\Model\Store $store
+     *
+     * @return string
+     */
+    private function getFailureUrl($store): string
+    {
+        if ($this->accountConfig->getFailureRedirectToCheckout($store)) {
+            // bk_e makes the checkout show the error message added above
+            return $this->getStoreUrl('checkout#payment', (int)$store->getId(), ['bk_e' => 1]);
+        }
+
+        return $this->getStoreUrl(
+            (string)($this->accountConfig->getFailureRedirect($store) ?: 'checkout/cart'),
+            (int)$store->getId()
+        );
+    }
+
+    /**
      * Build a URL in the order's store from a configured path, keeping a #fragment (e.g. checkout#payment)
      *
      * @param string $path
      * @param int    $storeId
+     * @param array  $query
      *
      * @return string
      */
-    private function getStoreUrl(string $path, int $storeId): string
+    private function getStoreUrl(string $path, int $storeId, array $query = []): string
     {
         [$route, $fragment] = array_pad(explode('#', $path, 2), 2, null);
-        $url = $this->urlBuilder->getUrl(trim($route, '/'), ['_scope' => $storeId]);
+        $params = ['_scope' => $storeId];
+        if ($query) {
+            $params['_query'] = $query;
+        }
+        $url = $this->urlBuilder->getUrl(trim($route, '/'), $params);
 
         return $fragment !== null ? rtrim($url, '/') . '#' . $fragment : $url;
     }
