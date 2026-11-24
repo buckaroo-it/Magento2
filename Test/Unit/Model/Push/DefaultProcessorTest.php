@@ -11,6 +11,9 @@ use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = 'Buckaroo\Magento2\Model\Push\DefaultProcessor';
@@ -527,8 +530,67 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $instance->method('applySucceededPush')->willReturn(false);
         $instance->expects($this->never())->method('sendOrderEmail');
+        $this->setProperty('order', $this->orderWith(true, 40.05), $instance);
 
         $this->assertFalse($instance->processSucceededPush('processing', 'Success'));
+    }
+
+    /**
+     * A successful payment that left no trace on the order (for example cancelled meanwhile) must be
+     * refused so Buckaroo sends the push again; answering it would lose the payment (BTI-2031).
+     */
+    public function testAnUnappliedSuccessfulPushOnAnUnpaidOrderIsRefused(): void
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $instance->method('applySucceededPush')->willReturn(false);
+        $instance->expects($this->never())->method('sendOrderEmail');
+        $this->setProperty('order', $this->orderWith(false, null), $instance);
+
+        $this->expectException(\Buckaroo\Magento2\Exception::class);
+
+        $instance->processSucceededPush('processing', 'Success');
+    }
+
+    /**
+     * @param bool       $hasInvoices
+     * @param float|null $totalPaid
+     *
+     * @return Order|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function orderWith(bool $hasInvoices, ?float $totalPaid)
+    {
+        $order = $this->createMock(Order::class);
+        $order->method('hasInvoices')->willReturn($hasInvoices);
+        $order->method('getTotalPaid')->willReturn($totalPaid);
+        $order->method('getIncrementId')->willReturn('300000493');
+
+        return $order;
+    }
+
+    /**
+     * A pending push that arrives after the payment was recorded (pushes come out of order once
+     * Buckaroo retries) must not move the paid order back to pending payment (BTI-2031).
+     */
+    public function testALatePendingPushDoesNotDowngradeAPaidOrder(): void
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['canProcessPendingPush'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $instance->method('canProcessPendingPush')->willReturn(true);
+        $this->setProperty('order', $this->orderWith(true, 40.05), $instance);
+
+        $orderRequestService = $this->createMock(\Buckaroo\Magento2\Service\Push\OrderRequestService::class);
+        $orderRequestService->expects($this->never())->method('updateOrderStatus');
+        $this->setProperty('orderRequestService', $orderRequestService, $instance);
+        $this->setProperty('logger', $this->createMock(\Buckaroo\Magento2\Logging\BuckarooLoggerInterface::class), $instance);
+
+        $method = new \ReflectionMethod($instance, 'processPendingPaymentPush');
+        $this->assertTrue($method->invoke($instance, 'pending_payment', 'Waiting for consumer'));
     }
 
     public static function partialPaymentPushProvider(): array

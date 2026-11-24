@@ -20,7 +20,9 @@ use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\App\ObjectManager;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction;
 
@@ -70,6 +72,11 @@ class OrderRequestService
     private OrderRepositoryInterface $orderRepository;
 
     /**
+     * @var OrderFactory
+     */
+    private OrderFactory $orderFactory;
+
+    /**
      * @param Order $order
      * @param BuckarooLoggerInterface $logger
      * @param TransactionInterface $transaction
@@ -78,6 +85,7 @@ class OrderRequestService
      * @param KlarnaMorOrderService $klarnaMorOrderService
      * @param OrderCommentHistoryService $orderCommentHistoryService
      * @param OrderRepositoryInterface $orderRepository
+     * @param OrderFactory|null $orderFactory
      */
     public function __construct(
         Order $order,
@@ -87,8 +95,10 @@ class OrderRequestService
         KlarnaKpOrderService $klarnaKpOrderService,
         KlarnaMorOrderService $klarnaMorOrderService,
         OrderCommentHistoryService $orderCommentHistoryService,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        ?OrderFactory $orderFactory = null
     ) {
+        $this->orderFactory = $orderFactory ?? ObjectManager::getInstance()->get(OrderFactory::class);
         $this->order = $order;
         $this->logger = $logger;
         $this->transaction = $transaction;
@@ -127,6 +137,27 @@ class OrderRequestService
                 $this->order = $this->getOrderByTransactionKey($pushRequest);
             }
         }
+
+        return $this->order;
+    }
+
+    /**
+     * Read the order again from the database, replacing the copy loaded before the order lock was taken
+     *
+     * Another process (the checkout that failed, a cancel) may have changed the order while this push
+     * waited for the lock; working on the earlier copy would overwrite those changes.
+     *
+     * @return Order
+     */
+    public function reloadOrder(): Order
+    {
+        $orderId = $this->order ? $this->order->getId() : null;
+
+        if (!$orderId) {
+            return $this->order;
+        }
+
+        $this->order = $this->orderFactory->create()->load($orderId);
 
         return $this->order;
     }

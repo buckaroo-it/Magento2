@@ -113,6 +113,10 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
             ->method('getOrderByRequest')
             ->with($this->pushRequestMock)
             ->willReturn($orderMock);
+        // The order is read again once the lock is held
+        $this->orderRequestServiceMock->expects($this->once())
+            ->method('reloadOrder')
+            ->willReturn($orderMock);
 
         $this->lockManagerMock->expects($this->once())
             ->method('lockOrder')
@@ -162,6 +166,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getStore')->willReturn($storeMock);
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->method('lockOrder')->willReturn(true);
 
         $this->pushRequestMock->method('validate')->with($storeMock)->willReturn(false);
@@ -182,6 +187,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getIncrementId')->willReturn('123456');
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->expects($this->exactly(5))
             ->method('lockOrder')
             ->with('123456', 1)
@@ -207,6 +213,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getStore')->willReturn($storeMock);
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->method('lockOrder')->willReturn(true);
 
         $this->pushRequestMock->method('validate')->with($storeMock)->willReturn(true);
@@ -230,6 +237,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getIncrementId')->willReturn('123456');
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->expects($this->once())
             ->method('isGatewayRequestInProgress')
             ->with('123456')
@@ -253,6 +261,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getIncrementId')->willReturn('123456');
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->expects($this->exactly(2))
             ->method('isGatewayRequestInProgress')
             ->willReturnOnConsecutiveCalls(false, true);
@@ -276,6 +285,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getStore')->willReturn($storeMock);
 
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->method('isGatewayRequestInProgress')->willReturn(false);
         $this->lockManagerMock->expects($this->exactly(3))
             ->method('lockOrder')
@@ -305,6 +315,7 @@ class PushTest extends \Buckaroo\Magento2\Test\BaseTest
         $orderMock->method('getStore')->willReturn($this->getFakeMock(Store::class)->getMock());
         $orderMock->method('getStoreId')->willReturn('1');
         $this->orderRequestServiceMock->method('getOrderByRequest')->willReturn($orderMock);
+        $this->orderRequestServiceMock->method('reloadOrder')->willReturn($orderMock);
         $this->lockManagerMock->method('lockOrder')->willReturn(true);
         $this->pushRequestMock->method('validate')->willReturn(true);
         $this->pushTransactionTypeMock->method('getPushTransactionType')
