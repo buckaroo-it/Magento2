@@ -129,7 +129,10 @@ define(
                                 applepayPay.completeCheckoutAuthorization(false);
                             }
                         ).done(function () {
-                            applepayPay.completeCheckoutAuthorization(true);
+                            // A limit message means no order was placed: report it as failed so the
+                            // processing overlay does not cover the message
+                            var data = window.checkoutConfig.payment.buckaroo.responseData;
+                            applepayPay.completeCheckoutAuthorization(!(data && typeof data.limitReachedMessage === 'string'));
                             self.afterPlaceOrder.apply(self, arguments);
                         });
 

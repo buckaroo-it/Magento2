@@ -47,6 +47,10 @@ const priceMixinStub = {
     getProductTotalPriceWithShipping: jest.fn().mockReturnValue(null),
 };
 const restUrlStub = { createUrl: jest.fn((path) => '/rest/default/V1' + path) };
+const productSelectionStub = {
+    validate: jest.fn().mockReturnValue(true),
+    serialize: jest.fn().mockReturnValue('product=1&qty=1'),
+};
 
 const requireStub = function (deps, onLoad) {
     if (typeof onLoad === 'function') {
@@ -57,7 +61,8 @@ const requireStub = function (deps, onLoad) {
 // Load the module under test
 require('../pay.js');
 const pay = global.__payFactory(
-    jqueryStub, koStub, requireStub, urlStub, dataStub, translateStub, priceMixinStub, restUrlStub
+    jqueryStub, koStub, requireStub, urlStub, dataStub, translateStub, priceMixinStub, restUrlStub,
+    productSelectionStub
 );
 
 // ---------------------------------------------------------------------------
@@ -391,5 +396,36 @@ describe('SDK integration', () => {
         pay.init();
 
         expect(globalSdk.PayPal.initiate).toHaveBeenCalledWith(pay.options);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Product page: options are checked with Magento's add to cart validation
+// ---------------------------------------------------------------------------
+describe('validateProductOptions uses the product form validation', () => {
+    afterEach(() => {
+        pay.page = null;
+        productSelectionStub.validate.mockReturnValue(true);
+    });
+
+    test('passes on a product page when the form is valid', () => {
+        pay.page = 'product';
+        expect(pay.validateProductOptions()).toBe(true);
+    });
+
+    test('blocks PayPal on a product page when the form is not valid', () => {
+        pay.page = 'product';
+        productSelectionStub.validate.mockReturnValue(false);
+        expect(pay.validateProductOptions()).toEqual({
+            isValid: false,
+            message: 'Please select all required product options.'
+        });
+    });
+
+    test('does not check the product form outside the product page', () => {
+        pay.page = 'cart';
+        productSelectionStub.validate.mockClear();
+        expect(pay.validateProductOptions()).toBe(true);
+        expect(productSelectionStub.validate).not.toHaveBeenCalled();
     });
 });

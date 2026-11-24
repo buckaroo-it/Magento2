@@ -302,7 +302,14 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
                         if (options.onInitCallback !== undefined)
                             options.onInitCallback();
                     },
-                    onClick: function () {
+                    onClick: function (data, actions) {
+                        // Validate before PayPal opens its window; createOrder only runs once it is open
+                        if (options.onValidationCallback !== undefined) {
+                            var validationResult = options.onValidationCallback();
+                            if (validationResult === false || (validationResult && validationResult.isValid === false)) {
+                                return actions.reject();
+                            }
+                        }
                         if (options.onClickCallback !== undefined)
                             options.onClickCallback();
                     }
