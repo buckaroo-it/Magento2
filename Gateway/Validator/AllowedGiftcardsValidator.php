@@ -14,12 +14,15 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Gateway\Validator;
 
-use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Giftcards as GiftcardsConfig;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Sales\Model\Order\Payment as OrderPayment;
 
 class AllowedGiftcardsValidator extends AbstractValidator
 {
@@ -46,8 +49,6 @@ class AllowedGiftcardsValidator extends AbstractValidator
      * @param array $validationSubject
      *
      * @return ResultInterface
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function validate(array $validationSubject): ResultInterface
     {
@@ -58,18 +59,43 @@ class AllowedGiftcardsValidator extends AbstractValidator
          */
         $fails = [];
 
-        $storeId = null;
-        try {
-            $storeId = StoreId::normalize(SubjectReader::readQuote($validationSubject)->getStoreId());
-        } catch (\Exception $exception) {
-            $storeId = null;
-        }
-
-        if (null === $this->giftcardsConfig->getAllowedGiftcards($storeId)) {
+        if (null === $this->giftcardsConfig->getAllowedGiftcards($this->getStoreId($validationSubject))) {
             $fails[] = __('There are no allowed giftcards.');
             $isValid = false;
         }
 
         return $this->createResult($isValid, $fails);
+    }
+
+    /**
+     * Store of the quote or order being validated; null means the ambient store
+     *
+     * Magento's availability check passes only the payment data object, no quote.
+     *
+     * @param array $validationSubject
+     *
+     * @return int|null
+     */
+    private function getStoreId(array $validationSubject): ?int
+    {
+        if (isset($validationSubject['quote']) && $validationSubject['quote'] instanceof CartInterface) {
+            return StoreId::normalize($validationSubject['quote']->getStoreId());
+        }
+
+        $paymentDO = $validationSubject['payment'] ?? null;
+        if (!$paymentDO instanceof PaymentDataObjectInterface) {
+            return null;
+        }
+
+        $payment = $paymentDO->getPayment();
+        if ($payment instanceof QuotePayment && $payment->getQuote()) {
+            return StoreId::normalize($payment->getQuote()->getStoreId());
+        }
+
+        if ($payment instanceof OrderPayment && $payment->getOrder()) {
+            return StoreId::normalize($payment->getOrder()->getStoreId());
+        }
+
+        return null;
     }
 }
