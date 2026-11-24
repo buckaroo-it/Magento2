@@ -18,8 +18,9 @@ define([
   'mage/translate',
   'Buckaroo_Magento2/js/view/express-payment/product-price-mixin',
   'buckaroo/rest-url-builder',
+  'Buckaroo_Magento2/js/view/checkout/product-selection',
   'BuckarooSdk'
-], function ($, ko, require, urlBuilder, customerData, $t, productPriceMixin, restUrlBuilder) {
+], function ($, ko, require, urlBuilder, customerData, $t, productPriceMixin, restUrlBuilder, productSelection) {
   "use strict";
 
   function getBuckarooSdkInstance() {
@@ -114,7 +115,7 @@ define([
     onShippingChangeHandler(data, actions) {
       if (
         this.page === 'product' &&
-        $("#product_addtocart_form").valid() === false
+        !productSelection.validate()
       ) {
         return actions.reject();
       }
@@ -267,9 +268,8 @@ define([
      * @returns
      */
     getOrderData() {
-      let form = $("#product_addtocart_form");
       if (this.page === 'product') {
-        return form.serialize();
+        return productSelection.serialize();
       }
     },
     /**
@@ -309,88 +309,19 @@ define([
     },
 
     /**
-     * Validate product options for Magento (used as SDK validation callback)
+     * Validate the product form before PayPal opens (used as SDK validation callback): the same check as
+     * Magento's Add to Cart button, with its messages at the fields
      * @returns {Object|boolean} Validation result object or boolean
      */
     validateProductOptions() {
-      // Only validate on product pages
-      if (this.page !== 'product') {
+      if (this.page !== 'product' || productSelection.validate()) {
         return true;
       }
 
-      var productForm = document.querySelector("#product_addtocart_form");
-      if (!productForm) {
-        return true;
-      }
-
-      var isValid = true;
-      var errorMessage = "Please select all required product options.";
-      var missingOptions = [];
-
-      // Check configurable swatch options using Magento structure
-      var swatchElements = productForm.querySelectorAll("div.swatch-attribute");
-
-      swatchElements.forEach(function(element, index) {
-        var attributeId = element.getAttribute("data-attribute-id");
-        var attributeCode = element.getAttribute("data-attribute-code");
-        var optionSelected = element.getAttribute("data-option-selected");
-
-        // Check the corresponding hidden input
-        var hiddenInput = productForm.querySelector("input[name=\"super_attribute[" + attributeId + "]\"]");
-        var inputValue = hiddenInput ? hiddenInput.value : "";
-
-        // Check for selected swatch (class="swatch-option ... selected")
-        var selectedSwatch = element.querySelector(".swatch-option.selected");
-
-        var label = element.querySelector(".swatch-attribute-label");
-        var labelText = label ? label.textContent.trim() : (attributeCode || "Option");
-
-        // An option is considered SELECTED if ANY of these are true:
-        var hasSelection = (optionSelected && optionSelected !== "") ||
-                         (inputValue && inputValue !== "") ||
-                         !!selectedSwatch;
-
-        if (!hasSelection) {
-          isValid = false;
-          missingOptions.push(labelText);
-        }
-      });
-
-      // Check dropdown configurable options
-      var dropdownElements = productForm.querySelectorAll("select[name*=\"super_attribute\"]");
-
-      dropdownElements.forEach(function(select, index) {
-        var selectValue = select.value;
-        var fieldElement = select.closest(".field");
-        var label = fieldElement ? fieldElement.querySelector("label .required, label span") : null;
-        var labelText = label ? label.textContent.trim() : ("Dropdown Option " + (index + 1));
-
-        if (!selectValue || selectValue === "") {
-          isValid = false;
-          missingOptions.push(labelText);
-        }
-      });
-
-      if (missingOptions.length > 0) {
-        errorMessage = "Please select: " + missingOptions.join(", ");
-      }
-
-      if (!isValid) {
-        // Show error message using Magento's messaging system
-        customerData.set('messages', {
-          messages: [{
-            type: 'error',
-            text: errorMessage
-          }]
-        });
-
-        return {
-          isValid: false,
-          message: errorMessage
-        };
-      }
-
-      return true;
+      return {
+        isValid: false,
+        message: $t("Please select all required product options.")
+      };
     }
   });
 });

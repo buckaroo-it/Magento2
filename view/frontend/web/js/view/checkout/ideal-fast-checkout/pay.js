@@ -5,8 +5,10 @@ define([
     'Magento_Customer/js/customer-data',
     'mage/translate',
     'mage/storage',
-    'buckaroo/rest-url-builder'
-], function (Component, urlBuilder, $, customerData, $t, storage, restUrlBuilder) {
+    'buckaroo/rest-url-builder',
+    'Buckaroo_Magento2/js/view/checkout/payment-processing',
+    'Buckaroo_Magento2/js/view/checkout/product-selection'
+], function (Component, urlBuilder, $, customerData, $t, storage, restUrlBuilder, paymentProcessing, productSelection) {
     'use strict';
 
     return Component.extend({
@@ -25,7 +27,7 @@ define([
         },
 
         onCheckout: function () {
-            if (this.page === 'product' && !this.validateProductForExpressCheckout()) {
+            if (this.page === 'product' && !productSelection.validate()) {
                 return false;
             }
 
@@ -63,8 +65,7 @@ define([
         },
 
         getOrderData: function () {
-            let form = $("#product_addtocart_form");
-            return this.page === "product" ? form.serialize() : null;
+            return this.page === "product" ? productSelection.serialize() : null;
         },
 
         onQuoteCreateSuccess: function (productData, quoteResponse) {
@@ -110,11 +111,12 @@ define([
         },
 
         onOrderPlaceSuccess: function (response) {
-            this.hideLoader();
+            // keep the overlay up while the browser is sent on to the bank or the success page
             let jsonResponse;
             try {
                 jsonResponse = $.parseJSON(response);
             } catch (e) {
+                this.hideLoader();
                 this.displayErrorMessage($t('An error occurred while processing your order.'));
                 return;
             }
@@ -148,83 +150,11 @@ define([
         },
 
         showLoader: function () {
-            $('body').loader('show');
+            paymentProcessing.show();
         },
 
         hideLoader: function () {
-            $('body').loader('hide');
-        },
-
-        /**
-         * Validate product before allowing express checkout
-         * @returns {boolean}
-         */
-        validateProductForExpressCheckout: function () {
-            var form = $('#product_addtocart_form');
-            if (!form.length) {
-                this.displayErrorMessage('Unable to find product form.');
-                return false;
-            }
-
-            var productId = $('[name="product"]', form).val();
-            var qty = $('[name="qty"]', form).val() || 1;
-
-            if (!productId) {
-                this.displayErrorMessage('Unable to identify product.');
-                return false;
-            }
-
-            var missingOptions = [];
-
-            if ($('div.swatch-attribute').length > 0) {
-                $('div.swatch-attribute').each(function() {
-                    var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
-                    var optionSelected = $(this).attr('option-selected') || $(this).attr('data-option-selected');
-                    var label = $(this).find('.swatch-attribute-label').text().replace('*', '').trim();
-
-                    if (!optionSelected && attributeId) {
-                        missingOptions.push(label || 'Option');
-                    }
-                });
-            }
-
-            $('select[name*="super_attribute"]').each(function() {
-                var selectValue = $(this).val();
-                var fieldElement = $(this).closest('.field');
-                var label = fieldElement.find('label span').text().trim();
-
-                if (!selectValue || selectValue === '') {
-                    missingOptions.push(label || 'Dropdown Option');
-                }
-            });
-
-            if (missingOptions.length > 0) {
-                this.displayErrorMessage('Please select: ' + missingOptions.join(', '));
-                return false;
-            }
-
-            var hasRequiredOptions = false;
-            $('.product-options-wrapper .field.required').each(function() {
-                var input = $(this).find('input, select, textarea');
-                var value = input.val();
-
-                if (!value || value === '') {
-                    hasRequiredOptions = true;
-                    return false;
-                }
-            });
-
-            if (hasRequiredOptions) {
-                this.displayErrorMessage('This product has required options. Please make your selections before proceeding.');
-                return false;
-            }
-
-            if (qty < 1) {
-                this.displayErrorMessage('Please enter a valid quantity.');
-                return false;
-            }
-
-            return true;
+            paymentProcessing.hide();
         }
     });
 });

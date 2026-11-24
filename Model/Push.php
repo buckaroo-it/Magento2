@@ -162,6 +162,9 @@ class Push implements PushInterface
         }
 
         try {
+            // The order was read before the lock: read it again so changes made meanwhile are not overwritten
+            $order = $this->orderRequestService->reloadOrder();
+
             // Validate Signature
             $store = $order->getStore();
             $validSignature = $this->pushRequest->validate($store);

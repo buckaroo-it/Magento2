@@ -925,3 +925,7 @@
 "Buckaroo: invoiced %1 from the amount already captured at Buckaroo (transaction %2). No new capture was requested.","Buckaroo: %1 gefactureerd uit het bedrag dat al bij Buckaroo was vastgelegd (transactie %2). Er is geen nieuwe vastlegging aangevraagd."
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded.","Buckaroo: de deelbetaling van %1 (transactie %2) is terugbetaald."
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded before the order was paid. The order is cancelled.","Buckaroo: de deelbetaling van %1 (transactie %2) is terugbetaald voordat de bestelling was betaald. De bestelling is geannuleerd."
+"Your payment is being processed.","Je betaling wordt verwerkt."
+"Please do not close or refresh this page.","Sluit of vernieuw deze pagina niet."
+"Your payment is being processed. You will receive an email as soon as it is confirmed.","Je betaling wordt verwerkt. Je ontvangt een e-mail zodra deze is bevestigd."
+"Please select your product options and use Add to Cart.","Kies de productopties en gebruik In winkelwagen."

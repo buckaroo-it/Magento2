@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Service;
 
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter as SdkAdapter;
+use Magento\Framework\App\ObjectManager;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
@@ -38,6 +40,14 @@ use Buckaroo\Magento2\Model\PartialPayment\PartialPaymentMethods;
  */
 class RefundGroupTransactionService
 {
+    /** Seconds after the last credit memo before a Buckaroo refund counts as not recorded */
+    private const UNRECORDED_REFUND_TOLERANCE = 30;
+
+    /**
+     * @var array transaction keys whose unrecorded refunds were already counted in this request
+     */
+    private array $unrecordedRefundsTaken = [];
+
     /**
      * Non-Intersolve giftcard brands that reject email/lastname in refund requests.
      */
@@ -299,6 +309,7 @@ class RefundGroupTransactionService
      */
     public function refundGroupTransactions(array &$buildSubject)
     {
+        $this->unrecordedRefundsTaken = [];
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $this->amountLeftToRefund = (float)SubjectReader::readAmount($buildSubject);
         $originalRefundAmount = $this->amountLeftToRefund;
@@ -404,6 +415,13 @@ class RefundGroupTransactionService
             if ($this->amountLeftToRefund < $giftCardValue) {
                 $giftCardValue = $this->amountLeftToRefund;
             }
+
+            // A refund of this leg that Buckaroo carried out in an attempt whose credit memo failed
+            $giftCardValue = $this->applyUnrecordedRefund($buildSubject, $transaction, (float)$giftCardValue, $groupTransaction);
+            if ($giftCardValue < 0.01) {
+                return;
+            }
+
             $this->amountLeftToRefund = $this->amountLeftToRefund - $giftCardValue;
 
             $request = $this->requestDataBuilder->build($buildSubject);
@@ -623,6 +641,15 @@ class RefundGroupTransactionService
             return;
         }
 
+        // A refund of this part that Buckaroo carried out in an attempt whose credit memo failed
+        $covered = min($amount, $this->takeUnrecordedRefund($buildSubject, $originalTransactionKey, $paymentMethod));
+        if ($covered >= 0.01) {
+            $amount -= $covered;
+            if ($amount < 0.01) {
+                return;
+            }
+        }
+
         // Build refund request with the correct payment method and transaction key
         $request = $this->requestDataBuilder->build($buildSubject);
         $request['payment_method'] = $paymentMethod;
@@ -666,6 +693,183 @@ class RefundGroupTransactionService
                 $errorMessage
             ));
         }
+    }
+
+    /**
+     * Count a refund Buckaroo already carried out on this leg toward this refund, and record it
+     *
+     * @param array      $buildSubject
+     * @param array      $transaction   [key, service code, amount]
+     * @param float      $giftCardValue
+     * @param mixed      $groupTransaction
+     *
+     * @return float what is left to refund on the leg
+     */
+    private function applyUnrecordedRefund(
+        array $buildSubject,
+        array $transaction,
+        float $giftCardValue,
+        $groupTransaction
+    ): float {
+        $covered = min($giftCardValue, $this->takeUnrecordedRefund($buildSubject, $transaction[0], $transaction[1]));
+        if ($covered < 0.01) {
+            return $giftCardValue;
+        }
+
+        $this->amountLeftToRefund -= $covered;
+        if ($groupTransaction && $groupTransaction->getEntityId()) {
+            $groupTransaction->setRefundedAmount($groupTransaction->getRefundedAmount() + $covered);
+            $this->groupTransactionResource->save($groupTransaction);
+        }
+
+        return $giftCardValue - $covered;
+    }
+
+    /**
+     * Amount Buckaroo refunded on a transaction that no credit memo accounts for, taken once per request
+     *
+     * A refund whose credit memo failed (or whose answer was lost) rolls back what Magento recorded, but
+     * Buckaroo already paid it out. Such refunds are newer than the order's last credit memo; counting them
+     * as part of this refund keeps a retry from paying the customer twice.
+     *
+     * @param array  $buildSubject
+     * @param string $transactionKey
+     * @param string $paymentMethod
+     *
+     * @return float
+     */
+    private function takeUnrecordedRefund(array $buildSubject, string $transactionKey, string $paymentMethod): float
+    {
+        if (isset($this->unrecordedRefundsTaken[$transactionKey])) {
+            return 0.0;
+        }
+        $this->unrecordedRefundsTaken[$transactionKey] = true;
+
+        try {
+            $order = SubjectReader::readPayment($buildSubject)->getOrder()->getOrder();
+            $lastCreditmemo = $this->getLastCreditmemoTime($order);
+            // Without a credit memo no refund is recorded at all
+            $since = $lastCreditmemo === 0 ? 0 : $lastCreditmemo + self::UNRECORDED_REFUND_TOLERANCE;
+            $unrecorded = $this->sumRefundsSince($order, $transactionKey, $paymentMethod, $since);
+        } catch (\Throwable $e) {
+            $this->buckarooLog->addError(sprintf(
+                '[REFUND] | Could not check earlier refunds of %s: %s',
+                $transactionKey,
+                $e->getMessage()
+            ));
+            return 0.0;
+        }
+
+        if ($unrecorded >= 0.01) {
+            $this->buckarooLog->addDebug(sprintf(
+                '[REFUND] | %s already refunded €%.2f that no credit memo records: counted, not refunded again',
+                $transactionKey,
+                $unrecorded
+            ));
+        }
+
+        return round($unrecorded, 2);
+    }
+
+    /**
+     * Successful Buckaroo refunds of a transaction made after $since
+     *
+     * @param Order  $order
+     * @param string $transactionKey
+     * @param string $paymentMethod
+     * @param int    $since
+     *
+     * @throws \Throwable
+     *
+     * @return float
+     */
+    private function sumRefundsSince(Order $order, string $transactionKey, string $paymentMethod, int $since): float
+    {
+        $adapter = ObjectManager::getInstance()->get(SdkAdapter::class);
+        $storeId = (int)$order->getStoreId();
+
+        // Refunds point back to the transaction they refund; the original does not always list them
+        $candidates = [];
+        foreach ($adapter->getTransactionsByInvoice($paymentMethod, $storeId, (string)$order->getIncrementId()) as $listed) {
+            $candidates[$listed['key']] = true;
+        }
+        $original = $adapter->getTransactionStatus($paymentMethod, $storeId, $transactionKey);
+        foreach ((array)$original->get('RelatedTransactions') as $related) {
+            if (!empty($related['RelatedTransactionKey'])) {
+                $candidates[(string)$related['RelatedTransactionKey']] = true;
+            }
+        }
+        unset($candidates[$transactionKey]);
+
+        $sum = 0.0;
+        foreach (array_keys($candidates) as $candidateKey) {
+            $refund = $adapter->getTransactionStatus($paymentMethod, $storeId, (string)$candidateKey);
+            if ($this->isRefundOf($refund, $transactionKey)
+                && (int)$refund->getStatusCode() === 190
+                && $this->getBuckarooTime($refund) > $since
+            ) {
+                $sum += (float)$refund->get('AmountCredit');
+            }
+        }
+
+        return $sum;
+    }
+
+    /**
+     * Unix time of a Buckaroo transaction status (Buckaroo reports Dutch local time)
+     *
+     * @param \Buckaroo\Transaction\Response\TransactionResponse $transaction
+     *
+     * @return int
+     */
+    private function getBuckarooTime($transaction): int
+    {
+        $status = (array)$transaction->get('Status');
+        if (empty($status['DateTime'])) {
+            return 0;
+        }
+
+        return (new \DateTimeImmutable((string)$status['DateTime'], new \DateTimeZone('Europe/Amsterdam')))
+            ->getTimestamp();
+    }
+
+    /**
+     * Is refund of
+     *
+     * @param \Buckaroo\Transaction\Response\TransactionResponse $candidate
+     * @param string                                             $originalKey
+     *
+     * @return bool
+     */
+    private function isRefundOf($candidate, string $originalKey): bool
+    {
+        foreach ((array)$candidate->get('RelatedTransactions') as $related) {
+            if (strcasecmp((string)($related['RelationType'] ?? ''), 'refund') === 0
+                && strcasecmp((string)($related['RelatedTransactionKey'] ?? ''), $originalKey) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get last creditmemo time
+     *
+     * @param Order $order
+     *
+     * @return int unix time of the newest credit memo, 0 when there is none
+     */
+    private function getLastCreditmemoTime(Order $order): int
+    {
+        $latest = '';
+        foreach ($order->getCreditmemosCollection() ?: [] as $creditmemo) {
+            if ((string)$creditmemo->getCreatedAt() > $latest) {
+                $latest = (string)$creditmemo->getCreatedAt();
+            }
+        }
+
+        return $latest === '' ? 0 : (new \DateTimeImmutable($latest, new \DateTimeZone('UTC')))->getTimestamp();
     }
 
     /**

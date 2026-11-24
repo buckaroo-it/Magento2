@@ -18,6 +18,8 @@ define(
         'buckaroo/applepay/shipping-handler',
         'Magento_Checkout/js/model/payment/additional-validators',
         'underscore',
+        'Buckaroo_Magento2/js/view/checkout/payment-processing',
+        'Buckaroo_Magento2/js/view/checkout/product-selection',
         'Magento_Checkout/js/model/shipping-rate-service',
         'mage/translate',
         'BuckarooSdk'
@@ -29,11 +31,15 @@ define(
         resourceUrlManager,
         shippingHandler,
         additionalValidators,
-        _
+        _,
+        paymentProcessing,
+        productSelection
     ) {
         'use strict';
 
         var transactionResult = ko.observable(null);
+        // Milliseconds the checkout page waits for the order request before completing the Apple Pay sheet
+        var CHECKOUT_AUTHORIZATION_TIMEOUT = 25000;
 
         return {
             transactionResult: transactionResult,
@@ -69,10 +75,6 @@ define(
                 }
                 supportPromise
                     .then(function (applePaySupported) {
-                        if (this.payMode === 'product') {
-                            this.initProductViewWatchers();
-                        }
-
                         if (applePaySupported) {
                             this.generateApplepayOptions();
                             this.payment = new BuckarooSdk.ApplePay.ApplePayPayment('#apple-pay-wrapper', this.applepayOptions);
@@ -86,8 +88,8 @@ define(
                                 
                                 // Replace with validation wrapper
                                 this.payment.beginPayment = function(event) {
-                                    // Validate product BEFORE opening Apple Pay sheet
-                                    if (!self.validateProductForExpressCheckout()) {
+                                    // Same check as Magento's Add to Cart button, before the Apple Pay sheet opens
+                                    if (!productSelection.validate()) {
                                         if (event && event.preventDefault) {
                                             event.preventDefault();
                                             event.stopPropagation();
@@ -95,22 +97,9 @@ define(
                                         return Promise.reject(new Error('Product validation failed'));
                                     }
 
-                                    // Validate Magento form
-                                    var dataForm = $('#product_addtocart_form');
-                                    if (dataForm.length) {
-                                        dataForm.validation('isValid');
-                                        
-                                        // Check for validation errors
-                                        if ($('.mage-error:visible').length > 0) {
-                                            self.displayErrorMessage('Please fix the errors on the page before proceeding.');
-                                            if (event && event.preventDefault) {
-                                                event.preventDefault();
-                                                event.stopPropagation();
-                                            }
-                                            return Promise.reject(new Error('Form validation failed'));
-                                        }
-                                    }
-                                    
+                                    // Take the selection as it is on the page now
+                                    self.productSelected = productSelection.read();
+
                                     // All validations passed - call original beginPayment
                                     return originalBeginPayment(event);
                                 };
@@ -483,15 +472,37 @@ define(
                     status: ApplePaySession.STATUS_SUCCESS,
                     errors: []
                 };
+                var failureResult = {
+                    status: ApplePaySession.STATUS_FAILURE,
+                    errors: []
+                };
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
-                    var failureResult = {
-                        status: ApplePaySession.STATUS_FAILURE,
-                        errors: []
-                    };
 
-                    // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout
+                    // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout.
+                    // The request runs asynchronously: Apple Pay ends the session after about 30 seconds, and a
+                    // request still running then is one whose answer from Buckaroo is late (the order is kept
+                    // pending for it), so the sheet is completed as successful after the wait.
                     return new Promise(function (resolve) {
+                        var settled = false,
+                            settle = function (succeeded) {
+                                // A failure removes the overlay even when the sheet was already completed
+                                // by the timeout: the order request can fail after that
+                                if (!succeeded) {
+                                    paymentProcessing.hide();
+                                }
+                                if (!settled) {
+                                    settled = true;
+                                    resolve(succeeded ? authorizationResult : failureResult);
+                                }
+                            };
+
+                        paymentProcessing.show();
+
+                        setTimeout(function () {
+                            settle(true);
+                        }, CHECKOUT_AUTHORIZATION_TIMEOUT);
+
                         $.ajax({
                             url: urlBuilder.build('buckaroo/applepay/saveOrder'),
                             type: 'POST',
@@ -500,8 +511,7 @@ define(
                                 extra: this.getData(payment)
                             },
                             global: false,
-                            dataType: 'json',
-                            async: false
+                            dataType: 'json'
                         }).done(function (result) {
                             if (result && result.success === true) {
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
@@ -510,7 +520,7 @@ define(
                                     this.timeoutRedirect();
                                 }
                                 this.payMode = '';
-                                resolve(authorizationResult);
+                                settle(true);
                                 return;
                             }
 
@@ -520,15 +530,55 @@ define(
                             } else {
                                 this.timeoutRedirect();
                             }
-                            resolve(failureResult);
+                            settle(false);
                         }.bind(this)).fail(function () {
                             this.timeoutRedirect();
-                            resolve(failureResult);
+                            settle(false);
                         }.bind(this));
                     }.bind(this));
                 } else {
-                    this.transactionResult(payment);
-                    return Promise.resolve(authorizationResult);
+                    // Checkout page: the order is placed by the payment renderer. Complete the Apple Pay
+                    // sheet with the outcome of that call instead of reporting success before it ran.
+                    return new Promise(function (resolve) {
+                        var settled = false,
+                            settle = function (succeeded) {
+                                if (settled) {
+                                    return;
+                                }
+                                settled = true;
+                                this.settleCheckoutAuthorization = null;
+                                if (!succeeded) {
+                                    paymentProcessing.hide();
+                                }
+                                resolve(succeeded ? authorizationResult : failureResult);
+                            }.bind(this);
+
+                        paymentProcessing.show();
+                        this.settleCheckoutAuthorization = settle;
+                        // Apple Pay ends the session after about 30 seconds. A request still running by
+                        // then is one whose answer from Buckaroo is late; the order is kept pending for it.
+                        setTimeout(function () {
+                            settle(true);
+                        }, CHECKOUT_AUTHORIZATION_TIMEOUT);
+
+                        this.transactionResult(payment);
+                    }.bind(this));
+                }
+            },
+
+            /**
+             * Called by the checkout renderer once the order request returned
+             *
+             * @param {Boolean} succeeded
+             */
+            completeCheckoutAuthorization: function (succeeded) {
+                // The order could not be placed: remove the overlay, also when the sheet was already
+                // completed by the timeout
+                if (!succeeded) {
+                    paymentProcessing.hide();
+                }
+                if (typeof this.settleCheckoutAuthorization === 'function') {
+                    this.settleCheckoutAuthorization(succeeded);
                 }
             },
 
@@ -606,27 +656,6 @@ define(
                 appleButton.style.display = '';
             },
 
-            initProductViewWatchers: function () {
-                this.productSelected = {};
-                this.productSelected.id = $('.price-box').attr('data-product-id');
-                this.productSelected.qty = $('#qty').val();
-                var self = this;
-                $('#qty').change(function () {
-                    self.productSelected.qty = $(this).val();
-                });
-                $('.product-options-wrapper div').click(function () {
-                    var selected_options = {};
-                    $('div.swatch-attribute').each(function (k, v) {
-                        var attribute_id = $(v).attr('attribute-id') || $(v).attr('data-attribute-id');
-                        var option_selected = $(v).attr('option-selected') || $(v).attr('data-option-selected');
-                        if (attribute_id && option_selected) {
-                            selected_options[attribute_id] = option_selected;
-                        }
-                    });
-                    self.productSelected.selected_options = selected_options;
-                });
-            },
-
             isOsc: function () {
                 return this.getOscButton();
             },
@@ -639,83 +668,6 @@ define(
                 //window.buckarooDebug = 1;
                 if (window.buckarooDebug) {
                 }
-            },
-
-            /**
-             * Validate product before allowing express checkout
-             * @returns {boolean}
-             */
-            validateProductForExpressCheckout: function () {
-                var form = $('#product_addtocart_form');
-                if (!form.length) {
-                    this.displayErrorMessage('Unable to find product form.');
-                    return false;
-                }
-
-                var productId = $('[name="product"]', form).val();
-                var qty = $('[name="qty"]', form).val() || 1;
-
-                if (!productId) {
-                    this.displayErrorMessage('Unable to identify product.');
-                    return false;
-                }
-
-                // Check if configurable product has all required options selected
-                var missingOptions = [];
-
-                // Check swatch attributes (color/size swatches)
-                if ($('div.swatch-attribute').length > 0) {
-                    $('div.swatch-attribute').each(function() {
-                        var attributeId = $(this).attr('attribute-id') || $(this).attr('data-attribute-id');
-                        var optionSelected = $(this).attr('option-selected') || $(this).attr('data-option-selected');
-                        var label = $(this).find('.swatch-attribute-label').text().replace('*', '').trim();
-
-                        if (!optionSelected && attributeId) {
-                            missingOptions.push(label || 'Option');
-                        }
-                    });
-                }
-
-                // Check dropdown configurable options (select dropdowns)
-                $('select[name*="super_attribute"]').each(function() {
-                    var selectValue = $(this).val();
-                    var fieldElement = $(this).closest('.field');
-                    var label = fieldElement.find('label span').text().trim();
-
-                    if (!selectValue || selectValue === '') {
-                        missingOptions.push(label || 'Dropdown Option');
-                    }
-                });
-
-                if (missingOptions.length > 0) {
-                    this.displayErrorMessage('Please select: ' + missingOptions.join(', '));
-                    return false;
-                }
-
-                // Check for required custom options
-                var hasRequiredOptions = false;
-                $('.product-options-wrapper .field.required').each(function() {
-                    var input = $(this).find('input, select, textarea');
-                    var value = input.val();
-
-                    if (!value || value === '') {
-                        hasRequiredOptions = true;
-                        return false;
-                    }
-                });
-
-                if (hasRequiredOptions) {
-                    this.displayErrorMessage('This product has required options. Please make your selections before proceeding.');
-                    return false;
-                }
-
-                // Validate quantity
-                if (qty < 1) {
-                    this.displayErrorMessage('Please enter a valid quantity.');
-                    return false;
-                }
-
-                return true;
             },
 
             /**

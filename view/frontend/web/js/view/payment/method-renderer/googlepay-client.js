@@ -94,6 +94,8 @@ define(
                     if (googlepayPay.isOsc()) {
                         var validationResult = additionalValidators.validate();
                         if (!validationResult) {
+                            // No order is placed: a wallet sheet waiting for it must not report success
+                            googlepayPay.completePayment(false);
                             return false;
                         }
                     }
@@ -121,12 +123,20 @@ define(
                         $.when(placeOrder).fail(
                             function () {
                                 self.isPlaceOrderActionAllowed(true);
+                                googlepayPay.completePayment(false);
                             }
-                        ).done(this.afterPlaceOrder.bind(this));
+                        ).done(function () {
+                            // A limit message means no order was placed: report it as failed so the
+                            // processing overlay does not cover the message
+                            var data = window.checkoutConfig.payment.buckaroo.responseData;
+                            googlepayPay.completePayment(!(data && typeof data.limitReachedMessage === 'string'));
+                            self.afterPlaceOrder.apply(self, arguments);
+                        });
 
                         return true;
                     }
 
+                    googlepayPay.completePayment(false);
                     return false;
                 },
 

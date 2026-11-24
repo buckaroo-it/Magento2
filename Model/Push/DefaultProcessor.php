@@ -17,6 +17,7 @@ namespace Buckaroo\Magento2\Model\Push;
 use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -413,6 +414,11 @@ class DefaultProcessor implements PushProcessorInterface
         $this->pushRequest = $pushRequest;
         $this->order = $this->orderRequestService->getOrderByRequest();
         $this->payment = $this->order->getPayment();
+
+        if ($this->payment && $this->payment->getAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN)) {
+            // Buckaroo reports on the transaction: its outcome is no longer unknown
+            $this->payment->unsAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN);
+        }
     }
 
     /**
@@ -839,8 +845,8 @@ class DefaultProcessor implements PushProcessorInterface
      */
     private function shouldReactivateCanceledOrder(): bool
     {
+        // Any status of the cancelled state: shops use their own cancelled or "payment failed" statuses
         if (($this->order->getState() !== Order::STATE_CANCELED)
-            || ($this->order->getStatus() !== Order::STATE_CANCELED)
             || ($this->pushTransactionType->getStatusKey() !== 'BUCKAROO_MAGENTO2_STATUSCODE_SUCCESS')
             || $this->pushRequest->getRelatedtransactionPartialpayment() != null
             || $this->payment->getAdditionalInformation('buckaroo_order_reactivated')
@@ -1703,6 +1709,15 @@ class DefaultProcessor implements PushProcessorInterface
     {
         $succeeded = $this->applySucceededPush($newStatus, $message);
 
+        if (!$succeeded && !$this->order->hasInvoices() && (float)$this->order->getTotalPaid() < 0.01) {
+            // Nothing was recorded for a payment Buckaroo reports as successful (for example the order was
+            // cancelled meanwhile). Refuse the push so Buckaroo sends it again instead of it being lost.
+            throw new BuckarooException(__(
+                'The successful payment for order %1 could not be applied yet, send the push again later',
+                $this->order->getIncrementId()
+            ));
+        }
+
         if ($succeeded) {
             // Sent last on purpose: the order email is gated on the order's state, so it has to see
             // the state this push settled on rather than an in-progress one.
@@ -2432,6 +2447,18 @@ class DefaultProcessor implements PushProcessorInterface
     protected function processPendingPaymentPush($newStatus, string $statusMessage): bool
     {
         if (!$this->canProcessPendingPush()) {
+            return true;
+        }
+
+        if ($this->order->hasInvoices() || (float)$this->order->getTotalPaid() >= 0.01) {
+            // Pushes can arrive out of order once Buckaroo retries them: a pending status that comes in
+            // after the payment was recorded must not move the order back to pending payment.
+            $this->logger->addDebug(sprintf(
+                '[%s:%s] - Pending push ignored: order %s is already paid',
+                __METHOD__,
+                __LINE__,
+                $this->order->getIncrementId()
+            ));
             return true;
         }
 

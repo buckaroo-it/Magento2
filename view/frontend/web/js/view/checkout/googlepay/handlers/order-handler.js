@@ -15,12 +15,16 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
+        'Buckaroo_Magento2/js/view/checkout/payment-processing',
+        'Buckaroo_Magento2/js/view/checkout/product-selection'
     ],
     function (
         $,
         urlBuilder,
         quote,
-        customer
+        customer,
+        paymentProcessing,
+        productSelection
     ) {
         'use strict';
 
@@ -108,16 +112,19 @@ define(
                     url: urlBuilder.build('buckaroo/googlepay/add'),
                     type: 'POST',
                     dataType: 'json',
-                    showLoader: true,
+                    // The payment-processing overlay is already shown; a second loader would stack on it
+                    showLoader: false,
                     data: addPayload,
                     success: function (addResponse) {
                         if (addResponse && !addResponse.error) {
                             self.saveOrder(transformedPaymentData, productData);
                         } else {
+                            self.settle(false);
                             alert('Failed to add product to cart: ' + (addResponse.error || 'Unknown error'));
                         }
                     },
                     error: function (xhr, status, error) {
+                        self.settle(false);
                         alert('Failed to add product to cart');
                     }
                 });
@@ -142,15 +149,29 @@ define(
                     url: urlBuilder.build('buckaroo/googlepay/saveOrder'),
                     type: 'POST',
                     dataType: 'json',
-                    showLoader: true,
+                    // The payment-processing overlay is already shown; a second loader would stack on it
+                    showLoader: false,
                     data: payload,
                     success: function (response) {
+                        self.settle(!!(response && response.success));
                         self.afterPlaceOrder(response);
                     },
                     error: function (xhr, status, error) {
+                        self.settle(false);
                         alert('Order placement failed. Please try again.');
                     }
                 });
+            },
+
+            /**
+             * Tell the wallet sheet how the order request ended (set by the button that started it)
+             *
+             * @param {Boolean} succeeded
+             */
+            settle: function (succeeded) {
+                if (typeof this.onSettled === 'function') {
+                    this.onSettled(succeeded);
+                }
             },
 
             afterPlaceOrder: function (response) {
@@ -173,6 +194,10 @@ define(
 
                     if (redirectUrl) {
                         window.location.href = redirectUrl;
+                    } else {
+                        // Nowhere to send the shopper: reload so the page shows the placed order, as Apple Pay does
+                        paymentProcessing.hide();
+                        window.location.reload();
                     }
                 } else if (response && response.error) {
                     alert(response.error);
@@ -190,33 +215,18 @@ define(
             },
 
             getProductDataFromPage: function () {
-                // Try to get product data from the add to cart form
-                var form = $('#product_addtocart_form');
-                if (form.length) {
-                    var formData = form.serializeArray();
-                    var productData = {};
-                    var selectedOptions = {};
+                var selection = productSelection.read();
 
-                    $.each(formData, function(i, field) {
-                        productData[field.name] = field.value;
-
-                        // Extract super_attribute data for configurable products
-                        // Format: super_attribute[142]=167 -> selected_options: {142: "167"}
-                        var match = field.name.match(/^super_attribute\[(\d+)\]$/);
-                        if (match) {
-                            selectedOptions[match[1]] = field.value;
-                        }
-                    });
-
-                    // Add selected_options to productData if any were found
-                    if (Object.keys(selectedOptions).length > 0) {
-                        productData.selected_options = selectedOptions;
-                    }
-
-                    return productData;
+                // No product on this page (cart): the order is placed from the current cart
+                if (!selection.id) {
+                    return {};
                 }
 
-                return {};
+                return {
+                    product: selection.id,
+                    qty: selection.qty,
+                    selected_options: selection.selected_options
+                };
             }
         };
     }

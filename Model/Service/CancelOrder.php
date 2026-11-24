@@ -4,7 +4,10 @@ namespace Buckaroo\Magento2\Model\Service;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\Method\BuckarooAdapter;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter as SdkAdapter;
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Service\Order\OrderCommentHistoryService;
+use Magento\Framework\App\ObjectManager;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -31,6 +34,23 @@ class CancelOrder
      * @var OrderCommentHistoryService
      */
     private $orderCommentHistoryService;
+
+    /**
+     * Buckaroo status that means the previous order is paid. Pending statuses (790-793) also mean
+     * "waiting for the shopper" for redirect methods, so they do not keep the order; if it is paid
+     * after all, its push reactivates it.
+     */
+    private const PAID_OR_PROCESSING_STATUSES = [190];
+
+    /**
+     * @var CancelGuard|null
+     */
+    private ?CancelGuard $cancelGuard = null;
+
+    /**
+     * @var SdkAdapter|null
+     */
+    private ?SdkAdapter $sdkAdapter = null;
 
     /**
      * @param OrderRepositoryInterface   $orderRepositoryInterface
@@ -67,28 +87,98 @@ class CancelOrder
 
             $order = $this->orderRepositoryInterface->get((int)$orderId);
 
-            if ($order->getState() === Order::STATE_NEW && $order->getId() == $orderId) {
-                $shouldSkipVoid = $this->shouldSkipVoidForPendingOrder($order);
-                $originalRequestOnVoid = null;
+            if ($order->getState() !== Order::STATE_NEW || $order->getId() != $orderId) {
+                return;
+            }
 
-                if ($shouldSkipVoid) {
-                    $originalRequestOnVoid = BuckarooAdapter::$requestOnVoid;
-                    BuckarooAdapter::$requestOnVoid = false;
-                }
+            if ($this->isPaidOrProcessingAtBuckaroo($order)) {
+                $this->logger->addDebug(sprintf(
+                    '[CANCEL_ORDER] | [Service] | [%s:%s] - Previous order %s is paid or being processed at'
+                    . ' Buckaroo, leaving it for its push',
+                    __METHOD__,
+                    __LINE__,
+                    $order->getIncrementId()
+                ));
+                return;
+            }
 
-                try {
-                    $this->orderManagementInterface->cancel($order->getEntityId());
+            $shouldSkipVoid = $this->shouldSkipVoidForPendingOrder($order);
+            $originalRequestOnVoid = null;
+
+            if ($shouldSkipVoid) {
+                $originalRequestOnVoid = BuckarooAdapter::$requestOnVoid;
+                BuckarooAdapter::$requestOnVoid = false;
+            }
+
+            try {
+                // Under the previous order's own lock, re-read: its push may be running right now
+                $cancelled = $this->getCancelGuard()->cancel((int)$orderId, 'restored quote (browser back)');
+                if ($cancelled) {
                     $this->orderCommentHistoryService->add($order, __('Canceled on browser back button'));
-                } finally {
-                    if ($originalRequestOnVoid !== null) {
-                        BuckarooAdapter::$requestOnVoid = $originalRequestOnVoid;
-                    }
+                }
+            } finally {
+                if ($originalRequestOnVoid !== null) {
+                    BuckarooAdapter::$requestOnVoid = $originalRequestOnVoid;
                 }
             }
 
         } catch (\Throwable $th) {
             $this->logger->addError(__METHOD__." ".(string)$th);
         }
+    }
+
+    /**
+     * Whether Buckaroo already reports the previous order's transaction as paid
+     *
+     * The shopper may have paid in the bank app and come back before the push arrived.
+     *
+     * @param Order $order
+     *
+     * @return bool
+     */
+    private function isPaidOrProcessingAtBuckaroo(Order $order): bool
+    {
+        $payment = $order->getPayment();
+        $transactionKey = (string)($payment->getAdditionalInformation('buckaroo_original_transaction_key')
+            ?: $payment->getLastTransId());
+
+        if ($transactionKey === '') {
+            return false;
+        }
+
+        try {
+            $status = $this->getAdapter()->getTransactionStatus(
+                str_replace('buckaroo_magento2_', '', (string)$payment->getMethod()),
+                (int)$order->getStoreId(),
+                $transactionKey
+            );
+        } catch (\Throwable $th) {
+            // Unknown: do not cancel what may be paid
+            $this->logger->addError(__METHOD__ . ' ' . $th->getMessage());
+            return true;
+        }
+
+        return in_array((int)$status->getStatusCode(), self::PAID_OR_PROCESSING_STATUSES, true);
+    }
+
+    /**
+     * Get cancel guard
+     *
+     * @return CancelGuard
+     */
+    private function getCancelGuard(): CancelGuard
+    {
+        return $this->cancelGuard ??= ObjectManager::getInstance()->get(CancelGuard::class);
+    }
+
+    /**
+     * Get adapter
+     *
+     * @return SdkAdapter
+     */
+    private function getAdapter(): SdkAdapter
+    {
+        return $this->sdkAdapter ??= ObjectManager::getInstance()->get(SdkAdapter::class);
     }
 
     /**

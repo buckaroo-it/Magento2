@@ -16,11 +16,20 @@ namespace Buckaroo\Magento2\Gateway\Command;
 
 use Buckaroo\Magento2\Gateway\Helper\GatewayFailureDescription;
 use Buckaroo\Magento2\Gateway\Helper\SubjectReader;
+use Buckaroo\Magento2\Exception\UnknownOutcomeException;
+use Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction;
 use Buckaroo\Magento2\Gateway\Http\Client\TransactionPayRemainder;
+use Buckaroo\Magento2\Gateway\Http\Client\TransactionType;
 use Buckaroo\Magento2\Model\LockManagerWrapper;
+use Buckaroo\Magento2\Model\Payment\UnknownOutcomePolicy;
 use Buckaroo\Magento2\Model\Method\LimitReachException;
 use Buckaroo\Magento2\Model\Service\CancelOrder;
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Service\SpamLimitService;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
@@ -76,6 +85,32 @@ class GatewayCommand implements CommandInterface
     private $logger;
 
     /**
+     * @var UnknownOutcomePolicy
+     */
+    private UnknownOutcomePolicy $unknownOutcomePolicy;
+
+    /**
+     * @var MessageManagerInterface|null
+     */
+    private ?MessageManagerInterface $messageManager;
+
+    /**
+     * @var CacheInterface|null
+     */
+    private ?CacheInterface $cache = null;
+
+    /**
+     * @var string
+     */
+    private string $guardedOperation;
+
+    /** Operations that are not sent twice when Buckaroo's answer to the first one was lost */
+    private const GUARDED_ACTIONS = [TransactionType::REFUND, TransactionType::CAPTURE];
+
+    /** Seconds the same operation stays blocked after its answer was lost */
+    private const UNKNOWN_OUTCOME_BLOCK_SECONDS = 900;
+
+    /**
      * @var ErrorMessageMapperInterface
      */
     private $errorMessageMapper;
@@ -112,6 +147,10 @@ class GatewayCommand implements CommandInterface
      * @param ValidatorInterface|null          $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
      * @param SkipCommandInterface|null        $skipCommand
+     * @param UnknownOutcomePolicy|null        $unknownOutcomePolicy
+     * @param MessageManagerInterface|null     $messageManager
+     * @param CacheInterface|null              $cache
+     * @param string                           $guardedOperation refund or capture, when the client's action does not say it
      *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
@@ -126,8 +165,16 @@ class GatewayCommand implements CommandInterface
         ?HandlerInterface            $handler = null,
         ?ValidatorInterface          $validator = null,
         ?ErrorMessageMapperInterface $errorMessageMapper = null,
-        ?SkipCommandInterface        $skipCommand = null
+        ?SkipCommandInterface        $skipCommand = null,
+        ?UnknownOutcomePolicy        $unknownOutcomePolicy = null,
+        ?MessageManagerInterface     $messageManager = null,
+        ?CacheInterface              $cache = null,
+        string                       $guardedOperation = ''
     ) {
+        $this->cache = $cache;
+        $this->guardedOperation = $guardedOperation;
+        $this->unknownOutcomePolicy = $unknownOutcomePolicy ?? new UnknownOutcomePolicy();
+        $this->messageManager = $messageManager;
         $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
         $this->client = $client;
@@ -169,9 +216,17 @@ class GatewayCommand implements CommandInterface
                 return;
             }
 
+            $this->refuseWhilePreviousOutcomeUnknown($order);
+
             $marked = $this->lockManager->markGatewayRequestStarted($orderIncrementId);
             try {
                 $response = $this->executePaymentRequest($commandSubject);
+            } catch (CommandException $e) {
+                if ($this->keepPendingOnUnknownOutcome($e, $paymentDO, $order)) {
+                    return;
+                }
+                $this->rememberUnknownOutcome($e, $order);
+                throw $e;
             } finally {
                 if ($marked) {
                     $this->lockManager->markGatewayRequestFinished($orderIncrementId);
@@ -182,6 +237,209 @@ class GatewayCommand implements CommandInterface
         } finally {
             $this->lockManager->unlockOrder($orderIncrementId);
         }
+    }
+
+    /**
+     * The payment request reached Buckaroo but its answer was lost: keep the order pending
+     *
+     * For methods that take the money in the request itself the shopper may have paid. Failing the
+     * checkout would cancel the order and invite a second payment; instead the order is placed pending,
+     * flagged, and settled by Buckaroo's push or the reconciliation cron.
+     *
+     * @param CommandException           $exception
+     * @param PaymentDataObjectInterface $paymentDO
+     * @param Order                      $order
+     *
+     * @return bool whether the order stays pending
+     */
+    private function keepPendingOnUnknownOutcome(
+        CommandException $exception,
+        PaymentDataObjectInterface $paymentDO,
+        $order
+    ): bool {
+        $payment = $paymentDO->getPayment();
+        $cause = $this->unknownOutcomePolicy->getPendingCause(
+            $exception,
+            (string)$payment->getMethodInstance()->getCode()
+        );
+
+        if ($cause === null) {
+            return false;
+        }
+
+        $payment->setAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN, time());
+        $order->addCommentToStatusHistory(__(
+            'Buckaroo did not answer in time. The payment may have been processed; the order waits for'
+            . ' Buckaroo\'s confirmation.'
+        ));
+
+        $this->getMessageManager()->addNoticeMessage(__(
+            'Your payment is being processed. You will receive an email as soon as it is confirmed.'
+        ));
+
+        $this->logger->warning(sprintf(
+            'Buckaroo outcome unknown for order %s (%s): order kept pending',
+            $order->getIncrementId(),
+            $cause->getAction()
+        ));
+
+        return true;
+    }
+
+    /**
+     * Report a refund or capture whose answer was lost, and remember it
+     *
+     * It may have been carried out. Remember it so the same operation is not sent again before it was
+     * checked: Buckaroo accepts it twice.
+     *
+     * @param CommandException $exception
+     * @param Order|mixed      $order
+     *
+     * @throws CommandException
+     */
+    private function rememberUnknownOutcome(CommandException $exception, $order): void
+    {
+        $action = $this->getGuardedOperation();
+        if ($action === '' || !$this->hasUnknownOutcome($exception)) {
+            return;
+        }
+
+        $this->getCache()->save(
+            (string)time(),
+            $this->getUnknownOutcomeCacheKey($order),
+            [],
+            self::UNKNOWN_OUTCOME_BLOCK_SECONDS
+        );
+
+        $this->logger->warning(sprintf(
+            'Buckaroo outcome unknown for %s on order %s: same operation blocked for %d seconds',
+            $action,
+            $order->getIncrementId(),
+            self::UNKNOWN_OUTCOME_BLOCK_SECONDS
+        ));
+
+        throw new CommandException(__(
+            'Buckaroo did not answer in time, so it is not known whether the %1 was carried out. Check the'
+            . ' transactions of this order in Buckaroo Plaza before trying again.',
+            $action === TransactionType::CAPTURE ? __('capture') : __('refund')
+        ), $exception);
+    }
+
+    /**
+     * Refuse while previous outcome unknown
+     *
+     * @param Order|mixed $order
+     *
+     * @throws CommandException
+     */
+    private function refuseWhilePreviousOutcomeUnknown($order): void
+    {
+        if ($this->getGuardedOperation() === '' || !$order->getId()) {
+            return;
+        }
+
+        $since = $this->getCache()->load($this->getUnknownOutcomeCacheKey($order));
+        if ($since === false || $since === null || $since === '') {
+            return;
+        }
+
+        throw new CommandException(__(
+            'An earlier refund or capture of this order may still have been carried out by Buckaroo (no answer'
+            . ' was received at %1). Check the transactions in Buckaroo Plaza; you can try again after %2.',
+            $this->formatLocalTime((int)$since),
+            $this->formatLocalTime((int)$since + self::UNKNOWN_OUTCOME_BLOCK_SECONDS)
+        ));
+    }
+
+    /**
+     * Has unknown outcome
+     *
+     * @param \Throwable $throwable
+     *
+     * @return bool
+     */
+    private function hasUnknownOutcome(\Throwable $throwable): bool
+    {
+        for ($cause = $throwable; $cause !== null; $cause = $cause->getPrevious()) {
+            if ($cause instanceof UnknownOutcomeException) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Refund or capture when this command must not be sent twice after a lost answer, '' otherwise
+     *
+     * @return string
+     */
+    private function getGuardedOperation(): string
+    {
+        $action = $this->getClientAction();
+        if (in_array($action, self::GUARDED_ACTIONS, true)) {
+            return $action;
+        }
+
+        return $this->guardedOperation;
+    }
+
+    /**
+     * Time of day in the store's timezone, as the admin's clock shows it
+     *
+     * @param int $timestamp
+     *
+     * @return string
+     */
+    private function formatLocalTime(int $timestamp): string
+    {
+        try {
+            return ObjectManager::getInstance()->get(TimezoneInterface::class)->date($timestamp)->format('H:i');
+        } catch (\Throwable $e) {
+            return gmdate('H:i', $timestamp) . ' UTC';
+        }
+    }
+
+    /**
+     * Get client action
+     *
+     * @return string
+     */
+    private function getClientAction(): string
+    {
+        return $this->client instanceof DefaultTransaction ? $this->client->getAction() : '';
+    }
+
+    /**
+     * Get unknown outcome cache key
+     *
+     * @param Order|mixed $order
+     *
+     * @return string
+     */
+    private function getUnknownOutcomeCacheKey($order): string
+    {
+        return 'buckaroo_unknown_outcome_' . $this->getGuardedOperation() . '_' . $order->getId();
+    }
+
+    /**
+     * Get cache
+     *
+     * @return CacheInterface
+     */
+    private function getCache(): CacheInterface
+    {
+        return $this->cache ??= ObjectManager::getInstance()->get(CacheInterface::class);
+    }
+
+    /**
+     * Get message manager
+     *
+     * @return MessageManagerInterface
+     */
+    private function getMessageManager(): MessageManagerInterface
+    {
+        return $this->messageManager ??= ObjectManager::getInstance()->get(MessageManagerInterface::class);
     }
 
     /**
@@ -230,13 +488,13 @@ class GatewayCommand implements CommandInterface
             return $this->client->placeRequest($transferO);
         } catch (ClientException $e) {
             $this->logger->critical('Buckaroo Client Error: ' . $e->getMessage());
-            throw new CommandException(__('Payment processing failed: %1', $e->getMessage()));
+            throw new CommandException(__('Payment processing failed: %1', $e->getMessage()), $e);
         } catch (ConverterException $e) {
             $this->logger->critical('Buckaroo Converter Error: ' . $e->getMessage());
-            throw new CommandException(__('Payment data conversion failed: %1', $e->getMessage()));
+            throw new CommandException(__('Payment data conversion failed: %1', $e->getMessage()), $e);
         } catch (\Exception $e) {
             $this->logger->critical('Unexpected Buckaroo Error: ' . $e->getMessage());
-            throw new CommandException(__('Payment processing encountered an unexpected error.'));
+            throw new CommandException(__('Payment processing encountered an unexpected error.'), $e);
         }
     }
 

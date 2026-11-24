@@ -15,8 +15,13 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Buckaroo\Exceptions\BuckarooException as SdkException;
+use Buckaroo\Magento2\Exception\UnknownOutcomeException;
 use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Buckaroo\Magento2\Model\Adapter\TransportFailureClassifier;
+use Buckaroo\Magento2\Observer\AddInTestModeMessage;
+use Buckaroo\Magento2\Service\Transaction\OutcomeResolver;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Magento\Framework\App\ObjectManager;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
@@ -26,6 +31,8 @@ use Throwable;
 
 /**
  * Default Gateway Client
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DefaultTransaction implements ClientInterface
 {
@@ -52,21 +59,37 @@ class DefaultTransaction implements ClientInterface
     protected $action;
 
     /**
-     * @param LoggerInterface $logger
-     * @param Logger          $paymentLogger
-     * @param BuckarooAdapter $adapter
-     * @param string          $action
+     * @var OutcomeResolver|null
+     */
+    private ?OutcomeResolver $outcomeResolver;
+
+    /**
+     * @var TransportFailureClassifier|null
+     */
+    private ?TransportFailureClassifier $transportFailureClassifier;
+
+    /**
+     * @param LoggerInterface                 $logger
+     * @param Logger                          $paymentLogger
+     * @param BuckarooAdapter                 $adapter
+     * @param string                          $action
+     * @param OutcomeResolver|null            $outcomeResolver
+     * @param TransportFailureClassifier|null $transportFailureClassifier
      */
     public function __construct(
         LoggerInterface $logger,
         Logger $paymentLogger,
         BuckarooAdapter $adapter,
-        string $action = TransactionType::PAY
+        string $action = TransactionType::PAY,
+        ?OutcomeResolver $outcomeResolver = null,
+        ?TransportFailureClassifier $transportFailureClassifier = null
     ) {
         $this->logger = $logger;
         $this->paymentLogger = $paymentLogger;
         $this->adapter = $adapter;
         $this->action = $action;
+        $this->outcomeResolver = $outcomeResolver;
+        $this->transportFailureClassifier = $transportFailureClassifier;
     }
 
     /**
@@ -95,11 +118,35 @@ class DefaultTransaction implements ClientInterface
             return $response;
         }
 
+        $startedAt = time();
         try {
             $response['object'] = $this->process($paymentMethod, $data);
         } catch (SdkException $e) {
             // The SDK message carries HTTP and connection details: log it, show a generic message.
-            $this->logger->critical($e->getMessage());
+            $failure = $this->getTransportFailureClassifier()->classify($e);
+            $this->logger->critical($e->getMessage(), [
+                'transport_failure' => $failure->getKind(),
+                'connection'        => $failure->getDetails(),
+            ]);
+
+            if ($failure->isOutcomeUnknown()) {
+                $resolved = $this->resolveLostAnswer($paymentMethod, $data, $startedAt);
+                if ($resolved !== null) {
+                    $response['object'] = $resolved;
+                    return $response;
+                }
+
+                throw new UnknownOutcomeException(
+                    __(
+                        'Unfortunately an error occurred while processing your payment. Please try again. '
+                        . 'If this error persists, please choose a different payment method.'
+                    ),
+                    (string)$this->getRequestAction($data),
+                    (string)($data['invoice'] ?? ''),
+                    $e
+                );
+            }
+
             throw new ClientException(
                 __(
                     'Unfortunately an error occurred while processing your payment. Please try again. '
@@ -131,9 +178,80 @@ class DefaultTransaction implements ClientInterface
      */
     protected function process(string $paymentMethod, array $data): TransactionResponse
     {
-        // A local variable: the client is shared, so changing $this->action would carry over to later requests.
-        $action = isset($data['encryptedCardData']) ? TransactionType::PAY_ENCRYPTED : $this->action;
+        return $this->adapter->execute($this->getRequestAction($data), $paymentMethod, $data);
+    }
 
-        return $this->adapter->execute($action, $paymentMethod, $data);
+    /**
+     * Configured SDK action of this client (pay, refund, capture, ...)
+     *
+     * @return string
+     */
+    public function getAction(): string
+    {
+        return (string)$this->action;
+    }
+
+    /**
+     * SDK action used for this request
+     *
+     * @param array $data
+     *
+     * @return string
+     */
+    protected function getRequestAction(array $data): string
+    {
+        // A local variable: the client is shared, so changing $this->action would carry over to later requests.
+        return isset($data['encryptedCardData']) ? TransactionType::PAY_ENCRYPTED : $this->action;
+    }
+
+    /**
+     * The request reached Buckaroo but its answer was lost: find the transaction it created
+     *
+     * @param string $paymentMethod
+     * @param array  $data
+     * @param int    $startedAt
+     *
+     * @return TransactionResponse|null
+     */
+    private function resolveLostAnswer(string $paymentMethod, array $data, int $startedAt): ?TransactionResponse
+    {
+        $wasTest = $data[AddInTestModeMessage::PAYMENT_IN_TEST_MODE] ?? null;
+
+        return $this->getOutcomeResolver()->resolve(
+            $this->getRequestAction($data),
+            $paymentMethod,
+            $data,
+            $startedAt,
+            $wasTest === null ? null : (bool)$wasTest
+        );
+    }
+
+    /**
+     * Subclasses construct this class with the original three arguments
+     *
+     * @return OutcomeResolver
+     */
+    private function getOutcomeResolver(): OutcomeResolver
+    {
+        if ($this->outcomeResolver === null) {
+            $this->outcomeResolver = ObjectManager::getInstance()->get(OutcomeResolver::class);
+        }
+
+        return $this->outcomeResolver;
+    }
+
+    /**
+     * Subclasses construct this class with the original three arguments
+     *
+     * @return TransportFailureClassifier
+     */
+    private function getTransportFailureClassifier(): TransportFailureClassifier
+    {
+        if ($this->transportFailureClassifier === null) {
+            // Stateless and without dependencies
+            $this->transportFailureClassifier = new TransportFailureClassifier();
+        }
+
+        return $this->transportFailureClassifier;
     }
 }
