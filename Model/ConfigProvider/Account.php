@@ -53,6 +53,13 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_ORDER_STATUS_FAILED             = 'buckaroo_magento2/account/order_status_failed';
     public const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION =
         'buckaroo_magento2/account/create_order_before_transaction';
+    public const XPATH_ACCOUNT_HTTP_CONNECT_TIMEOUT = 'buckaroo_magento2/account/http_connect_timeout';
+    public const XPATH_ACCOUNT_HTTP_TIMEOUT         = 'buckaroo_magento2/account/http_timeout';
+
+    /** Bounds for the configurable Buckaroo HTTP timeouts, in seconds */
+    public const HTTP_CONNECT_TIMEOUT_DEFAULT = 10;
+    public const HTTP_TIMEOUT_DEFAULT         = 30;
+    public const HTTP_TIMEOUT_MAX             = 120;
     public const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
     public const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     public const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
@@ -618,6 +625,50 @@ class Account extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Seconds to wait for the connection to Buckaroo (DNS, TCP and TLS), within 1..HTTP_TIMEOUT_MAX
+     *
+     * @param null|int|string $store
+     *
+     * @return int
+     */
+    public function getHttpConnectTimeout($store = null): int
+    {
+        return $this->readTimeout(self::XPATH_ACCOUNT_HTTP_CONNECT_TIMEOUT, self::HTTP_CONNECT_TIMEOUT_DEFAULT, $store);
+    }
+
+    /**
+     * Seconds to wait for a whole request to Buckaroo, within 1..HTTP_TIMEOUT_MAX
+     *
+     * @param null|int|string $store
+     *
+     * @return int
+     */
+    public function getHttpTimeout($store = null): int
+    {
+        return $this->readTimeout(self::XPATH_ACCOUNT_HTTP_TIMEOUT, self::HTTP_TIMEOUT_DEFAULT, $store);
+    }
+
+    /**
+     * Read a timeout setting; empty or out-of-range values fall back to the default
+     *
+     * @param string          $path
+     * @param int             $default
+     * @param null|int|string $store
+     *
+     * @return int
+     */
+    private function readTimeout(string $path, int $default, $store): int
+    {
+        $value = $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $store);
+
+        if (!is_numeric($value) || (int)$value < 1 || (int)$value > self::HTTP_TIMEOUT_MAX) {
+            return $default;
+        }
+
+        return (int)$value;
     }
 
     /**

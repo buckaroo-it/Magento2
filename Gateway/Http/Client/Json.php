@@ -15,6 +15,7 @@ namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\HTTP\Client\Curl;
 
 class Json
@@ -160,7 +161,10 @@ class Json
             CURLOPT_USERAGENT => 'Magento2',
             CURLOPT_URL => $uri,
             CURLOPT_CUSTOMREQUEST => $httpMethod,
-            CURLOPT_POSTFIELDS => $json
+            CURLOPT_POSTFIELDS => $json,
+            // Magento's Curl client waits up to 300 s by default
+            CURLOPT_CONNECTTIMEOUT => Account::HTTP_CONNECT_TIMEOUT_DEFAULT,
+            CURLOPT_TIMEOUT => Account::HTTP_TIMEOUT_DEFAULT,
         ];
     }
 
