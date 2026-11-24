@@ -126,7 +126,10 @@ define(
                                 googlepayPay.completePayment(false);
                             }
                         ).done(function () {
-                            googlepayPay.completePayment(true);
+                            // A limit message means no order was placed: report it as failed so the
+                            // processing overlay does not cover the message
+                            var data = window.checkoutConfig.payment.buckaroo.responseData;
+                            googlepayPay.completePayment(!(data && typeof data.limitReachedMessage === 'string'));
                             self.afterPlaceOrder.apply(self, arguments);
                         });
 
