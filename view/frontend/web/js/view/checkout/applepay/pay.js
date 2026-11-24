@@ -34,6 +34,8 @@ define(
         'use strict';
 
         var transactionResult = ko.observable(null);
+        // Milliseconds the checkout page waits for the order request before completing the Apple Pay sheet
+        var CHECKOUT_AUTHORIZATION_TIMEOUT = 25000;
 
         return {
             transactionResult: transactionResult,
@@ -483,12 +485,12 @@ define(
                     status: ApplePaySession.STATUS_SUCCESS,
                     errors: []
                 };
+                var failureResult = {
+                    status: ApplePaySession.STATUS_FAILURE,
+                    errors: []
+                };
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
-                    var failureResult = {
-                        status: ApplePaySession.STATUS_FAILURE,
-                        errors: []
-                    };
 
                     // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout
                     return new Promise(function (resolve) {
@@ -527,8 +529,39 @@ define(
                         }.bind(this));
                     }.bind(this));
                 } else {
-                    this.transactionResult(payment);
-                    return Promise.resolve(authorizationResult);
+                    // Checkout page: the order is placed by the payment renderer. Complete the Apple Pay
+                    // sheet with the outcome of that call instead of reporting success before it ran.
+                    return new Promise(function (resolve) {
+                        var settled = false,
+                            settle = function (succeeded) {
+                                if (settled) {
+                                    return;
+                                }
+                                settled = true;
+                                this.settleCheckoutAuthorization = null;
+                                resolve(succeeded ? authorizationResult : failureResult);
+                            }.bind(this);
+
+                        this.settleCheckoutAuthorization = settle;
+                        // Apple Pay ends the session after about 30 seconds. A request still running by
+                        // then is one whose answer from Buckaroo is late; the order is kept pending for it.
+                        setTimeout(function () {
+                            settle(true);
+                        }, CHECKOUT_AUTHORIZATION_TIMEOUT);
+
+                        this.transactionResult(payment);
+                    }.bind(this));
+                }
+            },
+
+            /**
+             * Called by the checkout renderer once the order request returned
+             *
+             * @param {Boolean} succeeded
+             */
+            completeCheckoutAuthorization: function (succeeded) {
+                if (typeof this.settleCheckoutAuthorization === 'function') {
+                    this.settleCheckoutAuthorization(succeeded);
                 }
             },
 

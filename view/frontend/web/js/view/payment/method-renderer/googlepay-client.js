@@ -94,6 +94,8 @@ define(
                     if (googlepayPay.isOsc()) {
                         var validationResult = additionalValidators.validate();
                         if (!validationResult) {
+                            // No order is placed: a wallet sheet waiting for it must not report success
+                            googlepayPay.completePayment(false);
                             return false;
                         }
                     }
@@ -121,12 +123,17 @@ define(
                         $.when(placeOrder).fail(
                             function () {
                                 self.isPlaceOrderActionAllowed(true);
+                                googlepayPay.completePayment(false);
                             }
-                        ).done(this.afterPlaceOrder.bind(this));
+                        ).done(function () {
+                            googlepayPay.completePayment(true);
+                            self.afterPlaceOrder.apply(self, arguments);
+                        });
 
                         return true;
                     }
 
+                    googlepayPay.completePayment(false);
                     return false;
                 },
 
