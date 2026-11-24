@@ -35,6 +35,12 @@ define(
 
 
         var transactionResult = ko.observable(null);
+
+
+        // Milliseconds Google Pay waits for the order request before the sheet is completed
+
+
+        var PAYMENT_AUTHORIZATION_TIMEOUT = 25000;
         var canShowMethod = ko.observable(false);
 
         return {
@@ -579,23 +585,47 @@ define(
             processPayment: function (paymentData) {
                 var self = this;
 
-                return new Promise(function (resolve, reject) {
-                    try {
-                        // Store the payment data in observable
-                        // The order-handler subscribes to this and will handle order placement
-                        self.transactionResult(paymentData);
+                return new Promise(function (resolve) {
+                    var settled = false,
+                        settle = function (succeeded, reason) {
+                            if (settled) {
+                                return;
+                            }
+                            settled = true;
+                            self.settlePayment = null;
+                            resolve(succeeded ? {success: true} : {
+                                success: false,
+                                errorMessage: $t('Payment processing failed. Please try again.'),
+                                errorReason: reason || 'OTHER_ERROR'
+                            });
+                        };
 
-                        resolve({
-                            success: true
-                        });
+                    // Report the outcome of the order request to Google Pay instead of success up front.
+                    // A request still running after the wait is one whose answer from Buckaroo is late;
+                    // the order is kept pending for it.
+                    self.settlePayment = settle;
+                    setTimeout(function () {
+                        settle(true);
+                    }, PAYMENT_AUTHORIZATION_TIMEOUT);
+
+                    try {
+                        // The order handler / payment renderer subscribes to this and places the order
+                        self.transactionResult(paymentData);
                     } catch (error) {
-                        resolve({
-                            success: false,
-                            errorMessage: $t('Payment processing failed. Please try again.'),
-                            errorReason: 'PAYMENT_DATA_INVALID'
-                        });
+                        settle(false, 'PAYMENT_DATA_INVALID');
                     }
                 });
+            },
+
+            /**
+             * Called once the order request returned
+             *
+             * @param {Boolean} succeeded
+             */
+            completePayment: function (succeeded) {
+                if (typeof this.settlePayment === 'function') {
+                    this.settlePayment(succeeded);
+                }
             },
 
             /**

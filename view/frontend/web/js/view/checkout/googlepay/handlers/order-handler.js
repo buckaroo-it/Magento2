@@ -114,10 +114,12 @@ define(
                         if (addResponse && !addResponse.error) {
                             self.saveOrder(transformedPaymentData, productData);
                         } else {
+                            self.settle(false);
                             alert('Failed to add product to cart: ' + (addResponse.error || 'Unknown error'));
                         }
                     },
                     error: function (xhr, status, error) {
+                        self.settle(false);
                         alert('Failed to add product to cart');
                     }
                 });
@@ -145,12 +147,25 @@ define(
                     showLoader: true,
                     data: payload,
                     success: function (response) {
+                        self.settle(!!(response && response.success));
                         self.afterPlaceOrder(response);
                     },
                     error: function (xhr, status, error) {
+                        self.settle(false);
                         alert('Order placement failed. Please try again.');
                     }
                 });
+            },
+
+            /**
+             * Tell the wallet sheet how the order request ended (set by the button that started it)
+             *
+             * @param {Boolean} succeeded
+             */
+            settle: function (succeeded) {
+                if (typeof this.onSettled === 'function') {
+                    this.onSettled(succeeded);
+                }
             },
 
             afterPlaceOrder: function (response) {

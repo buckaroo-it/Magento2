@@ -38,6 +38,7 @@ define(
                 googlepayPay.transactionResult.subscribe(function (paymentData) {
                     if (paymentData) {
                         orderHandler.setGooglepayPaymentData(paymentData);
+                        orderHandler.onSettled = googlepayPay.completePayment.bind(googlepayPay);
                         orderHandler.placeOrder(null);
                     }
                 }.bind(this));

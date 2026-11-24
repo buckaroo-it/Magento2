@@ -300,6 +300,175 @@ class GatewayCommandTest extends BaseTest
         $this->createCommand()->execute($commandSubject);
     }
 
+    /**
+     * Buckaroo's answer to a wallet payment was lost: the order is placed pending and flagged instead of
+     * failing the checkout (which would cancel it and invite a second payment) (BTI-2031).
+     */
+    public function testLostAnswerToADirectPaymentKeepsTheOrderPending(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->methodInstance->method('getCode')->willReturn('buckaroo_magento2_applepay');
+        $payment = $this->paymentDO->getPayment();
+        $payment->expects($this->once())
+            ->method('setAdditionalInformation')
+            ->with(\Buckaroo\Magento2\Service\Order\CancelGuard::OUTCOME_UNKNOWN, $this->isType('int'));
+
+        $this->expectLockAcquiredAndReleased();
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+        $this->client->method('placeRequest')->willThrowException(
+            new \Buckaroo\Magento2\Exception\UnknownOutcomeException(__('lost'), 'pay', self::ORDER_INCREMENT_ID)
+        );
+        $this->handler->expects($this->never())->method('handle');
+
+        $messageManager = $this->createMock(\Magento\Framework\Message\ManagerInterface::class);
+        $messageManager->expects($this->once())->method('addNoticeMessage');
+
+        $this->createCommand(null, true, true, true, false, $messageManager)->execute($commandSubject);
+    }
+
+    public function testLostAnswerToARedirectPaymentStillFails(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->methodInstance->method('getCode')->willReturn('buckaroo_magento2_ideal');
+
+        $this->expectLockAcquiredAndReleased();
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+        $this->client->method('placeRequest')->willThrowException(
+            new \Buckaroo\Magento2\Exception\UnknownOutcomeException(__('lost'), 'pay', self::ORDER_INCREMENT_ID)
+        );
+
+        $this->expectException(CommandException::class);
+
+        $this->createCommand()->execute($commandSubject);
+    }
+
+    public function testLostAnswerToARefundStillFails(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->methodInstance->method('getCode')->willReturn('buckaroo_magento2_applepay');
+
+        $this->expectLockAcquiredAndReleased();
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+        $this->client->method('placeRequest')->willThrowException(
+            new \Buckaroo\Magento2\Exception\UnknownOutcomeException(__('lost'), 'refund', self::ORDER_INCREMENT_ID)
+        );
+
+        $this->expectException(CommandException::class);
+
+        $this->createCommand()->execute($commandSubject);
+    }
+
+    public function testARefundWhoseAnswerWasLostIsReportedAndRemembered(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->paymentDO->getOrder()->getOrder()->method('getId')->willReturn(42);
+        $client = $this->refundClient();
+        $client->method('placeRequest')->willThrowException(
+            new \Buckaroo\Magento2\Exception\UnknownOutcomeException(__('lost'), 'refund', self::ORDER_INCREMENT_ID)
+        );
+
+        $this->expectLockAcquiredAndReleased();
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+
+        $cache = $this->createMock(\Magento\Framework\App\CacheInterface::class);
+        $cache->method('load')->willReturn(false);
+        $cache->expects($this->once())->method('save')
+            ->with($this->isType('string'), 'buckaroo_unknown_outcome_refund_42', [], 900);
+
+        $this->expectException(CommandException::class);
+        $this->expectExceptionMessageMatches('/not known whether the refund was carried out/');
+
+        $this->createCommandWithCache($client, $cache)->execute($commandSubject);
+    }
+
+    public function testASecondRefundIsRefusedWhileTheFirstOutcomeIsUnknown(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->paymentDO->getOrder()->getOrder()->method('getId')->willReturn(42);
+        $client = $this->refundClient();
+        $client->expects($this->never())->method('placeRequest');
+
+        $this->expectLockAcquiredAndReleased();
+        $cache = $this->createMock(\Magento\Framework\App\CacheInterface::class);
+        $cache->method('load')->with('buckaroo_unknown_outcome_refund_42')->willReturn((string)time());
+
+        $this->expectException(CommandException::class);
+        $this->expectExceptionMessageMatches('/An earlier refund or capture/');
+
+        $this->createCommandWithCache($client, $cache)->execute($commandSubject);
+    }
+
+    /**
+     * Klarna captures are sent with the pay action; the command is configured as a capture.
+     */
+    public function testACaptureSentWithThePayActionIsAlsoRemembered(): void
+    {
+        $commandSubject = $this->createCommandSubject();
+        $this->paymentDO->getOrder()->getOrder()->method('getId')->willReturn(42);
+        $client = $this->createMock(\Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction::class);
+        $client->method('getAction')->willReturn('pay');
+        $client->method('placeRequest')->willThrowException(
+            new \Buckaroo\Magento2\Exception\UnknownOutcomeException(__('lost'), 'pay', self::ORDER_INCREMENT_ID)
+        );
+        $this->methodInstance->method('getCode')->willReturn('buckaroo_magento2_klarnakp');
+
+        $this->expectLockAcquiredAndReleased();
+        $this->requestBuilder->method('build')->willReturn(['invoice' => self::ORDER_INCREMENT_ID]);
+        $this->transferFactory->method('create')->willReturn($this->createMock(TransferInterface::class));
+
+        $cache = $this->createMock(\Magento\Framework\App\CacheInterface::class);
+        $cache->method('load')->willReturn(false);
+        $cache->expects($this->once())->method('save')
+            ->with($this->isType('string'), 'buckaroo_unknown_outcome_capture_42', [], 900);
+
+        $this->expectException(CommandException::class);
+        $this->expectExceptionMessageMatches('/not known whether the capture was carried out/');
+
+        $this->createCommandWithCache($client, $cache, 'capture')->execute($commandSubject);
+    }
+
+    /**
+     * @return \Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction|MockObject
+     */
+    private function refundClient()
+    {
+        $client = $this->createMock(\Buckaroo\Magento2\Gateway\Http\Client\DefaultTransaction::class);
+        $client->method('getAction')->willReturn('refund');
+
+        return $client;
+    }
+
+    /**
+     * @param ClientInterface                        $client
+     * @param \Magento\Framework\App\CacheInterface $cache
+     *
+     * @return GatewayCommand
+     */
+    private function createCommandWithCache(ClientInterface $client, $cache, string $guardedOperation = ''): GatewayCommand
+    {
+        return new GatewayCommand(
+            $this->requestBuilder,
+            $this->transferFactory,
+            $client,
+            $this->logger,
+            $this->spamLimitService,
+            $this->cancelOrder,
+            $this->lockManager,
+            $this->handler,
+            $this->validator,
+            $this->errorMessageMapper,
+            null,
+            null,
+            null,
+            $cache,
+            $guardedOperation
+        );
+    }
+
     public function testGatewayRequestMarkTakenByAnOuterRequestIsLeftInPlace(): void
     {
         $commandSubject = $this->createCommandSubject();
@@ -710,7 +879,8 @@ class GatewayCommandTest extends BaseTest
         bool $withHandler = true,
         bool $withValidator = true,
         bool $withErrorMapper = true,
-        bool $withSkipCommand = false
+        bool $withSkipCommand = false,
+        ?\Magento\Framework\Message\ManagerInterface $messageManager = null
     ): GatewayCommand {
         return new GatewayCommand(
             $this->requestBuilder,
@@ -723,7 +893,9 @@ class GatewayCommandTest extends BaseTest
             $withHandler ? $this->handler : null,
             $withValidator ? $this->validator : null,
             $withErrorMapper ? $this->errorMessageMapper : null,
-            $withSkipCommand ? $this->skipCommand : null
+            $withSkipCommand ? $this->skipCommand : null,
+            null,
+            $messageManager
         );
     }
 

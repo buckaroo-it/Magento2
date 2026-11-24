@@ -17,6 +17,7 @@ namespace Buckaroo\Magento2\Model\Push;
 use Buckaroo\Magento2\Helper\StoreId;
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Exception as BuckarooException;
+use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
@@ -413,6 +414,11 @@ class DefaultProcessor implements PushProcessorInterface
         $this->pushRequest = $pushRequest;
         $this->order = $this->orderRequestService->getOrderByRequest();
         $this->payment = $this->order->getPayment();
+
+        if ($this->payment && $this->payment->getAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN)) {
+            // Buckaroo reports on the transaction: its outcome is no longer unknown
+            $this->payment->unsAdditionalInformation(CancelGuard::OUTCOME_UNKNOWN);
+        }
     }
 
     /**

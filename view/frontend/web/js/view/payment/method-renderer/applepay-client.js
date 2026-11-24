@@ -100,6 +100,8 @@ define(
                     if (applepayPay.isOsc()) {
                         var validationResult = additionalValidators.validate();
                         if (!validationResult) {
+                            // No order is placed: a wallet sheet waiting for it must not report success
+                            applepayPay.completeCheckoutAuthorization(false);
                             return false;
                         }
                     }
@@ -124,12 +126,17 @@ define(
                         $.when(placeOrder).fail(
                             function () {
                                 self.isPlaceOrderActionAllowed(true);
+                                applepayPay.completeCheckoutAuthorization(false);
                             }
-                        ).done(this.afterPlaceOrder.bind(this));
+                        ).done(function () {
+                            applepayPay.completeCheckoutAuthorization(true);
+                            self.afterPlaceOrder.apply(self, arguments);
+                        });
 
                         return true;
                     }
 
+                    applepayPay.completeCheckoutAuthorization(false);
                     return false;
                 },
 
