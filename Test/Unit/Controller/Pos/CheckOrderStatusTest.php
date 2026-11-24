@@ -101,6 +101,9 @@ class CheckOrderStatusTest extends BaseTest
             'failed on the terminal' => ['canceled', 'https://shop.test/nl/checkout/cart/', true],
             'still waiting'          => ['new', '', false],
             'paid, success redirect setting empty' => ['processing', 'https://shop.test/nl/checkout/onepage/success/', false, null],
+            'failed, redirect to checkout setting on' => [
+                'canceled', 'https://shop.test/nl/checkout/?bk_e=1#payment', true, 'checkout/onepage/success', true
+            ],
         ];
     }
 
@@ -109,7 +112,8 @@ class CheckOrderStatusTest extends BaseTest
         string $state,
         string $expectedRedirect,
         bool $restoresCart,
-        ?string $successRedirect = 'checkout/onepage/success'
+        ?string $successRedirect = 'checkout/onepage/success',
+        bool $failureToCheckout = false
     ): void
     {
         $store = $this->getFakeMock(\Magento\Store\Model\Store::class)->onlyMethods(['getId'])->getMock();
@@ -122,16 +126,18 @@ class CheckOrderStatusTest extends BaseTest
         $order->setData(['id' => 5, 'entity_id' => 5, 'increment_id' => '100000123', 'state' => $state]);
 
         $accountConfig = $this->getFakeMock(\Buckaroo\Magento2\Model\ConfigProvider\Account::class)
-            ->onlyMethods(['getSuccessRedirect', 'getFailureRedirect'])
+            ->onlyMethods(['getSuccessRedirect', 'getFailureRedirect', 'getFailureRedirectToCheckout'])
             ->getMock();
+        $accountConfig->method('getFailureRedirectToCheckout')->willReturn($failureToCheckout ? '1' : '0');
         $accountConfig->method('getSuccessRedirect')->willReturn($successRedirect);
         $accountConfig->method('getFailureRedirect')->willReturn('checkout/cart');
 
         $urlBuilder = $this->getMockForAbstractClass(\Magento\Framework\UrlInterface::class);
         $urlBuilder->method('getUrl')->willReturnCallback(
             function (string $route, array $params) {
-                $this->assertSame(['_scope' => 2], $params);
-                return 'https://shop.test/nl/' . $route . '/';
+                $this->assertSame(2, $params['_scope']);
+                $query = isset($params['_query']) ? '?' . http_build_query($params['_query']) : '';
+                return 'https://shop.test/nl/' . $route . '/' . $query;
             }
         );
 
