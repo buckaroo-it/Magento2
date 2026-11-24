@@ -215,11 +215,12 @@ define(
             },
 
             getProductDataFromPage: function () {
-                if (!$('#product_addtocart_form').length) {
+                var selection = productSelection.read();
+
+                // No product on this page (cart): the order is placed from the current cart
+                if (!selection.id) {
                     return {};
                 }
-
-                var selection = productSelection.read();
 
                 return {
                     product: selection.id,

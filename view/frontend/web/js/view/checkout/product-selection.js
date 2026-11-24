@@ -16,15 +16,18 @@
  */
 define([
     'jquery',
+    'Magento_Customer/js/customer-data',
+    'mage/translate',
     'mage/validation'
-], function ($) {
+], function ($, customerData, $t) {
     'use strict';
 
     var FORM = '#product_addtocart_form';
 
     return {
         /**
-         * Run Magento's add to cart validation; missing options and an invalid quantity are marked at the fields
+         * Run Magento's add to cart validation; missing options and an invalid quantity are marked at the fields.
+         * Without the product form there is nothing reliable to check or send, so the express payment does not start.
          *
          * @returns {Boolean}
          */
@@ -32,7 +35,14 @@ define([
             var form = $(FORM);
 
             if (!form.length) {
-                return true;
+                customerData.set('messages', {
+                    messages: [{
+                        type: 'error',
+                        text: $t('Please select your product options and use Add to Cart.')
+                    }]
+                });
+
+                return false;
             }
 
             if (!form.data('validator')) {
@@ -52,7 +62,7 @@ define([
         },
 
         /**
-         * @returns {{id: String, qty: String|Number, selected_options: Object}} selected_options: attribute id => option id
+         * @returns {{id: String|null, qty: String|Number, selected_options: Object}} selected_options: attribute id => option id
          */
         read: function () {
             var selection = {id: null, qty: 1, selected_options: {}};
