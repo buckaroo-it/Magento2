@@ -108,7 +108,8 @@ define(
                     url: urlBuilder.build('buckaroo/googlepay/add'),
                     type: 'POST',
                     dataType: 'json',
-                    showLoader: true,
+                    // The payment-processing overlay is already shown; a second loader would stack on it
+                    showLoader: false,
                     data: addPayload,
                     success: function (addResponse) {
                         if (addResponse && !addResponse.error) {
@@ -144,7 +145,8 @@ define(
                     url: urlBuilder.build('buckaroo/googlepay/saveOrder'),
                     type: 'POST',
                     dataType: 'json',
-                    showLoader: true,
+                    // The payment-processing overlay is already shown; a second loader would stack on it
+                    showLoader: false,
                     data: payload,
                     success: function (response) {
                         self.settle(!!(response && response.success));
