@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Model\Idin;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Idin as IdinConfigProvider;
+use Magento\Authorization\Model\UserContextInterface;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
@@ -28,6 +29,9 @@ use Magento\Quote\Model\Quote;
  *
  * A store whose checkout has no iDIN step is the exception: the shopper cannot verify there, so the
  * order is not refused, and a log warning and an admin message ask the merchant to update the checkout.
+ *
+ * Orders placed without a shopper are not checked either: admin orders, cron jobs, command line scripts
+ * and web API calls made with an integration or admin token (marketplace and ERP imports).
  */
 class VerificationGuard
 {
@@ -58,21 +62,29 @@ class VerificationGuard
     private $checkoutSupport;
 
     /**
+     * @var UserContextInterface
+     */
+    private $userContext;
+
+    /**
      * @param IdinConfigProvider      $idinConfigProvider
      * @param State                   $appState
      * @param BuckarooLoggerInterface $logger
      * @param CheckoutSupport         $checkoutSupport
+     * @param UserContextInterface    $userContext
      */
     public function __construct(
         IdinConfigProvider $idinConfigProvider,
         State $appState,
         BuckarooLoggerInterface $logger,
-        CheckoutSupport $checkoutSupport
+        CheckoutSupport $checkoutSupport,
+        UserContextInterface $userContext
     ) {
         $this->idinConfigProvider = $idinConfigProvider;
         $this->appState = $appState;
         $this->logger = $logger;
         $this->checkoutSupport = $checkoutSupport;
+        $this->userContext = $userContext;
     }
 
     /**
@@ -158,17 +170,34 @@ class VerificationGuard
     }
 
     /**
-     * Orders created by the merchant in the admin are not verified by the shopper
+     * Whether a shopper places the order, so the shopper can be asked to verify
+     *
+     * Admin orders, cron jobs, command line scripts and web API calls authenticated with an
+     * integration or admin token (marketplace and ERP imports) have no shopper to verify.
      *
      * @return bool
      */
     private function isCustomerFacingArea(): bool
     {
         try {
-            return $this->appState->getAreaCode() !== Area::AREA_ADMINHTML;
+            $areaCode = $this->appState->getAreaCode();
         } catch (LocalizedException $e) {
             // No area: command line script, not a shopper
             return false;
         }
+
+        if ($areaCode === Area::AREA_ADMINHTML || $areaCode === Area::AREA_CRONTAB) {
+            return false;
+        }
+
+        if (in_array($areaCode, [Area::AREA_WEBAPI_REST, Area::AREA_WEBAPI_SOAP, Area::AREA_GRAPHQL], true)) {
+            return !in_array(
+                (int)$this->userContext->getUserType(),
+                [UserContextInterface::USER_TYPE_INTEGRATION, UserContextInterface::USER_TYPE_ADMIN],
+                true
+            );
+        }
+
+        return true;
     }
 }
