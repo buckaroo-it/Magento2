@@ -10,7 +10,7 @@
  * @license   MIT
  */
 /**
- * Full-page "payment is being processed" overlay, shown from the moment a wallet payment is authorized
+ * Full-page "payment is being processed" overlay, shown from the moment an express payment starts
  * until the shopper is sent on. The order request can take a while when Buckaroo answers late; without
  * it the page looks frozen.
  */
@@ -21,6 +21,13 @@ define([
     'use strict';
 
     var OVERLAY_ID = 'buckaroo-payment-processing';
+
+    // Coming back with the browser's back button restores the page from cache, overlay included
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            $('#' + OVERLAY_ID).remove();
+        }
+    });
 
     return {
         /**

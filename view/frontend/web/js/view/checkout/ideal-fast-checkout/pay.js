@@ -5,8 +5,9 @@ define([
     'Magento_Customer/js/customer-data',
     'mage/translate',
     'mage/storage',
-    'buckaroo/rest-url-builder'
-], function (Component, urlBuilder, $, customerData, $t, storage, restUrlBuilder) {
+    'buckaroo/rest-url-builder',
+    'Buckaroo_Magento2/js/view/checkout/payment-processing'
+], function (Component, urlBuilder, $, customerData, $t, storage, restUrlBuilder, paymentProcessing) {
     'use strict';
 
     return Component.extend({
@@ -110,11 +111,12 @@ define([
         },
 
         onOrderPlaceSuccess: function (response) {
-            this.hideLoader();
+            // keep the overlay up while the browser is sent on to the bank or the success page
             let jsonResponse;
             try {
                 jsonResponse = $.parseJSON(response);
             } catch (e) {
+                this.hideLoader();
                 this.displayErrorMessage($t('An error occurred while processing your order.'));
                 return;
             }
@@ -148,11 +150,11 @@ define([
         },
 
         showLoader: function () {
-            $('body').loader('show');
+            paymentProcessing.show();
         },
 
         hideLoader: function () {
-            $('body').loader('hide');
+            paymentProcessing.hide();
         },
 
         /**
