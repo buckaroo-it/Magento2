@@ -18,10 +18,11 @@ namespace Buckaroo\Magento2\Test\Unit\Controller\Clicktopay;
 use Buckaroo\Magento2\Controller\Clicktopay\Token;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay as ClicktopayConfig;
+use Buckaroo\Magento2\Service\CheckoutTokenRequestGuard;
 use Buckaroo\Magento2\Service\OauthTokenService;
 use Buckaroo\Magento2\Test\BaseTest;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -47,8 +48,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
-            'request'           => $this->createRequestMock('MagentoFrontend'),
-            'checkoutSession'   => $this->createCheckoutSessionMock(42),
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $this->createGuardMock(true),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -74,8 +75,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
-            'request'           => $this->createRequestMock('MagentoFrontend'),
-            'checkoutSession'   => $this->createCheckoutSessionMock(42),
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $this->createGuardMock(true),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -104,8 +105,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
-            'request'           => $this->createRequestMock('MagentoFrontend'),
-            'checkoutSession'   => $this->createCheckoutSessionMock(42),
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $this->createGuardMock(true),
             'config'            => $config,
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -133,8 +134,8 @@ class TokenTest extends BaseTest
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
-            'request'           => $this->createRequestMock('MagentoFrontend'),
-            'checkoutSession'   => $this->createCheckoutSessionMock(42),
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $this->createGuardMock(true),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -147,21 +148,56 @@ class TokenTest extends BaseTest
     }
 
     /**
-     * An unauthenticated request (no active quote, no valid form key) must be rejected
-     * with a 403 before the merchant credentials are ever used.
+     * An unauthenticated request (no valid form key / no owning checkout session) must be
+     * rejected with a 403 before the merchant credentials are ever used.
      */
     public function testExecuteRejectsUntrustedRequest(): void
     {
         $tokenService = $this->createMock(OauthTokenService::class);
         $tokenService->expects($this->never())->method('getToken');
 
+        $encryptor = $this->createMock(EncryptorInterface::class);
+        $encryptor->expects($this->never())->method('decrypt');
+
+        $guard = $this->createGuardMock(false);
+        $guard->expects($this->never())->method('consumeRateLimit');
+
         $capturedData = null;
-        $resultJsonFactory = $this->createJsonFactoryMock($capturedData);
+        $capturedCode = null;
+        $resultJsonFactory = $this->createJsonFactoryMock($capturedData, $capturedCode);
 
         $instance = $this->getInstance([
             'resultJsonFactory' => $resultJsonFactory,
-            'request'           => $this->createRequestMock('evil.example.com'),
-            'checkoutSession'   => $this->createCheckoutSessionMock(null),
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $guard,
+            'config'            => $this->createConfigMock(),
+            'tokenService'      => $tokenService,
+            'logger'            => $this->createMock(BuckarooLoggerInterface::class),
+            'encryptor'         => $encryptor,
+        ]);
+
+        $instance->execute();
+
+        $this->assertSame(403, $capturedCode);
+        $this->assertSame('Unauthorized request', $capturedData['error']);
+    }
+
+    /**
+     * Once the session/IP budget is used up, no further upstream token calls are made.
+     */
+    public function testExecuteRejectsWhenRateLimited(): void
+    {
+        $tokenService = $this->createMock(OauthTokenService::class);
+        $tokenService->expects($this->never())->method('getToken');
+
+        $capturedData = null;
+        $capturedCode = null;
+        $resultJsonFactory = $this->createJsonFactoryMock($capturedData, $capturedCode);
+
+        $instance = $this->getInstance([
+            'resultJsonFactory' => $resultJsonFactory,
+            'request'           => $this->createMock(Http::class),
+            'requestGuard'      => $this->createGuardMock(true, false),
             'config'            => $this->createConfigMock(),
             'tokenService'      => $tokenService,
             'logger'            => $this->createMock(BuckarooLoggerInterface::class),
@@ -170,44 +206,51 @@ class TokenTest extends BaseTest
 
         $instance->execute();
 
+        $this->assertSame(429, $capturedCode);
         $this->assertArrayHasKey('error', $capturedData);
+    }
+
+    /**
+     * The form key must be validated even for AJAX requests (which Magento's default
+     * CSRF check would otherwise let through), and a failure must yield a JSON 403.
+     */
+    public function testCsrfValidationDelegatesToFormKeyCheck(): void
+    {
+        $request = $this->createMock(Http::class);
+
+        $guard = $this->createMock(CheckoutTokenRequestGuard::class);
+        $guard->expects($this->once())->method('hasValidFormKey')->with($request)->willReturn(false);
+
+        $capturedData = null;
+        $capturedCode = null;
+
+        $instance = $this->getInstance([
+            'resultJsonFactory' => $this->createJsonFactoryMock($capturedData, $capturedCode),
+            'request'           => $request,
+            'requestGuard'      => $guard,
+        ]);
+
+        $this->assertFalse($instance->validateForCsrf($request));
+        $this->assertInstanceOf(InvalidRequestException::class, $instance->createCsrfValidationException($request));
+        $this->assertSame(403, $capturedCode);
         $this->assertSame('Unauthorized request', $capturedData['error']);
     }
 
     /**
-     * Storefront request mock returning the given origin header.
+     * Request guard mock.
      *
-     * @param string $origin
+     * @param bool $authorized
+     * @param bool $withinRateLimit
      *
-     * @return Http|\PHPUnit\Framework\MockObject\MockObject
+     * @return CheckoutTokenRequestGuard|\PHPUnit\Framework\MockObject\MockObject
      */
-    private function createRequestMock(string $origin)
+    private function createGuardMock(bool $authorized, bool $withinRateLimit = true)
     {
-        $request = $this->getMockBuilder(Http::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getHeader'])
-            ->getMock();
-        $request->method('getHeader')->with('X-Requested-From')->willReturn($origin);
+        $guard = $this->createMock(CheckoutTokenRequestGuard::class);
+        $guard->method('isAuthorized')->willReturn($authorized);
+        $guard->method('consumeRateLimit')->willReturn($withinRateLimit);
 
-        return $request;
-    }
-
-    /**
-     * Checkout session mock exposing a quote id.
-     *
-     * @param int|null $quoteId
-     *
-     * @return CheckoutSession|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private function createCheckoutSessionMock($quoteId)
-    {
-        $session = $this->getMockBuilder(CheckoutSession::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getQuoteId'])
-            ->getMock();
-        $session->method('getQuoteId')->willReturn($quoteId);
-
-        return $session;
+        return $guard;
     }
 
     /**
@@ -248,10 +291,11 @@ class TokenTest extends BaseTest
      * JsonFactory mock whose Json result captures the data passed to setData.
      *
      * @param mixed $capturedData populated by reference on setData
+     * @param mixed $capturedCode populated by reference on setHttpResponseCode
      *
      * @return JsonFactory|\PHPUnit\Framework\MockObject\MockObject
      */
-    private function createJsonFactoryMock(&$capturedData)
+    private function createJsonFactoryMock(&$capturedData, &$capturedCode = null)
     {
         $jsonResult = $this->createMock(Json::class);
         $jsonResult->method('setData')->willReturnCallback(
@@ -260,7 +304,12 @@ class TokenTest extends BaseTest
                 return $jsonResult;
             }
         );
-        $jsonResult->method('setHttpResponseCode')->willReturnSelf();
+        $jsonResult->method('setHttpResponseCode')->willReturnCallback(
+            function ($code) use (&$capturedCode, $jsonResult) {
+                $capturedCode = $code;
+                return $jsonResult;
+            }
+        );
 
         $factory = $this->createMock(JsonFactory::class);
         $factory->method('create')->willReturn($jsonResult);

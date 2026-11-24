@@ -18,6 +18,24 @@ define(
 
         return {
 
+            /**
+             * Current storefront form key, sent with POSTs to Buckaroo endpoints that check it.
+             *
+             * Uses the form_key cookie first, because Magento copies it into the session on
+             * every request, then falls back to the checkout config value.
+             *
+             * @returns {string}
+             */
+            getFormKey: function () {
+                var match = document.cookie.match(/(?:^|; )form_key=([^;]*)/);
+
+                if (match) {
+                    return decodeURIComponent(match[1]);
+                }
+
+                return (window.checkoutConfig && window.checkoutConfig.formKey) || '';
+            },
+
             redirectHandle: function (response) {
                 if (response.RequiredAction !== undefined && response.RequiredAction.RedirectURL !== undefined) {
                     if (window.location.hash && (window.location.hash == '#payment')) {

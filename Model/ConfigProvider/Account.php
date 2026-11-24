@@ -54,6 +54,7 @@ class Account extends AbstractConfigProvider
     public const XPATH_ACCOUNT_CREATE_ORDER_BEFORE_TRANSACTION =
         'buckaroo_magento2/account/create_order_before_transaction';
     public const XPATH_ACCOUNT_IP_HEADER                       = 'buckaroo_magento2/account/ip_header';
+    public const XPATH_ACCOUNT_OAUTH_TOKEN_IP_LIMIT            = 'buckaroo_magento2/account/oauth_token_ip_limit';
     public const XPATH_ACCOUNT_CART_KEEP_ALIVE                 = 'buckaroo_magento2/account/cart_keep_alive';
     public const XPATH_ACCOUNT_CUSTOMER_ADDITIONAL_INFO        = 'buckaroo_magento2/account/customer_additional_info';
 
@@ -634,6 +635,24 @@ class Account extends AbstractConfigProvider
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Maximum Hosted Fields / Click to Pay OAuth tokens per client IP in each 10-minute window.
+     *
+     * 0 disables the per-IP limit. The per-session limit always applies.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|string|null $store
+     *
+     * @return int
+     */
+    public function getOauthTokenIpLimit($store = null): int
+    {
+        return max(0, (int) $this->scopeConfig->getValue(
+            self::XPATH_ACCOUNT_OAUTH_TOKEN_IP_LIMIT,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        ));
     }
 
     /**
