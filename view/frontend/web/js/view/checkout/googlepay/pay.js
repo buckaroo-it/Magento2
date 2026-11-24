@@ -18,6 +18,7 @@ define(
         'Magento_Checkout/js/model/totals',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Customer/js/customer-data',
+        'Buckaroo_Magento2/js/view/checkout/payment-processing',
         'mage/translate',
         'BuckarooSdk'
     ],
@@ -29,6 +30,7 @@ define(
         totals,
         additionalValidators,
         customerData,
+        paymentProcessing,
         $t
     ) {
         'use strict';
@@ -593,6 +595,9 @@ define(
                             }
                             settled = true;
                             self.settlePayment = null;
+                            if (!succeeded) {
+                                paymentProcessing.hide();
+                            }
                             resolve(succeeded ? {success: true} : {
                                 success: false,
                                 errorMessage: $t('Payment processing failed. Please try again.'),
@@ -603,6 +608,7 @@ define(
                     // Report the outcome of the order request to Google Pay instead of success up front.
                     // A request still running after the wait is one whose answer from Buckaroo is late;
                     // the order is kept pending for it.
+                    paymentProcessing.show();
                     self.settlePayment = settle;
                     setTimeout(function () {
                         settle(true);

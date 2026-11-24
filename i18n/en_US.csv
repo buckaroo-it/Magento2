@@ -253,3 +253,6 @@
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded.","Buckaroo: the partial payment of %1 (transaction %2) was refunded."
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded before the order was paid. The order is cancelled.","Buckaroo: the partial payment of %1 (transaction %2) was refunded before the order was paid. The order is cancelled."
 "Push notification for refund has no success status, ignoring.","Push notification for refund has no success status, ignoring."
+"Your payment is being processed.","Your payment is being processed."
+"Please do not close or refresh this page.","Please do not close or refresh this page."
+"Your payment is being processed. You will receive an email as soon as it is confirmed.","Your payment is being processed. You will receive an email as soon as it is confirmed."

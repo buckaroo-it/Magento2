@@ -18,6 +18,7 @@ define(
         'buckaroo/applepay/shipping-handler',
         'Magento_Checkout/js/model/payment/additional-validators',
         'underscore',
+        'Buckaroo_Magento2/js/view/checkout/payment-processing',
         'Magento_Checkout/js/model/shipping-rate-service',
         'mage/translate',
         'BuckarooSdk'
@@ -29,7 +30,8 @@ define(
         resourceUrlManager,
         shippingHandler,
         additionalValidators,
-        _
+        _,
+        paymentProcessing
     ) {
         'use strict';
 
@@ -501,9 +503,14 @@ define(
                             settle = function (succeeded) {
                                 if (!settled) {
                                     settled = true;
+                                    if (!succeeded) {
+                                        paymentProcessing.hide();
+                                    }
                                     resolve(succeeded ? authorizationResult : failureResult);
                                 }
                             };
+
+                        paymentProcessing.show();
 
                         setTimeout(function () {
                             settle(true);
@@ -553,9 +560,13 @@ define(
                                 }
                                 settled = true;
                                 this.settleCheckoutAuthorization = null;
+                                if (!succeeded) {
+                                    paymentProcessing.hide();
+                                }
                                 resolve(succeeded ? authorizationResult : failureResult);
                             }.bind(this);
 
+                        paymentProcessing.show();
                         this.settleCheckoutAuthorization = settle;
                         // Apple Pay ends the session after about 30 seconds. A request still running by
                         // then is one whose answer from Buckaroo is late; the order is kept pending for it.

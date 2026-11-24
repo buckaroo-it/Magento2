@@ -922,3 +922,6 @@
 "Buckaroo: invoiced %1 from the amount already captured at Buckaroo (transaction %2). No new capture was requested.","Buckaroo: %1 aus dem bereits bei Buckaroo erfassten Betrag in Rechnung gestellt (Transaktion %2). Es wurde keine neue Erfassung angefordert."
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded.","Buckaroo: Die Teilzahlung von %1 (Transaktion %2) wurde erstattet."
 "Buckaroo: the partial payment of %1 (transaction %2) was refunded before the order was paid. The order is cancelled.","Buckaroo: Die Teilzahlung von %1 (Transaktion %2) wurde erstattet, bevor die Bestellung bezahlt war. Die Bestellung wurde storniert."
+"Your payment is being processed.","Ihre Zahlung wird verarbeitet."
+"Please do not close or refresh this page.","Bitte schließen oder aktualisieren Sie diese Seite nicht."
+"Your payment is being processed. You will receive an email as soon as it is confirmed.","Ihre Zahlung wird verarbeitet. Sie erhalten eine E-Mail, sobald sie bestätigt ist."
