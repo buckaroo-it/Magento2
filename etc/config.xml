@@ -1040,6 +1040,7 @@
                 <log_handler_db_depth>10</log_handler_db_depth>
                 <log_retention>604800</log_retention>
                 <cart_keep_alive>1</cart_keep_alive>
+                <oauth_token_ip_limit>200</oauth_token_ip_limit>
                 <selection_type>1</selection_type>
                 <invoice_handling>1</invoice_handling>
             </account>

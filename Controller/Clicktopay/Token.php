@@ -17,27 +17,22 @@ namespace Buckaroo\Magento2\Controller\Clicktopay;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Clicktopay as ClicktopayConfig;
+use Buckaroo\Magento2\Service\CheckoutTokenRequestGuard;
 use Buckaroo\Magento2\Service\OauthTokenService;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Encryption\EncryptorInterface;
 
-class Token implements HttpPostActionInterface
+class Token implements HttpPostActionInterface, CsrfAwareActionInterface
 {
     private const SCOPE = 'clicktopay:save';
 
-    /**
-     * Header the storefront sends so this proxy only serves genuine checkout AJAX requests.
-     */
-    private const FRONTEND_ORIGIN_HEADER = 'X-Requested-From';
-
-    /**
-     * Expected value of the frontend-origin header.
-     */
-    private const FRONTEND_ORIGIN_VALUE = 'MagentoFrontend';
+    private const RATE_LIMIT_SCOPE = 'clicktopay';
 
     /**
      * @var JsonFactory
@@ -70,18 +65,18 @@ class Token implements HttpPostActionInterface
     private Http $request;
 
     /**
-     * @var CheckoutSession
+     * @var CheckoutTokenRequestGuard
      */
-    private CheckoutSession $checkoutSession;
+    private CheckoutTokenRequestGuard $requestGuard;
 
     /**
-     * @param JsonFactory             $resultJsonFactory
-     * @param ClicktopayConfig        $config
-     * @param OauthTokenService       $tokenService
-     * @param BuckarooLoggerInterface $logger
-     * @param EncryptorInterface      $encryptor
-     * @param Http                    $request
-     * @param CheckoutSession         $checkoutSession
+     * @param JsonFactory               $resultJsonFactory
+     * @param ClicktopayConfig          $config
+     * @param OauthTokenService         $tokenService
+     * @param BuckarooLoggerInterface   $logger
+     * @param EncryptorInterface        $encryptor
+     * @param Http                      $request
+     * @param CheckoutTokenRequestGuard $requestGuard
      */
     public function __construct(
         JsonFactory $resultJsonFactory,
@@ -90,7 +85,7 @@ class Token implements HttpPostActionInterface
         BuckarooLoggerInterface $logger,
         EncryptorInterface $encryptor,
         Http $request,
-        CheckoutSession $checkoutSession
+        CheckoutTokenRequestGuard $requestGuard
     ) {
         $this->resultJsonFactory = $resultJsonFactory;
         $this->config            = $config;
@@ -98,7 +93,39 @@ class Token implements HttpPostActionInterface
         $this->logger            = $logger;
         $this->encryptor         = $encryptor;
         $this->request           = $request;
-        $this->checkoutSession   = $checkoutSession;
+        $this->requestGuard      = $requestGuard;
+    }
+
+    /**
+     * Require a valid form key, including for AJAX requests.
+     *
+     * Magento's default CSRF check skips the form key for any request that sends
+     * `X-Requested-With: XMLHttpRequest`, and any client can send that header.
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool|null
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return $this->requestGuard->hasValidFormKey($request);
+    }
+
+    /**
+     * Reply to a failed CSRF check with a JSON 403 instead of a redirect.
+     *
+     * @param RequestInterface $request
+     *
+     * @return InvalidRequestException|null
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) Signature is fixed by CsrfAwareActionInterface
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        $result = $this->resultJsonFactory->create();
+        $result->setHttpResponseCode(403);
+        $result->setData(['error' => 'Unauthorized request']);
+
+        return new InvalidRequestException($result);
     }
 
     /**
@@ -112,13 +139,21 @@ class Token implements HttpPostActionInterface
     public function execute(): Json
     {
         // This endpoint spends the merchant's Click to Pay credentials, so it must only serve a
-        // genuine storefront checkout request: reject anything without an active quote or a valid
-        // form key. Without this an anonymous caller can mint OAuth tokens on the merchant's behalf.
-        if (!$this->isTrustedCheckoutRequest()) {
-            $this->logger->addError('[ClicktoPay] Token proxy: rejected untrusted request');
+        // genuine storefront checkout request: a POST with a valid session-bound form key from a
+        // session holding an active quote. Without this an anonymous caller can mint OAuth tokens
+        // on the merchant's behalf.
+        if (!$this->requestGuard->isAuthorized($this->request)) {
+            $this->logger->addDebug('[ClicktoPay] Token proxy: rejected untrusted request');
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(403);
             return $result->setData(['error' => 'Unauthorized request']);
+        }
+
+        if (!$this->requestGuard->consumeRateLimit(self::RATE_LIMIT_SCOPE)) {
+            $this->logger->addDebug('[ClicktoPay] Token proxy: rate limit exceeded');
+            $result = $this->resultJsonFactory->create();
+            $result->setHttpResponseCode(429);
+            return $result->setData(['error' => 'Too many requests']);
         }
 
         // Both credentials are stored encrypted (obscure fields with the Encrypted backend
@@ -138,22 +173,6 @@ class Token implements HttpPostActionInterface
 
         $result = $this->resultJsonFactory->create();
         return $result->setData($token);
-    }
-
-    /**
-     * Only serve genuine storefront checkout AJAX requests.
-     *
-     * Mirrors the hosted-fields token proxy (CredentialsChecker\GetToken): the caller must send
-     * the storefront origin header and hold an active checkout quote. This keeps an anonymous,
-     * session-less request from minting OAuth tokens on the merchant's credentials without relying
-     * on a form key, which is unreliable for cached checkout AJAX.
-     *
-     * @return bool
-     */
-    private function isTrustedCheckoutRequest(): bool
-    {
-        return $this->request->getHeader(self::FRONTEND_ORIGIN_HEADER) === self::FRONTEND_ORIGIN_VALUE
-            && (bool) $this->checkoutSession->getQuoteId();
     }
 
     /**

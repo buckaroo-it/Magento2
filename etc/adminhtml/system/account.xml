@@ -280,6 +280,14 @@
                 <config_path>buckaroo_magento2/account/ip_header</config_path>
             </field>
 
+            <field id="oauth_token_ip_limit" translate="label comment tooltip" type="text" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                <label>Card Token Requests per IP (per 10 minutes)</label>
+                <comment><![CDATA[Abuse limit for the Hosted Fields and Click to Pay token endpoints, counted per client IP. 0 disables the per-IP limit (the per-session limit always applies).]]></comment>
+                <tooltip>If the shop is behind a proxy, CDN or load balancer, set "Client IP Detection Headers" above. Otherwise all shoppers share the proxy's IP and this limit applies to the whole shop.</tooltip>
+                <validate>validate-digits validate-zero-or-greater</validate>
+                <config_path>buckaroo_magento2/account/oauth_token_ip_limit</config_path>
+            </field>
+
             <field id="customer_additional_info" translate="label comment" type="multiselect" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Add customer data to request</label>
                 <source_model>Buckaroo\Magento2\Model\Config\Source\CustomerAdditionalInfo</source_model>

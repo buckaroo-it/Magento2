@@ -101,10 +101,11 @@ define(
                 try {
                     const response = await $.ajax({
                         url: urlBuilder.build('/buckaroo/credentialschecker/gettoken'),
-                        type: 'GET',
+                        type: 'POST',
                         headers: {
                             'X-Requested-From': 'MagentoFrontend'
-                        }
+                        },
+                        data: { form_key: checkoutCommon.getFormKey() }
                     });
                     if (response.error) {
                         this.oauthTokenError($.mage.__("An error occurred, please try another payment method or try again later."));
