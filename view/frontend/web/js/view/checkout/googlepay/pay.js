@@ -20,6 +20,7 @@ define(
         'Magento_Customer/js/customer-data',
         'Buckaroo_Magento2/js/view/checkout/payment-processing',
         'mage/translate',
+        'Buckaroo_Magento2/js/view/checkout/product-selection',
         'BuckarooSdk'
     ],
     function (
@@ -31,7 +32,8 @@ define(
         additionalValidators,
         customerData,
         paymentProcessing,
-        $t
+        $t,
+        productSelection
     ) {
         'use strict';
 
@@ -204,71 +206,20 @@ define(
             },
 
             /**
-             * Validate product options before payment
-             * Uses cached productSelected data (Apple Pay approach)
+             * Validate the product form before the Google Pay sheet opens: the same check as Magento's
+             * Add to Cart button, then take the selection as it is on the page now
              */
             validateProductOptions: function() {
-                // Only validate on product pages
                 if (this.payMode !== 'product') {
                     return true;
                 }
 
-                var productForm = document.querySelector("#product_addtocart_form");
-                if (!productForm) {
-                    return true;
-                }
-
-                var isValid = true;
-                var errorMessage = "Please select all required product options.";
-                var missingOptions = [];
-
-                // Check if we have selected options from our watcher
-                var selectedOptions = this.productSelected.selected_options || {};
-
-                // Check all configurable swatch options
-                var swatchElements = productForm.querySelectorAll("div.swatch-attribute");
-                swatchElements.forEach(function(element) {
-                    var attributeId = element.getAttribute("data-attribute-id");
-                    var attributeCode = element.getAttribute("data-attribute-code");
-
-                    var label = element.querySelector(".swatch-attribute-label");
-                    var labelText = label ? label.textContent.trim() : (attributeCode || "Option");
-
-                    // Check if this attribute is selected in our cached data
-                    if (!selectedOptions[attributeId] || selectedOptions[attributeId] === "") {
-                        isValid = false;
-                        missingOptions.push(labelText);
-                    }
-                });
-
-                // Check dropdown configurable options
-                var dropdownElements = productForm.querySelectorAll("select[name*=\"super_attribute\"]");
-                dropdownElements.forEach(function(select, index) {
-                    var selectValue = select.value;
-                    var fieldElement = select.closest(".field");
-                    var label = fieldElement ? fieldElement.querySelector("label .required, label span") : null;
-                    var labelText = label ? label.textContent.trim() : ("Option " + (index + 1));
-
-                    if (!selectValue || selectValue === "") {
-                        isValid = false;
-                        missingOptions.push(labelText);
-                    }
-                });
-
-                if (missingOptions.length > 0) {
-                    errorMessage = "Please select: " + missingOptions.join(", ");
-                }
-
-                if (!isValid) {
-                    // Show error message using Magento's messaging system
-                    customerData.set('messages', {
-                        messages: [{
-                            type: 'error',
-                            text: errorMessage
-                        }]
-                    });
+                if (!productSelection.validate()) {
                     return false;
                 }
+
+                $.extend(this.productSelected, productSelection.read());
+                this.updateProductPrice();
 
                 return true;
             },

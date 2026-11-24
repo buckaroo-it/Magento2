@@ -15,14 +15,16 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
-        'Buckaroo_Magento2/js/view/checkout/payment-processing'
+        'Buckaroo_Magento2/js/view/checkout/payment-processing',
+        'Buckaroo_Magento2/js/view/checkout/product-selection'
     ],
     function (
         $,
         urlBuilder,
         quote,
         customer,
-        paymentProcessing
+        paymentProcessing,
+        productSelection
     ) {
         'use strict';
 
@@ -213,33 +215,17 @@ define(
             },
 
             getProductDataFromPage: function () {
-                // Try to get product data from the add to cart form
-                var form = $('#product_addtocart_form');
-                if (form.length) {
-                    var formData = form.serializeArray();
-                    var productData = {};
-                    var selectedOptions = {};
-
-                    $.each(formData, function(i, field) {
-                        productData[field.name] = field.value;
-
-                        // Extract super_attribute data for configurable products
-                        // Format: super_attribute[142]=167 -> selected_options: {142: "167"}
-                        var match = field.name.match(/^super_attribute\[(\d+)\]$/);
-                        if (match) {
-                            selectedOptions[match[1]] = field.value;
-                        }
-                    });
-
-                    // Add selected_options to productData if any were found
-                    if (Object.keys(selectedOptions).length > 0) {
-                        productData.selected_options = selectedOptions;
-                    }
-
-                    return productData;
+                if (!$('#product_addtocart_form').length) {
+                    return {};
                 }
 
-                return {};
+                var selection = productSelection.read();
+
+                return {
+                    product: selection.id,
+                    qty: selection.qty,
+                    selected_options: selection.selected_options
+                };
             }
         };
     }
