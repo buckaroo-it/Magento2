@@ -590,14 +590,16 @@ define(
                 return new Promise(function (resolve) {
                     var settled = false,
                         settle = function (succeeded, reason) {
+                            // A failure removes the overlay even when the sheet was already completed
+                            // by the timeout: the order request can fail after that
+                            if (!succeeded) {
+                                paymentProcessing.hide();
+                            }
                             if (settled) {
                                 return;
                             }
                             settled = true;
                             self.settlePayment = null;
-                            if (!succeeded) {
-                                paymentProcessing.hide();
-                            }
                             resolve(succeeded ? {success: true} : {
                                 success: false,
                                 errorMessage: $t('Payment processing failed. Please try again.'),
@@ -629,6 +631,11 @@ define(
              * @param {Boolean} succeeded
              */
             completePayment: function (succeeded) {
+                // The order could not be placed: remove the overlay, also when the sheet was already
+                // completed by the timeout
+                if (!succeeded) {
+                    paymentProcessing.hide();
+                }
                 if (typeof this.settlePayment === 'function') {
                     this.settlePayment(succeeded);
                 }

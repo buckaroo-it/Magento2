@@ -501,11 +501,13 @@ define(
                     return new Promise(function (resolve) {
                         var settled = false,
                             settle = function (succeeded) {
+                                // A failure removes the overlay even when the sheet was already completed
+                                // by the timeout: the order request can fail after that
+                                if (!succeeded) {
+                                    paymentProcessing.hide();
+                                }
                                 if (!settled) {
                                     settled = true;
-                                    if (!succeeded) {
-                                        paymentProcessing.hide();
-                                    }
                                     resolve(succeeded ? authorizationResult : failureResult);
                                 }
                             };
@@ -585,6 +587,11 @@ define(
              * @param {Boolean} succeeded
              */
             completeCheckoutAuthorization: function (succeeded) {
+                // The order could not be placed: remove the overlay, also when the sheet was already
+                // completed by the timeout
+                if (!succeeded) {
+                    paymentProcessing.hide();
+                }
                 if (typeof this.settleCheckoutAuthorization === 'function') {
                     this.settleCheckoutAuthorization(succeeded);
                 }

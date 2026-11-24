@@ -15,12 +15,14 @@ define(
         'mage/url',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
+        'Buckaroo_Magento2/js/view/checkout/payment-processing'
     ],
     function (
         $,
         urlBuilder,
         quote,
-        customer
+        customer,
+        paymentProcessing
     ) {
         'use strict';
 
@@ -190,6 +192,10 @@ define(
 
                     if (redirectUrl) {
                         window.location.href = redirectUrl;
+                    } else {
+                        // Nowhere to send the shopper: reload so the page shows the placed order, as Apple Pay does
+                        paymentProcessing.hide();
+                        window.location.reload();
                     }
                 } else if (response && response.error) {
                     alert(response.error);
