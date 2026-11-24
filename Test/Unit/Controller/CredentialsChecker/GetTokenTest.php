@@ -32,6 +32,11 @@ use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * The controller has to be built with mocks of all its constructor dependencies.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class GetTokenTest extends BaseTest
 {
     protected $instanceClass = GetToken::class;
