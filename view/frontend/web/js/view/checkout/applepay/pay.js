@@ -492,8 +492,23 @@ define(
 
                 if ((this.payMode === 'product') || (this.payMode === 'cart')) {
 
-                    // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout
+                    // Always resolve, so the Apple Pay sheet is completed instead of waiting for a timeout.
+                    // The request runs asynchronously: Apple Pay ends the session after about 30 seconds, and a
+                    // request still running then is one whose answer from Buckaroo is late (the order is kept
+                    // pending for it), so the sheet is completed as successful after the wait.
                     return new Promise(function (resolve) {
+                        var settled = false,
+                            settle = function (succeeded) {
+                                if (!settled) {
+                                    settled = true;
+                                    resolve(succeeded ? authorizationResult : failureResult);
+                                }
+                            };
+
+                        setTimeout(function () {
+                            settle(true);
+                        }, CHECKOUT_AUTHORIZATION_TIMEOUT);
+
                         $.ajax({
                             url: urlBuilder.build('buckaroo/applepay/saveOrder'),
                             type: 'POST',
@@ -502,8 +517,7 @@ define(
                                 extra: this.getData(payment)
                             },
                             global: false,
-                            dataType: 'json',
-                            async: false
+                            dataType: 'json'
                         }).done(function (result) {
                             if (result && result.success === true) {
                                 if (result.data && result.data.RequiredAction !== undefined && result.data.RequiredAction.RedirectURL !== undefined) {
@@ -512,7 +526,7 @@ define(
                                     this.timeoutRedirect();
                                 }
                                 this.payMode = '';
-                                resolve(authorizationResult);
+                                settle(true);
                                 return;
                             }
 
@@ -522,10 +536,10 @@ define(
                             } else {
                                 this.timeoutRedirect();
                             }
-                            resolve(failureResult);
+                            settle(false);
                         }.bind(this)).fail(function () {
                             this.timeoutRedirect();
-                            resolve(failureResult);
+                            settle(false);
                         }.bind(this));
                     }.bind(this));
                 } else {
