@@ -273,6 +273,20 @@
                 <config_path>buckaroo_magento2/account/create_order_before_transaction</config_path>
             </field>
 
+            <field id="http_connect_timeout" translate="label comment" type="text" sortOrder="172" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Connection Timeout (seconds)</label>
+                <comment><![CDATA[How long to wait for the connection to Buckaroo, including DNS lookup and TLS handshake. Default 10, maximum 120.]]></comment>
+                <validate>validate-digits validate-digits-range digits-range-1-120</validate>
+                <config_path>buckaroo_magento2/account/http_connect_timeout</config_path>
+            </field>
+
+            <field id="http_timeout" translate="label comment" type="text" sortOrder="174" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Request Timeout (seconds)</label>
+                <comment><![CDATA[How long to wait for Buckaroo's answer to a request. Default 30, maximum 120.]]></comment>
+                <validate>validate-digits validate-digits-range digits-range-1-120</validate>
+                <config_path>buckaroo_magento2/account/http_timeout</config_path>
+            </field>
+
             <field id="ip_header" translate="label comment" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Client IP Detection Headers</label>
                 <comment><![CDATA[Optional HTTP headers what will be taken into account for client IP detection. Comma separated list of multiple values is allowed.]]></comment>

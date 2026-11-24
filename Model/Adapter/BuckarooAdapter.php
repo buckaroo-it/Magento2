@@ -263,9 +263,10 @@ class BuckarooAdapter
             'Magento2',
             Data::BUCKAROO_VERSION,
             $culture,
-            null, // Disable SDK logging - SDK's BuckarooException handles null gracefully in log() method
-            null, // timeout
-            null  // connectTimeout
+            null, // channel
+            null, // logger: the SDK falls back to its own DefaultLogger
+            $configProviderAccount->getHttpTimeout($storeId),
+            $configProviderAccount->getHttpConnectTimeout($storeId)
         ));
     }
 
