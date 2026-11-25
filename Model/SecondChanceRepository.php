@@ -663,8 +663,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Get SecondChance by token and recreate quote
      *
-     * The link is single-use and expires a configured number of days after the last reminder,
-     * because for a guest order the restored cart exposes the order's name, address and e-mail.
+     * The link is single-use and expires a configured number of days after the last reminder.
      *
      * @param mixed $token
      *
@@ -680,18 +679,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             throw new NoSuchEntityException(__('Invalid token.'));
         }
 
-        $status = (string) $secondChance->getStatus();
-        if ($status === 'order_paid') {
-            throw new StateException(__('This order has already been paid.'));
-        }
-
-        if (!in_array($status, self::REDEEMABLE_STATUSES, true)) {
-            throw new NoSuchEntityException(__('This link has already been used.'));
-        }
-
-        if ($this->isLinkExpired($secondChance)) {
-            throw new NoSuchEntityException(__('This link has expired.'));
-        }
+        $status = $this->assertLinkRedeemable($secondChance);
 
         // Always load the base order (without suffixes) for recreation
         $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
@@ -711,28 +699,70 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $secondChance->setStatus('clicked');
 
         if ($order->getId()) {
-            $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
-
-            // Recreate the quote from the base order
-            $quote = $this->quoteRecreate->duplicate($order);
-
-            // Apply the reserved order ID with suffix to the new quote
-            if ($newOrderId && $quote && $quote->getId()) {
-                $quote->setReservedOrderId($newOrderId);
-
-                $this->checkoutSession->clearQuote();
-                $this->checkoutSession->clearStorage();
-                $this->checkoutSession->replaceQuote($quote);
-                $this->checkoutSession->setQuoteId($quote->getId());
-
-                // Save quote after session is set to ensure proper context
-                $this->cartRepository->save($quote);
-
-                $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
-            }
+            $this->restoreQuote($secondChance, $order, $baseOrderId);
         }
 
         return $secondChance->getDataModel();
+    }
+
+    /**
+     * Check that the reminder link can still be used and return its current status
+     *
+     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * @return string
+     * @throws NoSuchEntityException
+     * @throws StateException
+     */
+    private function assertLinkRedeemable($secondChance): string
+    {
+        $status = (string) $secondChance->getStatus();
+        if ($status === 'order_paid') {
+            throw new StateException(__('This order has already been paid.'));
+        }
+
+        if (!in_array($status, self::REDEEMABLE_STATUSES, true)) {
+            throw new NoSuchEntityException(__('This link has already been used.'));
+        }
+
+        if ($this->isLinkExpired($secondChance)) {
+            throw new NoSuchEntityException(__('This link has expired.'));
+        }
+
+        return $status;
+    }
+
+    /**
+     * Recreate the cart from the base order and put it in the checkout session
+     *
+     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * @param Order $order
+     * @param string $baseOrderId
+     * @return void
+     * @throws Exception
+     */
+    private function restoreQuote($secondChance, $order, $baseOrderId): void
+    {
+        $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
+
+        // Recreate the quote from the base order
+        $quote = $this->quoteRecreate->duplicate($order);
+
+        // Apply the reserved order ID with suffix to the new quote
+        if (!$newOrderId || !$quote || !$quote->getId()) {
+            return;
+        }
+
+        $quote->setReservedOrderId($newOrderId);
+
+        $this->checkoutSession->clearQuote();
+        $this->checkoutSession->clearStorage();
+        $this->checkoutSession->replaceQuote($quote);
+        $this->checkoutSession->setQuoteId($quote->getId());
+
+        // Save quote after session is set to ensure proper context
+        $this->cartRepository->save($quote);
+
+        $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
     }
 
     /**
