@@ -948,7 +948,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      *
      * @return float
      */
-    private function getDiscountedShippingAmount($entity): float
+    protected function getDiscountedShippingAmount($entity): float
     {
         $discount = $this->getShippingDiscount($this->order ?? $entity);
 
