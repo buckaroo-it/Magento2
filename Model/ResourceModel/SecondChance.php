@@ -13,6 +13,7 @@
 
 namespace Buckaroo\Magento2\Model\ResourceModel;
 
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
 class SecondChance extends AbstractDb
@@ -48,5 +49,29 @@ class SecondChance extends AbstractDb
         );
 
         return $affected === 1;
+    }
+
+    /**
+     * Save an existing record, changing its status only if it still has the status it was loaded with
+     *
+     * Background jobs work on records loaded earlier. A plain save would write their stale status
+     * over a change made meanwhile, such as a reminder link that was redeemed in between.
+     *
+     * @param AbstractModel $record
+     * @param string        $expectedStatus Status the record had when it was loaded
+     * @return void
+     */
+    public function saveIfStatusUnchanged(AbstractModel $record, string $expectedStatus): void
+    {
+        $connection = $this->getConnection();
+        $data = $this->_prepareDataForSave($record);
+        unset($data[$this->getIdFieldName()]);
+        $data['status'] = $connection->getCheckSql(
+            $connection->quoteInto('status = ?', $expectedStatus),
+            $connection->quote((string) $record->getStatus()),
+            'status'
+        );
+
+        $connection->update($this->getMainTable(), $data, ['entity_id = ?' => (int) $record->getId()]);
     }
 }

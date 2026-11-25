@@ -43,6 +43,27 @@ class LogSanitizerTest extends TestCase
         $this->assertSame('ABC123', $redacted['brq_transactions']);
     }
 
+    public function testRedactsAddressAndIdentityVariants(): void
+    {
+        $redacted = LogSanitizer::redact([
+            'HouseNumberAddition' => 'B',
+            'CustomerBirthDate' => '1990-01-01',
+            'Initials' => 'J.',
+            'IPAddress' => '192.0.2.10',
+            'billingZipCode' => '1234AB',
+            'shippingPostalCode' => '1234AB',
+            'Currency' => 'EUR',
+            'AmountDebit' => '39.00',
+        ]);
+
+        foreach (['HouseNumberAddition', 'CustomerBirthDate', 'Initials', 'IPAddress', 'billingZipCode',
+            'shippingPostalCode'] as $key) {
+            $this->assertSame(LogSanitizer::REDACTED, $redacted[$key], $key);
+        }
+        $this->assertSame('EUR', $redacted['Currency']);
+        $this->assertSame('39.00', $redacted['AmountDebit']);
+    }
+
     public function testRedactsNestedJsonPushData(): void
     {
         $redacted = LogSanitizer::redact([

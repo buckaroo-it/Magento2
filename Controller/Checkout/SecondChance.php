@@ -13,19 +13,34 @@
 
 namespace Buckaroo\Magento2\Controller\Checkout;
 
+use Buckaroo\Magento2\Block\Checkout\SecondChance\Confirm;
 use Buckaroo\Magento2\Logging\Log;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
 use Exception;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\StateException;
+use Magento\Framework\View\Result\PageFactory;
 
-class SecondChance extends Action
+/**
+ * Opening a reminder link shows a page with a button; only submitting that form restores the cart
+ *
+ * E-mail security scanners open links with a GET to inspect them. Redeeming the single-use link
+ * on that GET would use it up before the customer clicks it.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
+class SecondChance extends Action implements HttpGetActionInterface, HttpPostActionInterface
 {
     /**
      * Format of the tokens generated for Second Chance links
@@ -53,24 +68,33 @@ class SecondChance extends Action
     protected $customerSession;
 
     /**
+     * @var PageFactory
+     */
+    private $resultPageFactory;
+
+    /**
      * @param Context                $context
      * @param Log                    $logger
      * @param SecondChanceRepository $secondChanceRepository
      * @param CheckoutSession        $checkoutSession
      * @param CustomerSession        $customerSession
+     * @param PageFactory|null       $resultPageFactory
      */
     public function __construct(
         Context $context,
         Log $logger,
         SecondChanceRepository $secondChanceRepository,
         CheckoutSession $checkoutSession,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        ?PageFactory $resultPageFactory = null
     ) {
         parent::__construct($context);
         $this->logger                 = $logger;
         $this->secondChanceRepository = $secondChanceRepository;
         $this->checkoutSession        = $checkoutSession;
         $this->customerSession        = $customerSession;
+        $this->resultPageFactory      = $resultPageFactory
+            ?: ObjectManager::getInstance()->get(PageFactory::class);
     }
 
     /**
@@ -78,9 +102,9 @@ class SecondChance extends Action
      *
      * @throws Exception
      *
-     * @return Redirect
+     * @return ResultInterface
      */
-    public function execute(): Redirect
+    public function execute(): ResultInterface
     {
         $token = $this->getRequest()->getParam('token');
 
@@ -88,6 +112,10 @@ class SecondChance extends Action
             $this->logger->addWarning('SecondChance: No token provided');
             $this->messageManager->addErrorMessage(__('Invalid link. Please try again.'));
             return $this->handleRedirect('checkout/cart');
+        }
+
+        if (!$this->isConfirmed()) {
+            return $this->showConfirmation($token);
         }
 
         $failedRedirect = $this->restoreCart($token);
@@ -129,12 +157,55 @@ class SecondChance extends Action
 
         $this->messageManager->addSuccessMessage(__('Your cart has been restored. You can now complete your purchase.'));
 
-        $utmParams = array_intersect_key(
-            $this->getRequest()->getParams(),
-            array_flip(['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'])
-        );
+        return $this->handleRedirect('checkout', ['_query' => $this->getUtmParams(), '_fragment' => 'payment']);
+    }
 
-        return $this->handleRedirect('checkout', ['_query' => $utmParams, '_fragment' => 'payment']);
+    /**
+     * Show the page that asks the customer to confirm restoring the cart
+     *
+     * @param mixed $token
+     * @return ResultInterface
+     */
+    private function showConfirmation($token): ResultInterface
+    {
+        $failedRedirect = $this->handleLinkErrors(function () use ($token) {
+            $this->secondChanceRepository->assertTokenRedeemable($token);
+        }, $token);
+        if ($failedRedirect !== null) {
+            return $failedRedirect;
+        }
+
+        $page = $this->resultPageFactory->create();
+        $page->getConfig()->getTitle()->set(__('Restore your cart'));
+
+        return $page;
+    }
+
+    /**
+     * Whether the customer submitted the confirmation form
+     *
+     * Magento checks the form key of every frontend POST before the action runs.
+     *
+     * @return bool
+     */
+    private function isConfirmed(): bool
+    {
+        $request = $this->getRequest();
+
+        return $request instanceof HttpRequest && $request->isPost();
+    }
+
+    /**
+     * Tracking parameters of the request, as plain strings
+     *
+     * @return array
+     */
+    private function getUtmParams(): array
+    {
+        return array_filter(
+            array_intersect_key($this->getRequest()->getParams(), array_flip(Confirm::UTM_PARAMS)),
+            'is_string'
+        );
     }
 
     /**
@@ -145,11 +216,25 @@ class SecondChance extends Action
      */
     private function restoreCart($token): ?Redirect
     {
+        return $this->handleLinkErrors(function () use ($token) {
+            $this->secondChanceRepository->getSecondChanceByToken($token);
+        }, $token);
+    }
+
+    /**
+     * Run a step for the link, and turn a link that cannot be used into a redirect to the cart
+     *
+     * @param callable $step
+     * @param mixed    $token
+     * @return Redirect|null
+     */
+    private function handleLinkErrors(callable $step, $token): ?Redirect
+    {
         try {
             if (!$this->isWellFormedToken($token)) {
                 throw new NoSuchEntityException(__('Invalid token.'));
             }
-            $this->secondChanceRepository->getSecondChanceByToken($token);
+            $step();
         } catch (StateException $e) {
             $this->messageManager->addNoticeMessage($e->getMessage());
             return $this->handleRedirect('checkout/cart');

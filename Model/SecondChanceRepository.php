@@ -87,12 +87,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private const FOLLOW_UP_PAYMENT_GRACE_HOURS = 1;
 
     /**
-     * Statuses in which a reminder link may still restore the cart
+     * Status of a record whose reminder link has been redeemed, which makes the link single-use
      *
-     * "completed" means both reminders were sent, not that the link was used. A redeemed
-     * link moves to "clicked", which makes it single-use.
+     * Every other status only describes how the reminders were processed ("completed" means
+     * both were sent, "error" that the second one failed), so the link sent earlier stays valid.
      */
-    private const REDEEMABLE_STATUSES = ['pending', 'step1_sent', 'completed'];
+    private const STATUS_REDEEMED = 'clicked';
 
     /**
      * @var SecondChanceFactory
@@ -671,14 +671,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      */
     public function getSecondChanceByToken($token)
     {
-        $collection = $this->secondChanceCollectionFactory->create();
-        $collection->addFieldToFilter('token', $token);
-
-        $secondChance = $collection->getFirstItem();
-        if (!$secondChance->getId()) {
-            throw new NoSuchEntityException(__('Invalid token.'));
-        }
-
+        $secondChance = $this->getRecordByToken($token);
         $status = $this->assertLinkRedeemable($secondChance);
 
         // Always load the base order (without suffixes) for recreation
@@ -687,60 +680,140 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         // Once the order is paid the link must not rebuild the cart, or the customer
         // could pay for the same products again.
-        if ($order->getId() && $this->followUpOrderFinder->getPaidRecoveryOrder($order)) {
+        if ($this->isOrderPaid($order)) {
             $this->setFinalStatus($secondChance, 'order_paid');
             throw new StateException(__('This order has already been paid.'));
         }
 
         // Redeem the link; a concurrent request that redeemed it first wins
-        if (!$this->resource->claimStatus((int) $secondChance->getId(), $status, 'clicked')) {
-            throw new NoSuchEntityException(__('This link has already been used.'));
+        if (!$this->resource->claimStatus((int) $secondChance->getId(), $status, self::STATUS_REDEEMED)) {
+            throw new StateException(__('This link has already been used.'));
         }
-        $secondChance->setStatus('clicked');
+        $secondChance->setStatus(self::STATUS_REDEEMED);
 
-        if ($order->getId()) {
-            $this->restoreQuote($secondChance, $order, $baseOrderId);
-        }
+        $this->restoreQuoteOrReleaseLink($secondChance, $order, $baseOrderId, $status);
 
         return $secondChance->getDataModel();
     }
 
     /**
+     * Check that a reminder link can still be used, without redeeming it
+     *
+     * @param mixed $token
+     * @return void
+     * @throws NoSuchEntityException
+     * @throws StateException
+     */
+    public function assertTokenRedeemable($token): void
+    {
+        $secondChance = $this->getRecordByToken($token);
+        $this->assertLinkRedeemable($secondChance);
+
+        $order = $this->loadOrder(
+            $this->getBaseOrderId($secondChance->getOrderId()),
+            StoreId::normalize($secondChance->getStoreId())
+        );
+        if ($this->isOrderPaid($order)) {
+            throw new StateException(__('This order has already been paid.'));
+        }
+    }
+
+    /**
+     * Whether the order, or an order placed from one of its reminder links, has been paid
+     *
+     * Only these orders count. The status the cron gives a record is not used, because
+     * "customer_paid" also covers an unrelated order paid from the same e-mail address.
+     *
+     * @param Order $order
+     * @return bool
+     */
+    private function isOrderPaid($order): bool
+    {
+        return $order->getId() && $this->followUpOrderFinder->getPaidRecoveryOrder($order) !== null;
+    }
+
+    /**
+     * Load the record of a reminder link
+     *
+     * @param mixed $token
+     * @return SecondChance
+     * @throws NoSuchEntityException
+     */
+    private function getRecordByToken($token)
+    {
+        $collection = $this->secondChanceCollectionFactory->create();
+        $collection->addFieldToFilter('token', $token);
+
+        /** @var SecondChance $secondChance */
+        $secondChance = $collection->getFirstItem();
+        if (!$secondChance->getId()) {
+            throw new NoSuchEntityException(__('Invalid token.'));
+        }
+
+        return $secondChance;
+    }
+
+    /**
      * Check that the reminder link can still be used and return its current status
      *
-     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * Refusals are StateExceptions, whose message the controller shows to the customer.
+     *
+     * @param SecondChance $secondChance Record loaded from the collection
      * @return string
-     * @throws NoSuchEntityException
      * @throws StateException
      */
     private function assertLinkRedeemable($secondChance): string
     {
         $status = (string) $secondChance->getStatus();
-        if ($status === 'order_paid') {
-            throw new StateException(__('This order has already been paid.'));
-        }
-
-        if (!in_array($status, self::REDEEMABLE_STATUSES, true)) {
-            throw new NoSuchEntityException(__('This link has already been used.'));
+        if ($status === self::STATUS_REDEEMED) {
+            throw new StateException(__('This link has already been used.'));
         }
 
         if ($this->isLinkExpired($secondChance)) {
-            throw new NoSuchEntityException(__('This link has expired.'));
+            throw new StateException(__('This link has expired.'));
         }
 
         return $status;
     }
 
     /**
+     * Restore the cart, and make the link usable again when no cart could be restored
+     *
+     * @param SecondChance $secondChance   Record loaded from the collection
+     * @param Order        $order
+     * @param string       $baseOrderId
+     * @param string       $previousStatus Status the record had before the link was redeemed
+     * @return void
+     * @throws StateException When no cart could be restored
+     */
+    private function restoreQuoteOrReleaseLink($secondChance, $order, string $baseOrderId, string $previousStatus): void
+    {
+        try {
+            $restored = $order->getId() && $this->restoreQuote($secondChance, $order, $baseOrderId);
+        } catch (\Throwable $e) {
+            $this->logging->addError(
+                'SecondChance: could not restore the cart for order ' . $baseOrderId . ': ' . $e->getMessage()
+            );
+            $restored = false;
+        }
+
+        if (!$restored) {
+            $this->resource->claimStatus((int) $secondChance->getId(), self::STATUS_REDEEMED, $previousStatus);
+            $secondChance->setStatus($previousStatus);
+            throw new StateException(__('Unable to restore your cart. Please try again or contact support.'));
+        }
+    }
+
+    /**
      * Recreate the cart from the base order and put it in the checkout session
      *
-     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * @param SecondChance $secondChance Record loaded from the collection
      * @param Order $order
      * @param string $baseOrderId
-     * @return void
+     * @return bool Whether a cart was restored
      * @throws Exception
      */
-    private function restoreQuote($secondChance, $order, $baseOrderId): void
+    private function restoreQuote($secondChance, $order, $baseOrderId): bool
     {
         $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
 
@@ -749,7 +822,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
 
         // Apply the reserved order ID with suffix to the new quote
         if (!$newOrderId || !$quote || !$quote->getId()) {
-            return;
+            return false;
         }
 
         $quote->setReservedOrderId($newOrderId);
@@ -763,6 +836,8 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         $this->cartRepository->save($quote);
 
         $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
+
+        return true;
     }
 
     /**
@@ -770,7 +845,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      *
      * The lifetime runs from the most recent reminder, so the second e-mail gets a fresh window.
      *
-     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * @param SecondChance $secondChance Record loaded from the collection
      * @return bool
      */
     private function isLinkExpired($secondChance): bool
@@ -891,6 +966,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         foreach ($collection as $item) {
+            $loadedStatus = (string) $item->getStatus();
             try {
                 // Load the base order (without suffixes) for processing
                 $baseOrderId = $this->getBaseOrderId($item->getOrderId());
@@ -970,10 +1046,11 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     $item->setSecondEmailSent($this->dateTime->gmtDate());
                     $item->setStep(2);
                     // Mark as completed after second email
-                    $this->setFinalStatus($item, 'completed');
+                    $item->setStatus('completed');
                 }
 
-                $this->resource->save($item);
+                // A link redeemed while the e-mail was being sent keeps its redeemed status
+                $this->resource->saveIfStatusUnchanged($item, $loadedStatus);
 
                 // Log successful processing for key steps only
                 $this->logging->addDebug('SecondChance email sent successfully for step ' . $step . ', Order: ' . $order->getIncrementId());
@@ -982,7 +1059,7 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $this->logging->addError('SecondChance processing error for step ' . $step . ', Order: ' . $item->getOrderId() . ' - Error: ' . $e->getMessage());
                 $this->logging->addError('File: ' . $e->getFile() . ':' . $e->getLine());
                 $this->logging->addError('Stack trace: ' . $e->getTraceAsString());
-                $this->setFinalStatus($item, 'error');
+                $this->setFinalStatus($item, 'error', $loadedStatus);
             }
         }
     }
@@ -1185,14 +1262,19 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Set final status for SecondChance record
      *
-     * @param mixed $item
-     * @param mixed $status
+     * The status only changes if the record still has the status it was loaded with, so a
+     * reminder link redeemed in the meantime stays redeemed.
+     *
+     * @param mixed       $item
+     * @param mixed       $status
+     * @param string|null $loadedStatus Status the record was loaded with, when it was changed since
      */
-    private function setFinalStatus($item, $status)
+    private function setFinalStatus($item, $status, ?string $loadedStatus = null)
     {
+        $loadedStatus = $loadedStatus ?? (string) $item->getStatus();
         $item->setStatus($status);
         try {
-            $this->resource->save($item);
+            $this->resource->saveIfStatusUnchanged($item, $loadedStatus);
         } catch (Exception $e) {
             $this->logging->addError('Error updating SecondChance status: ' . $e->getMessage());
         }

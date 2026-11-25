@@ -861,7 +861,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'logging' => $this->logging,
         ]);
 
-        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
         $this->expectExceptionMessage('This link has already been used.');
         $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
     }
@@ -870,24 +870,63 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     {
         return [
             'clicked' => ['clicked'],
-            'out of stock' => ['out_of_stock'],
-            'error' => ['error'],
         ];
     }
 
-    public function testGetSecondChanceByTokenRefusesARecordAlreadyMarkedPaid(): void
+    /**
+     * Statuses the second-reminder cron can set on a record whose first link was never used
+     *
+     * @dataProvider unusedLinkStatusProvider
+     * @param string $status
+     */
+    public function testGetSecondChanceByTokenAcceptsALinkThatWasNeverUsed(string $status): void
     {
-        [$collectionFactory] = $this->getTokenRecord('order_paid');
-        $this->quoteRecreate->expects($this->never())->method('duplicate');
+        [$collectionFactory, $secondChance] = $this->getTokenRecord($status, '2026-11-02 10:00:00');
+        $secondChance->method('getDataModel')->willReturn($secondChance);
+
+        $claims = [];
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->method('claimStatus')->willReturnCallback(function ($id, $from, $to) use (&$claims) {
+            $claims[] = [$id, $from, $to];
+            return true;
+        });
+
+        // No order to restore, so the link is redeemed and then released again
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($order);
 
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
-            'quoteRecreate' => $this->quoteRecreate,
+            'orderFactory' => $this->orderFactory,
+            'resource' => $resource,
             'logging' => $this->logging,
         ]);
 
-        $this->expectException(\Magento\Framework\Exception\StateException::class);
-        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+        try {
+            $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+            $this->fail('Without an order no cart can be restored');
+        } catch (\Magento\Framework\Exception\StateException $e) {
+            $this->assertSame('Unable to restore your cart. Please try again or contact support.', $e->getMessage());
+        }
+        // Redeemed from its own status, so the link was accepted
+        $this->assertSame([[1, $status, 'clicked'], [1, 'clicked', $status]], $claims);
+    }
+
+    public static function unusedLinkStatusProvider(): array
+    {
+        return [
+            'first reminder sent' => ['step1_sent'],
+            'both reminders sent' => ['completed'],
+            'second reminder failed' => ['error'],
+            'out of stock at second reminder' => ['out_of_stock'],
+            'multiple reminders not allowed' => ['multiple_not_allowed'],
+            // Set for any paid order from the same e-mail address, not only for this order
+            'another order of the customer paid' => ['customer_paid'],
+            // Also set for an order on hold or in payment review; the order lookup decides
+            'cron saw the order as no longer unpaid' => ['order_paid'],
+        ];
     }
 
     /**
@@ -916,7 +955,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->orderFactory->method('create')->willReturn($order);
 
         $resource = $this->getFakeMock(ResourceSecondChance::class, true);
-        $resource->expects($expired ? $this->never() : $this->once())->method('claimStatus')->willReturn(true);
+        // Without an order no cart is restored, so a redeemed link is released again
+        $resource->expects($expired ? $this->never() : $this->exactly(2))->method('claimStatus')->willReturn(true);
 
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
@@ -927,12 +967,11 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'logging' => $this->logging,
         ]);
 
-        if ($expired) {
-            $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
-            $this->expectExceptionMessage('This link has expired.');
-        }
-
-        $this->assertSame($secondChance, $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance));
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
+        $this->expectExceptionMessage(
+            $expired ? 'This link has expired.' : 'Unable to restore your cart. Please try again or contact support.'
+        );
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
     }
 
     public static function linkLifetimeProvider(): array
@@ -969,9 +1008,190 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'logging' => $this->logging,
         ]);
 
-        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
         $this->expectExceptionMessage('This link has already been used.');
         $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+    }
+
+    public function testGetSecondChanceByTokenReleasesTheLinkWhenTheCartCannotBeRebuilt(): void
+    {
+        [$collectionFactory, $secondChance] = $this->getTokenRecord('step1_sent', '2026-11-02 10:00:00');
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+        $this->orderFactory->method('create')->willReturn($order);
+
+        $claims = [];
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->method('claimStatus')->willReturnCallback(function ($id, $from, $to) use (&$claims) {
+            $claims[] = [$id, $from, $to];
+            return true;
+        });
+        $this->quoteRecreate->method('duplicate')->willThrowException(new \RuntimeException('Product was deleted'));
+        $loggedErrors = [];
+        $this->logging->method('addError')->willReturnCallback(function ($message) use (&$loggedErrors) {
+            $loggedErrors[] = $message;
+            return true;
+        });
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'checkoutSession' => $this->checkoutSession,
+            'logging' => $this->logging,
+        ]);
+
+        try {
+            $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+            $this->fail('A failed rebuild should be reported to the customer');
+        } catch (\Magento\Framework\Exception\StateException $e) {
+            $this->assertSame('Unable to restore your cart. Please try again or contact support.', $e->getMessage());
+        }
+
+        $this->assertContains(
+            'SecondChance: could not restore the cart for order 000000001: Product was deleted',
+            $loggedErrors
+        );
+        $this->assertSame([[1, 'step1_sent', 'clicked'], [1, 'clicked', 'step1_sent']], $claims);
+    }
+
+    public function testGetSecondChanceByTokenReleasesTheLinkWhenNoCartWasRestored(): void
+    {
+        [$collectionFactory, $secondChance] = $this->getTokenRecord('completed', null, '2026-11-02 10:00:00');
+        $secondChance->method('getDataModel')->willReturn($secondChance);
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+        $this->orderFactory->method('create')->willReturn($order);
+
+        $claims = [];
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->method('claimStatus')->willReturnCallback(function ($id, $from, $to) use (&$claims) {
+            $claims[] = [$id, $from, $to];
+            return true;
+        });
+        $this->quoteRecreate->method('duplicate')->willReturn(null);
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'logging' => $this->logging,
+        ]);
+
+        try {
+            $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+            $this->fail('No restored cart should be reported to the customer');
+        } catch (\Magento\Framework\Exception\StateException $e) {
+            $this->assertSame('Unable to restore your cart. Please try again or contact support.', $e->getMessage());
+        }
+
+        $this->assertSame([[1, 'completed', 'clicked'], [1, 'clicked', 'completed']], $claims);
+    }
+
+    public function testAssertTokenRedeemableDoesNotRedeemTheLink(): void
+    {
+        [$collectionFactory, $secondChance] = $this->getTokenRecord('step1_sent', '2026-11-02 10:00:00');
+        $secondChance->expects($this->never())->method('setStatus');
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->never())->method('claimStatus');
+        $resource->expects($this->never())->method('saveIfStatusUnchanged');
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+        $this->orderFactory->method('create')->willReturn($order);
+        $followUpOrderFinder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $followUpOrderFinder->method('getPaidRecoveryOrder')->with($order)->willReturn(null);
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'followUpOrderFinder' => $followUpOrderFinder,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'logging' => $this->logging,
+        ]);
+
+        $this->invokeArgs('assertTokenRedeemable', ['test_token'], $instance);
+    }
+
+    public function testAssertTokenRedeemableRefusesAPaidOrderWithoutChangingTheRecord(): void
+    {
+        [$collectionFactory, $secondChance] = $this->getTokenRecord('customer_paid', '2026-11-02 10:00:00');
+        $secondChance->expects($this->never())->method('setStatus');
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+        $this->orderFactory->method('create')->willReturn($order);
+        $followUpOrderFinder = $this->getFakeMock(FollowUpOrderFinder::class, true);
+        $followUpOrderFinder->method('getPaidRecoveryOrder')->with($order)
+            ->willReturn($this->getFakeMock(Order::class, true));
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->never())->method('claimStatus');
+        $resource->expects($this->never())->method('saveIfStatusUnchanged');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'followUpOrderFinder' => $followUpOrderFinder,
+            'resource' => $resource,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
+        $this->expectExceptionMessage('This order has already been paid.');
+        $this->invokeArgs('assertTokenRedeemable', ['test_token'], $instance);
+    }
+
+    public function testAssertTokenRedeemableRefusesAUsedLink(): void
+    {
+        [$collectionFactory] = $this->getTokenRecord('clicked', '2026-11-02 10:00:00');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
+        $this->expectExceptionMessage('This link has already been used.');
+        $this->invokeArgs('assertTokenRedeemable', ['test_token'], $instance);
+    }
+
+    public function testSetFinalStatusOnlyReplacesTheStatusTheRecordWasLoadedWith(): void
+    {
+        $item = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $item->method('getStatus')->willReturn('step1_sent');
+        $item->expects($this->once())->method('setStatus')->with('out_of_stock');
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->never())->method('save');
+        $resource->expects($this->once())->method('saveIfStatusUnchanged')->with($item, 'step1_sent');
+
+        $instance = $this->getInstance(['resource' => $resource, 'logging' => $this->logging]);
+        $this->invokeArgs('setFinalStatus', [$item, 'out_of_stock'], $instance);
+    }
+
+    public function testSetFinalStatusUsesTheGivenLoadedStatus(): void
+    {
+        // The cron already changed the status in memory before the error
+        $item = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+        $item->method('getStatus')->willReturn('completed');
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->once())->method('saveIfStatusUnchanged')->with($item, 'step1_sent');
+
+        $instance = $this->getInstance(['resource' => $resource, 'logging' => $this->logging]);
+        $this->invokeArgs('setFinalStatus', [$item, 'error', 'step1_sent'], $instance);
     }
 
     public function testCheckForMultipleEmail()

@@ -52,7 +52,8 @@ class LogSanitizer
      */
     private const PII_KEY_FRAGMENTS = [
         'iban', 'bic', 'email', 'phone', 'street', 'firstname', 'lastname', 'billing_', 'shipping_',
-        'customer_', 'cardnumber', 'card_number',
+        'customer_', 'cardnumber', 'card_number', 'housenumber', 'zipcode', 'postalcode', 'birthdate',
+        'initials', 'ipaddress',
     ];
 
     /**
