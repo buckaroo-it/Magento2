@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler;
 
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Afterpay;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
 
 class AfterpayOldHandler extends AbstractArticlesHandler
 {
@@ -124,7 +125,9 @@ class AfterpayOldHandler extends AbstractArticlesHandler
     {
         $shippingCostsArticle = [];
 
-        $shippingAmount = $this->getShippingAmount($order);
+        $shippingAmount = $creditmemo
+            ? $this->getRefundedShippingAmount($order)
+            : $this->getDiscountedShippingAmount($order);
         if ($shippingAmount <= 0) {
             return $shippingCostsArticle;
         }
@@ -138,10 +141,76 @@ class AfterpayOldHandler extends AbstractArticlesHandler
 
     /**
      * @inheritdoc
+     *
+     * The discount lines carry an AfterPay tax category, the same one as the item lines they discount.
      */
-    protected function absorbRoundingResidual(array $articles, float $targetTotal): array
+    public function getDiscountLines(): array
     {
-        return parent::absorbRoundingResidual($articles, $this->getArticlesTarget($articles, $targetTotal));
+        return $this->withItemTaxCategory(parent::getDiscountLines());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getStoreCreditLines(): array
+    {
+        return $this->withItemTaxCategory(parent::getStoreCreditLines());
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * Counts the separately sent shippingCosts, like ArticleTotalRegistry::sumArticles() does for the
+     * amount, so the captured total a refund is capped at includes the shipping.
+     */
+    protected function sumArticleLines(array $articles): float
+    {
+        return round(parent::sumArticleLines($articles) + (float)($articles['shippingCosts'] ?? 0), 2);
+    }
+
+    /**
+     * Shipping refunded by a credit memo, less its share of the order's shipping discount.
+     *
+     * A credit memo has no shipping discount of its own: Magento takes the order's shipping
+     * discount in proportion to the shipping refunded and adds it to the memo's discount total.
+     *
+     * @param Creditmemo $creditmemo
+     *
+     * @return float
+     */
+    private function getRefundedShippingAmount($creditmemo): float
+    {
+        $orderShipping = (float)$this->getOrder()->getShippingAmount();
+        $discount = $this->getShippingDiscount($this->getOrder());
+
+        if ($discount < 0.01 || $orderShipping <= 0) {
+            return (float)$this->getShippingAmount($creditmemo);
+        }
+
+        $net = (float)$creditmemo->getShippingAmount();
+        $share = round($discount * min(1.0, $net / $orderShipping), 2);
+
+        return max(0.0, round(
+            $net
+            - $share
+            + (float)$creditmemo->getShippingTaxAmount()
+            + (float)$creditmemo->getShippingDiscountTaxCompensationAmount(),
+            2
+        ));
+    }
+
+    /**
+     * Replace the VAT percentage the shared handler passes for a line with the item tax category.
+     *
+     * @param array $lines
+     *
+     * @return array
+     */
+    private function withItemTaxCategory(array $lines): array
+    {
+        $taxCategory = $this->getTaxCategory($this->getOrder());
+
+        return array_map(fn(array $line) => array_merge($line, ['vatCategory' => $taxCategory]), $lines);
     }
 
     /**
