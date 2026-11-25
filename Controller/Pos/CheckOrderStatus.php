@@ -112,8 +112,8 @@ class CheckOrderStatus extends Action implements HttpPostActionInterface
     {
         $response = ['success' => 'false', 'redirect' => ''];
 
-        if (($params = $this->getRequest()->getParams()) && !empty($params['orderId'])) {
-            $this->order->loadByIncrementId($params['orderId']);
+        if (($params = $this->getRequest()->getParams()) && !empty($params['orderId']) && is_scalar($params['orderId'])) {
+            $this->order->loadByIncrementId((string) $params['orderId']);
             if ($this->order->getId() && $this->isOrderOwnedByCurrentVisitor()) {
                 $store = $this->order->getStore();
                 $url = '';

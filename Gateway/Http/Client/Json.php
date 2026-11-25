@@ -15,6 +15,7 @@ namespace Buckaroo\Magento2\Gateway\Http\Client;
 
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Magento\Framework\HTTP\Client\Curl;
 
@@ -68,7 +69,7 @@ class Json
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Create post request to payment engine | request: %s',
             __METHOD__,
             __LINE__,
-            var_export($data, true)
+            LogSanitizer::export($data)
         ));
 
         $options = $this->getOptions($urls['uri'], $urls['uri2'], $data, 'POST');
@@ -116,7 +117,7 @@ class Json
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Create a status request by transaction_id | request: %s',
             __METHOD__,
             __LINE__,
-            var_export($options, true)
+            LogSanitizer::export(['url' => $urls['uri'], 'transactionId' => $transactionId])
         ));
 
         return $this->getResponse($urls['uri']);
@@ -169,7 +170,7 @@ class Json
     }
 
     /**
-     * Get random string
+     * Get a random nonce from a cryptographically secure source
      *
      * @param int $length
      *
@@ -177,12 +178,12 @@ class Json
      */
     private function stringRandom($length = 16)
     {
-        $chars = str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-        $str = "";
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $max = strlen($chars) - 1;
+        $str = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $key = array_rand($chars);
-            $str .= $chars[$key];
+            $str .= $chars[random_int(0, $max)];
         }
 
         return $str;
@@ -241,7 +242,7 @@ class Json
                 '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | [ERROR]: %s',
                 __METHOD__,
                 __LINE__,
-                $e->getMessage()
+                LogSanitizer::singleLine($e->getMessage())
             ));
             return false;
         }
@@ -250,7 +251,7 @@ class Json
             '[HTTP_JSON] | [Gateway] | [%s:%s] - Get Response after JSON request | response: %s',
             __METHOD__,
             __LINE__,
-            var_export(['response' => $response, 'clientStatus' => $this->client->getStatus()], true)
+            LogSanitizer::export(['response' => $response, 'clientStatus' => $this->client->getStatus()])
         ));
 
         return $response;

@@ -517,6 +517,8 @@
 "Timing for sender after the first one second-chance email.","Nach erster E-Mail."
 "Don't send payment reminder when product is out of stock","Keine Erinnerung"
 "Prune Older Second Chance Entries (Days)","Alte Einträge Löschen (Tage)"
+"Reminder Link Lifetime (Days)","Gültigkeit des Erinnerungslinks (Tage)"
+"Number of days the link in a payment reminder stays valid after the last reminder was sent. Each link can be used once. 0 to never expire.","Anzahl der Tage, die der Link in einer Zahlungserinnerung nach der letzten Erinnerung gültig bleibt. Jeder Link kann einmal verwendet werden. 0, damit er nie abläuft."
 "Timing in days, 0 to disable this.","Zeit in Tagen, 0 deaktivieren."
 "External Email Provider Integration","Externe E-Mail-Anbieter"
 "Enable External Email Provider","Externe Anbieter"

@@ -21,6 +21,7 @@ use Buckaroo\Magento2\Service\Order\CancelGuard;
 use Buckaroo\Magento2\Helper\Data;
 use Buckaroo\Magento2\Helper\PaymentGroupTransaction;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
@@ -696,10 +697,10 @@ class DefaultProcessor implements PushProcessorInterface
             '[%s:%s] - Check for duplicate transaction pushes | order: %s',
             __METHOD__,
             __LINE__,
-            var_export([
+            LogSanitizer::export([
                 'receivedTrxStatuses' => $receivedTrxStatuses,
                 'receivedStatusCode' => $receivedStatusCode
-            ], true)
+            ])
         ));
 
         if (!$receivedTrxStatuses || !is_array($receivedTrxStatuses) || !isset($receivedTrxStatuses[$trxId])) {
@@ -1747,7 +1748,7 @@ class DefaultProcessor implements PushProcessorInterface
             '[%s:%s] - Process the successful push response from Buckaroo | newStatus: %s',
             __METHOD__,
             __LINE__,
-            var_export($newStatus, true)
+            LogSanitizer::export($newStatus)
         ));
 
         $this->setBuckarooReservationNumber();
@@ -1918,7 +1919,7 @@ class DefaultProcessor implements PushProcessorInterface
                 '[%s:%s] - Process succeeded push authorization | paymentMethod: %s',
                 __METHOD__,
                 __LINE__,
-                var_export($this->payment->getMethod(), true)
+                LogSanitizer::export($this->payment->getMethod())
             ));
 
             // Persisted by the updateOrderStatus save that follows in processSucceededPush
@@ -2294,7 +2295,7 @@ class DefaultProcessor implements PushProcessorInterface
             '[%s:%s] - Process the failed push response from Buckaroo | newStatus: %s',
             __METHOD__,
             __LINE__,
-            var_export($newStatus, true)
+            LogSanitizer::export($newStatus)
         ));
 
         if ($this->order->getState() === Order::STATE_PROCESSING) {

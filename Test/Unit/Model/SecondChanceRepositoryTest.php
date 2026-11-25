@@ -512,7 +512,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $secondChance->method('getId')->willReturn(1);
         $secondChance->method('getOrderId')->willReturn($orderId);
-        $secondChance->method('setStatus')->with('clicked');
+        $secondChance->method('getStatus')->willReturn('step1_sent');
+        $secondChance->expects($this->once())->method('setStatus')->with('clicked');
         $secondChance->method('getDataModel')->willReturn($secondChance);
 
         // Create a mock for checking if suffixed order exists (it shouldn't)
@@ -567,7 +568,9 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturn($newQuote);
 
         $resource = $this->getFakeMock(ResourceSecondChance::class, true);
-        $resource->method('save')->with($secondChance);
+        $resource->expects($this->once())->method('claimStatus')
+            ->with(1, 'step1_sent', 'clicked')
+            ->willReturn(true);
 
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
@@ -604,6 +607,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $secondChance->method('getOrderId')->willReturn($orderId);
         $secondChance->method('getDataModel')->willReturn($secondChance);
 
+        $secondChance->method('getStatus')->willReturn('completed');
         $checkOrder->method('loadByIncrementId')->willReturnSelf();
         $checkOrder->method('getId')->willReturn(null);
         $this->orderFactory->method('create')->willReturnOnConsecutiveCalls($order, $checkOrder);
@@ -654,6 +658,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'checkoutSession' => $this->checkoutSession,
             'cartRepository' => $cartRepository,
             'quoteCollectionFactory' => $quoteCollectionFactory,
+            'resource' => $this->getClaimingResource(),
             'logging' => $this->logging,
         ]);
 
@@ -683,6 +688,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $collection->method('getFirstItem')->willReturn($secondChance);
         $secondChance->method('getId')->willReturn(1);
         $secondChance->method('getOrderId')->willReturn('000000001');
+        $secondChance->method('getStatus')->willReturn('step1_sent');
         $secondChance->expects($this->once())->method('setStatus')->with('order_paid');
 
         $this->orderFactory->method('create')->willReturn($order);
@@ -719,6 +725,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $secondChance->method('getId')->willReturn(1);
         $secondChance->method('getOrderId')->willReturn('000000001');
         $secondChance->method('getDataModel')->willReturn($secondChance);
+        $secondChance->method('getStatus')->willReturn('completed');
         // The reminder e-mail stored -1, but a pending Second Chance payment already uses it
         $secondChance->method('getLastOrderId')->willReturn('000000001-1');
 
@@ -750,6 +757,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'orderFactory' => $this->orderFactory,
             'quoteRecreate' => $this->quoteRecreate,
             'checkoutSession' => $this->checkoutSession,
+            'resource' => $this->getClaimingResource(),
             'logging' => $this->logging,
         ]);
 
@@ -792,6 +800,178 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->expectExceptionMessage('Invalid token.');
 
         $this->invokeArgs('getSecondChanceByToken', [$token], $instance);
+    }
+
+    /**
+     * Resource model that lets the link be redeemed
+     *
+     * @return ResourceSecondChance
+     */
+    private function getClaimingResource()
+    {
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->method('claimStatus')->willReturn(true);
+
+        return $resource;
+    }
+
+    /**
+     * Record found by the token, with the given status and e-mail timestamps
+     *
+     * @param string      $status
+     * @param string|null $firstEmailSent
+     * @param string|null $secondEmailSent
+     * @return array [collection factory, second chance record]
+     */
+    private function getTokenRecord(string $status, ?string $firstEmailSent = null, ?string $secondEmailSent = null): array
+    {
+        $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
+        $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $secondChance = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
+
+        $collectionFactory->method('create')->willReturn($collection);
+        $collection->method('addFieldToFilter')->willReturn($collection);
+        $collection->method('getFirstItem')->willReturn($secondChance);
+        $secondChance->method('getId')->willReturn(1);
+        $secondChance->method('getOrderId')->willReturn('000000001');
+        $secondChance->method('getStatus')->willReturn($status);
+        $secondChance->method('getCreatedAt')->willReturn('2026-11-01 10:00:00');
+        $secondChance->method('getFirstEmailSent')->willReturn($firstEmailSent);
+        $secondChance->method('getSecondEmailSent')->willReturn($secondEmailSent);
+
+        return [$collectionFactory, $secondChance];
+    }
+
+    /**
+     * @dataProvider usedLinkStatusProvider
+     * @param string $status
+     */
+    public function testGetSecondChanceByTokenRefusesAUsedLink(string $status): void
+    {
+        [$collectionFactory] = $this->getTokenRecord($status, '2026-11-02 10:00:00');
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->never())->method('claimStatus');
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+        $this->expectExceptionMessage('This link has already been used.');
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+    }
+
+    public static function usedLinkStatusProvider(): array
+    {
+        return [
+            'clicked' => ['clicked'],
+            'out of stock' => ['out_of_stock'],
+            'error' => ['error'],
+        ];
+    }
+
+    public function testGetSecondChanceByTokenRefusesARecordAlreadyMarkedPaid(): void
+    {
+        [$collectionFactory] = $this->getTokenRecord('order_paid');
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'quoteRecreate' => $this->quoteRecreate,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\StateException::class);
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
+    }
+
+    /**
+     * @dataProvider linkLifetimeProvider
+     * @param string|null $firstEmailSent
+     * @param string|null $secondEmailSent
+     * @param int         $lifetimeDays
+     * @param bool        $expired
+     */
+    public function testGetSecondChanceByTokenEnforcesTheLinkLifetime(
+        ?string $firstEmailSent,
+        ?string $secondEmailSent,
+        int $lifetimeDays,
+        bool $expired
+    ): void {
+        [$collectionFactory, $secondChance] = $this->getTokenRecord('completed', $firstEmailSent, $secondEmailSent);
+        $secondChance->method('getDataModel')->willReturn($secondChance);
+
+        $this->configProvider->method('getLinkLifetimeDays')->willReturn($lifetimeDays);
+        $dateTime = $this->getFakeMock(\Magento\Framework\Stdlib\DateTime\DateTime::class, true);
+        $dateTime->method('gmtTimestamp')->willReturn(strtotime('2026-11-20 10:00:00 UTC'));
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($order);
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($expired ? $this->never() : $this->once())->method('claimStatus')->willReturn(true);
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'configProvider' => $this->configProvider,
+            'dateTime' => $dateTime,
+            'orderFactory' => $this->orderFactory,
+            'resource' => $resource,
+            'logging' => $this->logging,
+        ]);
+
+        if ($expired) {
+            $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+            $this->expectExceptionMessage('This link has expired.');
+        }
+
+        $this->assertSame($secondChance, $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance));
+    }
+
+    public static function linkLifetimeProvider(): array
+    {
+        return [
+            'first reminder within lifetime' => ['2026-11-15 10:00:00', null, 7, false],
+            'first reminder past lifetime' => ['2026-11-10 10:00:00', null, 7, true],
+            'second reminder restarts the lifetime' => ['2026-11-01 10:00:00', '2026-11-16 10:00:00', 7, false],
+            'only created_at, past lifetime' => [null, null, 7, true],
+            'lifetime disabled' => ['2026-01-01 10:00:00', null, 0, false],
+        ];
+    }
+
+    public function testGetSecondChanceByTokenRefusesALinkRedeemedConcurrently(): void
+    {
+        [$collectionFactory] = $this->getTokenRecord('step1_sent', '2026-11-02 10:00:00');
+
+        $order = $this->getFakeMock(Order::class, true);
+        $order->method('loadByIncrementId')->willReturnSelf();
+        $order->method('getId')->willReturn(123);
+        $this->orderFactory->method('create')->willReturn($order);
+
+        $resource = $this->getFakeMock(ResourceSecondChance::class, true);
+        $resource->expects($this->once())->method('claimStatus')
+            ->with(1, 'step1_sent', 'clicked')
+            ->willReturn(false);
+        $this->quoteRecreate->expects($this->never())->method('duplicate');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+            'orderFactory' => $this->orderFactory,
+            'resource' => $resource,
+            'quoteRecreate' => $this->quoteRecreate,
+            'logging' => $this->logging,
+        ]);
+
+        $this->expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+        $this->expectExceptionMessage('This link has already been used.');
+        $this->invokeArgs('getSecondChanceByToken', ['test_token'], $instance);
     }
 
     public function testCheckForMultipleEmail()

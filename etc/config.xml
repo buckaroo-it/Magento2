@@ -1065,6 +1065,8 @@
                 <second_chance_email>1</second_chance_email>
                 <second_chance_email2>1</second_chance_email2>
                 <multiple_emails_send>1</multiple_emails_send>
+                <!-- Days a reminder link stays valid after the last reminder, 0 = never expires -->
+                <link_lifetime_days>7</link_lifetime_days>
                 <!-- Paid-order check -->
                 <paid_order_check>1</paid_order_check>
                 <!-- Gift card checkout message -->

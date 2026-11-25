@@ -15,6 +15,7 @@ namespace Buckaroo\Magento2\Controller\Pos;
 
 use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
@@ -99,7 +100,7 @@ class SetTerminal extends Action implements HttpPostActionInterface
             '[POS] | [Controller] | [%s:%s] - Set Terminal | request: %s',
             __METHOD__,
             __LINE__,
-            var_export($params, true)
+            LogSanitizer::export($params)
         ));
 
         if (!empty($params['id']) && $this->isValidTerminalId($params['id'])) {

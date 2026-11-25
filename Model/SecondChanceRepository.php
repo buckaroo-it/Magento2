@@ -87,6 +87,14 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     private const FOLLOW_UP_PAYMENT_GRACE_HOURS = 1;
 
     /**
+     * Statuses in which a reminder link may still restore the cart
+     *
+     * "completed" means both reminders were sent, not that the link was used. A redeemed
+     * link moves to "clicked", which makes it single-use.
+     */
+    private const REDEEMABLE_STATUSES = ['pending', 'step1_sent', 'completed'];
+
+    /**
      * @var SecondChanceFactory
      */
     protected $secondChanceFactory;
@@ -655,6 +663,9 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     /**
      * Get SecondChance by token and recreate quote
      *
+     * The link is single-use and expires a configured number of days after the last reminder,
+     * because for a guest order the restored cart exposes the order's name, address and e-mail.
+     *
      * @param mixed $token
      *
      * @throws Exception
@@ -663,28 +674,41 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
     {
         $collection = $this->secondChanceCollectionFactory->create();
         $collection->addFieldToFilter('token', $token);
-        // Allow completed records to be accessed - they should still work for customers
 
         $secondChance = $collection->getFirstItem();
         if (!$secondChance->getId()) {
             throw new NoSuchEntityException(__('Invalid token.'));
         }
 
+        $status = (string) $secondChance->getStatus();
+        if ($status === 'order_paid') {
+            throw new StateException(__('This order has already been paid.'));
+        }
+
+        if (!in_array($status, self::REDEEMABLE_STATUSES, true)) {
+            throw new NoSuchEntityException(__('This link has already been used.'));
+        }
+
+        if ($this->isLinkExpired($secondChance)) {
+            throw new NoSuchEntityException(__('This link has expired.'));
+        }
+
         // Always load the base order (without suffixes) for recreation
         $baseOrderId = $this->getBaseOrderId($secondChance->getOrderId());
         $order = $this->loadOrder($baseOrderId, StoreId::normalize($secondChance->getStoreId()));
 
-        // The link stays usable after a click, but once the order is paid it must not
-        // rebuild the cart, or the customer could pay for the same products again.
+        // Once the order is paid the link must not rebuild the cart, or the customer
+        // could pay for the same products again.
         if ($order->getId() && $this->followUpOrderFinder->getPaidRecoveryOrder($order)) {
             $this->setFinalStatus($secondChance, 'order_paid');
             throw new StateException(__('This order has already been paid.'));
         }
 
-        // Only set final status if not already completed/clicked
-        if (!in_array($secondChance->getStatus(), ['completed', 'clicked'])) {
-            $this->setFinalStatus($secondChance, 'clicked');
+        // Redeem the link; a concurrent request that redeemed it first wins
+        if (!$this->resource->claimStatus((int) $secondChance->getId(), $status, 'clicked')) {
+            throw new NoSuchEntityException(__('This link has already been used.'));
         }
+        $secondChance->setStatus('clicked');
 
         if ($order->getId()) {
             $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
@@ -709,6 +733,42 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
         }
 
         return $secondChance->getDataModel();
+    }
+
+    /**
+     * Whether the reminder link is older than the configured lifetime
+     *
+     * The lifetime runs from the most recent reminder, so the second e-mail gets a fresh window.
+     *
+     * @param \Magento\Framework\DataObject $secondChance Record loaded from the collection
+     * @return bool
+     */
+    private function isLinkExpired($secondChance): bool
+    {
+        $lifetimeDays = $this->configProvider->getLinkLifetimeDays(
+            StoreId::normalize($secondChance->getStoreId())
+        );
+        if ($lifetimeDays <= 0) {
+            return false;
+        }
+
+        $issuedAt = null;
+        foreach ([
+            $secondChance->getSecondEmailSent(),
+            $secondChance->getFirstEmailSent(),
+            $secondChance->getCreatedAt(),
+        ] as $value) {
+            $issuedAt = $this->toGmtTimestamp($value);
+            if ($issuedAt !== null) {
+                break;
+            }
+        }
+
+        if ($issuedAt === null) {
+            return true;
+        }
+
+        return $this->dateTime->gmtTimestamp() > $issuedAt + $lifetimeDays * 86400;
     }
 
     /**

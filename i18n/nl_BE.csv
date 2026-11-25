@@ -554,6 +554,8 @@
 "Timing for sender after the first one second-chance email.","Timing na eerste email."
 "Don't send payment reminder when product is out of stock","Geen herinnering als uitverkocht"
 "Prune Older Second Chance Entries (Days)","Oude Items Opschonen (Dagen)"
+"Reminder Link Lifetime (Days)","Geldigheid Herinneringslink (Dagen)"
+"Number of days the link in a payment reminder stays valid after the last reminder was sent. Each link can be used once. 0 to never expire.","Aantal dagen dat de link in een betaalherinnering geldig blijft na de laatst verzonden herinnering. Elke link kan één keer worden gebruikt. 0 om nooit te laten verlopen."
 "Timing in days, 0 to disable this.","Tijd in dagen, 0 uitschakelen."
 "External Email Provider Integration","Externe Provider Integratie"
 "Enable External Email Provider","Externe Provider Inschakelen"

@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
 use Buckaroo\Magento2\Model\Config\Source\InvoiceHandlingOptions;
 use Buckaroo\Magento2\Model\ConfigProvider\Account as AccountConfig;
@@ -272,7 +273,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             '[REDIRECT] | [Controller] | [%s:%s] - Original Request | originalRequest: %s',
             __METHOD__,
             __LINE__,
-            var_export(array_keys((array)$this->redirectRequest->getOriginalRequest()), true)
+            LogSanitizer::export(array_keys((array)$this->redirectRequest->getOriginalRequest()))
         ));
 
         if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
@@ -294,7 +295,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
 
         $orderIncrementID = $this->order->getIncrementId();
-        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . var_export($orderIncrementID, true));
+        $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . LogSanitizer::export($orderIncrementID));
         $lockAcquired = $this->lockManager->lockOrder($orderIncrementID, 5);
 
         if (!$lockAcquired) {
@@ -596,7 +597,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->payment->getMethod(),
             __METHOD__,
             __LINE__,
-            var_export([
+            LogSanitizer::export([
                 $this->checkoutSession->getLastSuccessQuoteId(),
                 $this->checkoutSession->getLastQuoteId(),
                 $this->checkoutSession->getLastOrderId(),
@@ -604,7 +605,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                 $this->order->getQuoteId(),
                 $this->order->getId(),
                 $this->order->getIncrementId(),
-            ], true)
+            ])
         ));
 
         if ($this->order->getQuoteId()) {
@@ -708,7 +709,7 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
                     $this->payment->getMethod(),
                     __METHOD__,
                     __LINE__,
-                    var_export($pendingStatus, true),
+                    LogSanitizer::export($pendingStatus),
                 ));
                 $this->order->setStatus($pendingStatus);
                 $this->orderRepository->save($this->order);
@@ -824,8 +825,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             __METHOD__,
             __LINE__,
             $statusCode,
-            var_export($isBrowserBack, true),
-            var_export($shouldCancelOnBrowserBack, true)
+            LogSanitizer::export($isBrowserBack),
+            LogSanitizer::export($shouldCancelOnBrowserBack)
         ));
 
         if (!$this->getSkipHandleFailedRecreate()) {
@@ -951,8 +952,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             $this->payment->getMethod(),
             __METHOD__,
             __LINE__,
-            var_export($isBrowserBack, true),
-            var_export($shouldCancelOnBrowserBack, true)
+            LogSanitizer::export($isBrowserBack),
+            LogSanitizer::export($shouldCancelOnBrowserBack)
         ));
 
         return $this->redirectFailure();

@@ -819,6 +819,8 @@
 "Provider Name","Nome del provider"
 "Provider name for logging (e.g., ""SMTPeter"", ""SendGrid"", ""Mailgun"")","Nome del provider per il log (es. ""SMTPeter"", ""SendGrid"", ""Mailgun"")"
 "Prune Older Second Chance Entries (Days)","Elimina le voci Second Chance più vecchie (giorni)"
+"Reminder Link Lifetime (Days)","Validità del link di promemoria (giorni)"
+"Number of days the link in a payment reminder stays valid after the last reminder was sent. Each link can be used once. 0 to never expire.","Numero di giorni in cui il link di un promemoria di pagamento resta valido dopo l'invio dell'ultimo promemoria. Ogni link può essere usato una sola volta. 0 per non farlo mai scadere."
 "Read how to set up and test analytics tracking in the <a href=""https://docs.buckaroo.io/docs/magento-2-built-in-features"" target=""_blank"">Buckaroo documentation</a>.","Leggi come configurare e testare il tracciamento analytics nella <a href=""https://docs.buckaroo.io/docs/magento-2-built-in-features"" target=""_blank"">documentazione Buckaroo</a>."
 "Redirect (Buckaroo Hosted Payment Page)","Reindirizzamento (Buckaroo Hosted Payment Page)"
 "Refund Label","Etichetta rimborso"

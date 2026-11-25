@@ -112,6 +112,16 @@
             </depends>
         </field>
 
+        <field id="second_chance_link_lifetime_days" translate="label comment" type="text" sortOrder="92" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Reminder Link Lifetime (Days)</label>
+            <comment><![CDATA[Number of days the link in a payment reminder stays valid after the last reminder was sent. Each link can be used once. 0 to never expire.]]></comment>
+            <config_path>buckaroo_magento2/second_chance/link_lifetime_days</config_path>
+            <validate>validate-digits</validate>
+            <depends>
+                <field id="enable_second_chance">1</field>
+            </depends>
+        </field>
+
         <group id="second_chance_advanced" translate="label" type="text" sortOrder="95" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Advanced Configuration</label>
 
