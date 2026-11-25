@@ -52,10 +52,30 @@ class SecondChance extends AbstractDb
     }
 
     /**
-     * Save an existing record, changing its status only if it still has the status it was loaded with
+     * Read the status a record has in the database right now
      *
-     * Background jobs work on records loaded earlier. A plain save would write their stale status
-     * over a change made meanwhile, such as a reminder link that was redeemed in between.
+     * @param int $entityId
+     * @return string|null Null when the record no longer exists
+     */
+    public function getCurrentStatus(int $entityId): ?string
+    {
+        $connection = $this->getConnection();
+        // fetchOne() gives false when there is no row; the status column is never empty
+        $status = (string) $connection->fetchOne(
+            $connection->select()
+                ->from($this->getMainTable(), ['status'])
+                ->where('entity_id = ?', $entityId)
+        );
+
+        return $status === '' ? null : $status;
+    }
+
+    /**
+     * Save an existing record only if it still has the status it was loaded with
+     *
+     * Background jobs work on records loaded earlier. A plain save would write their stale copy
+     * over a change made meanwhile: a reminder link redeemed in between, or a record reactivated
+     * with a new token for a follow-up order. When the status changed, nothing is written.
      *
      * @param AbstractModel $record
      * @param string        $expectedStatus Status the record had when it was loaded
@@ -63,15 +83,16 @@ class SecondChance extends AbstractDb
      */
     public function saveIfStatusUnchanged(AbstractModel $record, string $expectedStatus): void
     {
-        $connection = $this->getConnection();
         $data = $this->_prepareDataForSave($record);
         unset($data[$this->getIdFieldName()]);
-        $data['status'] = $connection->getCheckSql(
-            $connection->quoteInto('status = ?', $expectedStatus),
-            $connection->quote((string) $record->getStatus()),
-            'status'
-        );
 
-        $connection->update($this->getMainTable(), $data, ['entity_id = ?' => (int) $record->getId()]);
+        $this->getConnection()->update(
+            $this->getMainTable(),
+            $data,
+            [
+                'entity_id = ?' => (int) $record->getId(),
+                'status = ?' => $expectedStatus,
+            ]
+        );
     }
 }

@@ -17,6 +17,7 @@ namespace Buckaroo\Magento2\Test\Unit\Logging;
 
 use Buckaroo\Magento2\Logging\LogSanitizer;
 use Monolog\Formatter\LineFormatter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class LogSanitizerTest extends TestCase
@@ -107,9 +108,9 @@ class LogSanitizerTest extends TestCase
      * Magento's handlers format with inline line breaks allowed, which makes Monolog expand
      * escaped \n in messages that start with "[" or "{"
      *
-     * @dataProvider injectedMessageProvider
      * @param string $message
      */
+    #[DataProvider('injectedMessageProvider')]
     public function testNoInjectedLineStartsARecordAfterFormatting(string $message): void
     {
         $formatter = new LineFormatter(null, null, true);

@@ -102,7 +102,7 @@ abstract class BaseTest extends TestCase
 
     /**
      * @param      $method
-     * @param null $instance
+     * @param object|null $instance
      *
      * @return mixed
      */
@@ -120,7 +120,7 @@ abstract class BaseTest extends TestCase
     /**
      * @param       $method
      * @param array $args
-     * @param null  $instance
+     * @param object|null $instance
      *
      * @return mixed
      */
@@ -137,7 +137,7 @@ abstract class BaseTest extends TestCase
 
     /**
      * @param      $property
-     * @param null $instance
+     * @param object|null $instance
      *
      * @return \ReflectionProperty
      */
@@ -155,7 +155,7 @@ abstract class BaseTest extends TestCase
     /**
      * @param      $property
      * @param      $value
-     * @param null $instance
+     * @param object|null $instance
      *
      * @return \ReflectionProperty
      */
@@ -176,7 +176,7 @@ abstract class BaseTest extends TestCase
      * @param      $class
      * @param bool $return Immediate call getMock.
      *
-     * @return \PHPUnit_Framework_MockObject_MockBuilder|\PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit\Framework\MockObject\MockBuilder|\PHPUnit\Framework\MockObject\MockObject
      */
     protected function getFakeMock($class, $return = false)
     {
@@ -228,43 +228,6 @@ abstract class BaseTest extends TestCase
         }
 
         $method->willReturn($response);
-    }
-
-    /**
-     * Test the assignData method. In its root it is the same for every payment method.
-     *
-     * @param $fixture
-     *
-     * @return $this
-     */
-    public function assignDataTest($fixture)
-    {
-        $data = $this->getFakeMock(\Magento\Framework\DataObject::class)->getMock();
-        $infoInterface = $this->getFakeMock(\Magento\Payment\Model\InfoInterface::class)->getMock();
-
-        foreach ($fixture as $key => $value) {
-            $camelCase = preg_replace_callback(
-                "/(?:^|_)([a-z])/",
-                function ($matches) {
-                    return strtoupper($matches[1]);
-                },
-                $key
-            );
-
-            $data->shouldReceive('get' . $camelCase)->andReturn($value);
-            $infoInterface->shouldReceive('setAdditionalInformation')->with($key, $value);
-        }
-
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->object->setData('info_instance', $infoInterface);
-        /**
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        $this->assertEquals($this->object, $this->object->assignData($data));
-
-        return $this;
     }
 
     /**

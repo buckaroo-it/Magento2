@@ -713,6 +713,10 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
             $this->getBaseOrderId($secondChance->getOrderId()),
             StoreId::normalize($secondChance->getStoreId())
         );
+        if (!$order->getId()) {
+            // Nothing to restore: confirming would only fail
+            throw new NoSuchEntityException(__('Invalid token.'));
+        }
         if ($this->isOrderPaid($order)) {
             throw new StateException(__('This order has already been paid.'));
         }
@@ -810,32 +814,45 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
      * @param SecondChance $secondChance Record loaded from the collection
      * @param Order $order
      * @param string $baseOrderId
-     * @return bool Whether a cart was restored
-     * @throws Exception
+     * @return bool Whether the customer has a cart to continue with
+     * @throws Exception When no cart was restored
      */
     private function restoreQuote($secondChance, $order, $baseOrderId): bool
     {
         $newOrderId = $this->getFollowUpOrderId($secondChance, $baseOrderId);
-
-        // Recreate the quote from the base order
-        $quote = $this->quoteRecreate->duplicate($order);
-
-        // Apply the reserved order ID with suffix to the new quote
-        if (!$newOrderId || !$quote || !$quote->getId()) {
+        if (!$newOrderId) {
             return false;
         }
 
-        $quote->setReservedOrderId($newOrderId);
+        // Recreate the quote from the base order; this also puts it in the checkout session
+        $quote = $this->quoteRecreate->duplicate($order);
 
-        $this->checkoutSession->clearQuote();
-        $this->checkoutSession->clearStorage();
-        $this->checkoutSession->replaceQuote($quote);
-        $this->checkoutSession->setQuoteId($quote->getId());
+        // A cart without products (all of them unavailable now) is not a restored cart; the
+        // customer was told which products are missing and can use the link again later
+        if (!$quote || !$quote->getId() || !$quote->getAllVisibleItems()) {
+            return false;
+        }
 
-        // Save quote after session is set to ensure proper context
-        $this->cartRepository->save($quote);
+        // From here on the customer has the restored cart, so the link counts as used even if
+        // one of the remaining steps fails
+        try {
+            // Apply the reserved order ID with suffix to the new quote
+            $quote->setReservedOrderId($newOrderId);
 
-        $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
+            $this->checkoutSession->clearQuote();
+            $this->checkoutSession->clearStorage();
+            $this->checkoutSession->replaceQuote($quote);
+            $this->checkoutSession->setQuoteId($quote->getId());
+
+            // Save quote after session is set to ensure proper context
+            $this->cartRepository->save($quote);
+
+            $this->deactivateEarlierRestoredQuotes($quote, $baseOrderId);
+        } catch (\Throwable $e) {
+            $this->logging->addError(
+                'SecondChance: cart for order ' . $baseOrderId . ' restored, but finishing it failed: ' . $e->getMessage()
+            );
+        }
 
         return true;
     }
@@ -1026,6 +1043,12 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                     continue;
                 }
 
+                // The batch was loaded earlier; a link used since then must not get another reminder,
+                // which would carry the same, now used, link
+                if (!$this->isStillDue($item, $loadedStatus)) {
+                    continue;
+                }
+
                 // Calculate and store the expected order ID before sending email
                 $baseOrderId = $this->getBaseOrderId($item->getOrderId());
                 $suffix = ($step == 1) ? '-1' : '-2';
@@ -1062,6 +1085,28 @@ class SecondChanceRepository implements SecondChanceRepositoryInterface
                 $this->setFinalStatus($item, 'error', $loadedStatus);
             }
         }
+    }
+
+    /**
+     * Whether the record still has the status it was loaded with, so its reminder may be sent
+     *
+     * @param SecondChance $item
+     * @param string       $loadedStatus
+     * @return bool
+     */
+    private function isStillDue($item, string $loadedStatus): bool
+    {
+        $currentStatus = $this->resource->getCurrentStatus((int) $item->getId());
+        if ($currentStatus === $loadedStatus) {
+            return true;
+        }
+
+        $this->logging->addDebug(
+            'SecondChance reminder skipped, record ' . (int) $item->getId() . ' changed from '
+            . $loadedStatus . ' to ' . ($currentStatus ?? 'deleted') . ' since the batch was loaded'
+        );
+
+        return false;
     }
 
     /**

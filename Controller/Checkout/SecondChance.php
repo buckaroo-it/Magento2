@@ -40,6 +40,7 @@ use Magento\Framework\View\Result\PageFactory;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
+// nosemgrep: buckaroo-controller-accepts-both-get-and-post -- GET only shows the confirmation page; POST restores the cart
 class SecondChance extends Action implements HttpGetActionInterface, HttpPostActionInterface
 {
     /**

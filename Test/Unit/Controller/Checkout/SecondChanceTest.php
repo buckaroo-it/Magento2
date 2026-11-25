@@ -89,6 +89,10 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->context->expects($this->any())->method('getMessageManager')->willReturn($this->messageManager);
     }
 
+    /**
+     * @param array $mockMethods
+     * @return SecondChance&\PHPUnit\Framework\MockObject\MockObject
+     */
     private function buildInstance(array $mockMethods = []): SecondChance
     {
         return $this->getMockBuilder(SecondChance::class)

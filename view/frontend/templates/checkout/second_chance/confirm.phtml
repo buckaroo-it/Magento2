@@ -13,6 +13,7 @@
 
 /** @var \Buckaroo\Magento2\Block\Checkout\SecondChance\Confirm $block */
 /** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer|null $secureRenderer */
 ?>
 <div class="buckaroo-second-chance-confirm">
     <p><?= $escaper->escapeHtml(__('Click the button below to restore your cart and continue to the payment.')) ?></p>
@@ -31,13 +32,20 @@
         </div>
     </form>
 </div>
-<script>
-    // A second submit would find the link already used and replace the restored cart page with an error
-    document.getElementById('buckaroo-second-chance-confirm-form').addEventListener('submit', function (event) {
-        if (this.dataset.submitted) {
-            event.preventDefault();
-            return;
-        }
-        this.dataset.submitted = '1';
-    });
-</script>
+<?php
+// A second submit would find the link already used and replace the restored cart page with an error
+$submitOnceScript = <<<'JS'
+document.getElementById('buckaroo-second-chance-confirm-form').addEventListener('submit', function (event) {
+    if (this.dataset.submitted) {
+        event.preventDefault();
+        return;
+    }
+    this.dataset.submitted = '1';
+});
+JS;
+?>
+<?php if (isset($secureRenderer)): ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $submitOnceScript, false) ?>
+<?php else: ?>
+    <script><?= /* @noEscape */ $submitOnceScript ?></script>
+<?php endif; ?>
