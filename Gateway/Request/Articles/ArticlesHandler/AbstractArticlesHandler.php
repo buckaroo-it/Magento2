@@ -1835,7 +1835,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 continue;
             }
 
-            if (floor($qty) !== $qty) {
+            if (fmod($qty, 1.0) !== 0.0) {
                 return null;
             }
 
@@ -1861,13 +1861,11 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
      */
     private function getCreditmemoChargeRefundLines(Creditmemo $creditmemo, Order $order): array
     {
-        $lines = [];
+        $lines = $creditmemo->getShippingAmount() > 0
+            ? $this->toRefundLines($this->getShippingCostsLine($order))
+            : [];
 
-        if ((float)$creditmemo->getShippingAmount() > 0) {
-            $lines = array_merge($lines, $this->toRefundLines($this->getShippingCostsLine($order)));
-        }
-
-        if ((float)$creditmemo->getBuckarooFee() > 0 || (float)$creditmemo->getBuckarooFeeInclTax() > 0) {
+        if ($creditmemo->getBuckarooFee() > 0 || $creditmemo->getBuckarooFeeInclTax() > 0) {
             $lines = array_merge($lines, $this->toRefundLines($this->getServiceCostLine($order)));
         }
 

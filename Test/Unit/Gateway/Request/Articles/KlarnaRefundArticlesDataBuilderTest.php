@@ -49,9 +49,29 @@ class KlarnaRefundArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\BaseTe
         $this->assertSame([], $this->buildFor($lines, 24.36));
     }
 
-    public function testARefundWithoutLinesIsRefundedByAmountOnly(): void
+    public function testOneCentMoreThanTheLinesIsRefundedByAmountOnly(): void
     {
-        $this->assertSame([], $this->buildFor([], 10.00));
+        $lines = [['identifier' => 'A', 'quantity' => 1, 'price' => 10.00]];
+
+        $this->assertSame([], $this->buildFor($lines, 10.01));
+    }
+
+    public function testOneCentLessThanTheLinesIsRefundedByAmountOnly(): void
+    {
+        $lines = [['identifier' => 'A', 'quantity' => 1, 'price' => 10.01]];
+
+        $this->assertSame([], $this->buildFor($lines, 10.00));
+    }
+
+    /**
+     * A refund without lines needs no explaining, so nothing is logged for it.
+     */
+    public function testARefundWithoutLinesIsRefundedByAmountOnlyWithoutALogLine(): void
+    {
+        $logger = $this->getFakeMock('Buckaroo\Magento2\Logging\BuckarooLoggerInterface')->getMock();
+        $logger->expects($this->never())->method('addDebug');
+
+        $this->assertSame([], $this->buildFor([], 10.00, $logger));
     }
 
     public function testNoLinesAreSentWithoutAnAmountCredit(): void
@@ -59,6 +79,27 @@ class KlarnaRefundArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\BaseTe
         $lines = [['identifier' => '24-WB01', 'quantity' => 1, 'price' => 19.36]];
 
         $this->assertSame([], $this->buildFor($lines, null));
+    }
+
+    /**
+     * A zero refund (a group transaction refunded every leg itself) is never sent with lines,
+     * not even lines that are free.
+     */
+    public function testAZeroAmountCreditSendsNoLinesEvenForFreeLines(): void
+    {
+        $lines = [['identifier' => 'FREE', 'quantity' => 1, 'price' => 0.0]];
+
+        $this->assertSame([], $this->buildFor($lines, 0.0));
+    }
+
+    public function testASingleCentIsEnoughToNominateLines(): void
+    {
+        $lines = [['identifier' => 'A', 'quantity' => 1, 'price' => 0.01]];
+
+        $this->assertSame(
+            ['articles' => [['identifier' => 'A', 'quantity' => 1]]],
+            $this->buildFor($lines, 0.01)
+        );
     }
 
     public function testCentRoundingOfTheLineTotalStillMatches(): void
@@ -72,12 +113,29 @@ class KlarnaRefundArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\BaseTe
     }
 
     /**
-     * @param array      $lines
-     * @param float|null $amountCredit
+     * 0.10 + 0.19 sums to just above 0.29 and 0.29 * 100 lands just below 29: both are 29 cents.
+     */
+    public function testFloatNoiseOnEitherSideOfACentStillMatches(): void
+    {
+        $lines = [
+            ['identifier' => 'A', 'quantity' => 1, 'price' => 0.1],
+            ['identifier' => 'B', 'quantity' => 1, 'price' => 0.19],
+        ];
+
+        $this->assertSame(
+            ['articles' => [['identifier' => 'A', 'quantity' => 1], ['identifier' => 'B', 'quantity' => 1]]],
+            $this->buildFor($lines, 0.29)
+        );
+    }
+
+    /**
+     * @param array       $lines
+     * @param float|null  $amountCredit
+     * @param object|null $logger
      *
      * @return array
      */
-    private function buildFor(array $lines, ?float $amountCredit): array
+    private function buildFor(array $lines, ?float $amountCredit, $logger = null): array
     {
         $handler = $this->getFakeMock(
             'Buckaroo\Magento2\Gateway\Request\Articles\ArticlesHandler\KlarnaKpHandler'
@@ -108,11 +166,14 @@ class KlarnaRefundArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\BaseTe
         $paymentDO->method('getPayment')->willReturn($payment);
         $paymentDO->method('getOrder')->willReturn($orderAdapter);
 
-        $instance = $this->getInstance([
+        $arguments = [
             'articlesHandlerFactory' => $handlerFactory,
             'dataBuilderService' => $dataBuilderService,
-        ]);
+        ];
+        if ($logger !== null) {
+            $arguments['logger'] = $logger;
+        }
 
-        return $instance->build(['payment' => $paymentDO]);
+        return $this->getInstance($arguments)->build(['payment' => $paymentDO]);
     }
 }

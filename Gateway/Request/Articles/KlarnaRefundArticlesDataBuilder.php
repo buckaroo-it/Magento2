@@ -76,8 +76,9 @@ class KlarnaRefundArticlesDataBuilder extends AbstractDataBuilder
     {
         parent::initialize($buildSubject);
 
-        $amountCredit = round((float)$this->dataBuilderService->getElement(AmountCreditDataBuilder::AMOUNT_CREDIT), 2);
-        if ($amountCredit < 0.01) {
+        // Amounts are compared in whole cents, so float noise in the line sum cannot tip the match.
+        $amountCents = $this->toCents((float)$this->dataBuilderService->getElement(AmountCreditDataBuilder::AMOUNT_CREDIT));
+        if ($amountCents < 1) {
             return [];
         }
 
@@ -96,30 +97,28 @@ class KlarnaRefundArticlesDataBuilder extends AbstractDataBuilder
                 'quantity' => $line['quantity'],
             ];
         }
-        $linesTotal = round($linesTotal, 2);
+        $linesCents = $this->toCents($linesTotal);
 
-        if (abs($linesTotal - $amountCredit) >= 0.005) {
-            $this->logger->addDebug(sprintf(
-                '[REFUND] | [Klarna] | [%s:%s] - Refund by amount only for order %s:'
-                . ' the refunded lines total %.2f at reserved prices, AmountCredit is %.2f',
-                __METHOD__,
-                __LINE__,
-                $this->getOrder()->getIncrementId(),
-                $linesTotal,
-                $amountCredit
-            ));
+        if ($linesCents !== $amountCents) {
+            $this->logger->addDebug(sprintf('[REFUND] | [Klarna] | [%s] - Refund by amount only for order %s: lines total %d cents at reserved prices, AmountCredit %d cents', __METHOD__, $this->getOrder()->getIncrementId(), $linesCents, $amountCents));
 
             return [];
         }
 
-        $this->logger->addDebug(sprintf(
-            '[REFUND] | [Klarna] | [%s:%s] - Refund for order %s nominates %s',
-            __METHOD__,
-            __LINE__,
-            $this->getOrder()->getIncrementId(),
-            implode(', ', array_map(fn($a) => $a['identifier'] . ' x' . $a['quantity'], $articles))
-        ));
+        $this->logger->addDebug(sprintf('[REFUND] | [Klarna] | [%s] - Refund for order %s nominates %s', __METHOD__, $this->getOrder()->getIncrementId(), implode(', ', array_map(fn($a) => $a['identifier'] . ' x' . $a['quantity'], $articles))));
 
         return ['articles' => $articles];
+    }
+
+    /**
+     * An amount in whole cents.
+     *
+     * @param float $amount
+     *
+     * @return int
+     */
+    private function toCents(float $amount): int
+    {
+        return (int)round($amount * 100);
     }
 }
