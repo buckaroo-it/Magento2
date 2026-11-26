@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Buckaroo\Magento2\Controller\Redirect;
 
 use Buckaroo\Magento2\Api\Data\PushRequestInterface;
+use Buckaroo\Magento2\Exception as BuckarooException;
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
 use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\BuckarooStatusCode;
@@ -276,23 +277,10 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
             LogSanitizer::export(array_keys((array)$this->redirectRequest->getOriginalRequest()))
         ));
 
-        if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
-            return $this->handleEmptyRedirectRequest();
+        $earlyResponse = $this->loadOrderOrGetEarlyResponse();
+        if ($earlyResponse !== null) {
+            return $earlyResponse;
         }
-
-        if (!$this->redirectRequest->validate()) {
-            $this->logger->addError(sprintf(
-                '[REDIRECT] | [Controller] | [%s:%s] - Signature validation failed',
-                __METHOD__,
-                __LINE__
-            ));
-            $this->messageManager->addErrorMessage(
-                __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
-            );
-            return $this->_redirect('/');
-        }
-
-        $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
 
         $orderIncrementID = $this->order->getIncrementId();
         $this->logger->addDebug(__METHOD__ . '|Lock Name| - ' . LogSanitizer::export($orderIncrementID));
@@ -362,6 +350,60 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         if ($lastOrder && $lastOrder->getQuoteId()) {
             $this->quoteRecreate->recreateById((int)$lastOrder->getQuoteId());
         }
+        return $this->handleProcessedResponse('checkout/cart');
+    }
+
+    /**
+     * Validate the return and load its order; returns the response to send when processing must stop
+     *
+     * @return ResponseInterface|null
+     * @throws Exception
+     */
+    private function loadOrderOrGetEarlyResponse(): ?ResponseInterface
+    {
+        if (count($this->redirectRequest->getData()) === 0 || empty($this->redirectRequest->getStatusCode())) {
+            return $this->handleEmptyRedirectRequest();
+        }
+
+        if (!$this->redirectRequest->validate()) {
+            $this->logger->addError(sprintf(
+                '[REDIRECT] | [Controller] | [%s:%s] - Signature validation failed',
+                __METHOD__,
+                __LINE__
+            ));
+            $this->messageManager->addErrorMessage(
+                __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+            );
+            return $this->_redirect('/');
+        }
+
+        try {
+            $this->order = $this->orderRequestService->getOrderByRequest($this->redirectRequest);
+        } catch (BuckarooException $e) {
+            return $this->handleOrderNotFound($e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle a return whose order cannot be found: nothing to update, send the shopper back to the cart
+     *
+     * @param BuckarooException $exception
+     * @return ResponseInterface
+     */
+    protected function handleOrderNotFound(BuckarooException $exception): ResponseInterface
+    {
+        $this->logger->addError(sprintf(
+            '[REDIRECT] | [Controller] | [%s:%s] - Order not found | invoice: %s | message: %s',
+            __METHOD__,
+            __LINE__,
+            var_export($this->redirectRequest->getInvoiceNumber(), true),
+            $exception->getMessage()
+        ));
+        $this->messageManager->addErrorMessage(
+            __(self::GENERAL_ERROR_MESSAGE) // phpcs:ignore Magento2.Translation.ConstantUsage
+        );
         return $this->handleProcessedResponse('checkout/cart');
     }
 
@@ -986,7 +1028,8 @@ class Process extends Action implements HttpPostActionInterface, HttpGetActionIn
         $statusCodeAddErrorMessage[BuckarooStatusCode::CANCELLED_BY_USER]
             = __('Payment cancelled. You can try again using the same or a different payment method.');
 
-        $this->addErrorMessage($statusCodeAddErrorMessage[$statusCode]);
+        // phpcs:ignore Magento2.Translation.ConstantUsage -- Using constant for consistency
+        $this->addErrorMessage($statusCodeAddErrorMessage[$statusCode] ?? __(self::GENERAL_ERROR_MESSAGE));
     }
 
     /**

@@ -54,7 +54,7 @@ class Save extends Index implements HttpPostActionInterface
             }
 
             $this->_getSession()->setFormData($formData);
-            return $this->_redirect('*/*/edit', ['id' => $giftcardId]);
+            return $this->_redirect('*/*/edit', ['entity_id' => $giftcardId]);
         }
     }
 

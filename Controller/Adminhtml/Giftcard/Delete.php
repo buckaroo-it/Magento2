@@ -42,7 +42,7 @@ class Delete extends Index implements HttpPostActionInterface
                     return $this->_redirect('*/*/');
                 } catch (\Exception $e) {
                     $this->messageManager->addErrorMessage($e->getMessage());
-                    return $this->_redirect('*/*/edit', ['id' => $giftcardModel->getId()]);
+                    return $this->_redirect('*/*/edit', ['entity_id' => $giftcardModel->getId()]);
                 }
             }
         }
