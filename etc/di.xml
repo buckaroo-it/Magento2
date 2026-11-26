@@ -1460,7 +1460,7 @@
                 <item name="capture" xsi:type="string">KlarnaCaptureCommand</item>
                 <item name="cancel" xsi:type="string">KlarnaCancelCommand</item>
                 <item name="void" xsi:type="string">KlarnaCancelCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
                 <item name="update_reservation" xsi:type="string">KlarnaUpdateReservationCommand</item>
                 <item name="extend_reservation" xsi:type="string">KlarnaExtendReservationCommand</item>
 
@@ -1633,6 +1633,23 @@
     </virtualType>
     <!-- END Klarna Cancel Command -->
 
+    <!-- Klarna (KP and MoR) Refund Command: the generic refund, plus the refunded lines -->
+    <virtualType name="KlarnaRefundCommand" type="BuckarooRefundCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">KlarnaRefundRequest</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="KlarnaRefundRequest" type="Buckaroo\Magento2\Gateway\Request\BuckarooBuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="refund_request" xsi:type="string">BuckarooRefundRequest</item>
+                <!-- Reads AmountCredit, so it must come after refund_request -->
+                <item name="articles" xsi:type="string">Buckaroo\Magento2\Gateway\Request\Articles\KlarnaRefundArticlesDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- END Klarna Refund Command -->
+
     <!-- Klarna UpdateReservation Command -->
     <virtualType name="KlarnaUpdateReservationCommand" type="Buckaroo\Magento2\Gateway\Command\GatewayCommand">
         <arguments>
@@ -1745,7 +1762,7 @@
                 <item name="capture" xsi:type="string">KlarnaKpUpdateReservationBeforeCaptureCommand</item>
                 <item name="cancel" xsi:type="string">KlarnaKpCancelCommand</item>
                 <item name="void" xsi:type="string">KlarnaKpCancelCommand</item>
-                <item name="refund" xsi:type="string">BuckarooRefundCommand</item>
+                <item name="refund" xsi:type="string">KlarnaRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
