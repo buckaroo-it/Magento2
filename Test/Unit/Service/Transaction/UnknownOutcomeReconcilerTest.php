@@ -89,7 +89,9 @@ class UnknownOutcomeReconcilerTest extends TestCase
         $fresh->expects($this->once())->method('cancel');
         $this->orderRepository->expects($this->once())->method('save')->with($fresh);
         $this->cancelGuard->method('getCancelBlocker')->willReturn(null);
-        $this->cancelGuard->method('runLocked')->willReturnCallback(fn(...$args) => $args[2]($fresh));
+        $this->cancelGuard->expects($this->once())->method('runLocked')
+            ->with(9, 'reconcile unknown outcome', $this->isInstanceOf(\Closure::class))
+            ->willReturnCallback(fn(...$args) => $args[2]($fresh));
 
         $this->reconciler()->reconcile($this->order(15), self::NOW);
     }
@@ -122,7 +124,8 @@ class UnknownOutcomeReconcilerTest extends TestCase
      */
     private function givenStatuses(array $statuses): void
     {
-        $this->adapter->method('getTransactionsByInvoice')->willReturn(array_map(
+        // The method code without its prefix, the order's store and its increment id
+        $this->adapter->method('getTransactionsByInvoice')->with('applepay', 1, '300000524')->willReturn(array_map(
             fn($status, $i) => ['key' => 'KEY' . $i, 'status' => $status],
             $statuses,
             array_keys($statuses)

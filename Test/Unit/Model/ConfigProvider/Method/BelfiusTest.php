@@ -17,9 +17,9 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider\Method;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
-use Buckaroo\Magento2\Model\ConfigProvider\Method\Applepay;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Belfius;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -28,68 +28,111 @@ class BelfiusTest extends BaseTest
 {
     protected $instanceClass = Belfius::class;
 
+    /**
+     * Prefix config fields with this method's config path.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    private static function configValues(array $fields): array
+    {
+        $values = [];
+        foreach ($fields as $field => $value) {
+            $values['payment/buckaroo_magento2_belfius/' . $field] = $value;
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array
+     */
     public static function getConfigProvider()
     {
         return [
-            'active' => [
-                true,
-                [
-                    'payment' => [
-                        'buckaroo' => [
-                            'belfius' => [
-                                'paymentFeeLabel' => 'Belfius Fee',
-                                'allowedCurrencies' => ['EUR'],
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+            'active live' => [
+                self::configValues([
+                    'active'             => '2',
+                    'title'              => 'Belfius',
+                    'subtext'            => 'Pay with Belfius',
+                    'display_subtext'    => '1',
+                    'subtext_style'      => 'italic',
+                    'subtext_color'      => '#336699',
+                    'allowed_currencies' => 'EUR,USD',
+                    ]),
+                ['payment' => ['buckaroo' => ['buckaroo_magento2_belfius' => [
+                    'paymentFeeLabel'   => 'Fee',
+                    'title'             => 'Belfius',
+                    'subtext'           => 'Pay with Belfius',
+                    'display_subtext'   => true,
+                    'subtext_style'     => 'italic',
+                    'subtext_color'     => '#336699',
+                    'allowedCurrencies' => ['EUR', 'USD'],
+                    'isTestMode'        => false,
+                    'logo'              => 'belfius.svg',
+                ]]]],
+            ],
+            'active test mode' => [
+                self::configValues([
+                    'active'             => '1',
+                    'title'              => 'Belfius',
+                    'subtext'            => 'Pay with Belfius',
+                    'display_subtext'    => '1',
+                    'subtext_style'      => 'italic',
+                    'subtext_color'      => '#336699',
+                    'allowed_currencies' => 'EUR,USD',
+                    ]),
+                ['payment' => ['buckaroo' => ['buckaroo_magento2_belfius' => [
+                    'paymentFeeLabel'   => 'Fee',
+                    'title'             => 'Belfius',
+                    'subtext'           => 'Pay with Belfius',
+                    'display_subtext'   => true,
+                    'subtext_style'     => 'italic',
+                    'subtext_color'     => '#336699',
+                    'allowedCurrencies' => ['EUR', 'USD'],
+                    'isTestMode'        => true,
+                    'logo'              => 'belfius.svg',
+                ]]]],
+            ],
+            'inactive' => [
+                self::configValues(['active' => '0', 'title' => 'Not shown']),
+                [],
+            ],
         ];
     }
 
     /**
-     * @param $active
-     * @param $expected
+     * The checkout config holds every configured value under the method code; inactive methods add nothing.
      *
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @param array $configValues
+     * @param array $expected
      */
     #[DataProvider('getConfigProvider')]
-    public function testGetConfig($active, $expected)
+    public function testGetConfig(array $configValues, array $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->getMock();
-
-        $valueMap = [
-            [
-                $this->getPaymentMethodConfigPath(Belfius::CODE, AbstractConfigProvider::ACTIVE),
-                ScopeInterface::SCOPE_STORE,
-                null,
-                1
-            ],
-        ];
-        $scopeConfigMock->method('getValue')->willReturnMap(array_merge($valueMap, [
-            [Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE, 'EUR'],
-            [Belfius::CODE, AbstractConfigProvider::PAYMENT_FEE_LABEL, 'Belfius Fee'],
-        ]));
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function ($path, $scope, $scopeCode) use ($configValues) {
+                $this->assertSame(ScopeInterface::SCOPE_STORE, $scope);
+                $this->assertNull($scopeCode);
+                return $configValues[$path] ?? null;
+            });
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        $paymentFeeMock->expects($this->once())->method('getBuckarooPaymentFeeLabel');
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn('Fee');
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
+        $logoServiceMock = $this->getFakeMock(LogoService::class)->onlyMethods(['getPayment'])->getMock();
+        $logoServiceMock->method('getPayment')->with('belfius')->willReturn('belfius.svg');
 
-        $result = $instance->getConfig();
+        $instance = $this->getInstance([
+            'scopeConfig' => $scopeConfigMock,
+            'paymentFeeHelper' => $paymentFeeMock,
+            'logoService' => $logoServiceMock,
+        ]);
 
-        // Add assertion to verify the method execution
-        $this->assertIsArray($result, 'getConfig should return an array');
-
-        if ($active) {
-            $this->assertArrayHasKey('payment', $result, 'Config should contain payment key when active');
-            $this->assertArrayHasKey('buckaroo', $result['payment']);
-            $this->assertArrayHasKey('buckaroo_magento2_belfius', $result['payment']['buckaroo']);
-        } else {
-            $this->assertEquals($expected, $result, 'Config should match expected result when inactive');
-        }
+        $this->assertSame($expected, $instance->getConfig());
     }
 
     public static function getPaymentFeeProvider()

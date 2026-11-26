@@ -103,20 +103,14 @@ class IssuerValidatorTest extends TestCase
     public static function issuerValidatorDataProvider(): array
     {
         return [
-            'valid' => [
+            'valid first issuer in the list' => [
                 'chosenIssuer' => 'ABNANL2A',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => true,
                 'failMessage' => ''
             ],
-            'valid skip validation boolean' => [
+            'valid issuer further down the list' => [
                 'chosenIssuer' => 'INGBNL2A',
-                'paymentMethodCode' => 'buckaroo_magento2_ideal',
-                'isValid' => true,
-                'failMessage' => ''
-            ],
-            'valid skipValidation' => [
-                'chosenIssuer' => 'ABNANL2A',
                 'paymentMethodCode' => 'buckaroo_magento2_ideal',
                 'isValid' => true,
                 'failMessage' => ''

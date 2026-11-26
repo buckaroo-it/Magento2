@@ -152,6 +152,199 @@ class OutcomeResolverTest extends TestCase
         $this->assertLessThanOrEqual(1030, $now, 'no candidate is checked after the budget ran out');
     }
 
+    public function testNothingIsLookedUpWithoutInvoiceOrOriginalKey(): void
+    {
+        $this->adapter->expects($this->never())->method('getTransactionsByInvoice');
+        $this->adapter->expects($this->never())->method('getTransactionStatus');
+
+        $this->assertNull($this->resolver()->resolve('pay', 'applepay', ['amountDebit' => 40.05], $this->started()));
+        $this->assertSame(0, $this->sleeps);
+    }
+
+    public function testFindsARefundByOriginalKeyAloneWithoutInvoice(): void
+    {
+        $this->adapter->expects($this->never())->method('getTransactionsByInvoice');
+        $this->givenStatuses([
+            'ORIG'    => $this->transaction('ORIG', '2026-11-23T13:00:00', [
+                'AmountDebit'         => 40.05,
+                'RelatedTransactions' => [['RelationType' => 'refund', 'RelatedTransactionKey' => 'REFUND1']],
+            ]),
+            'REFUND1' => $this->transaction('REFUND1', '2026-11-23T14:10:03', $this->refundOf('ORIG', 10)),
+        ]);
+
+        $response = $this->resolver()->resolve(
+            'refund',
+            'ideal',
+            ['originalTransactionKey' => 'ORIG', 'amountCredit' => 10],
+            $this->started()
+        );
+
+        $this->assertSame('REFUND1', $response->getTransactionKey());
+    }
+
+    /**
+     * A refund listed on the invoice that belongs to another original transaction is not ours.
+     */
+    public function testRefundNotRelatedToTheOriginalIsIgnored(): void
+    {
+        $this->givenInvoice(['OTHER']);
+        $this->givenStatuses([
+            'ORIG'  => $this->transaction('ORIG', '2026-11-23T13:00:00', ['AmountDebit' => 40.05]),
+            'OTHER' => $this->transaction('OTHER', '2026-11-23T14:10:03', ['AmountCredit' => 10]),
+        ]);
+
+        $this->assertNull($this->resolver()->resolve(
+            'refund',
+            'ideal',
+            ['invoice' => '300000501', 'originalTransactionKey' => 'ORIG', 'amountCredit' => 10],
+            $this->started()
+        ));
+    }
+
+    public function testFindsATransactionThatAppearsOnTheThirdLookup(): void
+    {
+        $lookups = 0;
+        $this->adapter->expects($this->exactly(3))->method('getTransactionsByInvoice')
+            ->willReturnCallback(function () use (&$lookups) {
+                $lookups++;
+                return $lookups === 3 ? [['key' => 'NEW', 'status' => 190]] : [];
+            });
+        $this->givenStatuses(['NEW' => $this->transaction('NEW', '2026-11-23T14:10:08', ['AmountDebit' => 40.05])]);
+
+        $response = $this->resolver()->resolve('pay', 'applepay', $this->payData(), $this->started());
+
+        $this->assertSame('NEW', $response->getTransactionKey());
+        $this->assertSame(2, $this->sleeps);
+    }
+
+    /**
+     * The first lookup always runs; a retry is skipped once the clock reaches the deadline.
+     */
+    public function testRetryStopsExactlyAtTheDeadline(): void
+    {
+        $this->adapter->expects($this->once())->method('getTransactionsByInvoice')->willReturn([]);
+
+        $this->assertNull($this->resolverWithClock([1000, 1015])->resolve(
+            'pay',
+            'applepay',
+            $this->payData(),
+            $this->started()
+        ));
+    }
+
+    public function testNoCandidateIsCheckedOnceTheClockReachesTheDeadline(): void
+    {
+        $this->givenInvoice(['NEW']);
+        $this->adapter->expects($this->never())->method('getTransactionStatus');
+
+        $this->assertNull($this->resolverWithClock([1000, 1015])->resolve(
+            'pay',
+            'applepay',
+            $this->payData(),
+            $this->started()
+        ));
+    }
+
+    /**
+     * Request data may carry the invoice, store id and amount as other scalar types.
+     */
+    public function testLooselyTypedRequestDataIsNormalised(): void
+    {
+        $this->adapter->expects($this->once())->method('getTransactionsByInvoice')
+            ->with('applepay', 1, '300000490', null)
+            ->willReturn([['key' => 'NEW', 'status' => 190]]);
+        $this->adapter->expects($this->once())->method('getTransactionStatus')
+            ->with('applepay', 1, 'NEW', null)
+            ->willReturn($this->transaction('NEW', '2026-11-23T14:10:08', ['AmountDebit' => '40.05']));
+
+        $response = $this->resolver()->resolve(
+            'pay',
+            'applepay',
+            ['invoice' => 300000490, 'amountDebit' => '40.05', 'orderStoreId' => '1'],
+            $this->started()
+        );
+
+        $this->assertSame('NEW', $response->getTransactionKey());
+    }
+
+    public function testStoreIdIsNullWhenNotGiven(): void
+    {
+        $this->adapter->expects($this->exactly(3))->method('getTransactionsByInvoice')
+            ->with('applepay', null, '300000490', true)
+            ->willReturn([]);
+
+        $this->assertNull($this->resolver()->resolve(
+            'pay',
+            'applepay',
+            ['invoice' => '300000490', 'amountDebit' => 40.05],
+            $this->started(),
+            true
+        ));
+    }
+
+    public function testAtMostTenCandidatesAreChecked(): void
+    {
+        $keys = array_map(fn($i) => 'K' . $i, range(1, 11));
+        $this->givenInvoice($keys);
+        $this->adapter->expects($this->exactly(30))->method('getTransactionStatus')
+            ->willReturnCallback(fn(...$args) => $this->transaction($args[2], '2026-11-23T14:10:08', [
+                'AmountDebit' => $args[2] === 'K11' ? 40.05 : 1,
+            ]));
+
+        $this->assertNull($this->resolver()->resolve('pay', 'applepay', $this->payData(), $this->started()));
+    }
+
+    public function testCandidateExactlyAtTheClockToleranceIsAccepted(): void
+    {
+        $this->givenInvoice(['NEW']);
+        $this->givenStatuses(['NEW' => $this->transaction('NEW', '2026-11-23T14:08:00', ['AmountDebit' => 40.05])]);
+
+        $response = $this->resolver()->resolve('pay', 'applepay', $this->payData(), $this->started());
+
+        $this->assertSame('NEW', $response->getTransactionKey());
+    }
+
+    public function testCandidateJustBeforeTheClockToleranceIsIgnored(): void
+    {
+        $this->givenInvoice(['OLD']);
+        $this->givenStatuses(['OLD' => $this->transaction('OLD', '2026-11-23T14:07:59', ['AmountDebit' => 40.05])]);
+
+        $this->assertNull($this->resolver()->resolve('pay', 'applepay', $this->payData(), $this->started()));
+    }
+
+    public function testAmountDifferenceOfHalfACentIsStillAMatch(): void
+    {
+        $this->givenInvoice(['NEW']);
+        $this->givenStatuses(['NEW' => $this->transaction('NEW', '2026-11-23T14:10:08', ['AmountDebit' => 0.005])]);
+
+        $response = $this->resolver()->resolve(
+            'pay',
+            'applepay',
+            ['invoice' => '300000490', 'amountDebit' => 0.01],
+            $this->started()
+        );
+
+        $this->assertSame('NEW', $response->getTransactionKey());
+    }
+
+    /**
+     * @param int[] $times clock readings in call order; the last one repeats
+     * @return OutcomeResolver
+     */
+    private function resolverWithClock(array $times): OutcomeResolver
+    {
+        return new OutcomeResolver(
+            $this->adapter,
+            $this->createMock(BuckarooLoggerInterface::class),
+            function () {
+                $this->sleeps++;
+            },
+            function () use (&$times) {
+                return count($times) > 1 ? array_shift($times) : $times[0];
+            }
+        );
+    }
+
     /**
      * @return OutcomeResolver
      */

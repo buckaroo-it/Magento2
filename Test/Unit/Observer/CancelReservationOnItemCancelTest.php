@@ -143,18 +143,19 @@ class CancelReservationOnItemCancelTest extends \Buckaroo\Magento2\Test\BaseTest
 
     /**
      * Order::cancel() dispatches this event for a configurable's child row too. Order 300000019
-     * ran the whole decision four times for two products because of it.
+     * ran the whole decision four times for two products because of it. Nothing is left to
+     * invoice here, so only the dummy check keeps the child row from releasing the reservation.
      */
     public function testADummyCancelledItemIsSkipped(): void
     {
         $dummyChild = $this->makeItem(1, 0.0, 0.0, true);
-        $openItem = $this->makeItem(2, 1.0, 0.0);
+        $shippedItem = $this->makeItem(2, 0.0, 0.0);
 
         $instance = $this->getInstance([
             'cancelRemainingReservation' => $this->makeCancelServiceExpecting($this->never(), true),
         ]);
 
-        $instance->execute($this->makeObserver($dummyChild, [$dummyChild, $openItem], true));
+        $instance->execute($this->makeObserver($dummyChild, [$dummyChild, $shippedItem], true));
     }
 
     public function testAnEventWithoutAnItemIsIgnored(): void

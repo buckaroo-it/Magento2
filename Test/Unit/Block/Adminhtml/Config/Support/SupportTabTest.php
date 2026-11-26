@@ -15,25 +15,42 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Config\Support;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Block\Adminhtml\Config\Support\SupportTab;
 use Buckaroo\Magento2\Service\Software\Data;
 use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\HTTP\Client\Curl;
 
 class SupportTabTest extends BaseTest
 {
     protected $instanceClass = SupportTab::class;
 
-    public function testGetVersionNumber()
+    public function testLatestPluginVersionIsTheNewestGithubTag()
     {
-        $softwareDataMock = $this->getFakeMock(Data::class)->getMock();
-        $softwareDataMock->method('getModuleVersion')->willReturn(Data::BUCKAROO_VERSION);
-        $instance = $this->getInstance(['softwareData' => $softwareDataMock]);
-        $result = $instance->getVersionNumber();
+        $curl = $this->getFakeMock(Curl::class)->onlyMethods(['addHeader', 'get', 'getBody'])->getMock();
+        $curl->expects($this->once())->method('get')->with('https://api.github.com/repos/buckaroo-it/Magento2/tags');
+        $curl->method('getBody')->willReturn('[{"name":"v2.0.1"},{"name":"v2.0.0"}]');
 
-        $this->assertEquals(Data::BUCKAROO_VERSION, $result);
+        $softwareData = $this->getFakeMock(Data::class)->getMock();
+        $softwareData->expects($this->never())->method('getModuleVersion');
+
+        $instance = $this->getInstance(['softwareData' => $softwareData, 'curl' => $curl]);
+
+        $this->assertSame('v2.0.1', $instance->getLatestPluginVersion());
+    }
+
+    public function testLatestPluginVersionFallsBackToTheInstalledVersion()
+    {
+        $curl = $this->getFakeMock(Curl::class)->onlyMethods(['addHeader', 'get', 'getBody'])->getMock();
+        $curl->method('getBody')->willReturn('{"message":"API rate limit exceeded"}');
+
+        $softwareData = $this->getFakeMock(Data::class)->getMock();
+        $softwareData->expects($this->once())->method('getModuleVersion')->willReturn('1.52.3');
+
+        $instance = $this->getInstance(['softwareData' => $softwareData, 'curl' => $curl]);
+
+        $this->assertSame('v1.52.3', $instance->getLatestPluginVersion());
     }
 
     public function testPhpVersionCheckIfNothingIsWorking()

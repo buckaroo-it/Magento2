@@ -25,25 +25,28 @@ class SetBuckarooFeeTest extends BaseTest
     protected $instanceClass = SetBuckarooFee::class;
 
     /**
-     * Test the happy path. No Buckaroo Payment Fee
+     * Without a Buckaroo fee on the quote nothing is copied to the order.
      */
-    public function testInvoiceRegisterHappyPath()
+    public function testInvoiceRegisterWithoutFeeLeavesTheOrderAlone()
     {
         $quoteMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\QuoteStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getBaseBuckarooFee'])->getMock();
         $quoteMock->method('getBaseBuckarooFee')->willReturn(false);
 
+        $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setBuckarooFee', 'setBaseBuckarooFee'])->getMock();
+        $orderMock->expects($this->never())->method('setBuckarooFee');
+        $orderMock->expects($this->never())->method('setBaseBuckarooFee');
+
         $observerMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)
-            ->onlyMethods(['getEvent', 'getQuote'])->getMock();
+            ->onlyMethods(['getEvent', 'getQuote', 'getOrder'])->getMock();
         $observerMock->method('getEvent')->willReturnSelf();
         $observerMock->method('getQuote')->willReturn($quoteMock);
+        $observerMock->method('getOrder')->willReturn($orderMock);
 
-        $instance = $this->getInstance();
-        $result = $instance->execute($observerMock);
-
-        // Assert that the method executed without throwing exceptions
-        $this->assertNull($result, 'execute method should return null when no fee is present');
+        $this->getInstance()->execute($observerMock);
     }
 
     /**
@@ -51,12 +54,13 @@ class SetBuckarooFeeTest extends BaseTest
      */
     public function testInvoiceRegisterWithFee()
     {
-        $buckarooFee = rand(1, 1000);
-        $buckarooBaseFee = rand(1, 1000);
-        $getBuckarooFeeInclTax = rand(1, 1000);
-        $getBuckarooFeeTaxAmount = rand(1, 1000);
-        $getBaseBuckarooFeeInclTax = rand(1, 1000);
-        $getBuckarooFeeBaseTaxAmount = rand(1, 1000);
+        // Distinct values, so a fee copied into the wrong order field fails.
+        $buckarooFee = 2.5;
+        $buckarooBaseFee = 2.25;
+        $getBuckarooFeeInclTax = 3.03;
+        $getBuckarooFeeTaxAmount = 0.53;
+        $getBaseBuckarooFeeInclTax = 2.72;
+        $getBuckarooFeeBaseTaxAmount = 0.47;
 
         $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
             ->disableOriginalConstructor()
@@ -85,10 +89,6 @@ class SetBuckarooFeeTest extends BaseTest
         $observerMock->method('getQuote')->willReturn($quoteMock);
 
         $instance = $this->getInstance();
-        $result = $instance->execute($observerMock);
-
-        // Assert that the method executed without throwing exceptions
-        // The expectations on the order mock methods will verify the behavior
-        $this->assertNull($result, 'execute method should return null after setting fees');
+        $instance->execute($observerMock);
     }
 }

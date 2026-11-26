@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Service;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Exception;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
@@ -71,8 +70,10 @@ class TransactionCurrencyResolverTest extends TestCase
         ?string $expectedCurrency
     ): void {
         $this->orderMock->method('getOrderCurrencyCode')->willReturn($orderCurrency);
+        // Magento hands the store id over as a string; the config is read for store 3
+        $this->orderMock->method('getStoreId')->willReturn('3');
 
-        $this->mockAllowedCurrencies($allowedCurrencies);
+        $this->mockAllowedCurrencies($allowedCurrencies, 3);
 
         $this->assertSame(
             $expectedCurrency,
@@ -97,9 +98,9 @@ class TransactionCurrencyResolverTest extends TestCase
      */
     public function testIsCurrencyAllowed(): void
     {
-        $this->mockAllowedCurrencies(['EUR', 'PLN']);
+        $this->mockAllowedCurrencies(['EUR', 'PLN'], 2);
 
-        $this->assertTrue($this->resolver->isCurrencyAllowed('PLN', $this->methodInstanceMock));
+        $this->assertTrue($this->resolver->isCurrencyAllowed('PLN', $this->methodInstanceMock, 2));
     }
 
     /**
@@ -107,7 +108,7 @@ class TransactionCurrencyResolverTest extends TestCase
      */
     public function testIsCurrencyAllowedRejectsUnsupportedCurrency(): void
     {
-        $this->mockAllowedCurrencies(['EUR', 'PLN']);
+        $this->mockAllowedCurrencies(['EUR', 'PLN'], null);
 
         $this->assertFalse($this->resolver->isCurrencyAllowed('CZK', $this->methodInstanceMock));
     }
@@ -135,11 +136,12 @@ class TransactionCurrencyResolverTest extends TestCase
     }
 
     /**
-     * Mock the config provider chain to return the given allowed currencies.
+     * Mock the config provider chain to return the given allowed currencies for the given store only.
      *
-     * @param array $allowedCurrencies
+     * @param array    $allowedCurrencies
+     * @param int|null $storeId
      */
-    private function mockAllowedCurrencies(array $allowedCurrencies): void
+    private function mockAllowedCurrencies(array $allowedCurrencies, ?int $storeId): void
     {
         $this->methodInstanceMock->method('getCode')->willReturn('buckaroo_magento2_klarna');
 
@@ -147,9 +149,13 @@ class TransactionCurrencyResolverTest extends TestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getAllowedCurrencies'])
             ->getMock();
-        $configProviderMock->method('getAllowedCurrencies')->willReturn($allowedCurrencies);
+        $configProviderMock->expects($this->once())
+            ->method('getAllowedCurrencies')
+            ->with($this->identicalTo($storeId))
+            ->willReturn($allowedCurrencies);
 
-        $this->configProviderMethodFactoryMock->method('get')
+        $this->configProviderMethodFactoryMock->expects($this->once())
+            ->method('get')
             ->with('buckaroo_magento2_klarna')
             ->willReturn($configProviderMock);
     }

@@ -14,63 +14,100 @@ declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Culture;
 
-use Buckaroo\Config\DefaultConfig;
+use Buckaroo\BuckarooClient;
+use Buckaroo\Config\Config;
+use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Model\Adapter\BuckarooAdapter;
+use Buckaroo\Magento2\Model\ConfigProvider\Account;
+use Buckaroo\Magento2\Model\ConfigProvider\Factory as ConfigProviderFactory;
 use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 use Buckaroo\Services\TransactionHeaders\CultureHeader;
 use Buckaroo\Services\TransactionHeaders\DefaultHeader;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\Encryption\Encryptor;
+use Magento\Framework\Locale\Resolver;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Proves the resolved culture actually reaches the wire as a "Culture:" header.
  *
  * The unit tests next door stop at the resolver's return value. Issue #1761 turns on
- * what is *serialised*, so these go one layer further and drive the real SDK header
- * stack — the same classes BuckarooAdapter::setClientSdk() feeds in production.
+ * what is *serialised*, so these go one layer further: the SDK config is built by the
+ * real BuckarooAdapter::setClientSdk() and fed to the real SDK header stack.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class HeaderSerializationTest extends TestCase
 {
     /**
-     * Build the SDK config exactly as BuckarooAdapter::setClientSdk() does.
+     * Build the SDK config through BuckarooAdapter::setClientSdk().
      *
-     * Culture is the 13th positional argument. Passing it anywhere else silently
-     * lands it in another field, so pinning the position is the point of this helper.
+     * Only the adapter's collaborators are mocked, so passing the culture in the wrong
+     * DefaultConfig argument makes the header fall back to the SDK default.
      *
-     * @param string|null $culture
+     * @param string|null $culture     culture override handed to the adapter
+     * @param string      $storeLocale locale of order store 3, used when there is no override
      *
-     * @return DefaultConfig
+     * @return Config
      */
-    private function adapterConfig(?string $culture): DefaultConfig
+    private function adapterConfig(?string $culture, string $storeLocale = ''): Config
     {
-        return new DefaultConfig(
-            'websiteKey',
-            'secretKey',
-            'test',
-            null,           // currency
-            null,           // returnURL
-            null,           // returnURLCancel
-            null,           // pushURL
-            'Magento - Community',
-            '2.4.9',
-            'Buckaroo',
-            'Magento2',
-            '2.7.1',
-            $culture,
-            null,
-            null,
-            null
-        );
+        $account = $this->createMock(Account::class);
+        $account->method('getActive')->willReturn(1);
+        $account->method('getMerchantKey')->willReturn('encrypted-website-key');
+        $account->method('getSecretKey')->willReturn('encrypted-secret-key');
+        $account->method('getHttpTimeout')->willReturn(30);
+        $account->method('getHttpConnectTimeout')->willReturn(10);
+
+        $configProviderFactory = $this->createMock(ConfigProviderFactory::class);
+        $configProviderFactory->method('get')->with('account')->willReturn($account);
+
+        $encryptor = $this->createMock(Encryptor::class);
+        $encryptor->method('decrypt')->willReturnCallback(static fn ($value) => 'decrypted-' . $value);
+
+        $productMetadata = $this->createMock(ProductMetadataInterface::class);
+        $productMetadata->method('getName')->willReturn('Magento');
+        $productMetadata->method('getEdition')->willReturn('Community');
+        $productMetadata->method('getVersion')->willReturn('2.4.9');
+
+        $localeResolver = $this->createMock(Resolver::class);
+        $localeResolver->method('emulate')->with(3)->willReturn($storeLocale);
+        $localeResolver->method('getLocale')->willReturn('');
+
+        $adapter = (new \ReflectionClass(BuckarooAdapter::class))->newInstanceWithoutConstructor();
+        $properties = [
+            'configProviderFactory' => $configProviderFactory,
+            'encryptor'             => $encryptor,
+            'logger'                => $this->createMock(BuckarooLoggerInterface::class),
+            'productMetadata'       => $productMetadata,
+            'localeResolver'        => $localeResolver,
+        ];
+        foreach ($properties as $name => $value) {
+            (new \ReflectionProperty(BuckarooAdapter::class, $name))->setValue($adapter, $value);
+        }
+
+        // Store 3, post-transaction call on a test-mode transaction: no payment method lookup.
+        (new \ReflectionMethod(BuckarooAdapter::class, 'setClientSdk'))
+            ->invoke($adapter, '', 3, true, true, $culture);
+
+        $client = (new \ReflectionProperty(BuckarooAdapter::class, 'buckaroo'))->getValue($adapter);
+        $this->assertInstanceOf(BuckarooClient::class, $client);
+
+        return (new \ReflectionProperty(BuckarooClient::class, 'config'))->getValue($client);
     }
 
     /**
      * The "Culture: <value>" line the SDK would put on the request.
      *
      * @param string|null $culture
+     * @param string      $storeLocale
      *
      * @return string|null
      */
-    private function serialisedCultureHeader(?string $culture): ?string
+    private function serialisedCultureHeader(?string $culture, string $storeLocale = ''): ?string
     {
-        $headers = (new CultureHeader(new DefaultHeader([]), $this->adapterConfig($culture)))->getHeaders();
+        $config = $this->adapterConfig($culture, $storeLocale);
+        $headers = (new CultureHeader(new DefaultHeader([]), $config))->getHeaders();
 
         foreach ($headers as $header) {
             if (strpos($header, 'Culture: ') === 0) {
@@ -86,14 +123,22 @@ class HeaderSerializationTest extends TestCase
      */
     public function testResolvedCultureIsSerialisedVerbatim(): void
     {
-        $this->assertSame('Culture: nl-NL', $this->serialisedCultureHeader('nl-NL'));
-        $this->assertSame('Culture: en-ZA', $this->serialisedCultureHeader('en-ZA'));
+        $this->assertSame('Culture: nl-NL', $this->serialisedCultureHeader('nl-NL', 'de_DE'));
+        $this->assertSame('Culture: en-ZA', $this->serialisedCultureHeader('en-ZA', 'de_DE'));
     }
 
     /**
-     * Omitting the override must leave the SDK's own default, never an empty header.
+     * Without an override the order store's locale is sent, in header notation.
      */
-    public function testNullCultureFallsBackToTheSdkDefault(): void
+    public function testNoOverrideSerialisesTheOrderStoreLocale(): void
+    {
+        $this->assertSame('Culture: nl-BE', $this->serialisedCultureHeader(null, 'nl_BE'));
+    }
+
+    /**
+     * Without an override or a store locale the SDK's own default is sent, never an empty header.
+     */
+    public function testNoCultureAtAllFallsBackToTheSdkDefault(): void
     {
         $this->assertSame('Culture: en-GB', $this->serialisedCultureHeader(null));
     }
@@ -117,6 +162,8 @@ class HeaderSerializationTest extends TestCase
             array_keys(CultureCodeResolver::COUNTRY_CULTURES),
             array_keys(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES)
         );
+        $this->assertNotEmpty($countries);
+        $this->assertNotEmpty($rejected);
 
         foreach ($countries as $country) {
             foreach ([null, 'en_US', 'nl_NL', 'fr_FR', 'af_ZA', 'de_DE'] as $hint) {

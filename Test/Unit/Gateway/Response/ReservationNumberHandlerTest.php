@@ -48,10 +48,10 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
-     *
-     * @param string     $paymentMethod
-     * @param bool       $hasReservationNumber
-     * @param array|null $serviceParameters
+     * @param string      $paymentMethod
+     * @param bool        $hasReservationNumber
+     * @param array       $serviceParameters
+     * @param string|null $expectedSavedNumber null when nothing may be saved
      *
      * @throws \Exception
      */
@@ -59,39 +59,36 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     public function testHandle(
         string $paymentMethod,
         bool $hasReservationNumber,
-        ?array $serviceParameters
+        array $serviceParameters,
+        ?string $expectedSavedNumber
     ): void {
         $this->orderPaymentMock
             ->method('getMethod')
             ->willReturn($paymentMethod);
 
-        if ($paymentMethod == 'buckaroo_magento2_klarnakp') {
-            $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
-                ->disableOriginalConstructor()
-                ->onlyMethods(['getBuckarooReservationNumber', 'setBuckarooReservationNumber'])->getMock();
+        $orderMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\OrderStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getBuckarooReservationNumber', 'setBuckarooReservationNumber'])->getMock();
+        $orderMock
+            ->method('getBuckarooReservationNumber')
+            ->willReturn($hasReservationNumber ? '123456' : null);
 
-            $orderMock
-                ->method('getBuckarooReservationNumber')
-                ->willReturn($hasReservationNumber ? '123456' : null);
+        $this->orderPaymentMock
+            ->method('getOrder')
+            ->willReturn($orderMock);
 
-            // The handler no longer writes the order itself: the store owns every copy of the
-            // number, so the expectation is on the store rather than on the order repository.
-            if (!$hasReservationNumber && $serviceParameters !== null) {
-                $this->transactionResponse
-                    ->method('getServiceParameters')
-                    ->willReturn($serviceParameters);
+        $this->transactionResponse
+            ->method('getServiceParameters')
+            ->willReturn($serviceParameters);
 
-                $this->reservationNumberStoreMock
-                    ->expects($this->once())
-                    ->method('save')
-                    ->with($orderMock, $serviceParameters['klarnakp_reservationnumber']);
-            } else {
-                $this->reservationNumberStoreMock->expects($this->never())->method('save');
-            }
-
-            $this->orderPaymentMock
-                ->method('getOrder')
-                ->willReturn($orderMock);
+        // The store owns every copy of the number, so the expectation is on the store.
+        if ($expectedSavedNumber !== null) {
+            $this->reservationNumberStoreMock
+                ->expects($this->once())
+                ->method('save')
+                ->with($this->identicalTo($orderMock), $expectedSavedNumber);
+        } else {
+            $this->reservationNumberStoreMock->expects($this->never())->method('save');
         }
 
         $this->reservationNumberHandler->handle(
@@ -103,21 +100,24 @@ class ReservationNumberHandlerTest extends AbstractResponseHandlerTest
     public static function reservationNumberDataProvider(): array
     {
         return [
-            [
+            'klarna kp without stored number saves the response number' => [
                 'paymentMethod' => 'buckaroo_magento2_klarnakp',
                 'hasReservationNumber' => false,
-                'serviceParameters' => ['klarnakp_reservationnumber' => '123456']
+                'serviceParameters' => ['klarnakp_reservationnumber' => 987654],
+                'expectedSavedNumber' => '987654',
             ],
-            [
+            'klarna kp with stored number saves nothing' => [
                 'paymentMethod' => 'buckaroo_magento2_klarnakp',
                 'hasReservationNumber' => true,
-                'serviceParameters' => null
+                'serviceParameters' => ['klarnakp_reservationnumber' => '555555'],
+                'expectedSavedNumber' => null,
             ],
-            [
+            'other method saves nothing even with a reservation number in the response' => [
                 'paymentMethod' => 'buckaroo_magento2_other',
                 'hasReservationNumber' => false,
-                'serviceParameters' => null
-            ]
+                'serviceParameters' => ['klarnakp_reservationnumber' => '123456'],
+                'expectedSavedNumber' => null,
+            ],
         ];
     }
 }

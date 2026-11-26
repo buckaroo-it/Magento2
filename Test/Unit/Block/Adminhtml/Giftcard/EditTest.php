@@ -14,16 +14,52 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Block\Adminhtml\Giftcard;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Framework\Phrase;
 use Buckaroo\Magento2\Model\Data\BuckarooGiftcardDataInterface;
 use Buckaroo\Magento2\Block\Adminhtml\Giftcard\Edit;
 use Buckaroo\Magento2\Model\Giftcard;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class EditTest extends \Buckaroo\Magento2\Test\BaseTest
 {
     protected $instanceClass = Edit::class;
+
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface|null
+     */
+    private $previousObjectManager;
+
+    /**
+     * @var \Magento\Framework\Phrase\RendererInterface|null
+     */
+    private $previousRenderer;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->previousObjectManager = $this->staticProperty(
+            \Magento\Framework\App\ObjectManager::class,
+            '_instance'
+        )->getValue();
+        $this->previousRenderer = $this->staticProperty(Phrase::class, 'renderer')->getValue();
+    }
+
+    protected function tearDown(): void
+    {
+        // Put back the globals this test replaces, so later tests in the run are not affected.
+        $this->staticProperty(\Magento\Framework\App\ObjectManager::class, '_instance')
+            ->setValue(null, $this->previousObjectManager);
+        $this->staticProperty(Phrase::class, 'renderer')->setValue(null, $this->previousRenderer);
+        parent::tearDown();
+    }
+
+    private function staticProperty(string $class, string $name): \ReflectionProperty
+    {
+        return new \ReflectionProperty($class, $name);
+    }
 
     public static function headerTextProvider()
     {

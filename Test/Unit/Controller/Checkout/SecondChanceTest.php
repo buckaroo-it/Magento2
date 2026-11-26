@@ -529,4 +529,107 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertSame($redirectMock, $instance->execute());
     }
+
+    public function testHandleRedirectAddsUtmQueryAndFragmentAfterTheUrl()
+    {
+        $previousSeparator = ini_set('arg_separator.output', '&amp;');
+        try {
+            $result = $this->runRealHandleRedirect(
+                'checkout',
+                ['_query' => ['utm_source' => 'magento', 'utm_medium' => 'email'], '_fragment' => 'payment', '_secure' => true],
+                ['_secure' => true, '_nosid' => true],
+                'https://shop.example/checkout/',
+                'https://shop.example/checkout/?utm_source=magento&utm_medium=email#payment'
+            );
+        } finally {
+            ini_set('arg_separator.output', (string)$previousSeparator);
+        }
+
+        $this->assertInstanceOf(Redirect::class, $result);
+    }
+
+    public function testHandleRedirectAppendsToAnExistingQueryWithAnAmpersand()
+    {
+        $this->runRealHandleRedirect(
+            'checkout',
+            ['_query' => ['utm_source' => 'magento'], '_fragment' => 'payment'],
+            ['_nosid' => true],
+            'https://shop.example/checkout/?___store=nl',
+            'https://shop.example/checkout/?___store=nl&utm_source=magento#payment'
+        );
+    }
+
+    public function testHandleRedirectWithoutQueryOrFragmentUsesThePlainUrl()
+    {
+        $this->runRealHandleRedirect(
+            'checkout/cart',
+            [],
+            ['_nosid' => true],
+            'https://shop.example/checkout/cart/',
+            'https://shop.example/checkout/cart/'
+        );
+    }
+
+    public function testHandleRedirectWithAnEmptyQueryAddsNoQuestionMark()
+    {
+        $this->runRealHandleRedirect(
+            'checkout',
+            ['_query' => [], '_fragment' => 'payment'],
+            ['_nosid' => true],
+            'https://shop.example/checkout/',
+            'https://shop.example/checkout/#payment'
+        );
+    }
+
+    /**
+     * Run the real handleRedirect() and pin the URL builder call and the final redirect URL.
+     *
+     * @param string $path
+     * @param array  $arguments
+     * @param array  $expectedUrlArguments
+     * @param string $builtUrl
+     * @param string $expectedRedirectUrl
+     *
+     * @return Redirect
+     */
+    private function runRealHandleRedirect(
+        string $path,
+        array $arguments,
+        array $expectedUrlArguments,
+        string $builtUrl,
+        string $expectedRedirectUrl
+    ): Redirect {
+        $urlBuilder = $this->createMock(\Magento\Framework\UrlInterface::class);
+        $urlBuilder->expects($this->once())->method('getUrl')
+            ->with($path, $expectedUrlArguments)
+            ->willReturn($builtUrl);
+
+        $redirect = $this->getFakeMock(Redirect::class)->onlyMethods(['setUrl'])->getMock();
+        $redirect->expects($this->once())->method('setUrl')->with($expectedRedirectUrl)->willReturnSelf();
+
+        $resultFactory = $this->getFakeMock(\Magento\Framework\Controller\ResultFactory::class)
+            ->onlyMethods(['create'])
+            ->getMock();
+        $resultFactory->expects($this->once())->method('create')
+            ->with(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT)
+            ->willReturn($redirect);
+
+        $this->context->method('getUrl')->willReturn($urlBuilder);
+        $this->context->method('getResultFactory')->willReturn($resultFactory);
+
+        $instance = new SecondChance(
+            $this->context,
+            $this->logger,
+            $this->secondChanceRepository,
+            $this->checkoutSession,
+            $this->customerSession,
+            $this->pageFactory
+        );
+
+        $result = (new \ReflectionMethod(SecondChance::class, 'handleRedirect'))
+            ->invoke($instance, $path, $arguments);
+        $this->assertSame($redirect, $result);
+
+        return $result;
+    }
 }

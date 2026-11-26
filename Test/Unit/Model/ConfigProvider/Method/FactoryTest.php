@@ -50,11 +50,10 @@ class FactoryTest extends BaseTest
     {
         $instance = $this->getInstance(['configProviders' => [['type' => 'some_model', 'model' => 'some_model']]]);
 
-        try {
-            $instance->get('invalid_type');
-        } catch (Exception $e) {
-            $this->assertEquals('Unknown ConfigProvider type requested: invalid_type.', $e->getMessage());
-        }
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unknown ConfigProvider type requested: invalid_type.');
+
+        $instance->get('invalid_type');
     }
 
     /**
@@ -86,11 +85,10 @@ class FactoryTest extends BaseTest
     {
         $instance = $this->getInstance();
 
-        try {
-            $instance->get('');
-        } catch (\LogicException $e) {
-            $this->assertEquals('ConfigProvider adapter is not set.', $e->getMessage());
-        }
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('ConfigProvider adapter is not set.');
+
+        $instance->get('');
     }
 
     /**
@@ -120,16 +118,15 @@ class FactoryTest extends BaseTest
     }
 
     /**
-     * Test what happens where there are no ConfigProviders
+     * has() refuses to answer when no ConfigProviders are configured.
      */
     public function testHasNoProviders()
     {
         $instance = $this->getInstance();
 
-        try {
-            $instance->has('');
-        } catch (\LogicException $e) {
-            $this->assertEquals('ConfigProvider adapter is not set.', $e->getMessage());
-        }
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('ConfigProvider adapter is not set.');
+
+        $instance->has('');
     }
 }

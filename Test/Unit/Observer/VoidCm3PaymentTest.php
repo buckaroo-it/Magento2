@@ -14,10 +14,13 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
-use Magento\Framework\Event\Observer;
-use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Observer\VoidCm3Payment;
 use Buckaroo\Magento2\Test\BaseTest;
+use Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Sales\Model\Order\Payment;
 
 class VoidCm3PaymentTest extends BaseTest
 {
@@ -25,69 +28,85 @@ class VoidCm3PaymentTest extends BaseTest
 
     public function testExecuteNotBuckaroo()
     {
-        $paymentMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PaymentStub::class)
-            ->onlyMethods(['getMethod', 'getAuthorizationTransaction', 'getAdditionalInformation', 'getMethodInstance', 'createCreditNoteRequest'])->getMock();
-        $paymentMock->method('getMethod')->willReturn('fake_method');
-        $paymentMock->expects($this->never())->method('getAuthorizationTransaction');
-        $paymentMock->expects($this->never())->method('getAdditionalInformation');
-        $paymentMock->expects($this->never())->method('getMethodInstance');
-        $paymentMock->expects($this->never())->method('createCreditNoteRequest');
+        $payment = $this->makePayment('fake_method', false, 'key');
 
-        $observerMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)->onlyMethods(['getPayment'])->getMock();
-        $observerMock->method('getPayment')->willReturn($paymentMock);
-
-        $instance = $this->getInstance();
-        $instance->execute($observerMock);
+        $this->runObserver($payment, $this->expectNoVoid());
     }
 
     public function testExecuteNoInvoiceKey()
     {
-        $paymentMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\PaymentStub::class)
-            ->onlyMethods(['getMethod', 'getAuthorizationTransaction', 'getAdditionalInformation', 'getMethodInstance', 'createCreditNoteRequest'])->getMock();
-        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_method');
-        $paymentMock->method('getAuthorizationTransaction')->willReturn(false);
-        $paymentMock->method('getAdditionalInformation')
-            ->with('buckaroo_cm3_invoice_key')
-            ->willReturn(null);
-        $paymentMock->expects($this->never())->method('getMethodInstance');
-        $paymentMock->expects($this->never())->method('createCreditNoteRequest');
+        $payment = $this->makePayment('buckaroo_magento2_method', false, null);
 
-        $observerMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)->onlyMethods(['getPayment'])->getMock();
-        $observerMock->method('getPayment')->willReturn($paymentMock);
-
-        $instance = $this->getInstance();
-        $instance->execute($observerMock);
+        $this->runObserver($payment, $this->expectNoVoid());
     }
 
-    public function testExecuteCreditNoteMethodCalled()
+    public function testExecuteWithAuthorizationTransactionDoesNotVoid()
     {
-        // Create a method instance mock that has the createCreditNoteRequest method
-        $methodInstanceMock = $this->getMockBuilder(\Buckaroo\Magento2\Test\Unit\Stubs\StdObjectStub::class)
+        $payment = $this->makePayment('buckaroo_magento2_method', true, 'key');
+
+        $this->runObserver($payment, $this->expectNoVoid());
+    }
+
+    public function testExecuteVoidsThroughTheVoidCommand()
+    {
+        $payment = $this->makePayment('buckaroo_magento2_method', false, 'key');
+        $paymentDataObject = $this->getMockBuilder(PaymentDataObjectInterface::class)->getMock();
+
+        $factory = $this->getFakeMock(PaymentDataObjectFactory::class)->onlyMethods(['create'])->getMock();
+        $factory->expects($this->once())->method('create')->with($payment)->willReturn($paymentDataObject);
+
+        $voidCommand = $this->getMockBuilder(CommandInterface::class)->getMock();
+        $voidCommand->expects($this->once())->method('execute')->with(['payment' => $paymentDataObject]);
+
+        $this->runObserver($payment, $voidCommand, $factory);
+    }
+
+    /**
+     * @return object
+     */
+    private function expectNoVoid()
+    {
+        $voidCommand = $this->getMockBuilder(CommandInterface::class)->getMock();
+        $voidCommand->expects($this->never())->method('execute');
+
+        return $voidCommand;
+    }
+
+    /**
+     * @param string      $method
+     * @param bool        $hasAuthorization
+     * @param string|null $invoiceKey
+     *
+     * @return object
+     */
+    private function makePayment(string $method, bool $hasAuthorization, ?string $invoiceKey)
+    {
+        $payment = $this->getFakeMock(Payment::class)
+            ->onlyMethods(['getMethod', 'getAuthorizationTransaction', 'getAdditionalInformation'])
             ->getMock();
-        $methodInstanceMock->expects($this->never())->method('createCreditNoteRequest');
+        $payment->method('getMethod')->willReturn($method);
+        $payment->method('getAuthorizationTransaction')->willReturn($hasAuthorization);
+        $payment->method('getAdditionalInformation')
+            ->willReturnMap([['buckaroo_cm3_invoice_key', $invoiceKey]]);
 
-        $voidCommandMock = $this->getFakeMock(\Magento\Payment\Gateway\CommandInterface::class)->getMock();
-        $voidCommandMock->expects($this->once())->method('execute')->with($this->arrayHasKey('payment'));
+        return $payment;
+    }
 
-        $paymentMock = $this->getFakeMock(Payment::class)
-            ->onlyMethods([
-                'getMethod',
-                'getAuthorizationTransaction',
-                'getAdditionalInformation',
-                'getMethodInstance'
-            ])
-            ->getMock();
-        $paymentMock->method('getMethod')->willReturn('buckaroo_magento2_method');
-        $paymentMock->method('getAuthorizationTransaction')->willReturn(false);
-        $paymentMock->method('getAdditionalInformation')
-            ->with('buckaroo_cm3_invoice_key')
-            ->willReturn('key');
-        $paymentMock->method('getMethodInstance')->willReturn($methodInstanceMock);
+    /**
+     * @param object      $payment
+     * @param object      $voidCommand
+     * @param object|null $factory
+     */
+    private function runObserver($payment, $voidCommand, $factory = null): void
+    {
+        $observer = $this->getFakeMock(ObserverStub::class)->onlyMethods(['getPayment'])->getMock();
+        $observer->method('getPayment')->willReturn($payment);
 
-        $observerMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\ObserverStub::class)->onlyMethods(['getPayment'])->getMock();
-        $observerMock->method('getPayment')->willReturn($paymentMock);
+        $args = ['voidCommand' => $voidCommand];
+        if ($factory !== null) {
+            $args['paymentDataObjectFactory'] = $factory;
+        }
 
-        $instance = $this->getInstance(['voidCommand' => $voidCommandMock]);
-        $instance->execute($observerMock);
+        $this->getInstance($args)->execute($observer);
     }
 }

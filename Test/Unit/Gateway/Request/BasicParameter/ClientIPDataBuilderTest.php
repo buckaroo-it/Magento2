@@ -19,9 +19,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Gateway\Request\BasicParameter\ClientIPDataBuilder;
 use Buckaroo\Magento2\Model\ConfigProvider\Account;
 use Buckaroo\Magento2\Test\Unit\Gateway\Request\AbstractDataBuilderTest;
-use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
@@ -59,6 +57,8 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     }
 
     /**
+     * Without an IP header configured, a non-Trustly order sends the order's remote IP, not the
+     * X-Forwarded-For value.
      *
      * @param string $expectedAddress
      * @param int    $expectedType
@@ -69,22 +69,20 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
         $this->createOrderMock(
             $expectedAddress,
             'buckaroo_magento2_ideal',
-            $expectedAddress
+            '203.0.113.50'
         );
 
         $this->configProviderAccountMock->method('getIpHeader')
             ->willReturn('');
 
-        $remoteAddressMock = $this->createMock(RemoteAddress::class);
-        $remoteAddressMock->method('getRemoteAddress')
-            ->willReturn($expectedAddress);
-
         $result = $this->clientIPDataBuilder->build([
             'payment' => $this->getPaymentDOMock()
         ]);
 
-        $this->assertSame($expectedAddress, $result['clientIP']['address']);
-        $this->assertSame($expectedType, $result['clientIP']['type']);
+        $this->assertSame(
+            ['clientIP' => ['address' => $expectedAddress, 'type' => $expectedType]],
+            $result
+        );
     }
 
     public function testTrustlyOrderWithPrivateRemoteIpUsesTheForwardedIp(): void
@@ -140,13 +138,13 @@ class ClientIPDataBuilderTest extends AbstractDataBuilderTest
     public static function getBuildDataProvider(): array
     {
         return [
-            [
+            'ipv4' => [
                 'expectedAddress' => '192.168.1.1',
-                'expectedType'    => IPProtocolVersion::IPV4
+                'expectedType'    => 0 // IPProtocolVersion::IPV4
             ],
-            [
+            'ipv6' => [
                 'expectedAddress' => '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
-                'expectedType'    => IPProtocolVersion::IPV6
+                'expectedType'    => 1 // IPProtocolVersion::IPV6
             ],
         ];
     }

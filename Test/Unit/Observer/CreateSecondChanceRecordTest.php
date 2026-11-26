@@ -13,7 +13,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Observer;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Observer\CreateSecondChanceRecord;
 use Buckaroo\Magento2\Model\SecondChanceRepository;
@@ -49,110 +48,80 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * Rows: state, payment method, second chance enabled, record exists, expected createSecondChance calls.
+     *
      * @return array
      */
     public static function executeDataProvider()
     {
         return [
-            'valid buckaroo order pending_payment' => [
-                123, 'pending_payment', 'buckaroo_magento2_ideal', true,  false, 1, 1
-            ],
-            'valid buckaroo order canceled' => [
-                124, 'canceled', 'buckaroo_magento2_paypal', true,  false, 1, 1
-            ],
-            'transfer payment is excluded' => [
-                129, 'pending_payment', 'buckaroo_magento2_transfer', true, false, 0, 0
-            ],
-            'order with non-buckaroo payment method' => [
-                125, 'pending_payment', 'checkmo', true,  false, 0, 0
-            ],
-            'order with completed state' => [
-                126, 'complete', 'buckaroo_magento2_ideal', true,  false, 0, 0
-            ],
-            'second chance disabled' => [
-                127, 'pending_payment', 'buckaroo_magento2_ideal', false, false, 0, 0
-            ],
-            'record already exists' => [
-                128, 'pending_payment', 'buckaroo_magento2_ideal', true,  true,  0, 0
-            ],
+            'pending_payment order is recorded'   => ['pending_payment', 'buckaroo_magento2_ideal', true, false, 1],
+            'canceled order is recorded'          => ['canceled', 'buckaroo_magento2_paypal', true, false, 1],
+            'second chance disabled'              => ['pending_payment', 'buckaroo_magento2_ideal', false, false, 0],
+            'complete order is not recorded'      => ['complete', 'buckaroo_magento2_ideal', true, false, 0],
+            'processing order is not recorded'    => ['processing', 'buckaroo_magento2_ideal', true, false, 0],
+            'transfer payment is excluded'        => ['pending_payment', 'buckaroo_magento2_transfer', true, false, 0],
+            'non-buckaroo payment method'         => ['pending_payment', 'checkmo', true, false, 0],
+            'record already exists'               => ['pending_payment', 'buckaroo_magento2_ideal', true, true, 0],
         ];
     }
 
     /**
+     * Every collaborator is configured for every row, so each row is decided by its own condition only.
      *
-     * @param int    $orderId
      * @param string $state
      * @param string $paymentMethod
      * @param bool   $secondChanceEnabled
      * @param bool   $recordExists
      * @param int    $expectedCreateCalls
-     * @param int    $expectedDebugCalls
      */
     #[DataProvider('executeDataProvider')]
     public function testExecute(
-        int $orderId,
         string $state,
         string $paymentMethod,
         bool $secondChanceEnabled,
         bool $recordExists,
-        int $expectedCreateCalls,
-        int $expectedDebugCalls
+        int $expectedCreateCalls
     ): void {
-        // Use REAL Observer/Event objects; do not mock magic getters.
         $observer = new Observer();
         $event    = new Event();
-        // Attach the event to the observer
         $observer->setData('event', $event);
 
-        // Usual collaborators as mocks
         $order   = $this->getFakeMock(Order::class)->getMock();
         $payment = $this->getFakeMock(Payment::class)->getMock();
         $store   = $this->getFakeMock(Store::class)->getMock();
 
-        // Put the order into the event payload
         $event->setData('order', $order);
 
-        // Order basics
-        $order->method('getId')->willReturn($orderId);
-        $order->expects($this->atLeastOnce())->method('getState')->willReturn($state);
+        $order->method('getId')->willReturn(123);
+        $order->method('getState')->willReturn($state);
+        $order->method('getStore')->willReturn($store);
+        $order->method('getPayment')->willReturn($payment);
+        $order->method('getIncrementId')->willReturn('000000123');
+        $payment->method('getMethod')->willReturn($paymentMethod);
 
-        if (in_array($state, ['pending_payment', 'canceled'], true)) {
-            $order->method('getStore')->willReturn($store);
+        $this->configProvider->method('isSecondChanceEnabled')
+            ->willReturnCallback(function ($givenStore) use ($store, $secondChanceEnabled) {
+                $this->assertSame($store, $givenStore);
+                return $secondChanceEnabled;
+            });
 
-            $this->configProvider->method('isSecondChanceEnabled')
-                ->with($store)
-                ->willReturn($secondChanceEnabled);
-
-            if ($secondChanceEnabled) {
-                $order->method('getPayment')->willReturn($payment);
-                $payment->method('getMethod')->willReturn($paymentMethod);
-
-                if (strpos($paymentMethod, 'buckaroo') !== false) {
-                    $incrementId = sprintf('%06d', $orderId);
-                    $order->method('getIncrementId')->willReturn($incrementId);
-
-                    if ($recordExists) {
-                        $this->secondChanceRepository->method('getByOrderId')
-                            ->with($incrementId)
-                            ->willReturn(
-                                $this->getFakeMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class)->getMock()
-                            );
-                    } else {
-                        $this->secondChanceRepository->method('getByOrderId')
-                            ->with($incrementId)
-                            ->willThrowException(new NoSuchEntityException(__('Record not found')));
-                    }
-                }
-            }
+        $lookup = $this->secondChanceRepository->method('getByOrderId')->with('000000123');
+        if ($recordExists) {
+            $lookup->willReturn(
+                $this->getFakeMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class)->getMock()
+            );
+        } else {
+            $lookup->willThrowException(new NoSuchEntityException(__('Record not found')));
         }
 
         $this->secondChanceRepository->expects($this->exactly($expectedCreateCalls))
             ->method('createSecondChance')
             ->with($order);
 
-        $this->logging->expects($this->exactly($expectedDebugCalls))
+        $this->logging->expects($this->exactly($expectedCreateCalls))
             ->method('addDebug')
-            ->with($this->stringContains('SecondChance record created for order'));
+            ->with('SecondChance record created for order: 000000123');
 
         $instance = $this->getInstance([
             'secondChanceRepository' => $this->secondChanceRepository,
@@ -250,10 +219,7 @@ class CreateSecondChanceRecordTest extends \Buckaroo\Magento2\Test\BaseTest
             'logging'                => $this->logging,
         ]);
 
-        // Test that the method executes without throwing exception even when repository fails
+        // The repository failure is logged, not thrown.
         $instance->execute($observer);
-
-        // Add assertion to prevent risky test
-        $this->assertTrue(true, 'Observer executed successfully despite repository exception');
     }
 }

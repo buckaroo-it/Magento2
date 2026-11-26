@@ -126,21 +126,21 @@ class KlarnaMorProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         return $paymentMock;
     }
 
-    private function createOrder($paymentMock)
+    private function createOrder($paymentMock, ?string $dataRequestKey = self::DATAREQUEST_KEY)
     {
         $orderMock = $this->getFakeMock(OrderStub::class)->getMock();
         $orderMock->method('getPayment')->willReturn($paymentMock);
         $orderMock->method('getIncrementId')->willReturn('100000001');
-        $orderMock->method('getBuckarooDatarequestKey')->willReturn(self::DATAREQUEST_KEY);
+        $orderMock->method('getBuckarooDatarequestKey')->willReturn($dataRequestKey);
 
         return $orderMock;
     }
 
-    private function getInstanceWithState($pushRequest, $paymentMock)
+    private function getInstanceWithState($pushRequest, $paymentMock, $orderMock = null)
     {
         $instance = $this->getInstance();
         $this->setProperty('pushRequest', $pushRequest, $instance);
-        $this->setProperty('order', $this->createOrder($paymentMock), $instance);
+        $this->setProperty('order', $orderMock ?? $this->createOrder($paymentMock), $instance);
         $this->setProperty('payment', $paymentMock, $instance);
 
         return $instance;
@@ -238,5 +238,341 @@ class KlarnaMorProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstanceWithState($pushRequest, $paymentMock);
 
         $this->assertTrue($this->invoke('skipPush', $instance));
+    }
+
+    public function testSkipPushDoesNotRecoverACaptureKeyForOtherMagentoActions(): void
+    {
+        $pushRequest = $this->createPushRequest(
+            ['statusCode' => self::STATUS_SUCCESS, 'transactions' => self::PAY_KEY],
+            [['initiated_by_magento', 1], ['service_action_from_magento', 'refund']]
+        );
+        $paymentMock = $this->createPayment(['buckaroo_datarequest_key' => self::DATAREQUEST_KEY]);
+        $paymentMock->expects($this->never())->method('setAdditionalInformation');
+        $this->paymentRepositoryMock->expects($this->never())->method('save');
+
+        $instance = $this->getInstanceWithState($pushRequest, $paymentMock);
+
+        $this->assertFalse($this->invoke('skipPush', $instance));
+    }
+
+    public function testSkipPushComparesTheCaptureKeyWithThePaymentDataRequestKeyFirst(): void
+    {
+        $pushRequest = $this->createPayPushRequest(self::STATUS_SUCCESS, self::PAY_KEY);
+        $paymentMock = $this->createPayment([
+            'buckaroo_datarequest_key' => self::DATAREQUEST_KEY,
+            'buckaroo_capture_transaction_key' => self::DATAREQUEST_KEY,
+        ]);
+        $paymentMock->expects($this->exactly(2))->method('setAdditionalInformation');
+        $this->paymentRepositoryMock->expects($this->once())->method('save')->with($paymentMock);
+
+        $orderMock = $this->createOrder($paymentMock, 'ORDER_LEVEL_DATAREQUEST_KEY');
+        $instance = $this->getInstanceWithState($pushRequest, $paymentMock, $orderMock);
+
+        $this->assertTrue($this->invoke('skipPush', $instance));
+    }
+
+    public function testAPlazaReservationUpdateOnlyAddsACommentToTheOrder(): void
+    {
+        $pushRequest = $this->createPushRequest(['statusCode' => self::STATUS_SUCCESS, 'datarequest' => 'EXTEND_KEY']);
+        $paymentMock = $this->createPayment([
+            'buckaroo_mor_pending_datarequest_keys' => ['EXTEND_KEY' => true],
+        ]);
+        $orderMock = $this->createOrder($paymentMock);
+        $orderMock->expects($this->once())->method('addCommentToStatusHistory')
+            ->with('Buckaroo: Klarna reservation updated via Buckaroo Plaza (DataRequest: EXTEND_KEY).');
+        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
+        $this->orderRequestServiceMock->expects($this->never())->method('updateOrderStatus');
+
+        $instance = $this->getInstanceWithState($pushRequest, $paymentMock, $orderMock);
+
+        $this->assertTrue($this->invoke('processPushByStatus', $instance));
+    }
+
+    /**
+     * @param array $push
+     * @param array $flags
+     * @param array $paymentInfo
+     * @param bool  $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('plazaSecondaryProvider')]
+    public function testDetectsAPlazaSecondaryDataRequestPush(
+        array $push,
+        array $flags,
+        array $paymentInfo,
+        bool $expected
+    ): void {
+        $paymentMock = $this->createPayment($paymentInfo);
+        $instance = $this->getInstanceWithState($this->createPushRequest($push, $flags), $paymentMock);
+
+        $this->assertSame($expected, $this->invoke('isPlazaSecondaryDataRequestPush', $instance));
+    }
+
+    public static function plazaSecondaryProvider(): array
+    {
+        $pending = ['buckaroo_mor_pending_datarequest_keys' => ['EXTEND_KEY' => true]];
+
+        return [
+            'pending secondary key' => [['statusCode' => '190', 'datarequest' => 'EXTEND_KEY'], [], $pending, true],
+            'unknown other key' => [['statusCode' => '190', 'datarequest' => 'EXTEND_KEY'], [], [], false],
+            'same key as the reservation' => [
+                ['statusCode' => '190', 'datarequest' => self::DATAREQUEST_KEY],
+                [],
+                ['buckaroo_mor_pending_datarequest_keys' => [self::DATAREQUEST_KEY => true]],
+                false,
+            ],
+            'failed push' => [['statusCode' => '490', 'datarequest' => 'EXTEND_KEY'], [], $pending, false],
+            'initiated by Magento' => [
+                ['statusCode' => '190', 'datarequest' => 'EXTEND_KEY'],
+                [['initiated_by_magento', 1]],
+                $pending,
+                false,
+            ],
+            'no data request' => [['statusCode' => '190', 'datarequest' => null], [], $pending, false],
+        ];
+    }
+
+    public function testAMagentoExtendReservationKeepsTheExistingKey(): void
+    {
+        $pushRequest = $this->createPushRequest(
+            ['datarequest' => 'EXTEND_KEY'],
+            [['initiated_by_magento', 1], ['service_action_from_magento', ['extendreservation', 'updatereservation']]]
+        );
+        $instance = $this->getInstanceWithState($pushRequest, $this->createPayment([]));
+
+        $this->assertTrue($this->invokeArgs('shouldPreserveExistingDataRequestKey', ['EXTEND_KEY'], $instance));
+    }
+
+    public function testTheReservationKeyIsTakenFromThePaymentWhenTheOrderHasNone(): void
+    {
+        $paymentMock = $this->createPayment([
+            'buckaroo_datarequest_key' => self::DATAREQUEST_KEY,
+            'buckaroo_mor_pending_datarequest_keys' => ['EXTEND_KEY' => true],
+        ]);
+        $orderMock = $this->createOrder($paymentMock, null);
+        $instance = $this->getInstanceWithState($this->createPushRequest([]), $paymentMock, $orderMock);
+
+        $this->assertTrue($this->invokeArgs('shouldPreserveExistingDataRequestKey', ['EXTEND_KEY'], $instance));
+    }
+
+    public function testTheFirstDataRequestKeyIsSavedOnOrderAndPayment(): void
+    {
+        $paymentMock = $this->createPayment([]);
+        $paymentMock->expects($this->once())->method('setAdditionalInformation')
+            ->with('buckaroo_datarequest_key', 'RESERVE_KEY');
+        $orderMock = $this->createOrder($paymentMock, null);
+        $orderMock->expects($this->once())->method('__call')
+            ->with('setBuckarooDatarequestKey', ['RESERVE_KEY']);
+        $this->orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
+
+        $instance = $this->getInstanceWithState(
+            $this->createPushRequest(['datarequest' => 'RESERVE_KEY']),
+            $paymentMock,
+            $orderMock
+        );
+
+        $this->assertTrue($this->invoke('setBuckarooReservationNumber', $instance));
+    }
+
+    /**
+     * @param string|null $dataRequest
+     * @param array       $paymentInfo
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notSavedDataRequestProvider')]
+    public function testADataRequestKeyIsNotSaved(?string $dataRequest, array $paymentInfo): void
+    {
+        $paymentMock = $this->createPayment($paymentInfo);
+        $paymentMock->expects($this->never())->method('setAdditionalInformation');
+        $this->orderRepositoryMock->expects($this->never())->method('save');
+
+        $instance = $this->getInstanceWithState(
+            $this->createPushRequest(['datarequest' => $dataRequest]),
+            $paymentMock
+        );
+
+        $this->assertFalse($this->invoke('saveBuckarooDataRequestKey', $instance));
+    }
+
+    public static function notSavedDataRequestProvider(): array
+    {
+        return [
+            'no key in the push' => [null, []],
+            'secondary key' => ['EXTEND_KEY', ['buckaroo_mor_pending_datarequest_keys' => ['EXTEND_KEY' => true]]],
+        ];
+    }
+
+    /**
+     * @param array  $postData
+     * @param string $transactions
+     * @param string $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('transactionKeyProvider')]
+    public function testTheTransactionKeyOfACaptureIsTheCaptureTransaction(
+        array $postData,
+        string $transactions,
+        string $expected
+    ): void {
+        $pushRequest = $this->createPushRequest(
+            ['transactions' => $transactions, 'datarequest' => self::DATAREQUEST_KEY],
+            [],
+            $postData
+        );
+        $instance = $this->getInstanceWithState($pushRequest, $this->createPayment([]));
+
+        $this->assertSame($expected, $this->invoke('getTransactionKey', $instance));
+    }
+
+    public static function transactionKeyProvider(): array
+    {
+        return [
+            'C800 capture' => [[['transaction_type', 'C800']], 'CAPTURE_KEY', 'CAPTURE_KEY'],
+            'collecting mutation' => [[['mutationtype', 'collecting']], 'CAPTURE_KEY', 'CAPTURE_KEY'],
+            'Collecting mutation' => [[['mutationtype', 'Collecting']], 'CAPTURE_KEY', 'CAPTURE_KEY'],
+            'capture without transaction' => [[['transaction_type', 'C800']], '', self::DATAREQUEST_KEY],
+            'reservation push' => [[], 'CAPTURE_KEY', self::DATAREQUEST_KEY],
+        ];
+    }
+
+    public function testAPlazaCaptureOnAnInvoicedOrderStoresTheCaptureKeyOnly(): void
+    {
+        $pushRequest = $this->createPushRequest(
+            ['transactions' => 'CAPTURE_KEY'],
+            [],
+            [['transaction_type', 'C800']]
+        );
+        $paymentMock = $this->createPayment([]);
+        $calls = [];
+        $paymentMock->method('setAdditionalInformation')->willReturnCallback(
+            function ($key, $value) use (&$calls, $paymentMock) {
+                $calls[$key] = $value;
+                return $paymentMock;
+            }
+        );
+        $this->paymentRepositoryMock->expects($this->once())->method('save')->with($paymentMock);
+        $orderMock = $this->createOrder($paymentMock);
+        $orderMock->method('hasInvoices')->willReturn(true);
+        $orderMock->expects($this->never())->method('prepareInvoice');
+
+        $instance = $this->getInstanceWithState($pushRequest, $paymentMock, $orderMock);
+
+        $this->assertTrue($this->invoke('saveInvoice', $instance));
+        $this->assertSame(
+            ['buckaroo_capture_transaction_key' => 'CAPTURE_KEY', 'buckaroo_already_captured' => true],
+            $calls
+        );
+    }
+
+    /**
+     * @param string      $statusCode
+     * @param string      $state
+     * @param string|null $newState
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('authorizationProvider')]
+    public function testASucceededAuthorizationMovesTheOrderToProcessing(
+        string $statusCode,
+        string $state,
+        ?string $newState
+    ): void {
+        $paymentMock = $this->createPayment([]);
+        $orderMock = $this->createOrder($paymentMock);
+        $orderMock->method('getState')->willReturn($state);
+        if ($newState === null) {
+            $orderMock->expects($this->never())->method('setState');
+        } else {
+            $orderMock->expects($this->once())->method('setState')->with($newState);
+        }
+
+        $instance = $this->getInstanceWithState(
+            $this->createPushRequest(['statusCode' => $statusCode]),
+            $paymentMock,
+            $orderMock
+        );
+
+        $this->invoke('processSucceededPushAuthorization', $instance);
+    }
+
+    public static function authorizationProvider(): array
+    {
+        return [
+            'new' => ['190', 'new', 'processing'],
+            'pending payment' => ['190', 'pending_payment', 'processing'],
+            'payment review' => ['190', 'payment_review', 'processing'],
+            'canceled stays canceled' => ['190', 'canceled', null],
+            'already processing' => ['190', 'processing', null],
+            'complete' => ['190', 'complete', null],
+            'not successful' => ['490', 'new', null],
+        ];
+    }
+
+    /**
+     * @param array $data     statusCode, transactions, datarequest
+     * @param array $flags    [name, value] pairs hasAdditionalInformation answers true for
+     * @param array $postData [name, value] pairs hasPostData answers true for
+     */
+    private function createPushRequest(array $data, array $flags = [], array $postData = [])
+    {
+        $mock = $this->getFakeMock(PushRequestInterfaceStub::class)->getMock();
+        $mock->method('getStatusCode')->willReturn($data['statusCode'] ?? self::STATUS_SUCCESS);
+        $mock->method('getTransactions')->willReturn($data['transactions'] ?? null);
+        $mock->method('getDatarequest')->willReturn($data['datarequest'] ?? null);
+        $mock->method('hasAdditionalInformation')->willReturnCallback(
+            static fn($name, $value) => in_array([$name, $value], $flags, true)
+        );
+        $mock->method('hasPostData')->willReturnCallback(
+            static fn($name, $value) => in_array([$name, $value], $postData, true)
+        );
+
+        return $mock;
+    }
+
+    public function testTheOrderReservationKeyWinsOverThePaymentCopy(): void
+    {
+        $paymentMock = $this->createPayment([
+            'buckaroo_datarequest_key' => 'EXTEND_KEY',
+            'buckaroo_mor_pending_datarequest_keys' => ['EXTEND_KEY' => true],
+        ]);
+        $instance = $this->getInstanceWithState($this->createPushRequest([]), $paymentMock);
+
+        $this->assertTrue($this->invokeArgs('shouldPreserveExistingDataRequestKey', ['EXTEND_KEY'], $instance));
+    }
+
+    public function testAMagentoPayPushWithAnotherKeyDoesNotKeepTheExistingKey(): void
+    {
+        $pushRequest = $this->createPushRequest(
+            ['datarequest' => 'NEW_KEY'],
+            [['initiated_by_magento', 1], ['service_action_from_magento', 'pay']]
+        );
+        $instance = $this->getInstanceWithState($pushRequest, $this->createPayment([]));
+
+        $this->assertFalse($this->invokeArgs('shouldPreserveExistingDataRequestKey', ['NEW_KEY'], $instance));
+    }
+
+    /**
+     * @param array $postData
+     * @param bool  $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('captureOnInvoicedOrderProvider')]
+    public function testOnlyACapturePushOnAnInvoicedOrderCountsAsInvoiced(array $postData, bool $expected): void
+    {
+        $paymentMock = $this->createPayment([]);
+        $orderMock = $this->createOrder($paymentMock);
+        $orderMock->method('hasInvoices')->willReturn(true);
+        $orderMock->method('canInvoice')->willReturn(true);
+        $instance = $this->getInstanceWithState(
+            $this->createPushRequest(['transactions' => 'CAPTURE_KEY'], [], $postData),
+            $paymentMock,
+            $orderMock
+        );
+
+        $this->assertSame($expected, $this->invoke('saveInvoice', $instance));
+    }
+
+    public static function captureOnInvoicedOrderProvider(): array
+    {
+        return [
+            'C800' => [[['transaction_type', 'C800']], true],
+            'collecting' => [[['mutationtype', 'collecting']], true],
+            'Collecting' => [[['mutationtype', 'Collecting']], true],
+            'not a capture' => [[], false],
+        ];
     }
 }

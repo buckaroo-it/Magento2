@@ -14,7 +14,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\Software;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Module\ModuleListInterface;
@@ -41,7 +40,6 @@ class DataTest extends BaseTest
                     'PlatformVersion' => '2.0',
                     'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
                 ]
             ],
             [
@@ -54,19 +52,17 @@ class DataTest extends BaseTest
                     'PlatformVersion' => '2.1',
                     'ModuleSupplier' => 'Buckaroo',
                     'ModuleName' => 'Buckaroo',
-                    'ModuleVersion' => Data::BUCKAROO_VERSION
                 ]
             ]
         ];
     }
 
     /**
-     * @param $name
-     * @param $edition
-     * @param $version
-     * @param $module
-     * @param $expected
-     *
+     * @param string $name
+     * @param string $edition
+     * @param string $version
+     * @param array  $module
+     * @param array  $expected
      */
     #[DataProvider('getProvider')]
     public function testGet($name, $edition, $version, $module, $expected)
@@ -77,26 +73,40 @@ class DataTest extends BaseTest
         $productMetadataMock->method('getVersion')->willReturn($version);
 
         $moduleListMock = $this->getFakeMock(ModuleListInterface::class)->getMock();
-        $moduleListMock->method('getOne')->with(Data::MODULE_CODE)->willReturn($module);
+        $moduleListMock->expects($this->once())->method('getOne')->with('Buckaroo_Magento2')->willReturn($module);
 
         $instance = $this->getInstance(['productMetadata' => $productMetadataMock, 'moduleList' => $moduleListMock]);
-        $result = $instance->get();
 
-        $this->assertEquals($expected, $result);
+        $expected['ModuleVersion'] = $this->getReleasedVersion();
+        $this->assertSame($expected, $instance->get());
     }
 
-    public function testGetProductMetaData()
+    /**
+     * The version reported to Buckaroo is the version the module is released as.
+     */
+    public function testModuleVersionIsTheReleasedVersion()
     {
-        $instance = $this->getInstance();
-        $result = $instance->getProductMetaData();
+        $moduleXml = simplexml_load_file(__DIR__ . '/../../../../etc/module.xml');
+        $this->assertNotFalse($moduleXml);
 
-        $this->assertInstanceOf(ProductMetadataInterface::class, $result);
+        $version = $this->getInstance()->getModuleVersion();
+
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $version);
+        $this->assertSame($this->getReleasedVersion(), $version, 'Version must match composer.json');
+        $this->assertSame((string)$moduleXml->module['setup_version'], $version, 'Version must match module.xml');
     }
 
-    public function testGetModuleVersion()
+    /**
+     * The version in the module's composer.json, without its "v" prefix.
+     *
+     * @return string
+     */
+    private function getReleasedVersion(): string
     {
-        $instance = $this->getInstance();
-        $result = $instance->getModuleVersion();
-        $this->assertEquals(Data::BUCKAROO_VERSION, $result);
+        $composer = json_decode((string)file_get_contents(__DIR__ . '/../../../../composer.json'), true);
+        $this->assertIsArray($composer);
+        $this->assertArrayHasKey('version', $composer);
+
+        return ltrim($composer['version'], 'v');
     }
 }

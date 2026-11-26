@@ -86,36 +86,54 @@ class HeaderCultureResolverTest extends TestCase
 
     /**
      * A 400 "not a known culture" fails the payment, so only curated values may be emitted.
+     *
+     * @param string $country
+     * @param array  $expected One culture per hint: none, en_US, nl_NL, fr_FR, de_DE, it_IT
      */
-    public function testOnlyEverEmitsACuratedCulture(): void
+    #[DataProvider('curatedCultureProvider')]
+    public function testOnlyEverEmitsACuratedCulture(string $country, array $expected): void
     {
-        $curated = array_merge(
-            array_values(CultureCodeResolver::HEADER_CULTURE_FALLBACKS),
-            ...array_values(CultureCodeResolver::COUNTRY_CULTURES),
-            ...array_values(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES)
-        );
+        $emitted = array_map(function ($hint) use ($country) {
+            return $this->resolver->resolveForHeader($country, $hint);
+        }, [null, 'en_US', 'nl_NL', 'fr_FR', 'de_DE', 'it_IT']);
 
-        $countries = array_merge(
-            array_keys(CultureCodeResolver::COUNTRY_CULTURES),
-            array_keys(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES),
-            ['XK', 'AQ', 'ZZ', '']
-        );
+        $this->assertSame($expected, $emitted);
+    }
 
-        foreach ($countries as $country) {
-            foreach ([null, 'en_US', 'nl_NL', 'fr_FR'] as $hint) {
-                $culture = $this->resolver->resolveForHeader($country, $hint);
-
-                if ($culture === null) {
-                    continue;
-                }
-
-                $this->assertContains(
-                    $culture,
-                    $curated,
-                    sprintf('Uncurated culture %s emitted for %s', $culture, $country)
-                );
-            }
-        }
+    public static function curatedCultureProvider(): array
+    {
+        return [
+            'BE: dutch unless the store is french' => [
+                'BE', ['nl-BE', 'nl-BE', 'nl-BE', 'fr-BE', 'nl-BE', 'nl-BE'],
+            ],
+            'CH: german, french or italian' => [
+                'CH', ['de-CH', 'de-CH', 'de-CH', 'fr-CH', 'de-CH', 'it-CH'],
+            ],
+            'LU: debtor map, german or french' => [
+                'LU', ['de-LU', 'de-LU', 'de-LU', 'fr-LU', 'de-LU', 'de-LU'],
+            ],
+            'CA: debtor map, english or french' => [
+                'CA', ['en-CA', 'en-CA', 'en-CA', 'fr-CA', 'en-CA', 'en-CA'],
+            ],
+            'US: one culture whatever the store' => [
+                'US', ['en-US', 'en-US', 'en-US', 'en-US', 'en-US', 'en-US'],
+            ],
+            'NA: rejected en-NA degrades to en' => [
+                'NA', ['en', 'en', 'en', 'en', 'en', 'en'],
+            ],
+            'CG: rejected fr-CG degrades to fr' => [
+                'CG', ['fr', 'fr', 'fr', 'fr', 'fr', 'fr'],
+            ],
+            'XK: not curated, no header' => [
+                'XK', [null, null, null, null, null, null],
+            ],
+            'AQ: not curated, no header' => [
+                'AQ', [null, null, null, null, null, null],
+            ],
+            'empty country: no header' => [
+                '', [null, null, null, null, null, null],
+            ],
+        ];
     }
 
     /**
@@ -151,16 +169,20 @@ class HeaderCultureResolverTest extends TestCase
             array_keys(CultureCodeResolver::DEBTOR_COUNTRY_CULTURES),
             ['NA', 'CG', 'XK', 'ZZ', '']
         );
+        $hints = [null, 'en_US', 'nl_NL', 'fr_FR', 'af_ZA', 'en_NA', 'fr_CG'];
 
+        $emitted = [];
         foreach ($countries as $country) {
-            foreach ([null, 'en_US', 'nl_NL', 'fr_FR', 'af_ZA', 'en_NA'] as $hint) {
-                $this->assertArrayNotHasKey(
-                    (string)$this->resolver->resolveForHeader($country, $hint),
-                    CultureCodeResolver::HEADER_CULTURE_FALLBACKS,
-                    sprintf('Rejected culture emitted for %s / %s', $country, (string)$hint)
-                );
+            foreach ($hints as $hint) {
+                $emitted[] = $this->resolver->resolveForHeader($country, $hint);
             }
         }
+
+        $this->assertGreaterThan(300, count($emitted));
+        $this->assertNotContains('en-NA', $emitted);
+        $this->assertNotContains('fr-CG', $emitted);
+        $this->assertSame('en', $this->resolver->resolveForHeader('NA', 'en_NA'));
+        $this->assertSame('fr', $this->resolver->resolveForHeader('CG', 'fr_CG'));
     }
 
     /**

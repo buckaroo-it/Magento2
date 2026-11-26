@@ -13,6 +13,7 @@ use Magento\Sales\Model\Order\Invoice;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessivePublicCount)
  */
 class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 {
@@ -912,5 +913,611 @@ class DefaultProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
         $request->method('getData')->willReturn($data);
 
         return $request;
+    }
+
+    /**
+     * @param array       $flags   [name, value] pairs hasAdditionalInformation answers true for
+     * @param string|null $refund
+     * @param bool        $hasInvoices
+     * @param mixed       $alreadyCaptured
+     * @param bool        $expected
+     */
+    #[DataProvider('magentoInitiatedPushProvider')]
+    public function testPushesOfActionsStartedInMagentoAreSkipped(
+        array $flags,
+        ?string $refund,
+        bool $hasInvoices,
+        $alreadyCaptured,
+        bool $expected
+    ): void {
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getAdditionalInformation')->with('buckaroo_already_captured')->willReturn($alreadyCaptured);
+        $order = $this->createMock(Order::class);
+        $order->method('hasInvoices')->willReturn($hasInvoices);
+        $order->method('getPayment')->willReturn($payment);
+
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getRelatedtransactionRefund')->willReturn($refund);
+        $pushRequest->method('hasAdditionalInformation')->willReturnCallback(
+            static function ($name, $value) use ($flags): bool {
+                foreach ($flags as [$flagName, $flagValue]) {
+                    if ($flagName === $name && ($flagValue === $value || in_array($flagValue, (array)$value, true))) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        );
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $this->assertSame($expected, $this->invoke('skipSpecificTypesOfRequsts', $instance));
+    }
+
+    public static function magentoInitiatedPushProvider(): array
+    {
+        $initiated = ['initiated_by_magento', 1];
+
+        return [
+            'capture of an invoiced order' => [[$initiated, ['service_action_from_magento', 'capture']], null, true, null, true],
+            'capture already recorded' => [[$initiated, ['service_action_from_magento', 'capture']], null, false, true, true],
+            'capture that left no invoice' => [[$initiated, ['service_action_from_magento', 'capture']], null, false, null, false],
+            'cancel authorize' => [[$initiated, ['service_action_from_magento', 'cancelauthorize']], null, false, null, true],
+            'cancel authorize with a refund' => [[$initiated, ['service_action_from_magento', 'cancelauthorize']], 'REFUND', false, null, false],
+            'cancel authorize not from Magento' => [[['service_action_from_magento', 'cancelauthorize']], null, false, null, false],
+            'pay from Magento' => [[$initiated, ['service_action_from_magento', 'pay']], null, false, null, false],
+        ];
+    }
+
+    public function testADuplicatePushKeepsTheDetailsOfOtherTransactions(): void
+    {
+        $data = ['brq_transactions' => 'TRX', 'brq_service_ideal_consumername' => 'J Doe'];
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getAdditionalInformation')->willReturn(['EARLIER' => ['a' => 'b']]);
+        $payment->expects($this->once())->method('setAdditionalInformation')
+            ->with('raw_details_info', ['EARLIER' => ['a' => 'b'], 'TRX' => $data]);
+        $this->helperMock->method('getTransactionAdditionalInfo')->willReturn($data);
+
+        $instance = $this->getInstance();
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest($data), $instance);
+
+        $this->invoke('refreshStoredTransactionDetails', $instance);
+    }
+
+    public function testADuplicatePushWithoutTransactionOrPaymentStoresNothing(): void
+    {
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->expects($this->never())->method('setAdditionalInformation');
+
+        $instance = $this->getInstance();
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest([]), $instance);
+        $this->invoke('refreshStoredTransactionDetails', $instance);
+
+        $this->setProperty('payment', null, $instance);
+        $this->setProperty('pushRequest', $this->duplicatePushRequest(['brq_transactions' => 'TRX']), $instance);
+        $this->invoke('refreshStoredTransactionDetails', $instance);
+    }
+
+    /**
+     * @param mixed $methodConfig
+     * @param int   $expected
+     */
+    #[DataProvider('invoiceHandlingProvider')]
+    public function testInvoiceHandlingFollowsTheMethodBeforeTheAccount($methodConfig, int $expected): void
+    {
+        $methodInstance = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
+        $methodInstance->method('getConfigData')->with('create_invoice_after_shipment')->willReturn($methodConfig);
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getMethodInstance')->willReturn($methodInstance);
+        $this->configAccountMock->method('getInvoiceHandling')->willReturn(InvoiceHandlingOptions::SHIPMENT);
+
+        $instance = $this->getInstance();
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('order', $this->createMock(Order::class), $instance);
+
+        $this->assertSame($expected, $this->invoke('detectInvoiceHandlingMode', $instance));
+    }
+
+    public static function invoiceHandlingProvider(): array
+    {
+        return [
+            'method: on shipment' => ['1', 2],
+            'method: on payment' => ['0', 1],
+            'method empty, account decides' => ['', 2],
+            'method not set, account decides' => [null, 2],
+        ];
+    }
+
+    public function testAStatusMessageRefreshesTheOrderBeforeItIsRecorded(): void
+    {
+        $order = $this->createMock(Order::class);
+        $order->expects($this->once())->method('addCommentToStatusHistory')->with('Payment successful');
+        $this->orderRequestServiceMock->expects($this->once())->method('loadOrder');
+
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getStatusMessage')->willReturn('Payment successful');
+        $pushRequest->method('getStatusCode')->willReturn('190');
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $this->invoke('setOrderStatusMessage', $instance);
+    }
+
+    public function testARelatedPartialPaymentMakesThePushAPartOfASplitPayment(): void
+    {
+        $this->groupTransactionMock->method('getGroupTransactionByTrxId')->willReturn(new \Magento\Framework\DataObject());
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getTransactions')->willReturn('PART_KEY');
+        $pushRequest->method('getRelatedtransactionPartialpayment')->willReturn('GROUP_KEY');
+
+        $instance = $this->getInstance();
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $this->assertTrue($this->invoke('isPartialPaymentPush', $instance));
+    }
+
+    public function testTheNewStatusComesFromTheStatusCodeOfThePush(): void
+    {
+        $order = $this->createMock(Order::class);
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getStatusCode')->willReturn('190');
+        $this->orderStatusFactoryMock->method('get')->with('190', $order)->willReturn('buckaroo_paid');
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $this->assertSame('buckaroo_paid', $this->invoke('getNewStatus', $instance));
+    }
+
+    public function testAnUnappliedSuccessfulPushOnAnOrderWithACentPaidIsNotRefused(): void
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['applySucceededPush', 'sendOrderEmail'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $instance->method('applySucceededPush')->willReturn(false);
+        $instance->expects($this->never())->method('sendOrderEmail');
+        $this->setProperty('order', $this->orderWith(false, 0.01), $instance);
+
+        $this->assertFalse($instance->processSucceededPush('processing', 'Success'));
+    }
+
+    public function testASucceededPushRecordsTheInvoiceAndMovesTheOrderToProcessing(): void
+    {
+        $instance = $this->getAppliedPushInstance(true);
+        $instance->expects($this->once())->method('setBuckarooReservationNumber');
+        $instance->expects($this->once())->method('setSpecificPaymentDetails');
+        $instance->expects($this->once())->method('processSucceededPushAuthorization');
+        $this->orderRequestServiceMock->expects($this->once())->method('updateOrderStatus')
+            ->with('processing', 'buckaroo_paid', 'Payment Push Status: Success');
+
+        $this->assertTrue($this->invokeArgs('applySucceededPush', ['buckaroo_paid', 'Success'], $instance));
+        $this->assertTrue($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
+
+    public function testASucceededPushWhoseInvoiceFailsLeavesTheOrderToTheFinalSave(): void
+    {
+        $instance = $this->getAppliedPushInstance(false);
+        $this->setProperty('dontSaveOrderUponSuccessPush', true, $instance);
+        $this->orderRequestServiceMock->expects($this->never())->method('updateOrderStatus');
+
+        $this->assertFalse($this->invokeArgs('applySucceededPush', ['buckaroo_paid', 'Success'], $instance));
+        $this->assertFalse($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
+
+    /**
+     * @param bool $invoiceSaved
+     *
+     * @return \Buckaroo\Magento2\Model\Push\DefaultProcessor|\PHPUnit\Framework\MockObject\MockObject
+     */
+    private function getAppliedPushInstance(bool $invoiceSaved)
+    {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods([
+                'setBuckarooReservationNumber',
+                'getPaymentDetails',
+                'setSpecificPaymentDetails',
+                'isCaptureTransaction',
+                'canPushInvoice',
+                'saveInvoice',
+                'processSucceededPushAuthorization',
+            ])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $instance->method('getPaymentDetails')->willReturn(['amount' => 10.0, 'description' => 'Payment Push Status: Success']);
+        $instance->method('isCaptureTransaction')->willReturn(false);
+        $instance->method('canPushInvoice')->willReturn(true);
+        $instance->expects($this->once())->method('saveInvoice')->willReturn($invoiceSaved);
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('orderRequestService', $this->orderRequestServiceMock, $instance);
+        $this->setProperty('payment', $this->createMock(\Magento\Sales\Model\Order\Payment::class), $instance);
+        $this->setProperty('order', $this->createMock(Order::class), $instance);
+
+        return $instance;
+    }
+
+    /**
+     * @param string $pushCurrency
+     * @param float  $amount
+     * @param float  $rate
+     * @param bool   $settlesTheOrder
+     * @param float  $expected
+     */
+    #[DataProvider('baseCurrencyAmountProvider')]
+    public function testAPushedAmountIsConvertedToTheBaseCurrency(
+        string $pushCurrency,
+        float $amount,
+        float $rate,
+        bool $settlesTheOrder,
+        float $expected
+    ): void {
+        $order = $this->createMock(Order::class);
+        $order->method('getBaseCurrencyCode')->willReturn('EUR');
+        $order->method('getOrderCurrencyCode')->willReturn('USD');
+        $order->method('getTotalDue')->willReturn(110.0);
+        $order->method('getBaseTotalDue')->willReturn(100.01);
+        $order->method('getBaseToOrderRate')->willReturn($rate);
+        $this->helperMock->method('areEqualAmounts')->willReturn($settlesTheOrder);
+
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getCurrency')->willReturn($pushCurrency);
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $this->assertSame($expected, $this->invokeArgs('toBaseCurrencyAmount', [$amount], $instance));
+    }
+
+    public static function baseCurrencyAmountProvider(): array
+    {
+        return [
+            'base currency in lower case' => ['eur', 40.0, 1.1, false, 40.0],
+            'order currency, settles the order' => ['USD', 110.0, 1.1, true, 100.01],
+            'order currency in lower case' => ['usd', 10.0, 3.0, false, 3.33],
+            'order currency, rounded up' => ['USD', 20.0, 3.0, false, 6.67],
+            'order currency without rate' => ['USD', 20.0, 0.0, false, 0.0],
+            'unknown currency' => ['GBP', 20.0, 1.1, false, 0.0],
+        ];
+    }
+
+    /**
+     * @param bool $force
+     * @param bool $canInvoice
+     * @param bool $hasInvoices
+     * @param bool $created
+     */
+    #[DataProvider('invoiceCreationProvider')]
+    public function testAnInvoiceIsOnlyCreatedWhenTheOrderCanBeInvoiced(
+        bool $force,
+        bool $canInvoice,
+        bool $hasInvoices,
+        bool $created
+    ): void {
+        [$instance, $order, $payment] = $this->getInvoicingInstance('');
+        $order->method('canInvoice')->willReturn($canInvoice);
+        $order->method('hasInvoices')->willReturn($hasInvoices);
+        $this->setProperty('forceInvoice', $force, $instance);
+        $payment->expects($created ? $this->once() : $this->never())->method('registerCaptureNotification');
+
+        $this->assertSame($created, $this->invoke('saveInvoice', $instance));
+    }
+
+    public static function invoiceCreationProvider(): array
+    {
+        return [
+            'can be invoiced' => [false, true, false, true],
+            'cannot be invoiced' => [false, false, false, false],
+            'already invoiced' => [false, true, true, false],
+            'forced' => [true, false, true, true],
+        ];
+    }
+
+    public function testAnInvoiceWithoutTransactionKeyOnlyRegistersTheCapture(): void
+    {
+        [$instance, $order, $payment, $paymentRepository] = $this->getInvoicingInstance('');
+        $order->method('canInvoice')->willReturn(true);
+        $instance->expects($this->once())->method('addTransactionData');
+        $payment->expects($this->once())->method('registerCaptureNotification')->with(100.0);
+        $paymentRepository->expects($this->once())->method('save')->with($payment);
+        $order->expects($this->never())->method('__call');
+
+        $this->assertTrue($this->invoke('saveInvoice', $instance));
+        $this->assertFalse($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
+
+    /**
+     * @param string $method
+     * @param bool   $marked
+     */
+    #[DataProvider('klarnaCaptureProvider')]
+    public function testAKlarnaCaptureIsMarkedAsCaptured(string $method, bool $marked): void
+    {
+        [$instance, $order, $payment, $paymentRepository] = $this->getInvoicingInstance('CAPTURE_KEY');
+        $order->method('canInvoice')->willReturn(true);
+        $order->method('getInvoiceCollection')->willReturn([]);
+        $payment->method('getMethod')->willReturn($method);
+        $set = [];
+        $payment->method('setAdditionalInformation')->willReturnCallback(
+            static function ($key, $value) use (&$set, $payment) {
+                $set[$key] = $value;
+                return $payment;
+            }
+        );
+        $paymentRepository->expects($this->exactly($marked ? 2 : 1))->method('save')->with($payment);
+        $order->expects($this->once())->method('__call')->with('setIsInProcess', [true]);
+        $this->getProperty('orderRepository', $instance)->expects($this->once())->method('save')->with($order);
+
+        $this->assertTrue($this->invoke('saveInvoice', $instance));
+        $this->assertTrue($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+        $this->assertSame(
+            $marked ? ['buckaroo_capture_transaction_key' => 'CAPTURE_KEY', 'buckaroo_already_captured' => true] : [],
+            $set
+        );
+    }
+
+    public static function klarnaCaptureProvider(): array
+    {
+        return [
+            'Klarna KP' => ['buckaroo_magento2_klarnakp', true],
+            'Klarna' => ['buckaroo_magento2_klarna', true],
+            'iDEAL' => ['buckaroo_magento2_ideal', false],
+        ];
+    }
+
+    /**
+     * @param string|null $invoiceNumber
+     * @param bool        $isGroupTransaction
+     * @param bool        $paid
+     */
+    #[DataProvider('groupTransactionInvoiceProvider')]
+    public function testTheInvoiceOfAGroupTransactionIsPaid(?string $invoiceNumber, bool $isGroupTransaction, bool $paid): void
+    {
+        [$instance, $order] = $this->getInvoicingInstance('CAPTURE_KEY', $invoiceNumber);
+        $invoice = $this->createMock(Invoice::class);
+        $invoice->method('getTransactionId')->willReturn('CAPTURE_KEY');
+        $invoice->method('getEmailSent')->willReturn(false);
+        $invoice->method('getId')->willReturn(12);
+        $invoice->expects($paid ? $this->once() : $this->never())->method('setState')->with(Invoice::STATE_PAID);
+        $order->method('canInvoice')->willReturn(true);
+        $order->method('getInvoiceCollection')->willReturn([$invoice]);
+        $this->groupTransactionMock->method('isGroupTransaction')->willReturn($isGroupTransaction);
+        $this->configAccountMock->method('getInvoiceEmail')->willReturn(true);
+        $this->orderRequestServiceMock->expects($this->once())->method('sendInvoiceEmail')->with($invoice, true);
+
+        $this->assertTrue($this->invoke('saveInvoice', $instance));
+    }
+
+    public static function groupTransactionInvoiceProvider(): array
+    {
+        return [
+            'group transaction' => ['300000123', true, true],
+            'single transaction' => ['300000123', false, false],
+            'no invoice number' => [null, true, false],
+        ];
+    }
+
+    /**
+     * @param string      $transactionKey
+     * @param string|null $invoiceNumber
+     *
+     * @return array
+     */
+    private function getInvoicingInstance(string $transactionKey, ?string $invoiceNumber = null): array
+    {
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $order = $this->createMock(Order::class);
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getInvoiceNumber')->willReturn($invoiceNumber);
+        $paymentRepository = $this->createMock(\Magento\Sales\Api\OrderPaymentRepositoryInterface::class);
+
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods([
+                'addTransactionData',
+                'detectInvoiceHandlingMode',
+                'resolveCaptureNotificationAmount',
+                'getTransactionKey',
+            ])
+            ->getMock();
+        $instance->method('addTransactionData')->willReturn($payment);
+        $instance->method('detectInvoiceHandlingMode')->willReturn(InvoiceHandlingOptions::PAYMENT);
+        $instance->method('resolveCaptureNotificationAmount')->willReturn(100.0);
+        $instance->method('getTransactionKey')->willReturn($transactionKey);
+
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+        $this->setProperty('configAccount', $this->configAccountMock, $instance);
+        $this->setProperty('orderRequestService', $this->orderRequestServiceMock, $instance);
+        $this->setProperty('groupTransaction', $this->groupTransactionMock, $instance);
+        $this->setProperty('invoiceRepository', $this->createMock(InvoiceRepositoryInterface::class), $instance);
+        $this->setProperty('paymentRepository', $paymentRepository, $instance);
+        $this->setProperty('orderRepository', $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class), $instance);
+
+        return [$instance, $order, $payment, $paymentRepository];
+    }
+
+    /**
+     * @param bool  $canProcess
+     * @param bool  $hasInvoices
+     * @param float $totalPaid
+     * @param bool  $updated
+     */
+    #[DataProvider('pendingPushProvider')]
+    public function testAPendingPushMovesOnlyAnUnpaidOrderToPendingPayment(
+        bool $canProcess,
+        bool $hasInvoices,
+        float $totalPaid,
+        bool $updated
+    ): void {
+        $instance = $this->getFakeMock($this->instanceClass)
+            ->onlyMethods(['canProcessPendingPush'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $instance->method('canProcessPendingPush')->willReturn($canProcess);
+
+        $order = $this->orderWith($hasInvoices, $totalPaid);
+        $order->method('getEmailSent')->willReturn(false);
+        $this->configAccountMock->method('getOrderConfirmationEmail')->willReturn(true);
+        $this->orderRequestServiceMock->expects($updated ? $this->once() : $this->never())
+            ->method('sendOrderEmail')->with($order);
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getMethodInstance')->willReturn($this->createMock(\Magento\Payment\Model\MethodInterface::class));
+
+        $this->orderRequestServiceMock->expects($updated ? $this->once() : $this->never())
+            ->method('updateOrderStatus')
+            ->with('pending_payment', 'buckaroo_pending', $this->anything());
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class), $instance);
+        $this->setProperty('orderRequestService', $this->orderRequestServiceMock, $instance);
+        $this->setProperty('logger', $this->loggerMock, $instance);
+        $this->setProperty('configAccount', $this->configAccountMock, $instance);
+
+        $method = new \ReflectionMethod($instance, 'processPendingPaymentPush');
+        $this->assertTrue($method->invoke($instance, 'buckaroo_pending', 'Waiting for consumer'));
+    }
+
+    public static function pendingPushProvider(): array
+    {
+        return [
+            'unpaid order' => [true, false, 0.0, true],
+            'method without pending handling' => [false, false, 0.0, false],
+            'invoiced, nothing paid' => [true, true, 0.0, false],
+            'one cent paid' => [true, false, 0.01, false],
+        ];
+    }
+
+    public function testNoPendingEmailForAnOrderThatIsCancelledButNotYetInTheCanceledState(): void
+    {
+        $order = $this->createMock(Order::class);
+        $order->method('isCanceled')->willReturn(true);
+        $order->method('getState')->willReturn(Order::STATE_NEW);
+        $order->method('getEmailSent')->willReturn(false);
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getMethodInstance')->willReturn($this->createMock(\Magento\Payment\Model\MethodInterface::class));
+        $this->configAccountMock->method('getOrderConfirmationEmail')->willReturn(true);
+        $this->orderRequestServiceMock->expects($this->never())->method('sendOrderEmail');
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class), $instance);
+
+        $this->invoke('processPendingPaymentEmail', $instance);
+    }
+
+    /**
+     * @param string|null $pushAmount
+     * @param string      $paymentAction
+     * @param mixed       $invoiceHandling
+     * @param float       $amount
+     * @param string      $description
+     */
+    #[DataProvider('paymentDetailsProvider')]
+    public function testPaymentDetailsDescribeWhatHappenedToTheAmount(
+        ?string $pushAmount,
+        string $paymentAction,
+        $invoiceHandling,
+        float $amount,
+        string $description
+    ): void {
+        $currency = $this->createMock(\Magento\Directory\Model\Currency::class);
+        $currency->method('formatTxt')->willReturnCallback(static fn($value) => '€' . number_format((float)$value, 2));
+        $payment = $this->createMock(\Magento\Sales\Model\Order\Payment::class);
+        $payment->method('getAdditionalInformation')->willReturn($invoiceHandling);
+        $methodInstance = $this->createMock(\Magento\Payment\Model\MethodInterface::class);
+        $methodInstance->method('getConfigData')->willReturnMap([['payment_action', null, $paymentAction]]);
+        $payment->method('getMethodInstance')->willReturn($methodInstance);
+
+        $order = $this->createMock(Order::class);
+        $order->method('getPayment')->willReturn($payment);
+        $order->method('getTotalDue')->willReturn(50.0);
+        $order->method('getBaseTotalDue')->willReturn(45.0);
+        $order->method('getOrderCurrencyCode')->willReturn('EUR');
+        $order->method('getBaseCurrencyCode')->willReturn('EUR');
+        $order->method('getOrderCurrency')->willReturn($currency);
+
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getAmount')->willReturn($pushAmount);
+        $pushRequest->method('getCurrency')->willReturn('EUR');
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('payment', $payment, $instance);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+        $this->setProperty('dontSaveOrderUponSuccessPush', true, $instance);
+
+        $details = $this->invokeArgs('getPaymentDetails', ['Success'], $instance);
+
+        $this->assertSame(['amount', 'description'], array_keys($details));
+        $this->assertSame($amount, $details['amount']);
+        $this->assertSame($description, (string)$details['description']);
+        $this->assertFalse($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
+
+    public static function paymentDetailsProvider(): array
+    {
+        return [
+            'paid, invoice on payment' => [
+                '50.00', 'order', '1', 45.0,
+                'Payment Push Status: <strong>Success</strong><br/>Total amount of €45.00 has been paid',
+            ],
+            'authorized, invoice on shipment' => [
+                '40.00', 'authorize', '2', 40.0,
+                'Authorization status: <strong>Success</strong><br/>Total amount of €40.00 has been authorized.'
+                . ' Payment will be captured when order is shipped.',
+            ],
+            'authorized, no amount in the push' => [
+                null, 'authorize', '1', 50.0,
+                'Authorization status: <strong>Success</strong><br/>Total amount of €50.00 has been authorized.'
+                . ' Please create an invoice to capture the authorized amount.',
+            ],
+        ];
+    }
+
+    /**
+     * @param bool        $withPush
+     * @param string|null $pushCurrency
+     * @param string|null $orderCurrency
+     * @param string      $expected
+     */
+    #[DataProvider('paymentCurrencyProvider')]
+    public function testThePaymentCurrencyIsTheOneOfThePush(
+        bool $withPush,
+        ?string $pushCurrency,
+        ?string $orderCurrency,
+        string $expected
+    ): void {
+        $order = $this->createMock(Order::class);
+        $order->method('getOrderCurrencyCode')->willReturn($orderCurrency);
+        $order->method('getBaseCurrencyCode')->willReturn('EUR');
+        $pushRequest = $this->createMock(\Buckaroo\Magento2\Test\Unit\Stubs\PushRequestInterfaceStub::class);
+        $pushRequest->method('getCurrency')->willReturn($pushCurrency);
+
+        $instance = $this->getInstance();
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('pushRequest', $withPush ? $pushRequest : null, $instance);
+
+        $this->assertSame($expected, $this->invoke('getPaymentCurrencyCode', $instance));
+    }
+
+    public static function paymentCurrencyProvider(): array
+    {
+        return [
+            'push currency' => [true, 'USD', 'GBP', 'USD'],
+            'order currency' => [true, null, 'GBP', 'GBP'],
+            'base currency' => [true, null, null, 'EUR'],
+            'no push yet' => [false, null, 'GBP', 'GBP'],
+        ];
     }
 }

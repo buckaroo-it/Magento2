@@ -105,12 +105,22 @@ class KlarnaMorOrderServiceTest extends TestCase
 
         $this->resourceConnectionMock->method('getConnection')->willReturn($connectionMock);
         $this->resourceConnectionMock->method('getTableName')
-            ->willReturnCallback(static fn (string $table) => $table);
+            ->willReturnCallback(static fn (string $table) => 'pfx_' . $table);
 
         $connectionMock->expects($this->once())->method('select')->willReturn($selectMock);
-        $selectMock->expects($this->once())->method('from')->willReturnSelf();
-        $selectMock->expects($this->once())->method('join')->willReturnSelf();
-        $selectMock->expects($this->once())->method('where')->willReturnSelf();
+        $selectMock->expects($this->once())
+            ->method('from')
+            ->with(['sop' => 'pfx_sales_order_payment'], [])
+            ->willReturnSelf();
+        $selectMock->expects($this->once())
+            ->method('join')
+            ->with(['so' => 'pfx_sales_order'], 'sop.parent_id = so.entity_id', ['entity_id'])
+            ->willReturnSelf();
+        // LIKE wildcards and the escape character in the key are matched literally.
+        $selectMock->expects($this->once())
+            ->method('where')
+            ->with('sop.additional_information LIKE ?', '%PUSH\\_1\\%2\\\\x%')
+            ->willReturnSelf();
         $selectMock->expects($this->once())->method('limit')->with(1)->willReturnSelf();
         $connectionMock->expects($this->once())->method('fetchOne')->with($selectMock)->willReturn('42');
 
@@ -119,6 +129,6 @@ class KlarnaMorOrderServiceTest extends TestCase
             ->with(42)
             ->willReturn($orderMock);
 
-        $this->assertSame($orderMock, $this->service->getOrderByPendingDataRequestPushKey('PUSH-123'));
+        $this->assertSame($orderMock, $this->service->getOrderByPendingDataRequestPushKey('PUSH_1%2\\x'));
     }
 }

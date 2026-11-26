@@ -46,9 +46,17 @@ use PHPUnit\Framework\TestCase;
  * mirroring the reserve path in getOrderArticlesData.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  */
 class KlarnaKpHandlerTest extends TestCase
 {
+    use ArticlesHandlerFixtures {
+        order as private fixtureOrder;
+        payment as private fixturePayment;
+    }
+
     /** @var ScopeConfigInterface|MockObject */
     private $scopeConfig;
 
@@ -439,6 +447,100 @@ class KlarnaKpHandlerTest extends TestCase
         $item->method('getPrice')->willReturn($price);
         $item->method('getTaxAmount')->willReturn(0.0);
         $item->method('getWeeeTaxAppliedAmount')->willReturn(0.0);
+
+        return $item;
+    }
+
+    // -------------------------------------------------------------------------
+    // Unique article numbers for repeated SKUs
+    // -------------------------------------------------------------------------
+
+    public function testOnlyTheMissingUniqueArticleNumbersAreReported(): void
+    {
+        $handler = new KlarnaKpHandler(...$this->handlerArgs());
+        $handler->setOrder($this->fixtureOrder([], [
+            // a child without its parent loaded still does not count
+            $this->orderItem(['sku' => 'TEE', 'parent_item_id' => 1, 'quote_item_id' => 14]),
+            $this->orderItem(['sku' => 'TEE', 'quote_item_id' => 11]),
+            $this->orderItem(['sku' => 'MUG', 'quote_item_id' => 13]),
+            $this->orderItem(['sku' => 'TEE', 'quote_item_id' => '12']),
+        ]));
+
+        $this->assertSame(
+            ['TEE-12'],
+            $handler->getMissingUniqueArticleNumbers([['identifier' => 'TEE-11'], 'not a line', ['price' => 1.0]])
+        );
+        $this->assertTrue($handler->hasDuplicateSku());
+    }
+
+    public function testRepeatedSkusInTheCartGetTheQuoteItemId(): void
+    {
+        $quote = $this->createMock(Quote::class);
+        $tee = $this->klarnaQuoteItem($quote, '11', 'TEE');
+        $other = $this->klarnaQuoteItem($quote, '12', 'TEE');
+        $mug = $this->klarnaQuoteItem($quote, '13', 'MUG');
+        $quote->method('getAllItems')->willReturn([$tee, $other, $mug]);
+
+        $handler = new KlarnaKpHandler(...$this->handlerArgs());
+        $method = new \ReflectionMethod($handler, 'getIdentifier');
+
+        $this->assertSame('TEE-11', $method->invoke($handler, $tee));
+        $this->assertSame('TEE-12', $method->invoke($handler, $other));
+        $this->assertSame('MUG', $method->invoke($handler, $mug));
+    }
+
+    /**
+     * @param bool        $unique
+     * @param mixed       $quoteItemId
+     * @param bool        $withOrderItem
+     * @param string      $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('captureIdentifierProvider')]
+    public function testACaptureRepeatsTheReservedUniqueNumber(
+        bool $unique,
+        $quoteItemId,
+        bool $withOrderItem,
+        string $expected
+    ): void {
+        $orderItem = $this->orderItem(['sku' => 'TEE', 'quote_item_id' => $quoteItemId]);
+        $handler = new KlarnaKpHandler(...$this->handlerArgs());
+        $handler->setOrder($this->fixtureOrder([], [$orderItem, $this->orderItem(['sku' => 'TEE', 'quote_item_id' => 99])]));
+        $payment = $this->fixturePayment();
+        $payment->method('getAdditionalInformation')
+            ->with(KlarnaKpHandler::UNIQUE_ARTICLE_NUMBERS)
+            ->willReturn($unique);
+        $handler->setPayment($payment);
+
+        $invoiceItem = $this->invoiceItem(['sku' => 'TEE'], $withOrderItem ? $orderItem : null);
+
+        $this->assertSame(
+            $expected,
+            (new \ReflectionMethod($handler, 'getIdentifier'))->invoke($handler, $invoiceItem)
+        );
+    }
+
+    public static function captureIdentifierProvider(): array
+    {
+        return [
+            'reserved with unique numbers' => [true, '21', true, 'TEE-21'],
+            'reserved without unique numbers' => [false, '21', true, 'TEE'],
+            'an order item without a quote item' => [true, 0, true, 'TEE'],
+            'no order item' => [true, '21', false, 'TEE'],
+        ];
+    }
+
+    /**
+     * @param Quote  $quote
+     * @param string $id
+     * @param string $sku
+     *
+     * @return Quote\Item
+     */
+    private function klarnaQuoteItem($quote, string $id, string $sku)
+    {
+        $item = $this->entity(Quote\Item::class, ['getId', 'getQuote'], ['sku' => $sku]);
+        $item->method('getId')->willReturn($id);
+        $item->method('getQuote')->willReturn($quote);
 
         return $item;
     }

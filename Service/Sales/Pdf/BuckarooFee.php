@@ -81,10 +81,10 @@ class BuckarooFee extends DefaultTotal
         /** @phpstan-ignore-next-line */
         $fontSize = $this->getFontSize() ?: 7;
 
-        // excl tax (first stubbed return in the test)
+        // excl tax
         $amountExcl = $order->formatPriceTxt($this->getAmount());
 
-        // incl tax (compute then format; second stubbed return in the test)
+        // incl tax: stored value, or amount plus tax when not stored
         /** @phpstan-ignore-next-line */
         $incl = $this->getSource()->getBuckarooFeeInclTax();
         if (!$incl) {
