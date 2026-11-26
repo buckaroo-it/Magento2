@@ -92,7 +92,13 @@ class BuckarooFeeTest extends BaseTest
     /**
      * Credit memo after collect() added the fee tax: tax 17.5 + 2.5 / 21 + 3, grand total 100 + 2.5 / 120 + 3.
      */
-    private const CREDITMEMO_FEE_TAX_ADDED = self::CREDITMEMO_FEE_REFUNDED + [
+    private const CREDITMEMO_FEE_TAX_ADDED = [
+        // Same fee fields as CREDITMEMO_FEE_REFUNDED, written out: the CI mess detector cannot parse
+        // constant expressions
+        'buckaroo_fee_base_tax_amount' => 2.5,
+        'buckaroo_fee_tax_amount'      => 3.0,
+        'base_buckaroo_fee_incl_tax'   => 12.5,
+        'buckaroo_fee_incl_tax'        => 15.0,
         'base_tax_amount'  => 20.0,
         'tax_amount'       => 24.0,
         'base_grand_total' => 102.5,
