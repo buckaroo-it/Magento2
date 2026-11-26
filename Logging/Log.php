@@ -74,7 +74,11 @@ class Log implements BuckarooLoggerInterface
             $level = \Monolog\Level::from($level);
         }
 
-        return $this->logger->addRecord($level, (string) $message, $context, $datetime);
+        // Messages often embed request or push values; neutralize their line breaks so an
+        // embedded (or escaped) CR/LF cannot forge a separate log record
+        $message = LogSanitizer::neutralizeLineBreaks((string) $message);
+
+        return $this->logger->addRecord($level, $message, $context, $datetime);
     }
 
     /**

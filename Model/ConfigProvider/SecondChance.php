@@ -28,6 +28,7 @@ class SecondChance
     public const XPATH_SECOND_CHANCE_TIMING2 = 'buckaroo_magento2/second_chance/second_chance_timing2';
     public const XPATH_NO_SEND_OUT_OF_STOCK = 'buckaroo_magento2/second_chance/no_send_second_chance';
     public const XPATH_PRUNE_DAYS = 'buckaroo_magento2/second_chance/prune_days';
+    public const XPATH_LINK_LIFETIME_DAYS = 'buckaroo_magento2/second_chance/link_lifetime_days';
     public const XPATH_MULTIPLE_EMAILS_SEND = 'buckaroo_magento2/second_chance/multiple_emails_send';
     public const XPATH_STREAK_ENABLED = 'buckaroo_magento2/second_chance/streak_enabled';
     public const XPATH_STREAK_MINUTES = 'buckaroo_magento2/second_chance/streak_minutes';
@@ -206,6 +207,24 @@ class SecondChance
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    /**
+     * Get the number of days a reminder link stays valid after the last reminder was sent
+     *
+     * Zero means the link does not expire.
+     *
+     * @param \Magento\Store\Api\Data\StoreInterface|int|null $store
+     *
+     * @return int
+     */
+    public function getLinkLifetimeDays($store = null): int
+    {
+        return max(0, (int) $this->scopeConfig->getValue(
+            self::XPATH_LINK_LIFETIME_DAYS,
+            ScopeInterface::SCOPE_STORE,
+            $store
+        ));
     }
 
     /**

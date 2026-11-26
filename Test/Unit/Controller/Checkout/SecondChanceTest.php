@@ -19,9 +19,14 @@ use Buckaroo\Magento2\Logging\Log;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Exception\StateException;
+use Magento\Framework\View\Page\Config as PageConfig;
+use Magento\Framework\View\Page\Title;
+use Magento\Framework\View\Result\Page;
+use Magento\Framework\View\Result\PageFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -42,8 +47,18 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     /** @var Context|\PHPUnit\Framework\MockObject\MockObject */
     private $context;
 
-    /** @var RequestInterface|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var HttpRequest|\PHPUnit\Framework\MockObject\MockObject */
     private $request;
+
+    /**
+     * Whether the request is the submitted confirmation form; most tests cover that POST
+     *
+     * @var bool
+     */
+    private $isPost = true;
+
+    /** @var PageFactory|\PHPUnit\Framework\MockObject\MockObject */
+    private $pageFactory;
 
     /** @var ManagerInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $messageManager;
@@ -63,13 +78,21 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->checkoutSession = $this->getFakeMock(CheckoutSession::class)->getMock();
         $this->customerSession = $this->getFakeMock(CustomerSession::class)->getMock();
         $this->context = $this->getFakeMock(Context::class)->getMock();
-        $this->request = $this->getFakeMock(RequestInterface::class)->getMock();
+        $this->request = $this->getFakeMock(HttpRequest::class)->getMock();
+        $this->request->method('isPost')->willReturnCallback(function () {
+            return $this->isPost;
+        });
+        $this->pageFactory = $this->getFakeMock(PageFactory::class)->getMock();
         $this->messageManager = $this->getFakeMock(ManagerInterface::class)->getMock();
 
         $this->context->expects($this->any())->method('getRequest')->willReturn($this->request);
         $this->context->expects($this->any())->method('getMessageManager')->willReturn($this->messageManager);
     }
 
+    /**
+     * @param array $mockMethods
+     * @return SecondChance&\PHPUnit\Framework\MockObject\MockObject
+     */
     private function buildInstance(array $mockMethods = []): SecondChance
     {
         return $this->getMockBuilder(SecondChance::class)
@@ -79,6 +102,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
                 $this->secondChanceRepository,
                 $this->checkoutSession,
                 $this->customerSession,
+                $this->pageFactory,
             ])
             ->onlyMethods($mockMethods ?: ['handleRedirect'])
             ->getMock();
@@ -433,5 +457,76 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturn($redirectMock);
 
         $this->assertInstanceOf(Redirect::class, $instance->execute());
+    }
+
+    public function testOpeningTheLinkShowsTheConfirmationPageWithoutRedeemingIt()
+    {
+        $this->isPost = false;
+        $token = self::VALID_TOKEN;
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->secondChanceRepository->expects($this->once())->method('assertTokenRedeemable')->with($token);
+        $this->secondChanceRepository->expects($this->never())->method('getSecondChanceByToken');
+        $this->checkoutSession->expects($this->never())->method('replaceQuote');
+
+        $title = $this->getFakeMock(Title::class)->getMock();
+        $title->expects($this->once())->method('set');
+        $pageConfig = $this->getFakeMock(PageConfig::class)->getMock();
+        $pageConfig->method('getTitle')->willReturn($title);
+
+        $page = $this->getFakeMock(Page::class)->getMock();
+        $page->method('getConfig')->willReturn($pageConfig);
+        $this->pageFactory->expects($this->once())->method('create')->willReturn($page);
+
+        $instance = $this->buildInstance();
+        $instance->expects($this->never())->method('handleRedirect');
+
+        $this->assertSame($page, $instance->execute());
+    }
+
+    public function testOpeningAUsedLinkShowsWhyItCannotBeUsed()
+    {
+        $this->isPost = false;
+        $token = self::VALID_TOKEN;
+
+        $this->request->method('getParam')->with('token')->willReturn($token);
+        $this->secondChanceRepository->method('assertTokenRedeemable')->with($token)
+            ->willThrowException(new StateException(__('This link has already been used.')));
+
+        $this->messageManager->expects($this->once())
+            ->method('addNoticeMessage')
+            ->with(__('This link has already been used.'));
+        $this->pageFactory->expects($this->never())->method('create');
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertSame($redirectMock, $instance->execute());
+    }
+
+    public function testOpeningAMalformedLinkDoesNotLookItUp()
+    {
+        $this->isPost = false;
+
+        $this->request->method('getParam')->with('token')->willReturn(str_repeat('#', 32));
+        $this->secondChanceRepository->expects($this->never())->method('assertTokenRedeemable');
+        $this->pageFactory->expects($this->never())->method('create');
+
+        $this->messageManager->expects($this->once())
+            ->method('addErrorMessage')
+            ->with(__('Invalid or expired link. Please try again.'));
+
+        $redirectMock = $this->getFakeMock(Redirect::class)->getMock();
+        $instance = $this->buildInstance();
+        $instance->expects($this->once())
+            ->method('handleRedirect')
+            ->with('checkout/cart', [])
+            ->willReturn($redirectMock);
+
+        $this->assertSame($redirectMock, $instance->execute());
     }
 }

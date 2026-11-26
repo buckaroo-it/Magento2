@@ -14,6 +14,7 @@
 namespace Buckaroo\Magento2\Helper;
 
 use Buckaroo\Magento2\Logging\BuckarooLoggerInterface;
+use Buckaroo\Magento2\Logging\LogSanitizer;
 use Buckaroo\Magento2\Model\GroupTransactionFactory;
 use Buckaroo\Magento2\Model\ResourceModel\GroupTransaction as GroupTransactionResource;
 use Buckaroo\Magento2\Model\GroupTransaction;
@@ -129,7 +130,7 @@ class PaymentGroupTransaction extends AbstractHelper
             '[GROUP_TRANSACTION] | [Helper] | [%s:%s] - Save group transaction in database | response: %s',
             __METHOD__,
             __LINE__,
-            var_export($response, true)
+            LogSanitizer::export($response)
         ));
 
         // Check if this transaction already exists to prevent duplicates

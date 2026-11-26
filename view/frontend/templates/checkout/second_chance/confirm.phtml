@@ -1,0 +1,51 @@
+<?php
+/**
+ * Buckaroo Magento 2 payment module (https://www.buckaroo.eu/)
+ *
+ * Copyright (c) Buckaroo B.V.
+ * See LICENSE for license details.
+ *
+ * Support: support@buckaroo.nl
+ *
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   MIT
+ */
+
+/** @var \Buckaroo\Magento2\Block\Checkout\SecondChance\Confirm $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer|null $secureRenderer */
+?>
+<div class="buckaroo-second-chance-confirm">
+    <p><?= $escaper->escapeHtml(__('Click the button below to restore your cart and continue to the payment.')) ?></p>
+    <form id="buckaroo-second-chance-confirm-form" method="post" action="<?= $escaper->escapeUrl($block->getFormAction()) ?>">
+        <?= /* @noEscape */ $block->getChildHtml('formkey') ?>
+        <input type="hidden" name="token" value="<?= $escaper->escapeHtmlAttr($block->getToken()) ?>"/>
+        <?php foreach ($block->getUtmParams() as $name => $value): ?>
+            <input type="hidden" name="<?= $escaper->escapeHtmlAttr($name) ?>" value="<?= $escaper->escapeHtmlAttr($value) ?>"/>
+        <?php endforeach; ?>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button type="submit" class="action primary btn btn-primary">
+                    <span><?= $escaper->escapeHtml(__('Restore my cart')) ?></span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<?php
+// A second submit would find the link already used and replace the restored cart page with an error
+$submitOnceScript = <<<'JS'
+document.getElementById('buckaroo-second-chance-confirm-form').addEventListener('submit', function (event) {
+    if (this.dataset.submitted) {
+        event.preventDefault();
+        return;
+    }
+    this.dataset.submitted = '1';
+});
+JS;
+?>
+<?php if (isset($secureRenderer)): ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $submitOnceScript, false) ?>
+<?php else: ?>
+    <script><?= /* @noEscape */ $submitOnceScript ?></script>
+<?php endif; ?>
