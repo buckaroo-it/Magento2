@@ -23,9 +23,17 @@ class CreateCreditNoteTest extends BaseTest
 {
     protected $instanceClass = CreateCreditNote::class;
 
+    /**
+     * The credit note parameters for a fixed order.
+     */
     public function testGet()
     {
-        $orderMock = $this->getFakeMock(Order::class)->getMock();
+        $orderMock = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getGrandTotal', 'getTaxAmount', 'getIncrementId'])
+            ->getMock();
+        $orderMock->method('getGrandTotal')->willReturn(121.00);
+        $orderMock->method('getTaxAmount')->willReturn(21.00);
+        $orderMock->method('getIncrementId')->willReturn('000000042');
 
         $infoInstanceMock = $this->getFakeMock(Payment::class)
             ->onlyMethods(['getAdditionalInformation', 'getOrder'])
@@ -36,20 +44,42 @@ class CreateCreditNoteTest extends BaseTest
         $infoInstanceMock->method('getOrder')->willReturn($orderMock);
 
         $instance = $this->getInstance();
-        $result = $instance->get($infoInstanceMock);
 
-        $this->assertIsArray($result);
-        $this->assertEquals('CreditManagement3', $result['Name']);
-        $this->assertEquals('CreateCreditNote', $result['Action']);
-        $this->assertEquals(1, $result['Version']);
-        $this->assertCount(4, $result['RequestParameter']);
+        // Retry if the day changes during the call, so the expected date stays exact.
+        do {
+            $today = date('Y-m-d');
+            $result = $instance->get($infoInstanceMock);
+        } while ($today !== date('Y-m-d'));
 
-        $possibleParameters = ['InvoiceAmount', 'InvoiceAmountVat', 'InvoiceDate', 'OriginalInvoiceNumber'];
+        $this->assertSame(
+            [
+                'Name'             => 'CreditManagement3',
+                'Action'           => 'CreateCreditNote',
+                'Version'          => 1,
+                'RequestParameter' => [
+                    ['_' => 121.00, 'Name' => 'InvoiceAmount'],
+                    ['_' => 21.00, 'Name' => 'InvoiceAmountVat'],
+                    ['_' => $today, 'Name' => 'InvoiceDate'],
+                    ['_' => '000000042', 'Name' => 'OriginalInvoiceNumber'],
+                ],
+            ],
+            $result
+        );
+    }
 
-        foreach ($result['RequestParameter'] as $array) {
-            $this->assertArrayHasKey('_', $array);
-            $this->assertArrayHasKey('Name', $array);
-            $this->assertTrue(in_array($array['Name'], $possibleParameters));
-        }
+    /**
+     * Without a stored invoice key there is no credit note to create.
+     */
+    public function testGetReturnsEmptyWithoutInvoiceKey()
+    {
+        $infoInstanceMock = $this->getFakeMock(Payment::class)
+            ->onlyMethods(['getAdditionalInformation', 'getOrder'])
+            ->getMock();
+        $infoInstanceMock->method('getAdditionalInformation')
+            ->with('buckaroo_cm3_invoice_key')
+            ->willReturn('');
+        $infoInstanceMock->expects($this->never())->method('getOrder');
+
+        $this->assertSame([], $this->getInstance()->get($infoInstanceMock));
     }
 }

@@ -17,8 +17,8 @@
          colors="true"
          executionOrder="depends,defects"
          beStrictAboutOutputDuringTests="true"
-         failOnRisky="false"
-         failOnWarning="false">
+         failOnRisky="true"
+         failOnWarning="true">
     <testsuites>
         <testsuite name="Buckaroo Magento2 Unit">
             <directory suffix="Test.php">Test/Unit</directory>
@@ -26,9 +26,6 @@
             <exclude>Test/Unit/Gateway/Request/AbstractDataBuilderTest.php</exclude>
             <exclude>Test/Unit/Gateway/Request/AbstractRequestBuilderTest.php</exclude>
             <exclude>Test/Unit/Gateway/Response/AbstractResponseHandlerTest.php</exclude>
-            <exclude>Test/Unit/Model/AbstractCommandBasedTest.php</exclude>
-            <exclude>Test/Unit/Block/Adminhtml/System/Config/Fieldset/PaymentTest.php</exclude>
-            <exclude>Test/Unit/Block/Adminhtml/Giftcard/EditTest.php</exclude>
         </testsuite>
     </testsuites>
 

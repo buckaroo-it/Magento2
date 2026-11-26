@@ -567,4 +567,149 @@ class KlarnaKpProcessorTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertTrue($this->invoke('processPushByStatus', $instance));
     }
+
+    /**
+     * Each guard on its own keeps a push from being taken for a Plaza cancel reservation.
+     *
+     * @param array  $getters
+     * @param array  $trueAdditional
+     * @param string $state
+     * @param mixed  $knownTransactions
+     * @param bool   $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('plazaCancelProvider')]
+    public function testDetectsAPlazaCancelReservationPush(
+        array $getters,
+        array $trueAdditional,
+        string $state,
+        $knownTransactions,
+        bool $expected
+    ): void {
+        $instance = $this->getInstance();
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getAdditionalInformation')
+            ->with(BuckarooAdapter::BUCKAROO_ALL_TRANSACTIONS)
+            ->willReturn($knownTransactions);
+
+        $this->setProperty(
+            'pushRequest',
+            $this->createPushRequest($getters + ['getStatusCode' => '190', 'getDatarequest' => 'PLAZA-TRX'], $trueAdditional),
+            $instance
+        );
+        $this->setProperty('order', $this->createOrderWithPayment($paymentMock, false, $state), $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+
+        $this->assertSame($expected, $this->invoke('isPlazaCancelReservationPush', $instance));
+    }
+
+    public static function plazaCancelProvider(): array
+    {
+        $known = ['KNOWN-TRX' => ['C021']];
+
+        return [
+            'unknown data request' => [[], [], Order::STATE_PROCESSING, $known, true],
+            'no transactions stored yet' => [[], [], Order::STATE_PROCESSING, null, true],
+            'known data request' => [['getDatarequest' => 'KNOWN-TRX'], [], Order::STATE_PROCESSING, $known, false],
+            'failed status' => [['getStatusCode' => '490'], [], Order::STATE_PROCESSING, $known, false],
+            'initiated by Magento' => [[], [['initiated_by_magento', 1]], Order::STATE_PROCESSING, $known, false],
+            'invoice push' => [['getInvoiceNumber' => 'INV-1'], [], Order::STATE_PROCESSING, $known, false],
+            'order not processing' => [[], [], Order::STATE_NEW, $known, false],
+            'no data request' => [['getDatarequest' => null], [], Order::STATE_PROCESSING, $known, false],
+        ];
+    }
+
+    public function testAFailingPlazaCancelStillRestoresTheVoidRequestFlag(): void
+    {
+        $instance = $this->getInstance();
+
+        [$orderMock, $paymentMock] = $this->preparePlazaCancelPush($instance, 'PLAZA-TRX', []);
+        $orderMock->method('canCancel')->willReturn(true);
+        $paymentMock->method('getMethodInstance')->willReturn(new FakeKlarnaMethodInstance());
+        $this->orderManagementMock->method('cancel')->willThrowException(new \RuntimeException('cancel failed'));
+        $this->orderRequestServiceMock->expects($this->never())->method('updateOrderStatus');
+
+        try {
+            $this->invoke('processPushByStatus', $instance);
+            $this->fail('The cancel exception is passed on');
+        } catch (\RuntimeException $exception) {
+            $this->assertSame('cancel failed', $exception->getMessage());
+        }
+
+        $this->assertTrue(FakeKlarnaMethodInstance::$requestOnVoid);
+    }
+
+    /**
+     * A Magento capture is only recognised with all three markers.
+     *
+     * @param array $getters
+     * @param array $trueAdditional
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('incompleteCaptureProvider')]
+    public function testSkipPushNeedsAllMarkersOfAMagentoCapture(array $getters, array $trueAdditional): void
+    {
+        $instance = $this->getInstance();
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getAdditionalInformation')->willReturn(null);
+        $this->paymentRepositoryMock->expects($this->never())->method('save');
+
+        $this->setProperty('pushRequest', $this->createPushRequest($getters, $trueAdditional), $instance);
+        $this->setProperty('order', $this->createOrderWithPayment($paymentMock, true), $instance);
+        $this->setProperty('payment', $paymentMock, $instance);
+
+        $this->assertFalse($this->invoke('skipPush', $instance));
+    }
+
+    public static function incompleteCaptureProvider(): array
+    {
+        return [
+            'not initiated by Magento' => [
+                ['getServiceKlarnakpCaptureid' => 'CAPTURE-1'],
+                [['service_action_from_magento', 'pay']],
+            ],
+            'other Magento action' => [
+                ['getServiceKlarnakpCaptureid' => 'CAPTURE-1'],
+                [['initiated_by_magento', 1], ['service_action_from_magento', 'refund']],
+            ],
+            'no capture id' => [
+                [],
+                [['initiated_by_magento', 1], ['service_action_from_magento', 'pay']],
+            ],
+        ];
+    }
+
+    public function testSkipPushSkipsAutoPayConfirmationMarkedAsCapturedWithAnInteger(): void
+    {
+        $instance = $this->getInstance();
+
+        $paymentMock = $this->getFakeMock('Magento\Sales\Model\Order\Payment')->getMock();
+        $paymentMock->method('getAdditionalInformation')->with('buckaroo_already_captured')->willReturn(1);
+
+        $this->setProperty(
+            'pushRequest',
+            $this->createPushRequest(['getServiceKlarnakpAutopaytransactionkey' => 'AUTOPAY-456']),
+            $instance
+        );
+        $this->setProperty('order', $this->createOrderWithPayment($paymentMock, false), $instance);
+
+        $this->assertTrue($this->invoke('skipPush', $instance));
+    }
+
+    public function testInvoiceIsSavedForAMagentoPushThatIsNotAPay(): void
+    {
+        $instance = $this->getInstance();
+
+        $pushRequest = $this->createPushRequest(
+            [],
+            [['initiated_by_magento', 1], ['service_action_from_magento', 'refund']],
+            [['transaction_method', 'KlarnaKp']]
+        );
+        $this->klarnakpConfigMock->method('isInvoiceCreatedAfterShipment')->willReturn(true);
+        $this->setProperty('pushRequest', $pushRequest, $instance);
+
+        $paymentDetails = [];
+        $this->assertTrue($this->invokeArgs('invoiceShouldBeSaved', [&$paymentDetails], $instance));
+        $this->assertFalse($this->getProperty('dontSaveOrderUponSuccessPush', $instance));
+    }
 }

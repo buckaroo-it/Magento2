@@ -50,6 +50,7 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
             ->getMock();
         $checkoutSession->method('getLastRealOrderId')->willReturn(null);
         $checkoutSession->expects($this->once())->method('setLastRealOrderId')->with('000000001');
+        $checkoutSession->expects($this->once())->method('restoreQuote');
 
         $instance = $this->getInstance([
             'customerSession' => $customerSession,
@@ -71,9 +72,10 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
         $customerSession->expects($this->never())->method('setCustomerDataAsLoggedIn');
 
         $checkoutSession = $this->getFakeMock(SessionStub2::class)
-            ->onlyMethods(['setLastRealOrderId'])
+            ->onlyMethods(['setLastRealOrderId', 'restoreQuote'])
             ->getMock();
         $checkoutSession->expects($this->never())->method('setLastRealOrderId');
+        $checkoutSession->expects($this->never())->method('restoreQuote');
 
         $instance = $this->getInstance([
             'customerSession' => $customerSession,
@@ -82,6 +84,28 @@ class SetCustomerAndRestoreQuoteTest extends BaseTest
         $this->setProperty('order', null, $instance);
 
         $this->invokeArgs('setCustomerAndRestoreQuote', ['success'], $instance);
-        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * A session that already holds a last order is left alone: the quote is not restored again.
+     */
+    public function testDoesNotRestoreWhenTheSessionAlreadyHasALastOrder(): void
+    {
+        $order = $this->getFakeMock(Order::class)
+            ->onlyMethods(['getIncrementId'])
+            ->getMock();
+        $order->method('getIncrementId')->willReturn('000000001');
+
+        $checkoutSession = $this->getFakeMock(SessionStub2::class)
+            ->onlyMethods(['getLastRealOrderId', 'setLastRealOrderId', 'restoreQuote'])
+            ->getMock();
+        $checkoutSession->method('getLastRealOrderId')->willReturn('000000001');
+        $checkoutSession->expects($this->never())->method('setLastRealOrderId');
+        $checkoutSession->expects($this->never())->method('restoreQuote');
+
+        $instance = $this->getInstance(['checkoutSession' => $checkoutSession]);
+        $this->setProperty('order', $order, $instance);
+
+        $this->invokeArgs('setCustomerAndRestoreQuote', ['success'], $instance);
     }
 }

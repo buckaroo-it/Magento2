@@ -150,9 +150,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     public static function getFirstEmailTemplateProvider()
     {
         return [
-            'custom template' => ['custom_template_id', 'custom_template_id'],
-            'empty string' => ['', ''],
-            'null value' => [null, ''],
+            'custom template'        => ['custom_template_id', 'custom_template_id'],
+            // Without a template no email can be sent: the module's own template is used
+            'empty string'           => ['', 'buckaroo_second_chance_first'],
+            'null value'             => [null, 'buckaroo_second_chance_first'],
+            'legacy shared template' => ['buckaroo_second_chance', 'buckaroo_second_chance_first'],
         ];
     }
 
@@ -164,13 +166,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     #[DataProvider('getFirstEmailTemplateProvider')]
     public function testGetFirstEmailTemplate($configValue, $expected)
     {
-        // $expected parameter is from data provider but not used in this test implementation
-        unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
 
-        $this->scopeConfig->method('getValue')
+        $this->scopeConfig->expects($this->once())->method('getValue')
             ->with(
-                SecondChance::XPATH_SECOND_CHANCE_TEMPLATE1,
+                'buckaroo_magento2/second_chance/second_chance_template',
                 ScopeInterface::SCOPE_STORE,
                 $store
             )
@@ -179,7 +179,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getFirstEmailTemplate($store);
 
-        $this->assertEquals($configValue ?: 'buckaroo_second_chance_first', $result);
+        $this->assertSame($expected, $result);
     }
 
     /**
@@ -188,9 +188,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     public static function getSecondEmailTemplateProvider()
     {
         return [
-            'custom template' => ['custom_template_id_2', 'custom_template_id_2'],
-            'empty string' => ['', ''],
-            'null value' => [null, ''],
+            'custom template'        => ['custom_template_id_2', 'custom_template_id_2'],
+            // Without a template no email can be sent: the module's own template is used
+            'empty string'           => ['', 'buckaroo_second_chance_second'],
+            'null value'             => [null, 'buckaroo_second_chance_second'],
+            'legacy shared template' => ['buckaroo_second_chance', 'buckaroo_second_chance_second'],
         ];
     }
 
@@ -202,13 +204,11 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
     #[DataProvider('getSecondEmailTemplateProvider')]
     public function testGetSecondEmailTemplate($configValue, $expected)
     {
-        // $expected parameter is from data provider but not used in this test implementation
-        unset($expected);
         $store = $this->getFakeMock(Store::class)->getMock();
 
-        $this->scopeConfig->method('getValue')
+        $this->scopeConfig->expects($this->once())->method('getValue')
             ->with(
-                SecondChance::XPATH_SECOND_CHANCE_TEMPLATE2,
+                'buckaroo_magento2/second_chance/second_chance_template2',
                 ScopeInterface::SCOPE_STORE,
                 $store
             )
@@ -217,7 +217,7 @@ class SecondChanceTest extends \Buckaroo\Magento2\Test\BaseTest
         $instance = $this->getInstance(['scopeConfig' => $this->scopeConfig]);
         $result = $instance->getSecondEmailTemplate($store);
 
-        $this->assertEquals($configValue ?: 'buckaroo_second_chance_second', $result);
+        $this->assertSame($expected, $result);
     }
 
     /**

@@ -14,38 +14,51 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Controller\Adminhtml\Giftcard;
 
-use Magento\Backend\Model\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
 use Buckaroo\Magento2\Controller\Adminhtml\Giftcard\Index;
 use Buckaroo\Magento2\Model\GiftcardFactory;
+use Buckaroo\Magento2\Model\ResourceModel\Giftcard as GiftcardResource;
+use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Image\AdapterFactory;
+use Magento\Framework\View\Page\Config;
+use Magento\Framework\View\Page\Title;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\MediaStorage\Model\File\UploaderFactory;
 
-class IndexTest extends \Buckaroo\Magento2\Test\BaseTest
+class IndexTest extends BaseTest
 {
     protected $instanceClass = Index::class;
 
-    public function testExecute()
+    public function testExecuteShowsTheGiftcardGridPage()
     {
-        // Create title mock with prepend method
-        $titleMock = $this->createMock(\Magento\Framework\View\Page\Title::class);
-        $titleMock->method('prepend')->willReturnSelf();
+        $title = $this->createMock(Title::class);
+        $title->expects($this->once())->method('prepend')
+            ->with($this->callback(static fn($text) => (string)$text === 'Buckaroo Giftcards'));
 
-        // Create config mock that returns title mock
-        $configMock = $this->createMock(\Magento\Framework\View\Page\Config::class);
-        $configMock->method('getTitle')->willReturn($titleMock);
+        $config = $this->createMock(Config::class);
+        $config->method('getTitle')->willReturn($title);
 
-        // Create page mock using the correct Backend page class with setActiveMenu method
-        $pageMock = $this->createMock(\Magento\Backend\Model\View\Result\Page::class);
-        $pageMock->method('getConfig')->willReturn($configMock);
-        $pageMock->method('setActiveMenu')->willReturnSelf();
+        $page = $this->createMock(Page::class);
+        $page->method('getConfig')->willReturn($config);
+        $page->expects($this->once())->method('setActiveMenu')
+            ->with('Buckaroo_Magento2::buckaroo_giftcards')
+            ->willReturnSelf();
 
-        // Create result factory mock
-        $resultFactoryMock = $this->createMock(\Magento\Framework\View\Result\PageFactory::class);
-        $resultFactoryMock->method('create')->willReturn($pageMock);
+        $pageFactory = $this->createMock(PageFactory::class);
+        $pageFactory->expects($this->once())->method('create')->willReturn($page);
 
-        $instance = $this->getInstance(['resultPageFactory' => $resultFactoryMock]);
+        $instance = new Index(
+            $this->createMock(Context::class),
+            $pageFactory,
+            $this->createMock(GiftcardFactory::class),
+            $this->createMock(Filesystem::class),
+            $this->createMock(UploaderFactory::class),
+            $this->createMock(AdapterFactory::class),
+            $this->createMock(GiftcardResource::class)
+        );
 
-        $result = $instance->execute();
-
-        $this->assertInstanceOf(\Magento\Backend\Model\View\Result\Page::class, $result);
+        $this->assertSame($page, $instance->execute());
     }
 }

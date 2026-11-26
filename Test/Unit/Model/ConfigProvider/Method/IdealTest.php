@@ -18,6 +18,7 @@ use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Ideal;
+use Buckaroo\Magento2\Service\Ideal\IssuersService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class IdealTest extends BaseTest
@@ -79,20 +80,42 @@ class IdealTest extends BaseTest
     }
 
     /**
-     * Check if the returned issuers list contains the necessary attributes.
+     * The issuers from the issuers service are returned in order, each with its logo url added.
      */
     public function testIssuers()
     {
-        $instance = $this->getInstance();
+        $issuersServiceMock = $this->getFakeMock(IssuersService::class)
+            ->onlyMethods(['get', 'getImageUrlByIssuerId'])
+            ->getMock();
+        $issuersServiceMock->expects($this->once())->method('get')->willReturn([
+            ['id' => 'ABNANL2A', 'name' => 'ABN AMRO', 'code' => 'ABNANL2A'],
+            ['id' => 'INGBNL2A', 'name' => 'ING', 'code' => 'INGBNL2A'],
+        ]);
+        $issuersServiceMock->expects($this->exactly(2))->method('getImageUrlByIssuerId')
+            ->willReturnCallback(function ($issuerId) {
+                return 'https://example.com/logos/' . $issuerId . '.svg';
+            });
+
+        $instance = $this->getInstance(['issuersService' => $issuersServiceMock]);
         $issuers = $instance->getIssuers();
 
-        // Basic assertion to prevent risky test warning
-        $this->assertIsArray($issuers);
-
-        foreach ($issuers as $issuer) {
-            $this->assertTrue(array_key_exists('name', $issuer));
-            $this->assertTrue(array_key_exists('code', $issuer));
-        }
+        $this->assertSame(
+            [
+                [
+                    'id' => 'ABNANL2A',
+                    'name' => 'ABN AMRO',
+                    'code' => 'ABNANL2A',
+                    'logo' => 'https://example.com/logos/ABNANL2A.svg',
+                ],
+                [
+                    'id' => 'INGBNL2A',
+                    'name' => 'ING',
+                    'code' => 'INGBNL2A',
+                    'logo' => 'https://example.com/logos/INGBNL2A.svg',
+                ],
+            ],
+            $issuers
+        );
     }
 
     /**

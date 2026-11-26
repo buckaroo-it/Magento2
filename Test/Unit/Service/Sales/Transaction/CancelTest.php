@@ -68,15 +68,19 @@ class CancelTest extends BaseTest
     #[DataProvider('cancelProvider')]
     public function testCancel($accountCancel, $orderCancel, $expectedCallCount)
     {
+        $transactionMock = $this->getFakeMock(Transaction::class)->onlyMethods(['getOrder', 'getPaymentId'])->getMock();
+
         $paymentMock = $this->getFakeMock(Payment::class)->onlyMethods(['getMethodInstance', 'cancel'])->getMock();
         $paymentMock->method('getMethodInstance')->willReturnSelf();
+        $paymentMock->expects($this->once())->method('cancel')->with($this->identicalTo($paymentMock));
 
         $paymentRepositoryMock = $this->getFakeMock(OrderPaymentRepositoryInterface::class)
             ->getMock();
-        $paymentRepositoryMock->method('get')->willReturn($paymentMock);
+        $paymentRepositoryMock->expects($this->once())->method('get')->with(77)->willReturn($paymentMock);
+        $transactionMock->method('getPaymentId')->willReturn(77);
 
         $accountMock = $this->getFakeMock(Account::class)->onlyMethods(['getCancelOnFailed'])->getMock();
-        $accountMock->method('getCancelOnFailed')->with(1)->willReturn($accountCancel);
+        $accountMock->expects($this->once())->method('getCancelOnFailed')->with(1)->willReturn($accountCancel);
 
         $orderMock = $this->getFakeMock(Order::class)
             ->onlyMethods(['getStore', 'canCancel', 'getPayment', 'cancel', 'save', 'addCommentToStatusHistory'])
@@ -86,12 +90,11 @@ class CancelTest extends BaseTest
         $orderMock->expects($this->exactly($expectedCallCount))->method('getPayment')->willReturn($paymentMock);
         $orderMock->expects($this->exactly($expectedCallCount))->method('cancel')->willReturnSelf();
         $orderMock->expects($this->never())->method('save');
-        $orderMock->method('addCommentToStatusHistory');
+        $orderMock->expects($this->once())->method('addCommentToStatusHistory');
 
         $orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
-        $orderRepositoryMock->expects($this->exactly(1 + $expectedCallCount))->method('save');
+        $orderRepositoryMock->expects($this->exactly(1 + $expectedCallCount))->method('save')->with($orderMock);
 
-        $transactionMock = $this->getFakeMock(Transaction::class)->onlyMethods(['getOrder'])->getMock();
         $transactionMock->method('getOrder')->willReturn($orderMock);
 
         $instance = $this->getInstance([
@@ -108,12 +111,16 @@ class CancelTest extends BaseTest
     public static function cancelOrderProvider()
     {
         return [
-            'method is afterpay' => [
+            'method is not afterpay' => [
                 'buckaroo_magento2_method',
                 0
             ],
-            'method is not afterpay' => [
+            'method is afterpay' => [
                 'buckaroo_magento2_afterpay',
+                1
+            ],
+            'method is afterpay2' => [
+                'buckaroo_magento2_afterpay2',
                 1
             ]
         ];
@@ -136,23 +143,21 @@ class CancelTest extends BaseTest
             ->onlyMethods(['getMethodInstance', 'setAdditionalInformation', 'save'])
             ->getMock();
         $paymentMock->method('getMethodInstance')->willReturn($methodInstanceMock);
-        $paymentMock->expects($this->exactly($expectedCallCount))->method('setAdditionalInformation');
+        $paymentMock->expects($this->exactly($expectedCallCount))
+            ->method('setAdditionalInformation')
+            ->with('buckaroo_failed_authorize', 1);
         $paymentMock->expects($this->never())->method('save');
 
         $paymentRepositoryMock = $this->createMock(OrderPaymentRepositoryInterface::class);
-        $paymentRepositoryMock->expects($this->exactly($expectedCallCount))->method('save');
+        $paymentRepositoryMock->expects($this->exactly($expectedCallCount))->method('save')->with($paymentMock);
 
         $orderMock = $this->getFakeMock(Order::class)->onlyMethods(['getPayment', 'cancel', 'save'])->getMock();
         $orderMock->method('getPayment')->willReturn($paymentMock);
-        $orderMock->method('cancel')->willReturnSelf();
+        $orderMock->expects($this->once())->method('cancel')->willReturnSelf();
         $orderMock->expects($this->never())->method('save');
 
         $orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
         $orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
-
-        $resourceMock = $this->createMock(\Magento\Framework\Model\ResourceModel\AbstractResource::class);
-        $orderMock->setResource($resourceMock);
-        $paymentMock->setResource($resourceMock);
 
         $instance = $this->getInstance([
             'orderPaymentRepository' => $paymentRepositoryMock,
@@ -190,18 +195,16 @@ class CancelTest extends BaseTest
             ->onlyMethods(['getState', 'addCommentToStatusHistory', 'save'])
             ->getMock();
         $orderMock->method('getState')->willReturn($state);
-        $orderMock->method('addCommentToStatusHistory')
-            ->with('Payment status : Cancelled by consumer', $expectedParameter);
+        $orderMock->expects($this->once())
+            ->method('addCommentToStatusHistory')
+            ->with('Payment status : Cancelled by consumer', $this->identicalTo($expectedParameter));
         $orderMock->expects($this->never())->method('save');
 
         $orderRepositoryMock = $this->createMock(\Magento\Sales\Api\OrderRepositoryInterface::class);
         $orderRepositoryMock->expects($this->once())->method('save')->with($orderMock);
 
         $orderStatusFactoryMock = $this->getFakeMock(OrderStatusFactory::class)->onlyMethods(['get'])->getMock();
-        $orderStatusFactoryMock->method('get')->with(890, $orderMock)->willReturn('cancel');
-
-        $resourceMock = $this->createMock(\Magento\Framework\Model\ResourceModel\AbstractResource::class);
-        $orderMock->setResource($resourceMock);
+        $orderStatusFactoryMock->expects($this->once())->method('get')->with(890, $orderMock)->willReturn('cancel');
 
         $instance = $this->getInstance([
             'orderStatusFactory' => $orderStatusFactoryMock,
@@ -217,16 +220,13 @@ class CancelTest extends BaseTest
 
         $paymentMock = $this->getFakeMock(Payment::class)->onlyMethods(['getMethodInstance', 'cancel'])->getMock();
         $paymentMock->method('getMethodInstance')->willReturnSelf();
-        $paymentMock->method('cancel')->with($paymentMock);
+        $paymentMock->expects($this->once())->method('cancel')->with($this->identicalTo($paymentMock));
 
         $paymentRepositoryMock = $this->getFakeMock(OrderPaymentRepositoryInterface::class)
             ->getMock();
-        $paymentRepositoryMock->method('get')->with(123)->willReturn($paymentMock);
+        $paymentRepositoryMock->expects($this->once())->method('get')->with(123)->willReturn($paymentMock);
 
         $instance = $this->getInstance(['orderPaymentRepository' => $paymentRepositoryMock]);
         $this->invokeArgs('cancelPayment', [$transactionMock], $instance);
-
-        // Add assertion to prevent risky test
-        $this->assertTrue(true, 'cancelPayment method executed successfully');
     }
 }

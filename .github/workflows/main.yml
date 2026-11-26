@@ -24,11 +24,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          tools: composer:v2, phpunit, phpcs
-          coverage: none
+          tools: composer:v2, phpunit, phpcs, infection:0.35.12
+          coverage: pcov
 
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          # Full history so mutation testing can diff the PR against develop
+          fetch-depth: 0
 
       - name: Validate composer.json
         run: composer validate
@@ -105,3 +108,13 @@ jobs:
           bin/magento module:enable --all
           bin/magento setup:di:compile
           cd app/code/Buckaroo/Magento2 && ../../../../vendor/phpunit/phpunit/phpunit
+
+      - name: Mutation testing on the changed lines (PR only)
+        if: ${{ github.event_name == 'pull_request' }}
+        working-directory: m248/app/code/Buckaroo/Magento2
+        run: |
+          git config --global --add safe.directory "$PWD"
+          infection --threads=max --only-covering-test-cases --no-progress \
+            --git-diff-lines --git-diff-base="origin/${{ github.base_ref }}" \
+            --ignore-msi-with-no-mutations --min-covered-msi=75 \
+            --logger-github

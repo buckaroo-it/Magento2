@@ -44,6 +44,45 @@ class InvoiceAlreadyCapturedAmountTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertSame($invoice, $result);
     }
 
+    public function testAPaidFromCaptureInvoiceCannotBeVoidedAndIsCommented(): void
+    {
+        $captures = $this->makeCaptures(66.15, 'PLAZA_KEY');
+
+        $order = $this->makeOrder('buckaroo_magento2_klarnakp', false);
+        $order->expects($this->once())->method('addCommentToStatusHistory')->with(
+            'Buckaroo: invoiced EUR 66.15 from the amount already captured at Buckaroo (transaction PLAZA_KEY).'
+            . ' No new capture was requested.'
+        );
+
+        $invoice = $this->makeInvoice($order, 66.15);
+        $invoice->expects($this->once())->method('setCanVoidFlag')->with(false);
+
+        $this->plugin($captures)->aroundCapture($invoice, $this->failingProceed());
+    }
+
+    public function testTheInvoiceTotalIsComparedRoundedToCents(): void
+    {
+        $captures = $this->makeCaptures(66.15, 'PLAZA_KEY');
+        $captures->expects($this->once())->method('consume')->with($this->anything(), 66.15);
+
+        $invoice = $this->makeInvoice($this->makeOrder('buckaroo_magento2_klarnakp', true), 66.154);
+        $invoice->expects($this->once())->method('pay');
+
+        $this->plugin($captures)->aroundCapture($invoice, $this->failingProceed());
+    }
+
+    public function testAOneCentCaptureCoversAOneCentInvoice(): void
+    {
+        $captures = $this->makeCaptures(0.01, '');
+        $captures->expects($this->once())->method('consume')->with($this->anything(), 0.01);
+
+        $invoice = $this->makeInvoice($this->makeOrder('buckaroo_magento2_klarnakp', false), 0.01);
+        $invoice->expects($this->never())->method('setTransactionId');
+        $invoice->expects($this->once())->method('pay');
+
+        $this->plugin($captures)->aroundCapture($invoice, $this->failingProceed());
+    }
+
     public function testALaterShipmentStillCoveredIsAlsoPaidFromTheCapture(): void
     {
         $captures = $this->makeCaptures(14.00, 'PLAZA_KEY');
@@ -58,7 +97,7 @@ class InvoiceAlreadyCapturedAmountTest extends \Buckaroo\Magento2\Test\BaseTest
     public static function offlineInvoiceProvider(): array
     {
         return [
-            'offline invoice smaller than the capture uses part of it' => [34.00, 34.00, 34.00],
+            'offline invoice smaller than the capture uses part of it' => [34.00, 20.00, 20.00],
             'offline invoice larger than the capture uses all of it'    => [20.00, 34.00, 20.00],
         ];
     }
@@ -78,11 +117,44 @@ class InvoiceAlreadyCapturedAmountTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->assertSame($invoice, $this->plugin($captures)->afterRegister($invoice, $invoice));
     }
 
+    public static function offlineInvoiceEdgeProvider(): array
+    {
+        return [
+            'total rounded to cents before use' => [34.00, 20.064, '2', 20.06],
+            'one cent capture and invoice'      => [0.01, 0.01, 2, 0.01],
+        ];
+    }
+
+    /**
+     * @param int|string $state
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('offlineInvoiceEdgeProvider')]
+    public function testAnOfflineInvoiceEdgeCaseUsesUpTheEarlierCapture(
+        float $captured,
+        float $invoiceTotal,
+        $state,
+        float $used
+    ): void {
+        $captures = $this->makeCaptures($captured, 'PLAZA_KEY');
+        $captures->expects($this->once())->method('consume')->with($this->anything(), $used);
+
+        $invoice = $this->makeInvoice($this->makeOrder('buckaroo_magento2_klarnakp', true), $invoiceTotal);
+        $invoice->method('getData')->willReturnCallback(
+            static fn($key = '') => $key === 'requested_capture_case'
+                ? \Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE
+                : null
+        );
+        $invoice->method('getState')->willReturn($state);
+
+        $this->plugin($captures)->afterRegister($invoice, $invoice);
+    }
+
     public static function untouchedInvoiceProvider(): array
     {
         return [
             'online capture is handled by aroundCapture' => ['buckaroo_magento2_klarnakp', 'online', 2, 34.00],
-            'invoice not captured is not paid'           => ['buckaroo_magento2_klarnakp', 'not_capture', 1, 34.00],
+            'invoice not captured'                       => ['buckaroo_magento2_klarnakp', 'not_capture', 2, 34.00],
+            'offline invoice that is not paid'           => ['buckaroo_magento2_klarnakp', 'offline', 1, 34.00],
             'invoice that charges nothing'               => ['buckaroo_magento2_klarnakp', 'offline', 2, 0.00],
             'other payment provider'                     => ['checkmo', 'offline', 2, 34.00],
         ];
@@ -138,7 +210,7 @@ class InvoiceAlreadyCapturedAmountTest extends \Buckaroo\Magento2\Test\BaseTest
             return $invoiceMock;
         };
 
-        $this->plugin($captures)->aroundCapture($invoiceMock, $proceed);
+        $this->assertSame($invoiceMock, $this->plugin($captures)->aroundCapture($invoiceMock, $proceed));
 
         $this->assertSame(32.15, $remainderDuringCapture);
         $this->assertNull(

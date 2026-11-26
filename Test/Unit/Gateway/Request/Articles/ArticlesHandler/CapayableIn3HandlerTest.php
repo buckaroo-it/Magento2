@@ -23,9 +23,16 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * In3 is charged the sum of the article lines, so those lines must add up to the order total.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 class CapayableIn3HandlerTest extends \Buckaroo\Magento2\Test\BaseTest
 {
+    use ArticlesHandlerFixtures {
+        order as private fixtureOrder;
+        line as private fixtureLine;
+        payment as private fixturePayment;
+    }
+
     protected $instanceClass = CapayableIn3Handler::class;
 
     /**
@@ -48,6 +55,8 @@ class CapayableIn3HandlerTest extends \Buckaroo\Magento2\Test\BaseTest
             'a whole cent price is kept'     => [19.99, 19.99],
             'another whole cent price'       => [4.35, 4.35],
             'a sub-cent price is rounded down' => [19.9899, 19.98],
+            'four decimals below a cent are still rounded down' => [12.349996, 12.34],
+            'floating point noise below a cent is ignored' => [12.3499999, 12.35],
         ];
     }
 
@@ -165,6 +174,84 @@ class CapayableIn3HandlerTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->assertCount(1, $articles['articles']);
         $this->assertEqualsWithDelta(40.00, $this->sum($articles), 0.001);
+    }
+
+    public function testAnOrderSendsItsNettedItemsFeeShippingAndCredits(): void
+    {
+        $this->cart([
+            $this->quoteItem(['name' => 'Child', 'sku' => 'CHILD', 'qty' => '1.0000', 'parent_item_id' => 90,
+                'price_incl_tax' => 24.20, 'row_total_incl_tax' => 24.20, 'tax_percent' => '21.0000']),
+            $this->quoteItem(['name' => 'Shirt', 'sku' => 'SHIRT', 'qty' => '2.0000', 'price_incl_tax' => 24.20,
+                'row_total_incl_tax' => 48.40, 'tax_percent' => '21.0000', 'discount_amount' => 4.84]),
+            $this->quoteItem(['name' => 'Book', 'sku' => 'BOOK', 'qty' => '1.0000', 'price_incl_tax' => 10.90,
+                'row_total_incl_tax' => 10.90, 'tax_percent' => '9.0000']),
+        ]);
+        // 2 x 21.78 + 10.90 + 2.50 + 5.45 - 5.00
+        $order = $this->fixtureOrder(['grand_total' => 57.41, 'buckaroo_fee_incl_tax' => 2.50,
+            'shipping_incl_tax' => 5.45, 'gift_cards_amount' => 5.00]);
+
+        $this->assertSame(
+            ['articles' => [
+                ['identifier' => 'SHIRT', 'description' => 'Shirt', 'quantity' => '2.0000', 'price' => 21.78],
+                ['identifier' => 'BOOK', 'description' => 'Book', 'quantity' => '1.0000', 'price' => 10.9],
+                ['identifier' => 1, 'description' => 'Service Costs', 'quantity' => 1, 'price' => 2.5],
+                ['identifier' => 2, 'description' => 'Shipping fee', 'quantity' => 1, 'price' => 5.45],
+                ['identifier' => 6, 'description' => 'Discount Gift Card', 'quantity' => 1, 'price' => -5.0],
+            ]],
+            $this->in3()->getOrderArticlesData($order, $this->fixturePayment())
+        );
+    }
+
+    public function testAShortfallBeyondRoundingIsChargedInFull(): void
+    {
+        $this->cart([
+            $this->quoteItem(['name' => 'Shirt', 'sku' => 'SHIRT', 'qty' => 1, 'price_incl_tax' => 9.74,
+                'row_total_incl_tax' => 9.74, 'tax_percent' => '21.0000']),
+        ]);
+
+        $this->assertSame(
+            ['articles' => [
+                ['identifier' => 'SHIRT', 'description' => 'Shirt', 'quantity' => 1, 'price' => 9.74],
+                ['identifier' => 'adjustment', 'description' => 'Adjustment', 'quantity' => 1, 'price' => 0.26],
+            ]],
+            $this->in3()->getOrderArticlesData($this->fixtureOrder(['grand_total' => 10.00]), $this->fixturePayment())
+        );
+    }
+
+    public function testAFullOrderWithinOneCentIsAccepted(): void
+    {
+        $items = [];
+        for ($i = 1; $i <= AbstractArticlesHandler::MAX_ARTICLE_COUNT; $i++) {
+            $items[] = $this->quoteItem(['name' => 'P' . $i, 'sku' => 'P' . $i, 'qty' => 1,
+                'price_incl_tax' => 1.00, 'row_total_incl_tax' => 1.00, 'tax_percent' => '21.0000']);
+        }
+        $this->cart($items);
+
+        $articles = $this->in3()->getOrderArticlesData(
+            $this->fixtureOrder(['grand_total' => 99.01]),
+            $this->fixturePayment()
+        );
+
+        $this->assertCount(AbstractArticlesHandler::MAX_ARTICLE_COUNT, $articles['articles']);
+    }
+
+    public function testAPayRemainderIsOneLineForTheRemainingAmount(): void
+    {
+        $this->isPayRemainder = true;
+        $this->payRemainder = 12.344;
+
+        $this->assertSame(
+            ['articles' => [0 => ['identifier' => 1, 'description' => 'PayRemainder', 'quantity' => 1, 'price' => 12.34]]],
+            $this->in3()->getOrderArticlesData($this->fixtureOrder([]), $this->fixturePayment())
+        );
+    }
+
+    /**
+     * @return CapayableIn3Handler
+     */
+    private function in3(): CapayableIn3Handler
+    {
+        return new CapayableIn3Handler(...$this->handlerArgs());
     }
 
     /**

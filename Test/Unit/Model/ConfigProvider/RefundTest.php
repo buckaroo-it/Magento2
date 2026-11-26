@@ -16,6 +16,7 @@ namespace Buckaroo\Magento2\Test\Unit\Model\ConfigProvider;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Refund;
 
 class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -23,36 +24,49 @@ class RefundTest extends \Buckaroo\Magento2\Test\BaseTest
     protected $instanceClass = Refund::class;
 
     /**
-     * Test the getConfig method.
+     * @return array
      */
-    public function testGetConfig()
+    public static function storeProvider(): array
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->getMock();
-        $scopeConfigMock->method('getValue')->willReturn(null)
-            ->willReturn(false);
-
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getConfig();
-
-        $this->assertFalse($result['enabled']);
-        $this->assertFalse($result['allow_push']);
+        return [
+            'default scope' => [null],
+            'store id'      => [1],
+        ];
     }
 
     /**
-     * Test the getConfig method.
+     * Each config key is read from its own path in the requested store scope.
+     *
+     * @param int|null $store
      */
-    public function testGetConfigWithStoreId()
+    #[DataProvider('storeProvider')]
+    public function testGetConfig($store)
     {
-        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
-            ->getMock();
-        $scopeConfigMock->method('getValue')->willReturn(null)
-            ->willReturn(false);
+        $values = [
+            'buckaroo_magento2/refund/enabled'          => '1',
+            'buckaroo_magento2/refund/allow_push'       => '0',
+            'buckaroo_magento2/refund/pending_approval' => '2',
+        ];
+
+        $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)->getMock();
+        $scopeConfigMock->expects($this->exactly(3))->method('getValue')
+            ->willReturnCallback(function ($path, $scope, $scopeCode) use ($values, $store) {
+                $this->assertSame(ScopeInterface::SCOPE_STORE, $scope);
+                $this->assertSame($store, $scopeCode);
+                $this->assertArrayHasKey($path, $values);
+                return $values[$path];
+            });
 
         $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock]);
-        $result = $instance->getConfig(1);
+        $result = $instance->getConfig($store);
 
-        $this->assertFalse($result['enabled']);
-        $this->assertFalse($result['allow_push']);
+        $this->assertSame(
+            [
+                'enabled'          => '1',
+                'allow_push'       => '0',
+                'pending_approval' => '2',
+            ],
+            $result
+        );
     }
 }

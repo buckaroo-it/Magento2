@@ -80,20 +80,16 @@ class KlarnaKpInvoicedArticlesDataBuilderTest extends \Buckaroo\Magento2\Test\Ba
     {
         $articles = ['articles' => [
             ['identifier' => '24-WB01', 'quantity' => 1, 'price' => 19.36],
-        ]];
+            ['identifier' => '24-UG06', 'quantity' => 2, 'price' => 7.00],
+        ], 'shippingCosts' => 5.00];
 
-        $registry = $this->getFakeMock('Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry')
-            ->getMock();
-        $registry->method('sumArticles')->willReturn(19.36);
-        $registry->expects($this->once())
-            ->method('set')
-            ->with(
-                \Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry::CONTEXT_INVOICE,
-                '000000009',
-                19.36
-            );
+        $registry = new \Buckaroo\Magento2\Gateway\Request\Articles\ArticleTotalRegistry();
 
         $this->buildFor($articles, true, 1, $registry);
+
+        // 19.36 * 1 + 7.00 * 2 + 5.00 shipping
+        $this->assertSame(38.36, $registry->get('invoice', '000000009'));
+        $this->assertNull($registry->get('order', '000000009'));
     }
 
     /**

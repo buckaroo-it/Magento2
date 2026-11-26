@@ -12,11 +12,11 @@
  */
 declare(strict_types=1);
 
-
 namespace Buckaroo\Magento2\Test\Unit\Plugin;
 
 use Buckaroo\Magento2\Plugin\AbstractTransactionBuilderAfterGetUrl;
 use Buckaroo\Magento2\Service\CookieParamService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,9 +24,7 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractTransactionBuilderAfterGetUrlTest extends TestCase
 {
-    /**
-     * @dataProvider returnUrlProvider
-     */
+    #[DataProvider('returnUrlProvider')]
     public function testReturnUrl(string $url, string $params, string $expected): void
     {
         $service = $this->createMock(CookieParamService::class);

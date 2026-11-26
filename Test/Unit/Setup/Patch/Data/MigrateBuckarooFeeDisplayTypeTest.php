@@ -18,6 +18,7 @@ use Buckaroo\Magento2\Setup\Patch\Data\MigrateBuckarooFeeDisplayType;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,7 +35,7 @@ class MigrateBuckarooFeeDisplayTypeTest extends TestCase
                 ['scope' => 'websites', 'scope_id' => '1', 'value' => '4'],
                 ['scope' => 'stores', 'scope_id' => '3', 'value' => ''],
             ],
-            [false, false, false]
+            []
         );
 
         $inserted = [];
@@ -55,13 +56,23 @@ class MigrateBuckarooFeeDisplayTypeTest extends TestCase
         );
     }
 
-    public function testKeepsADisplaySettingThatAlreadyExists(): void
+    public function testKeepsADisplaySettingThatAlreadyExistsForThatScope(): void
     {
         $connection = $this->createConnection(
-            [['scope' => 'default', 'scope_id' => '0', 'value' => '2']],
-            ['17']
+            [
+                ['scope' => 'default', 'scope_id' => '0', 'value' => '2'],
+                ['scope' => 'stores', 'scope_id' => '3', 'value' => '2'],
+            ],
+            ['default/0']
         );
-        $connection->expects($this->never())->method('insert');
+        $connection->expects($this->once())
+            ->method('insert')
+            ->with('core_config_data', [
+                'scope'    => 'stores',
+                'scope_id' => 3,
+                'path'     => 'tax/sales_display/buckaroo_fee',
+                'value'    => '2',
+            ]);
 
         $this->createPatch($connection)->apply();
     }
@@ -75,16 +86,69 @@ class MigrateBuckarooFeeDisplayTypeTest extends TestCase
         $this->createPatch($connection)->apply();
     }
 
-    private function createConnection(array $taxClassRows, array $existingDisplayRows): AdapterInterface
+    /**
+     * Answers the tax class lookup with $taxClassRows and the per-scope display lookup with a
+     * config id when "scope/scope_id" is listed in $existingDisplayScopes. Any other query fails.
+     *
+     * @param array $taxClassRows
+     * @param array $existingDisplayScopes
+     *
+     * @return AdapterInterface|MockObject
+     */
+    private function createConnection(array $taxClassRows, array $existingDisplayScopes): AdapterInterface
     {
-        $select = $this->createMock(Select::class);
-        $select->method('from')->willReturnSelf();
-        $select->method('where')->willReturnSelf();
-
+        $queries = [];
         $connection = $this->createMock(AdapterInterface::class);
-        $connection->method('select')->willReturn($select);
-        $connection->method('fetchAll')->willReturn($taxClassRows);
-        $connection->method('fetchOne')->willReturnOnConsecutiveCalls(...$existingDisplayRows);
+        $connection->method('select')->willReturnCallback(function () use (&$queries) {
+            $select = $this->createMock(Select::class);
+            $id = spl_object_id($select);
+            $queries[$id] = ['from' => null, 'where' => []];
+            $select->method('from')->willReturnCallback(function ($table, $cols) use ($select, $id, &$queries) {
+                $queries[$id]['from'] = [$table, $cols];
+                return $select;
+            });
+            $select->method('where')->willReturnCallback(
+                function ($cond, $value = null) use ($select, $id, &$queries) {
+                    $queries[$id]['where'][] = [$cond, $value];
+                    return $select;
+                }
+            );
+            return $select;
+        });
+
+        $connection->method('fetchAll')->willReturnCallback(function ($select) use (&$queries, $taxClassRows) {
+            $this->assertSame(
+                [
+                    'from' => ['core_config_data', ['scope', 'scope_id', 'value']],
+                    'where' => [['path = ?', 'buckaroo_magento2/account/buckaroo_fee_tax_class']],
+                ],
+                $queries[spl_object_id($select)]
+            );
+            return $taxClassRows;
+        });
+
+        // One display lookup per tax class row, for that row's own scope
+        $expectedLookups = array_map(function (array $row) {
+            return [$row['scope'], (int)$row['scope_id']];
+        }, $taxClassRows);
+        $connection->expects($this->exactly(count($taxClassRows)))
+            ->method('fetchOne')
+            ->willReturnCallback(function ($select) use (&$queries, &$expectedLookups, $existingDisplayScopes) {
+                [$scope, $scopeId] = array_shift($expectedLookups);
+                $this->assertSame(
+                    [
+                        'from' => ['core_config_data', ['config_id']],
+                        'where' => [
+                            ['path = ?', 'tax/sales_display/buckaroo_fee'],
+                            ['scope = ?', $scope],
+                            ['scope_id = ?', $scopeId],
+                        ],
+                    ],
+                    $queries[spl_object_id($select)]
+                );
+
+                return in_array($scope . '/' . $scopeId, $existingDisplayScopes, true) ? '17' : false;
+            });
 
         return $connection;
     }

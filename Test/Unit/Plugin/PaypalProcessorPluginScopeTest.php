@@ -27,14 +27,23 @@ use PHPUnit\Framework\TestCase;
 class PaypalProcessorPluginScopeTest extends TestCase
 {
     #[DataProvider('eligibilityProvider')]
-    public function testEligibilityStatusIsReadInTheOrderStore(string $type, string $method): void
-    {
+    public function testEligibilityStatusIsReadInTheOrderStore(
+        string $type,
+        string $method,
+        string $configuredStatus,
+        string $expectedComment,
+        $expectedStatus
+    ): void {
         $order = $this->createMock(Order::class);
         $order->method('getStoreId')->willReturn('2');
-        $order->expects($this->once())->method('addCommentToStatusHistory');
+        $order->expects($this->once())->method('addCommentToStatusHistory')
+            ->with(
+                $this->callback(static fn($comment) => (string)$comment === $expectedComment),
+                $this->identicalTo($expectedStatus)
+            );
 
         $config = $this->createMock(Paypal::class);
-        $config->expects($this->once())->method($method)->with(2)->willReturn('holded');
+        $config->expects($this->once())->method($method)->with(2)->willReturn($configuredStatus);
 
         $plugin = $this->getMockBuilder(PaypalProcessorPlugin::class)
             ->setConstructorArgs([$config])
@@ -42,17 +51,48 @@ class PaypalProcessorPluginScopeTest extends TestCase
             ->getMock();
 
         $handle = new \ReflectionMethod(PaypalProcessorPlugin::class, 'handleEligibilityType');
-        $handle->setAccessible(true);
         $handle->invoke($plugin, $type, $order);
     }
 
     public static function eligibilityProvider(): array
     {
         return [
-            'eligible'             => [PaypalProcessorPlugin::ELIGIBILITY_TYPE_ELIGIBLE, 'getSellersProtectionEligible'],
-            'item not received'    => [PaypalProcessorPlugin::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED, 'getSellersProtectionItemnotreceivedEligible'],
-            'unauthorized payment' => [PaypalProcessorPlugin::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT, 'getSellersProtectionUnauthorizedpaymentEligible'],
-            'none'                 => [PaypalProcessorPlugin::ELIGIBILITY_TYPE_NONE, 'getSellersProtectionIneligible'],
+            'eligible' => [
+                PaypalProcessorPlugin::ELIGIBILITY_TYPE_ELIGIBLE,
+                'getSellersProtectionEligible',
+                'holded',
+                'Merchant is protected by PayPal Seller Protection Policy for both Unauthorized Payment and Item'
+                . ' Not Received.',
+                'holded',
+            ],
+            'item not received' => [
+                PaypalProcessorPlugin::ELIGIBILITY_TYPE_ITEM_NOT_RECEIVED,
+                'getSellersProtectionItemnotreceivedEligible',
+                'processing',
+                'Merchant is protected by Paypal Seller Protection Policy for Item Not Received.',
+                'processing',
+            ],
+            'unauthorized payment' => [
+                PaypalProcessorPlugin::ELIGIBILITY_TYPE_UNAUTHORIZED_PAYMENT,
+                'getSellersProtectionUnauthorizedpaymentEligible',
+                'payment_review',
+                'Merchant is protected by Paypal Seller Protection Policy for Unauthorized Payment.',
+                'payment_review',
+            ],
+            'none' => [
+                PaypalProcessorPlugin::ELIGIBILITY_TYPE_NONE,
+                'getSellersProtectionIneligible',
+                'fraud',
+                'Merchant is not protected under the Seller Protection Policy.',
+                'fraud',
+            ],
+            'no status configured keeps the current status' => [
+                PaypalProcessorPlugin::ELIGIBILITY_TYPE_NONE,
+                'getSellersProtectionIneligible',
+                '',
+                'Merchant is not protected under the Seller Protection Policy.',
+                false,
+            ],
         ];
     }
 }

@@ -15,7 +15,7 @@
 namespace Buckaroo\Magento2\Test\Unit\Model\Config\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\Config\Backend\Price;
 
 class PriceTest extends \Buckaroo\Magento2\Test\BaseTest
@@ -23,51 +23,58 @@ class PriceTest extends \Buckaroo\Magento2\Test\BaseTest
     protected $instanceClass = Price::class;
 
     /**
-     * Test what happens when a empty value is provided.
+     * @return array
      */
-    public function testEmptyValue()
+    public static function acceptedValueProvider(): array
     {
-        $resourceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AbstractResourceStub::class)
-            ->onlyMethods(['save'])->getMock();
-        $resourceMock->method('save');
-
-        $instance = $this->getInstance(['resource' => $resourceMock]);
-        $instance->setValue("10");
-
-        $result = $instance->save();
-        $this->assertInstanceOf(Price::class, $result);
+        return [
+            'empty string' => [''],
+            'null'         => [null],
+            'integer string' => ['10'],
+            'decimal float' => [10.42],
+            'decimal string' => ['10.42'],
+        ];
     }
 
     /**
-     * Test what happens when there is a valid value is provided.
+     * Empty and numeric values are passed to the resource unchanged.
+     *
+     *
+     * @param mixed $value
      *
      * @throws LocalizedException
      */
-    public function testValidValue()
+    #[DataProvider('acceptedValueProvider')]
+    public function testAcceptedValueIsSavedUnchanged($value)
     {
         $resourceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AbstractResourceStub::class)
             ->onlyMethods(['save'])->getMock();
-        $resourceMock->method('save');
 
         $instance = $this->getInstance(['resource' => $resourceMock]);
-        $instance->setValue(10.42);
+        $instance->setValue($value);
+
+        $resourceMock->expects($this->once())->method('save')->with($this->identicalTo($instance));
 
         $result = $instance->save();
-        $this->assertInstanceOf(Price::class, $result);
+        $this->assertSame($instance, $result);
+        $this->assertSame($value, $instance->getValue());
     }
 
     /**
-     * Test what happens when an invalid value is provided.
+     * A non numeric value is rejected and never reaches the resource.
      */
     public function testInvalidValue()
     {
-        $instance = $this->getInstance();
+        $resourceMock = $this->getFakeMock(\Buckaroo\Magento2\Test\Unit\Stubs\AbstractResourceStub::class)
+            ->onlyMethods(['save'])->getMock();
+        $resourceMock->expects($this->never())->method('save');
+
+        $instance = $this->getInstance(['resource' => $resourceMock]);
         $instance->setValue("invalid value");
 
-        try {
-            $instance->save();
-        } catch (LocalizedException $e) {
-            $this->assertEquals("Please enter a valid number: 'invalid value'.", $e->getMessage());
-        }
+        $this->expectException(LocalizedException::class);
+        $this->expectExceptionMessage("Please enter a valid number: 'invalid value'.");
+
+        $instance->save();
     }
 }

@@ -1,0 +1,55 @@
+{
+    // Mutation testing: https://infection.github.io
+    // Run from this directory inside a Magento project (vendor/ four levels up), with pcov or xdebug:
+    //   infection --threads=max --only-covering-test-cases
+    // Only the lines changed against develop (as in CI):
+    //   infection --threads=max --only-covering-test-cases --git-diff-lines --git-diff-base=origin/develop --min-covered-msi=75
+    // A mutant that cannot change behaviour can be skipped with a "@infection-ignore-all" comment above the line.
+    "$schema": "https://raw.githubusercontent.com/infection/infection/0.35.12/resources/schema.json",
+    "source": {
+        "directories": [
+            "Api",
+            "Block",
+            "Controller",
+            "Cron",
+            "Gateway",
+            "Helper",
+            "Logging",
+            "Model",
+            "Observer",
+            "Plugin",
+            "Service",
+            "Setup",
+            "Ui",
+            "ViewModel",
+            "Webapi"
+        ],
+        "excludes": ["Test"]
+    },
+    "phpUnit": {
+        "configDir": ".",
+        "customPath": "../../../../vendor/phpunit/phpunit/phpunit"
+    },
+    "bootstrap": "Test/Bootstrap.php",
+    "initialTestsPhpOptions": "-d memory_limit=-1",
+    "testFrameworkOptions": "--do-not-cache-result",
+    "timeout": 30,
+    "logs": {
+        "summary": "php://stdout"
+    },
+    "mutators": {
+        // Removing or changing a log line is not a behaviour change
+        "global-ignoreSourceCodeByRegex": [
+            ".*->logger->.*",
+            ".*->addDebug\\(.*",
+            ".*->addError\\(.*",
+            ".*->addWarning\\(.*",
+            ".*->log\\(.*",
+            ".*sprintf\\('\\[.*"
+        ],
+        "@default": true,
+        // Magento plugins, preferences and subclasses rely on protected/public methods
+        "ProtectedVisibility": false,
+        "PublicVisibility": false
+    }
+}

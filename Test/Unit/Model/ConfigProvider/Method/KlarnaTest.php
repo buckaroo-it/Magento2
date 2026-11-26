@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\AbstractConfigProvider;
 use Magento\Store\Model\ScopeInterface;
 use Buckaroo\Magento2\Helper\PaymentFee;
+use Buckaroo\Magento2\Service\LogoService;
 use Buckaroo\Magento2\Test\BaseTest;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\Klarnakp;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
@@ -26,71 +27,115 @@ class KlarnaTest extends BaseTest
 {
     protected $instanceClass = Klarnakp::class;
 
+    /**
+     * Prefix config fields with this method's config path.
+     *
+     * @param array $fields
+     *
+     * @return array
+     */
+    private static function configValues(array $fields): array
+    {
+        $values = [];
+        foreach ($fields as $field => $value) {
+            $values['payment/buckaroo_magento2_klarnakp/' . $field] = $value;
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array
+     */
     public static function getConfigProvider()
     {
         return [
-            'active' => [
-                true,
-                [
-                    'payment' => [
-                        'buckaroo' => [
-                            'klarnakp' => [
-                                'sendEmail' => true,
-                                'paymentFeeLabel' => 'Fee',
-                                'allowedCurrencies' => ['EUR'],
-                                'businessMethod' => null,
-                                'paymentMethod' => null,
-                                'paymentFee' => 0
-                            ],
-                            'response' => []
-                        ]
-                    ]
-                ]
+            'active live, financial warning on' => [
+                self::configValues([
+                    'active'             => '2',
+                    'title'              => 'Klarna',
+                    'subtext'            => 'Pay with Klarna',
+                    'display_subtext'    => '1',
+                    'subtext_style'      => 'italic',
+                    'subtext_color'      => '#336699',
+                    'allowed_currencies' => 'EUR,USD',
+                    'financial_warning'  => '1',
+                    ]),
+                ['payment' => ['buckaroo' => ['buckaroo_magento2_klarnakp' => [
+                    'paymentFeeLabel'   => 'Fee',
+                    'title'             => 'Klarna',
+                    'subtext'           => 'Pay with Klarna',
+                    'display_subtext'   => true,
+                    'subtext_style'     => 'italic',
+                    'subtext_color'     => '#336699',
+                    'allowedCurrencies' => ['EUR', 'USD'],
+                    'isTestMode'        => false,
+                    'logo'              => 'klarnakp.svg',
+                    'showFinancialWarning' => true,
+                ]]]],
+            ],
+            'active test mode, financial warning off' => [
+                self::configValues([
+                    'active'             => '1',
+                    'title'              => 'Klarna',
+                    'subtext'            => 'Pay with Klarna',
+                    'display_subtext'    => '1',
+                    'subtext_style'      => 'italic',
+                    'subtext_color'      => '#336699',
+                    'allowed_currencies' => 'EUR,USD',
+                    'financial_warning'  => '0',
+                    ]),
+                ['payment' => ['buckaroo' => ['buckaroo_magento2_klarnakp' => [
+                    'paymentFeeLabel'   => 'Fee',
+                    'title'             => 'Klarna',
+                    'subtext'           => 'Pay with Klarna',
+                    'display_subtext'   => true,
+                    'subtext_style'     => 'italic',
+                    'subtext_color'     => '#336699',
+                    'allowedCurrencies' => ['EUR', 'USD'],
+                    'isTestMode'        => true,
+                    'logo'              => 'klarnakp.svg',
+                    'showFinancialWarning' => false,
+                ]]]],
             ],
             'inactive' => [
-                false,
-                []
-            ]
+                self::configValues(['active' => '0', 'title' => 'Not shown']),
+                [],
+            ],
         ];
     }
 
     /**
-     * @param $active
-     * @param $expected
+     * The checkout config holds every configured value under the method code; inactive methods add nothing.
      *
+     * @param array $configValues
+     * @param array $expected
      */
     #[DataProvider('getConfigProvider')]
-    public function testGetConfig($active, $expected)
+    public function testGetConfig(array $configValues, array $expected)
     {
         $scopeConfigMock = $this->getFakeMock(ScopeConfigInterface::class)
             ->getMock();
-
-        if ($active) {
-            $scopeConfigMock->method('getValue')
-                ->willReturnOnConsecutiveCalls(true, 'Fee', 'EUR', null, null, 0, true, 1, 'Test message', 0);
-        } else {
-            $scopeConfigMock->method('getValue')
-                ->willReturnOnConsecutiveCalls(false, 'Fee', 'EUR', null, null, 0, true, 1, 'Test message', 0);
-        }
+        $scopeConfigMock->method('getValue')
+            ->willReturnCallback(function ($path, $scope, $scopeCode) use ($configValues) {
+                $this->assertSame(ScopeInterface::SCOPE_STORE, $scope);
+                $this->assertNull($scopeCode);
+                return $configValues[$path] ?? null;
+            });
 
         $paymentFeeMock = $this->getFakeMock(PaymentFee::class)->onlyMethods(['getBuckarooPaymentFeeLabel'])->getMock();
-        if ($active) {
-            $paymentFeeMock->expects($this->once())->method('getBuckarooPaymentFeeLabel');
-        } else {
-            $paymentFeeMock->expects($this->never())->method('getBuckarooPaymentFeeLabel');
-        }
+        $paymentFeeMock->method('getBuckarooPaymentFeeLabel')->willReturn('Fee');
 
-        $instance = $this->getInstance(['scopeConfig' => $scopeConfigMock, 'paymentFeeHelper' => $paymentFeeMock]);
-        $result = $instance->getConfig();
+        $logoServiceMock = $this->getFakeMock(LogoService::class)->onlyMethods(['getPayment'])->getMock();
+        $logoServiceMock->method('getPayment')->with('klarnakp')->willReturn('klarnakp.svg');
 
-        // Add assertion to verify the method execution
-        $this->assertIsArray($result, 'getConfig should return an array');
+        $instance = $this->getInstance([
+            'scopeConfig' => $scopeConfigMock,
+            'paymentFeeHelper' => $paymentFeeMock,
+            'logoService' => $logoServiceMock,
+        ]);
 
-        if ($active) {
-            $this->assertArrayHasKey('payment', $result, 'Config should contain payment key when active');
-        } else {
-            $this->assertEquals($expected, $result, 'Config should match expected result when inactive');
-        }
+        $this->assertSame($expected, $instance->getConfig());
     }
 
     public static function getPaymentFeeProvider()

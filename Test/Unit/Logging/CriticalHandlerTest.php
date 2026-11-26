@@ -11,30 +11,75 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   MIT
  */
+declare(strict_types=1);
 
 namespace Buckaroo\Magento2\Test\Unit\Logging;
 
-use Monolog\Logger;
 use Buckaroo\Magento2\Logging\CriticalHandler;
-use Buckaroo\Magento2\Test\BaseTest;
+use Magento\Framework\Filesystem\DriverInterface;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
-class CriticalHandlerTest extends BaseTest
+class CriticalHandlerTest extends TestCase
 {
-    protected $instanceClass = CriticalHandler::class;
+    use CreatesLogRecords;
 
-    public function testLoggerType()
+    /**
+     * @var string
+     */
+    private $logFile;
+
+    protected function setUp(): void
     {
-        $instance = $this->getInstance();
-        $property = $this->getProperty('loggerType', $instance);
-
-        $this->assertEquals(Logger::CRITICAL, $property);
+        $this->logFile = sys_get_temp_dir() . '/buckaroo-critical-handler-' . uniqid('', true) . '.log';
     }
 
-    public function testFileName()
+    protected function tearDown(): void
     {
-        $instance = $this->getInstance();
-        $property = $this->getProperty('fileName', $instance);
+        if (is_file($this->logFile)) {
+            unlink($this->logFile);
+        }
+    }
 
-        $this->assertEquals('/var/log/Buckaroo/critical.log', $property);
+    public function testLogsToTheBuckarooCriticalLog(): void
+    {
+        $handler = new CriticalHandler($this->createMock(DriverInterface::class));
+
+        $this->assertStringStartsWith(BP . '/', $handler->getUrl());
+        $this->assertStringEndsWith('/var/log/Buckaroo/critical.log', $handler->getUrl());
+    }
+
+    /**
+     * @return array
+     */
+    public static function levelProvider(): array
+    {
+        return [
+            'debug'     => [Logger::DEBUG, false],
+            'error'     => [Logger::ERROR, false],
+            'critical'  => [Logger::CRITICAL, true],
+            'emergency' => [Logger::EMERGENCY, true],
+        ];
+    }
+
+    #[DataProvider('levelProvider')]
+    public function testOnlyWritesCriticalAndMoreSevereRecords(int $level, bool $written): void
+    {
+        $filesystem = $this->createMock(DriverInterface::class);
+        $filesystem->method('getParentDirectory')->willReturnCallback('dirname');
+        $filesystem->method('isDirectory')->willReturn(true);
+
+        $handler = new CriticalHandler($filesystem);
+        // Write to a temporary file instead of the shop's log directory
+        (new \ReflectionProperty(StreamHandler::class, 'url'))->setValue($handler, $this->logFile);
+
+        $handler->handle($this->createRecord($level, 'level message'));
+
+        $this->assertSame(
+            $written,
+            is_file($this->logFile) && strpos((string)file_get_contents($this->logFile), 'level message') !== false
+        );
     }
 }

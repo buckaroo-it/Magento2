@@ -177,6 +177,74 @@ class IsCaptureTransactionTest extends \Buckaroo\Magento2\Test\BaseTest
     }
 
     /**
+     * Each condition of a Plaza capture on its own keeps the push from counting as a capture.
+     *
+     * @param array $override
+     */
+    #[DataProvider('notAPlazaCaptureProvider')]
+    public function testNotAPlazaCapture(array $override): void
+    {
+        $case = $override + [
+            'transactions' => 'CAPTURE-KEY',
+            'authorization' => 'AUTH-KEY',
+            'state' => Order::STATE_PROCESSING,
+            'totalDue' => 45.0,
+            'statusCode' => BuckarooStatusCode::SUCCESS,
+            'mutationType' => 'Collecting',
+            'paymentAction' => 'authorize',
+        ];
+
+        $instance = $this->getInstance();
+        $this->setProperty('pushRequest', $this->createPushRequest([
+            'additional' => [['initiated_by_magento', 1], ['service_action_from_magento', 'authorize']],
+            'method' => 'visa',
+            'transactionType' => 'C800',
+            'mutationType' => $case['mutationType'],
+            'transactions' => $case['transactions'],
+            'statusCode' => $case['statusCode'],
+        ]), $instance);
+
+        $order = $this->getFakeMock(Order::class)->getMock();
+        $order->method('getState')->willReturn($case['state']);
+        $order->method('getTotalDue')->willReturn($case['totalDue']);
+
+        $method = $this->getFakeMock(\Magento\Payment\Model\MethodInterface::class)->getMock();
+        $method->method('getConfigData')->willReturn($case['paymentAction']);
+
+        $payment = $this->getFakeMock(Payment::class)->getMock();
+        $payment->method('getMethodInstance')->willReturn($method);
+        $payment->method('getAdditionalInformation')->willReturn($case['authorization']);
+
+        $this->setProperty('order', $order, $instance);
+        $this->setProperty('payment', $payment, $instance);
+
+        $this->assertFalse($this->invoke('isCaptureTransaction', $instance));
+    }
+
+    public static function notAPlazaCaptureProvider(): array
+    {
+        return [
+            'no capture key' => [['transactions' => null]],
+            'no authorization key' => [['authorization' => null]],
+            'same key as the authorization' => [['transactions' => 'AUTH-KEY']],
+            'order not processing' => [['state' => Order::STATE_NEW]],
+            'nothing due' => [['totalDue' => 0.0]],
+            'failed' => [['statusCode' => BuckarooStatusCode::FAILED]],
+            'not collecting' => [['mutationType' => 'Processing']],
+            'payment action order' => [['paymentAction' => 'order']],
+        ];
+    }
+
+    public function testWithoutPaymentNoPlazaCaptureIsDetected(): void
+    {
+        $instance = $this->getInstance();
+        $this->setProperty('pushRequest', $this->createPushRequest(['transactions' => 'CAPTURE-KEY']), $instance);
+        $this->setProperty('order', $this->getFakeMock(Order::class)->getMock(), $instance);
+
+        $this->assertFalse($this->invoke('isCaptureTransaction', $instance));
+    }
+
+    /**
      * Bank transfer has no authorize/capture flow, so no transfer push may enter the capture branch,
      * not even one carrying capture markers.
      */

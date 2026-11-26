@@ -22,9 +22,15 @@ class PaymentTest extends BaseTest
 {
     protected $instanceClass = Payment::class;
 
+    /**
+     * @var \Magento\Framework\ObjectManagerInterface|null
+     */
+    private $previousObjectManager;
+
     public function setUp(): void
     {
         parent::setUp();
+        $this->previousObjectManager = $this->objectManagerInstance()->getValue();
         // Payment's parent (Config Fieldset) pulls SecureHtmlRenderer from the
         // global ObjectManager because Payment::__construct does not forward it.
         $objectManager = $this->createMock(\Magento\Framework\ObjectManagerInterface::class);
@@ -34,9 +40,20 @@ class PaymentTest extends BaseTest
         \Magento\Framework\App\ObjectManager::setInstance($objectManager);
     }
 
+    protected function tearDown(): void
+    {
+        // Put back whatever global ObjectManager other tests in the run were using.
+        $this->objectManagerInstance()->setValue(null, $this->previousObjectManager);
+        parent::tearDown();
+    }
+
+    private function objectManagerInstance(): \ReflectionProperty
+    {
+        return new \ReflectionProperty(\Magento\Framework\App\ObjectManager::class, '_instance');
+    }
+
     public function testIsCollapseState()
     {
-
         $instance = $this->getInstance();
 
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
@@ -47,13 +64,11 @@ class PaymentTest extends BaseTest
 
     public function testGetHeaderCommentHtml()
     {
-
         $instance = $this->getInstance();
 
         $elementMock = $this->getFakeMock(AbstractElement::class)->getMock();
 
         $result = $this->invokeArgs('_getHeaderCommentHtml', [$elementMock], $instance);
-        $this->assertIsString($result);
-        $this->assertEquals(0, strlen($result));
+        $this->assertSame('', $result);
     }
 }

@@ -54,7 +54,18 @@ class ArticlesHandlerMapTest extends TestCase
 
     public function testEveryConfiguredHandlerClassExists(): void
     {
-        foreach ($this->getConfiguredHandlers() as $method => $class) {
+        $handlers = $this->getConfiguredHandlers();
+
+        $this->assertSame(
+            [
+                'default', 'afterpay', 'afterpay2', 'afterpay20', 'capayablein3',
+                'zakelijkoprekening', 'billink', 'klarnakp',
+            ],
+            array_keys($handlers),
+            'Unexpected set of configured article handlers'
+        );
+
+        foreach ($handlers as $method => $class) {
             $this->assertTrue(class_exists($class), sprintf('Handler for "%s" does not exist: %s', $method, $class));
         }
     }

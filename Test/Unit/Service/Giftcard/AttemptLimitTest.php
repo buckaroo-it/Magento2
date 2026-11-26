@@ -19,6 +19,7 @@ use Buckaroo\Magento2\Service\Giftcard\AttemptLimit;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Payment;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -54,29 +55,66 @@ class AttemptLimitTest extends TestCase
         $this->service = new AttemptLimit($this->cartRepositoryMock);
     }
 
-    public function testAllowsRequestBelowTheLimit(): void
+    public function testAllowsTenFailedAttemptsPerQuoteAndRefusesTheEleventh(): void
     {
-        // Arrange
+        // The counter is stored on the quote payment; a fresh quote has none
+        $stored = null;
         $this->paymentMock->method('getAdditionalInformation')
             ->with('buckaroo_giftcard_failed_attempts')
-            ->willReturn(AttemptLimit::MAX_ATTEMPTS - 1);
+            ->willReturnCallback(function () use (&$stored) {
+                return $stored;
+            });
+        $this->paymentMock->method('setAdditionalInformation')
+            ->willReturnCallback(function ($key, $value) use (&$stored) {
+                $this->assertSame('buckaroo_giftcard_failed_attempts', $key);
+                $stored = $value;
+                return $this->paymentMock;
+            });
 
-        // Act + Assert (no exception)
-        $this->service->assertWithinLimit($this->quoteMock);
-        $this->addToAssertionCount(1);
+        $allowed = 0;
+        $refusal = null;
+        while ($allowed < 20) {
+            try {
+                $this->service->assertWithinLimit($this->quoteMock);
+            } catch (ApiException $e) {
+                $refusal = $e;
+                break;
+            }
+            $allowed++;
+            $this->service->registerFailedAttempt($this->quoteMock);
+        }
+
+        $this->assertSame(10, $allowed);
+        $this->assertSame(10, $stored);
+        $this->assertInstanceOf(ApiException::class, $refusal);
+        $this->assertSame('Too many giftcard attempts. Please try again later.', $refusal->getMessage());
     }
 
-    public function testRejectsRequestAtTheLimit(): void
+    /**
+     * @return array
+     */
+    public static function refusedCountProvider(): array
     {
-        // Arrange
+        return [
+            'ten failures'                => [10],
+            'eleven failures'             => [11],
+            'ten failures stored as text' => ['10'],
+        ];
+    }
+
+    /**
+     * @param int|string $failedAttempts
+     */
+    #[DataProvider('refusedCountProvider')]
+    public function testRefusesOnceTenAttemptsFailed($failedAttempts): void
+    {
         $this->paymentMock->method('getAdditionalInformation')
             ->with('buckaroo_giftcard_failed_attempts')
-            ->willReturn(AttemptLimit::MAX_ATTEMPTS);
+            ->willReturn($failedAttempts);
 
-        // Assert
         $this->expectException(ApiException::class);
+        $this->expectExceptionMessage('Too many giftcard attempts. Please try again later.');
 
-        // Act
         $this->service->assertWithinLimit($this->quoteMock);
     }
 
@@ -97,17 +135,5 @@ class AttemptLimitTest extends TestCase
 
         // Act
         $this->service->registerFailedAttempt($this->quoteMock);
-    }
-
-    public function testTreatsMissingCounterAsZero(): void
-    {
-        // Arrange
-        $this->paymentMock->method('getAdditionalInformation')
-            ->with('buckaroo_giftcard_failed_attempts')
-            ->willReturn(null);
-
-        // Act + Assert (no exception on a fresh quote)
-        $this->service->assertWithinLimit($this->quoteMock);
-        $this->addToAssertionCount(1);
     }
 }

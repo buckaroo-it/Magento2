@@ -22,9 +22,16 @@ use Buckaroo\Magento2\Test\BaseTest;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Quote\Api\Data\ShippingInterface;
+use Magento\Store\Model\Store;
+use Buckaroo\Magento2\Model\ConfigProvider\BuckarooFee as BuckarooFeeConfigProvider;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class BuckarooFeeTest extends BaseTest
 {
     /**
@@ -106,23 +113,66 @@ class BuckarooFeeTest extends BaseTest
         $this->assertSame($instance, $instance->collect($quote, $shippingAssignment, $total));
     }
 
+    /**
+     * A chargeable fee is added to the address as a taxable item in the quote store's currency,
+     * after any taxables already present.
+     */
     public function testCollectAddsFeeTaxableForPositiveFee(): void
     {
-        // Reaching the conversion proves the fee is fed to addAssociatedTaxable; stop there to avoid
-        // running the full parent tax collection.
+        $store = $this->getFakeMock(Store::class)->getMock();
+
         $priceCurrency = $this->getFakeMock(PriceCurrencyInterface::class, true);
         $priceCurrency->expects($this->once())
             ->method('convert')
-            ->with(1.5)
-            ->willThrowException(new \LogicException('fee taxable reached'));
+            ->with(1.5, $store)
+            ->willReturn(3.0);
+
+        $existingTaxable = ['type' => 'other', 'code' => 'other_code'];
+        // Address whose magic get/set calls read and write a plain array
+        $addressData = ['associated_taxables' => [$existingTaxable]];
+        $address = $this->getFakeMock(QuoteAddress::class)->onlyMethods(['getData', 'setData'])->getMock();
+        $address->method('getData')->willReturnCallback(function ($key = '') use (&$addressData) {
+            return $addressData[$key] ?? null;
+        });
+        $address->method('setData')->willReturnCallback(function ($key, $value = null) use (&$addressData, $address) {
+            $addressData[$key] = $value;
+            return $address;
+        });
+
+        $shipping = $this->getFakeMock(ShippingInterface::class, true);
+        $shipping->method('getAddress')->willReturn($address);
 
         $shippingAssignment = $this->getFakeMock(ShippingAssignmentInterface::class, true);
         $shippingAssignment->method('getItems')->willReturn([new \stdClass()]);
+        $shippingAssignment->method('getShipping')->willReturn($shipping);
 
-        [$instance, $quote, $total] = $this->buildCollector($this->createFeeResult(1.5), $priceCurrency);
+        // 1.499 is charged as its rounded amount 1.50
+        [$instance, $quote, $total] = $this->buildCollector($this->createFeeResult(1.499), $priceCurrency);
+        $quote->method('getStore')->willReturn($store);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('fee taxable reached');
-        $instance->collect($quote, $shippingAssignment, $total);
+        $feeConfig = $this->getFakeMock(BuckarooFeeConfigProvider::class)
+            ->onlyMethods(['getBuckarooFeeTaxClass'])
+            ->getMock();
+        $feeConfig->expects($this->once())->method('getBuckarooFeeTaxClass')->with($store)->willReturn('7');
+        $this->setProperty('configProviderBuckarooFee', $feeConfig, $instance);
+
+        $this->assertSame($instance, $instance->collect($quote, $shippingAssignment, $total));
+
+        $this->assertSame(
+            [
+                $existingTaxable,
+                [
+                    'type'                 => 'buckaroo_fee_tax',
+                    'code'                 => 'buckaroo_fee_tax',
+                    'unit_price'           => 3.0,
+                    'base_unit_price'      => 1.5,
+                    'quantity'             => 1,
+                    'tax_class_id'         => '7',
+                    'price_includes_tax'   => false,
+                    'associated_item_code' => 'quote',
+                ],
+            ],
+            $addressData['associated_taxables']
+        );
     }
 }

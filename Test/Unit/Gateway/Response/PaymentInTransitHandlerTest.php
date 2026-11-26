@@ -32,39 +32,56 @@ class PaymentInTransitHandlerTest extends AbstractResponseHandlerTest
     }
 
     /**
+     * The flag is first set to true; without a redirect it is cleared to false again.
      *
-     * @param bool $hasRedirect
-     * @param bool $inTransit
+     * @param bool  $hasRedirect
+     * @param array $expectedCalls
      */
     #[DataProvider('handleDataProvider')]
-    public function testHandle(bool $hasRedirect, bool $inTransit)
+    public function testHandle(bool $hasRedirect, array $expectedCalls): void
     {
         $this->transactionResponse
             ->method('hasRedirect')
             ->willReturn($hasRedirect);
 
-        if (!$hasRedirect) {
-            $this->orderPaymentMock
-                ->expects($this->atMost(2))
-                ->method('setAdditionalInformation')
-                ->with(PaymentInTransitHandler::BUCKAROO_PAYMENT_IN_TRANSIT, $this->logicalOr($inTransit, false));
-        } else {
-            $this->orderPaymentMock
-                ->method('setAdditionalInformation')
-                ->with(PaymentInTransitHandler::BUCKAROO_PAYMENT_IN_TRANSIT, $inTransit);
-        }
+        $calls = [];
+        $this->orderPaymentMock
+            ->expects($this->exactly(count($expectedCalls)))
+            ->method('setAdditionalInformation')
+            ->willReturnCallback(function ($key, $value) use (&$calls) {
+                $calls[] = [$key, $value];
+                return $this->orderPaymentMock;
+            });
 
         $this->paymentInTransitHandler->handle(
             ['payment' => $this->getPaymentDOMock()],
             $this->getTransactionResponse()
         );
+
+        $this->assertSame($expectedCalls, $calls);
     }
 
     public static function handleDataProvider(): array
     {
         return [
-            'Has Redirect' => [true, true],
-            'No Redirect' => [false, true],
+            'redirect leaves flag true' => [
+                true,
+                [['buckaroo_payment_in_transit', true]],
+            ],
+            'no redirect clears flag to false' => [
+                false,
+                [['buckaroo_payment_in_transit', true], ['buckaroo_payment_in_transit', false]],
+            ],
         ];
+    }
+
+    public function testHandleSkipsWhenGroupTransactionRefundIsComplete(): void
+    {
+        $this->orderPaymentMock->expects($this->never())->method('setAdditionalInformation');
+
+        $this->paymentInTransitHandler->handle(
+            ['payment' => $this->getPaymentDOMock()],
+            ['object' => $this->transactionResponse, 'group_transaction_refund_complete' => true]
+        );
     }
 }

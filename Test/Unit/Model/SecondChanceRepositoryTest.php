@@ -106,40 +106,22 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
     public static function createSecondChanceProvider()
     {
         return [
-            'second chance enabled' => [
-                true,
-                'buckaroo_magento2_ideal',
-                1
-            ],
-            'second chance disabled' => [
-                false,
-                'buckaroo_magento2_ideal',
-                0
-            ],
-            // The actual implementation doesn't check payment method type, only if SecondChance is enabled
-            'non-buckaroo payment method' => [
-                false, // Set to false so no SecondChance is created
-                'checkmo',
-                0
-            ],
+            'second chance enabled'  => [true, 1],
+            'second chance disabled' => [false, 0],
         ];
     }
 
     /**
-     * @param bool   $secondChanceEnabled
-     * @param string $paymentMethod
-     * @param int    $expectedCalls
+     * @param bool $secondChanceEnabled
+     * @param int  $expectedCalls
      */
     #[DataProvider('createSecondChanceProvider')]
-    public function testCreateSecondChance($secondChanceEnabled, $paymentMethod, $expectedCalls)
+    public function testCreateSecondChance($secondChanceEnabled, $expectedCalls)
     {
         $store = $this->getFakeMock(Store::class, true);
         $order = $this->getFakeMock(Order::class, true);
-        $payment = $this->getFakeMock(Payment::class, true);
 
         $order->method('getStore')->willReturn($store);
-        $order->expects($this->any())->method('getPayment')->willReturn($payment);
-        $payment->expects($this->any())->method('getMethod')->willReturn($paymentMethod);
 
         $this->configProvider->method('isSecondChanceEnabled')
             ->with($store)
@@ -158,22 +140,28 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             $order->method('getStoreId')->willReturn(1);
             $order->method('getCustomerEmail')->willReturn('test@example.com');
 
-            // Create proper mock for the interface using getMockForAbstractClass to handle all abstract methods
+            // The new record gets the base order id, the order's store and email, a fresh token and step 0
             $secondChanceData = $this->createMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
-            $secondChanceData->method('setOrderId')->willReturn($secondChanceData);
-            $secondChanceData->method('setStoreId')->willReturn($secondChanceData);
-            $secondChanceData->method('setCustomerEmail')->willReturn($secondChanceData);
-            $secondChanceData->method('setToken')->willReturn($secondChanceData);
-            $secondChanceData->method('setStatus')->willReturn($secondChanceData);
-            $secondChanceData->method('setStep')->willReturn($secondChanceData);
-            $secondChanceData->method('setCreatedAt')->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setOrderId')->with('000000001')
+                ->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setStoreId')->with(1)->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setCustomerEmail')->with('test@example.com')
+                ->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setToken')->with('random_token_string')
+                ->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setStatus')->with('pending')
+                ->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setStep')->with(0)->willReturn($secondChanceData);
+            $secondChanceData->expects($this->once())->method('setCreatedAt')->with('2023-01-01 12:00:00')
+                ->willReturn($secondChanceData);
 
             $secondChanceDataFactory = $this->getFakeMock(SecondChanceInterfaceFactory::class, true);
             $secondChanceDataFactory->method('create')->willReturn($secondChanceData);
 
-            // Add the missing secondChanceFactory for the model object
+            $savedData = $this->createMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
             $secondChanceModel = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
             $secondChanceModel->method('setData')->willReturnSelf();
+            $secondChanceModel->method('getDataModel')->willReturn($savedData);
 
             $secondChanceFactory = $this->getFakeMock(SecondChanceFactory::class, true);
             $secondChanceFactory->method('create')->willReturn($secondChanceModel);
@@ -184,23 +172,10 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             // No record yet for this base order in the order's store
             $secondChanceCollectionFactory = $this->emptyRecordCollectionFactory();
         } else {
-            // For cases where expectedCalls = 0, ensure factory and resource are set up properly
+            // Disabled: nothing is created or saved
             $secondChanceDataFactory = $this->getFakeMock(SecondChanceInterfaceFactory::class, true);
-            // Still need to return a valid mock even when not saving, as the method may still call create()
-            $secondChanceData = $this->createMock(\Buckaroo\Magento2\Api\Data\SecondChanceInterface::class);
-            $secondChanceData->method('setOrderId')->willReturn($secondChanceData);
-            $secondChanceData->method('setStoreId')->willReturn($secondChanceData);
-            $secondChanceData->method('setCustomerEmail')->willReturn($secondChanceData);
-            $secondChanceData->method('setToken')->willReturn($secondChanceData);
-            $secondChanceData->method('setStatus')->willReturn($secondChanceData);
-            $secondChanceData->method('setStep')->willReturn($secondChanceData);
-            $secondChanceData->method('setCreatedAt')->willReturn($secondChanceData);
-            $secondChanceDataFactory->method('create')->willReturn($secondChanceData);
-
-            $secondChanceModel = $this->getFakeMock(\Buckaroo\Magento2\Model\SecondChance::class, true);
-            $secondChanceModel->method('setData')->willReturnSelf();
+            $secondChanceDataFactory->expects($this->never())->method('create');
             $secondChanceFactory = $this->getFakeMock(SecondChanceFactory::class, true);
-            $secondChanceFactory->method('create')->willReturn($secondChanceModel);
 
             $resource = $this->getFakeMock(ResourceSecondChance::class, true);
             $resource->expects($this->never())->method('save');
@@ -217,15 +192,15 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             'resource' => $resource,
         ]);
 
-        $this->invokeArgs('createSecondChance', [$order], $instance);
+        $result = $this->invokeArgs('createSecondChance', [$order], $instance);
 
         if ($expectedCalls > 0) {
             // Increment ids are only unique per store: the record is looked up in the order's store
             $this->assertSame([['order_id', '000000001'], ['store_id', 1]], $this->recordFilters);
+            $this->assertSame($savedData, $result);
+        } else {
+            $this->assertNull($result);
         }
-
-        // Add assertion to verify the method completes successfully
-        $this->assertTrue(true, 'createSecondChance method completed without exceptions');
     }
 
     /**
@@ -399,7 +374,7 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->with('buckaroo/checkout/secondchance', [
                 'token' => 'test_token',
             ])
-            ->willReturn('http://example.com/nl/buckaroo/checkout/secondchance?token=test_token');
+            ->willReturn('http://example.com/nl/buckaroo/checkout/secondchance/token/test_token/');
         $store->method('getId')->willReturn(1);
         $store->method('getCode')->willReturn('nl');
         $store->method('getConfig')
@@ -407,8 +382,8 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->willReturn('nl_NL');
 
         // Mock the payment helper to return HTML for the payment info - need to match actual call parameters
-        $paymentHelper->method('getInfoBlockHtml')
-            ->with($payment, $this->anything())
+        $paymentHelper->expects($this->once())->method('getInfoBlockHtml')
+            ->with($payment, 1)
             ->willReturn('<div>Payment Info HTML</div>');
 
         $this->configProvider->method('getSecondChanceEmailTemplate')
@@ -423,30 +398,31 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
             ->with($store)
             ->willReturn('store@example.com');
 
-        $this->transportBuilder->method('setTemplateIdentifier')
+        $templateVars = null;
+        $this->transportBuilder->expects($this->once())->method('setTemplateIdentifier')
             ->with($expectedTemplate)
             ->willReturnSelf();
-
-        $this->transportBuilder->method('setTemplateOptions')
+        $this->transportBuilder->expects($this->once())->method('setTemplateOptions')
+            ->with(['area' => 'frontend', 'store' => 1])
             ->willReturnSelf();
-
-        $this->transportBuilder->method('setTemplateVars')
+        $this->transportBuilder->expects($this->once())->method('setTemplateVars')
+            ->willReturnCallback(function ($vars) use (&$templateVars) {
+                $templateVars = $vars;
+                return $this->transportBuilder;
+            });
+        $this->transportBuilder->expects($this->once())->method('setFrom')
+            ->with(['name' => 'Store Owner', 'email' => 'store@example.com'])
             ->willReturnSelf();
-
-        $this->transportBuilder->method('setFrom')
-            ->willReturnSelf();
-
-        $this->transportBuilder->method('addTo')
+        $this->transportBuilder->expects($this->once())->method('addTo')
             ->with('test@example.com', 'John Doe')
             ->willReturnSelf();
-
-        $this->transportBuilder->method('getTransport')
+        $this->transportBuilder->expects($this->once())->method('getTransport')
             ->willReturn($transport);
 
-        $transport->method('sendMessage');
+        $transport->expects($this->once())->method('sendMessage');
 
-        $inlineTranslation->method('suspend');
-        $inlineTranslation->method('resume');
+        $inlineTranslation->expects($this->once())->method('suspend');
+        $inlineTranslation->expects($this->once())->method('resume');
 
         // Allow any addDebug calls - we have multiple debug logs now
         $this->logging->method('addDebug')
@@ -479,8 +455,21 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
 
         $this->invokeArgs('sendMail', [$order, $secondChance, $step], $instance);
 
-        // Add assertion to verify the test completed successfully
-        $this->assertTrue(true, 'sendMail method completed successfully without exceptions');
+        $this->assertIsArray($templateVars);
+        $this->assertSame($order, $templateVars['order']);
+        $this->assertSame($store, $templateVars['store']);
+        $this->assertSame($step, $templateVars['step']);
+        $this->assertSame('000000001', $templateVars['base_order_id']);
+        $this->assertSame('000000001-1', $templateVars['expected_order_id']);
+        // A path-style URL gets a "?" so the template's "&utm_*" parameters form a query string
+        $this->assertSame(
+            'http://example.com/nl/buckaroo/checkout/secondchance/token/test_token/?',
+            $templateVars['checkout_url']
+        );
+        $this->assertSame('test_token', $templateVars['secondChanceToken']);
+        $this->assertSame('<div>Payment Info HTML</div>', $templateVars['payment_html']);
+        $this->assertSame('John Doe', $templateVars['customer_name']);
+        $this->assertSame('test@example.com', $templateVars['customer_email']);
     }
 
     /**
@@ -1351,31 +1340,73 @@ class SecondChanceRepositoryTest extends \Buckaroo\Magento2\Test\BaseTest
         $this->invokeArgs('setFinalStatus', [$item, 'error', 'step1_sent'], $instance);
     }
 
-    public function testCheckForMultipleEmail()
+    /**
+     * @param int  $existingRecords
+     * @param bool $expected
+     */
+    #[DataProvider('checkForMultipleEmailProvider')]
+    public function testCheckForMultipleEmail(int $existingRecords, bool $expected)
     {
         $order = $this->getFakeMock(Order::class, true);
         $collection = $this->getFakeMock(\Buckaroo\Magento2\Model\ResourceModel\SecondChance\Collection::class, true);
         $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
 
-        $order->method('getCustomerEmail')->willReturn('test@example.com');
-        $order->method('getStoreId')->willReturn(1);
-        $order->method('getIncrementId')->willReturn('000000001');
+        $order->method('getStoreId')->willReturn('3');
+        $order->method('getIncrementId')->willReturn('000000001-2');
 
-        $collectionFactory->method('create')
-            ->willReturn($collection);
+        $collectionFactory->expects($this->once())->method('create')->willReturn($collection);
 
+        $filters = [];
         $collection->method('addFieldToFilter')
-            ->willReturnSelf();
-
-        $collection->method('getSize')
-            ->willReturn(0);
+            ->willReturnCallback(function ($field, $value) use (&$filters, $collection) {
+                $filters[] = [$field, $value];
+                return $collection;
+            });
+        $collection->method('getSize')->willReturn($existingRecords);
 
         $instance = $this->getInstance([
             'secondChanceCollectionFactory' => $collectionFactory,
         ]);
 
         $result = $this->invokeArgs('checkForMultipleEmail', [$order, true], $instance);
-        $this->assertTrue($result);
+        $this->assertSame($expected, $result);
+        // Looked up by base order id in the order's store, among records that already got an email
+        $this->assertSame(
+            [
+                ['order_id', '000000001'],
+                ['store_id', 3],
+                ['status', ['in' => ['completed', 'clicked']]],
+            ],
+            $filters
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function checkForMultipleEmailProvider(): array
+    {
+        return [
+            'one email per order, none sent yet' => [0, true],
+            'one email per order, already sent'  => [1, false],
+            'one email per order, sent twice'    => [2, false],
+        ];
+    }
+
+    /**
+     * Without the "one email per order" flag every order may get an email and nothing is looked up.
+     */
+    public function testCheckForMultipleEmailAllowsAllWithoutFlag()
+    {
+        $order = $this->getFakeMock(Order::class, true);
+        $collectionFactory = $this->getFakeMock(SecondChanceCollectionFactory::class, true);
+        $collectionFactory->expects($this->never())->method('create');
+
+        $instance = $this->getInstance([
+            'secondChanceCollectionFactory' => $collectionFactory,
+        ]);
+
+        $this->assertTrue($this->invokeArgs('checkForMultipleEmail', [$order, false], $instance));
     }
 
     /**

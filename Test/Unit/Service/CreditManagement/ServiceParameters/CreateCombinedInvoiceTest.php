@@ -14,7 +14,6 @@
 
 namespace Buckaroo\Magento2\Test\Unit\Service\CreditManagement\ServiceParameters;
 
-
 use PHPUnit\Framework\Attributes\DataProvider;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Address;
@@ -22,81 +21,141 @@ use Magento\Sales\Model\Order\Payment;
 use Buckaroo\Magento2\Model\ConfigProvider\Factory;
 use Buckaroo\Magento2\Model\ConfigProvider\Method\PayPerEmail;
 use Buckaroo\Magento2\Service\CreditManagement\ServiceParameters\CreateCombinedInvoice;
+use Buckaroo\Magento2\Service\Culture\CultureCodeResolver;
 use Buckaroo\Magento2\Test\BaseTest;
 
 class CreateCombinedInvoiceTest extends BaseTest
 {
     protected $instanceClass = CreateCombinedInvoice::class;
 
+    /**
+     * The full parameter list for a fixed order, with every config value read from the order's store.
+     */
     public function testGet()
     {
+        $storeConfig = [
+            'getActiveStatusCm3'          => true,
+            'getSchemeKey'                => 'scheme-store-4',
+            'getCm3DueDate'               => '14',
+            'getMaxStepIndex'             => 2,
+            'getPaymentMethod'            => 'ideal,p24,sepadirectdebit',
+            'getPaymentMethodAfterExpiry' => 'sepadirectdebit',
+        ];
+
         $payPerMailConfigMock = $this->getFakeMock(PayPerEmail::class)
-            ->onlyMethods(['getSchemeKey', 'getActiveStatusCm3', 'getCm3DueDate', 'getMaxStepIndex', 'getPaymentMethod', 'getPaymentMethodAfterExpiry'])
+            ->onlyMethods(array_keys($storeConfig))
             ->getMock();
-        $payPerMailConfigMock->method('getSchemeKey')->willReturn('abc');
-        $payPerMailConfigMock->method('getActiveStatusCm3')->willReturn(true);
+        foreach ($storeConfig as $method => $value) {
+            $payPerMailConfigMock->method($method)->willReturnCallback(
+                function ($store = null) use ($method, $value) {
+                    $this->assertSame(4, $store, $method . ' must read the order store config');
+                    return $value;
+                }
+            );
+        }
 
         $factoryMock = $this->getFakeMock(Factory::class)->onlyMethods(['get'])->getMock();
-        $factoryMock->method('get')->with('payperemail')->willReturn($payPerMailConfigMock);
+        $factoryMock->expects($this->once())->method('get')->with('payperemail')->willReturn($payPerMailConfigMock);
 
-        // Add more required methods to the PayPerEmail mock
-        $payPerMailConfigMock->method('getCm3DueDate')->willReturn(30);
-        $payPerMailConfigMock->method('getMaxStepIndex')->willReturn(3);
-        $payPerMailConfigMock->method('getPaymentMethod')->willReturn('ideal,sepadirectdebit');
-        $payPerMailConfigMock->method('getPaymentMethodAfterExpiry')->willReturn('sepadirectdebit');
+        $infoInstanceMock = $this->createPaymentForStoreFour();
+        $orderMock = $infoInstanceMock->getOrder();
 
+        $cultureResolverMock = $this->getFakeMock(CultureCodeResolver::class)
+            ->onlyMethods(['resolveDebtorCultureForOrder'])
+            ->getMock();
+        $cultureResolverMock->expects($this->exactly(2))
+            ->method('resolveDebtorCultureForOrder')
+            ->with($this->identicalTo($orderMock))
+            ->willReturn('nl-NL');
+
+        $instance = $this->getInstance([
+            'configProviderMethodFactory' => $factoryMock,
+            'cultureCodeResolver'         => $cultureResolverMock,
+        ]);
+
+        // Retry if the day changes during the call, so the expected dates stay exact.
+        do {
+            $today = date('Y-m-d');
+            $result = $instance->get($infoInstanceMock, 'payperemail');
+        } while ($today !== date('Y-m-d'));
+
+        $dueDate = (new \DateTimeImmutable($today))->add(new \DateInterval('P14D'))->format('Y-m-d');
+
+        $this->assertSame(
+            [
+                'Name'             => 'CreditManagement3',
+                'Action'           => 'CreateCombinedInvoice',
+                'Version'          => 1,
+                'RequestParameter' => [
+                    ['_' => 'test@example.com', 'Name' => 'Code', 'Group' => 'Debtor'],
+                    ['_' => 'test@example.com', 'Name' => 'Email', 'Group' => 'Email'],
+                    ['_' => '0612345678', 'Name' => 'Mobile', 'Group' => 'Phone'],
+                    ['_' => 121.00, 'Name' => 'InvoiceAmount'],
+                    ['_' => 21.00, 'Name' => 'InvoiceAmountVAT'],
+                    ['_' => $today, 'Name' => 'InvoiceDate'],
+                    ['_' => $dueDate, 'Name' => 'DueDate'],
+                    ['_' => 'scheme-store-4', 'Name' => 'SchemeKey'],
+                    ['_' => 2, 'Name' => 'MaxStepIndex'],
+                    ['_' => 'ideal,sepadirectdebit', 'Name' => 'AllowedServices'],
+                    ['_' => 'sepadirectdebit', 'Name' => 'AllowedServicesAfterDueDate'],
+                    ['_' => 'nl-NL', 'Name' => 'Culture', 'Group' => 'Person'],
+                    ['_' => 'John', 'Name' => 'FirstName', 'Group' => 'Person'],
+                    ['_' => 'Doe', 'Name' => 'LastName', 'Group' => 'Person'],
+                    ['_' => '1', 'Name' => 'Gender', 'Group' => 'Person'],
+                    ['_' => 'Kabelweg', 'Name' => 'Street', 'Group' => 'Address'],
+                    ['_' => '37', 'Name' => 'HouseNumber', 'Group' => 'Address'],
+                    ['_' => '1014BA', 'Name' => 'Zipcode', 'Group' => 'Address'],
+                    ['_' => 'Amsterdam', 'Name' => 'City', 'Group' => 'Address'],
+                    ['_' => 'NL', 'Name' => 'Country', 'Group' => 'Address'],
+                    ['_' => 'A', 'Name' => 'HouseNumberSuffix', 'Group' => 'Address'],
+                    ['_' => 'nl-NL', 'Name' => 'Culture', 'Group' => 'Company'],
+                    ['_' => 'Acme B.V.', 'Name' => 'Name', 'Group' => 'Company'],
+                ],
+            ],
+            $result
+        );
+    }
+
+    /**
+     * Payment of a fixed order placed in store 4 (store id as the string the database returns).
+     *
+     * @return Payment
+     */
+    private function createPaymentForStoreFour()
+    {
         $addressMock = $this->getFakeMock(Address::class)
-            ->onlyMethods(['getEmail', 'getTelephone', 'getFirstname', 'getLastname', 'getCountryId', 'getStreet', 'getPostcode', 'getCity', 'getCompany'])
+            ->onlyMethods([
+                'getEmail', 'getTelephone', 'getFirstname', 'getLastname', 'getCountryId',
+                'getStreet', 'getPostcode', 'getCity', 'getCompany'
+            ])
             ->getMock();
         $addressMock->method('getEmail')->willReturn('test@example.com');
         $addressMock->method('getTelephone')->willReturn('0612345678');
         $addressMock->method('getFirstname')->willReturn('John');
         $addressMock->method('getLastname')->willReturn('Doe');
         $addressMock->method('getCountryId')->willReturn('NL');
-        $addressMock->method('getStreet')->willReturn(['Kabelweg 37']);
+        $addressMock->method('getStreet')->willReturn(['Kabelweg 37A']);
         $addressMock->method('getPostcode')->willReturn('1014BA');
         $addressMock->method('getCity')->willReturn('Amsterdam');
-        $addressMock->method('getCompany')->willReturn('');
+        $addressMock->method('getCompany')->willReturn('Acme B.V.');
 
         $orderMock = $this->getFakeMock(Order::class)
-            ->onlyMethods(['getBillingAddress', 'getGrandTotal', 'getTaxAmount', 'getPayment'])
+            ->onlyMethods(['getBillingAddress', 'getGrandTotal', 'getTaxAmount', 'getPayment', 'getStoreId'])
             ->getMock();
         $orderMock->method('getBillingAddress')->willReturn($addressMock);
-        $orderMock->method('getGrandTotal')->willReturn(100.00);
+        $orderMock->method('getGrandTotal')->willReturn(121.00);
         $orderMock->method('getTaxAmount')->willReturn(21.00);
+        $orderMock->method('getStoreId')->willReturn('4');
 
         $infoInstanceMock = $this->getFakeMock(Payment::class)
             ->onlyMethods(['getAdditionalInformation', 'getOrder', 'getMethod'])
             ->getMock();
-        $infoInstanceMock->method('getAdditionalInformation')->willReturn(null);
+        $infoInstanceMock->method('getAdditionalInformation')->with('customer_gender')->willReturn('1');
         $infoInstanceMock->method('getOrder')->willReturn($orderMock);
         $infoInstanceMock->method('getMethod')->willReturn('buckaroo_magento2_payperemail');
-
-        // Set up the circular reference for order payment
         $orderMock->method('getPayment')->willReturn($infoInstanceMock);
 
-        $instance = $this->getInstance(['configProviderMethodFactory' => $factoryMock]);
-        $result = $instance->get($infoInstanceMock, 'payperemail');
-
-        $this->assertIsArray($result);
-        $this->assertEquals('CreditManagement3', $result['Name']);
-        $this->assertEquals('CreateCombinedInvoice', $result['Action']);
-        $this->assertEquals(1, $result['Version']);
-        $this->assertArrayHasKey('RequestParameter', $result);
-        $this->assertIsArray($result['RequestParameter']);
-        $this->assertGreaterThan(10, count($result['RequestParameter'])); // At least 10 parameters expected
-
-        $possibleParameters = [
-            'Code', 'Email', 'Mobile', 'InvoiceAmount', 'InvoiceAmountVAT', 'InvoiceDate', 'DueDate',
-            'SchemeKey', 'MaxStepIndex', 'AllowedServices', 'AllowedServicesAfterDueDate', 'Culture',
-            'FirstName', 'LastName', 'Gender', 'Street', 'HouseNumber', 'Zipcode', 'City', 'Country'
-        ];
-
-        foreach ($result['RequestParameter'] as $array) {
-            $this->assertArrayHasKey('_', $array);
-            $this->assertArrayHasKey('Name', $array);
-            $this->assertTrue(in_array($array['Name'], $possibleParameters));
-        }
+        return $infoInstanceMock;
     }
 
     public static function getCmAddressProvider()

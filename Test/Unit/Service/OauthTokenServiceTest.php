@@ -70,12 +70,25 @@ class OauthTokenServiceTest extends BaseTest
         $cache->expects($this->once())->method('load')->willReturn(false);
         $cache->expects($this->once())
             ->method('save')
-            ->with('encrypted-cache-payload', $this->callback('is_string'), [], 3540);
+            ->with(
+                'encrypted-cache-payload',
+                'buckaroo_oauth_access_token_c66b5dd361a9a9593a64888c156c0446b2de70968a14434e3513a2fd171d3567',
+                [],
+                3540
+            );
 
         $curl = $this->createMock(Curl::class);
-        $curl->expects($this->once())->method('setTimeout');
+        $curl->expects($this->once())->method('setTimeout')->with(10);
         $curl->expects($this->once())->method('setCredentials')->with('client-id', 'client-secret');
-        $curl->expects($this->once())->method('post');
+        $curl->expects($this->once())
+            ->method('addHeader')
+            ->with('Content-Type', 'application/x-www-form-urlencoded');
+        $curl->expects($this->once())
+            ->method('post')
+            ->with(
+                'https://auth.buckaroo.io/oauth/token',
+                'grant_type=client_credentials&scope=hostedfields%3Asave'
+            );
         $curl->method('getBody')->willReturn(json_encode([
             'access_token' => 'fresh-token',
             'expires_in'   => 3600,

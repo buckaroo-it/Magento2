@@ -45,6 +45,20 @@ class JsonTest extends BaseTest
      */
     private $client;
 
+    /**
+     * Timestamp returned to the client under test; null uses the real clock.
+     *
+     * @var int|null
+     */
+    public static $fixedTime = null;
+
+    /**
+     * Nonce the client under test generates; null uses real randomness.
+     *
+     * @var string|null
+     */
+    public static $fixedNonce = null;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -57,48 +71,55 @@ class JsonTest extends BaseTest
         $this->client->setSecretKey('SECRET_KEY');
     }
 
-    public function testGetOptionsBuildsHmacSignedCurlOptions(): void
+    protected function tearDown(): void
     {
+        self::$fixedTime = null;
+        self::$fixedNonce = null;
+        parent::tearDown();
+    }
+
+    /**
+     * Known-answer check of the request signature. The expected header was computed outside
+     * the plugin from Buckaroo's documented signing string:
+     * websiteKey + METHOD + lowercased url-encoded uri without scheme + timestamp + nonce
+     * + base64(md5(body)), HMAC-SHA256 with the secret key, base64 encoded.
+     */
+    public function testDoRequestSendsHmacSignedCurlOptions(): void
+    {
+        self::$fixedTime = 1700000000;
+        self::$fixedNonce = 'Nonce0123456789x';
+
         $data = ['Currency' => 'EUR', 'AmountDebit' => 10.5];
-        $uri = self::TEST_TRANSACTION_URI;
-        $uri2 = strtolower(rawurlencode('testcheckout.buckaroo.nl/json/Transaction'));
+        $expectedBody = "{\n    \"Currency\": \"EUR\",\n    \"AmountDebit\": 10.5\n}";
+        // Signing string: 'WEBSITE_KEYPOSTtestcheckout.buckaroo.nl%2fjson%2ftransaction1700000000'
+        // . 'Nonce0123456789x' . 'ylx+C52GxziNpKk3SpUg5Q=='
+        $expectedAuthorization = 'Authorization: hmac WEBSITE_KEY:'
+            . 'u0q03AFwBW5hqPgJLYVVXU+s4Tki0691bSLiWySJi1c=:Nonce0123456789x:1700000000';
 
-        $options = $this->client->getOptions($uri, $uri2, $data, 'POST');
+        $captured = null;
+        $this->curlMock->expects($this->once())
+            ->method('setOptions')
+            ->willReturnCallback(function (array $options) use (&$captured): void {
+                $captured = $options;
+            });
+        $this->curlMock->method('getBody')->willReturn('{}');
 
-        $expectedJson = \json_encode($data, JSON_PRETTY_PRINT);
+        $this->client->doRequest($data, Data::MODE_TEST);
 
-        $this->assertSame($uri, $options[CURLOPT_URL]);
-        $this->assertSame('POST', $options[CURLOPT_CUSTOMREQUEST]);
-        $this->assertSame($expectedJson, $options[CURLOPT_POSTFIELDS]);
-        $this->assertTrue($options[CURLOPT_RETURNTRANSFER]);
-        $this->assertFalse($options[CURLOPT_FOLLOWLOCATION]);
-        $this->assertSame('Magento2', $options[CURLOPT_USERAGENT]);
-
-        $headers = $options[CURLOPT_HTTPHEADER];
-        $this->assertSame('Content-Type: application/json; charset=utf-8', $headers[0]);
-        $this->assertSame('Accept: application/json', $headers[1]);
-        $this->assertMatchesRegularExpression(
-            '#^Authorization: hmac WEBSITE_KEY:[A-Za-z0-9+/]+={0,2}:[A-Za-z0-9]{16}:\d+$#',
-            $headers[2]
+        $this->assertSame(
+            [
+                'Content-Type: application/json; charset=utf-8',
+                'Accept: application/json',
+                $expectedAuthorization,
+            ],
+            $captured[CURLOPT_HTTPHEADER]
         );
-
-        // Recompute the signature from the header parts to pin the HMAC algorithm.
-        // Indexed access instead of list destructuring: PDepend in the CI mess
-        // detector cannot parse a skipped slot ("[, $a] =").
-        $authParts = explode(
-            ':',
-            substr($headers[2], strlen('Authorization: hmac '))
-        );
-        $hmac = $authParts[1];
-        $nonce = $authParts[2];
-        $timestamp = $authParts[3];
-
-        // phpcs:ignore Magento2.Security.InsecureFunction
-        $encodedContent = base64_encode(md5($expectedJson, true));
-        $rawData = 'WEBSITE_KEY' . 'POST' . $uri2 . $timestamp . $nonce . $encodedContent;
-        $expectedHmac = base64_encode(hash_hmac('sha256', $rawData, 'SECRET_KEY', true));
-
-        $this->assertSame($expectedHmac, $hmac);
+        $this->assertSame(self::TEST_TRANSACTION_URI, $captured[CURLOPT_URL]);
+        $this->assertSame('POST', $captured[CURLOPT_CUSTOMREQUEST]);
+        $this->assertSame($expectedBody, $captured[CURLOPT_POSTFIELDS]);
+        $this->assertTrue($captured[CURLOPT_RETURNTRANSFER]);
+        $this->assertFalse($captured[CURLOPT_FOLLOWLOCATION]);
+        $this->assertSame('Magento2', $captured[CURLOPT_USERAGENT]);
     }
 
     public function testDoRequestPostsJsonToTestGateway(): void
@@ -256,5 +277,44 @@ class JsonTest extends BaseTest
             ->willReturn(200);
 
         $this->assertSame(200, $this->client->getStatus());
+    }
+}
+
+// phpcs:disable
+namespace Buckaroo\Magento2\Gateway\Http\Client;
+
+use Buckaroo\Magento2\Test\Unit\Gateway\Http\Client\JsonTest;
+
+if (!\function_exists(__NAMESPACE__ . '\time')) {
+    /**
+     * Clock seam for the Json client under test.
+     *
+     * @return int
+     */
+    function time(): int
+    {
+        return JsonTest::$fixedTime ?? \time();
+    }
+}
+
+if (!\function_exists(__NAMESPACE__ . '\random_int')) {
+    /**
+     * Randomness seam for the Json client nonce: returns the position of the next character of the
+     * fixed nonce in the nonce alphabet.
+     *
+     * @param int $min
+     * @param int $max
+     *
+     * @return int
+     */
+    function random_int(int $min, int $max): int
+    {
+        if (JsonTest::$fixedNonce === null || JsonTest::$fixedNonce === '') {
+            return \random_int($min, $max);
+        }
+        $char = JsonTest::$fixedNonce[0];
+        JsonTest::$fixedNonce = substr(JsonTest::$fixedNonce, 1);
+
+        return strpos('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $char);
     }
 }

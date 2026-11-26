@@ -51,12 +51,54 @@ class SecondChanceCartMergerTest extends TestCase
      */
     private $added = [];
 
+    /**
+     * @var array Filters applied to the customer cart collection, as [field, condition]
+     */
+    private $cartFilters = [];
+
+    /**
+     * @var array Filters applied to the order lookup, as [field, condition]
+     */
+    private $orderFilters = [];
+
+    /**
+     * @var Log|MockObject
+     */
+    private $logger;
+
+    /**
+     * @var array Product repository lookups, as [product ID, edit mode, store ID]
+     */
+    private $productLookups = [];
+
+    /**
+     * @var Product[] Products returned by the product repository
+     */
+    private $repositoryProducts = [];
+
+    /**
+     * @var array Custom options set per product ID
+     */
+    private $customOptions = [];
+
+    /**
+     * @var string|null Reason addProduct() gives when it cannot add the product
+     */
+    private $addProductError = null;
+
     protected function setUp(): void
     {
         $this->customerCarts = [];
         $this->existingOrders = [];
         $this->added = [];
+        $this->cartFilters = [];
+        $this->orderFilters = [];
+        $this->productLookups = [];
+        $this->repositoryProducts = [];
+        $this->customOptions = [];
+        $this->addProductError = null;
         $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
+        $this->logger = $this->createMock(Log::class);
     }
 
     public function testKeepsWhatTheCustomerAddedWithoutDoublingTheOrder(): void
@@ -78,6 +120,16 @@ class SecondChanceCartMergerTest extends TestCase
 
         $this->assertSame([[1, 2.0], [2, 1.0]], $this->addedQuantities());
         $this->assertSame([$failedCart], $previousCarts);
+        // Only the customer's active carts of the order's store are looked at
+        $this->assertSame(
+            [
+                ['customer_id', ['eq' => 42]],
+                ['store_id', ['eq' => 3]],
+                ['is_active', ['eq' => 1]],
+            ],
+            $this->cartFilters
+        );
+        $this->assertSame([], $this->orderFilters, 'No reserved ID looks like a restore, so no order lookup');
     }
 
     public function testDoesNotMergeACartRestoredForAnotherOrder(): void
@@ -91,6 +143,7 @@ class SecondChanceCartMergerTest extends TestCase
 
         $this->assertSame([], $this->added);
         $this->assertSame([$otherRestore], $previousCarts, 'It is still replaced, so one cart stays active');
+        $this->assertSame([['increment_id', ['in' => ['300000280']]]], $this->orderFilters);
     }
 
     public function testMergesACartWhoseReservedIdOnlyLooksLikeARestore(): void
@@ -147,10 +200,175 @@ class SecondChanceCartMergerTest extends TestCase
         $this->createMerger()->deactivate([$cart]);
     }
 
+    public function testQuantityTheOrderCoversIsCountedOnceAcrossCarts(): void
+    {
+        // Three ordered: the first cart covers one, the second cart two of its three
+        $order = $this->createOrder(42, [$this->createOrderItem(1, 3, [])]);
+        $first = $this->createCart(801, 42, null, [$this->createCartItem(1, 1, [])]);
+        $second = $this->createCart(802, 42, null, [$this->createCartItem(1, 3, [])]);
+        $this->customerCarts = [801 => $first, 802 => $second];
+
+        $previousCarts = $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[1, 1.0]], $this->addedQuantities());
+        $this->assertSame([$first, $second], $previousCarts);
+    }
+
+    public function testProductTheOrderDoesNotHoldIsKeptFromEveryCart(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(1, 1, [])]);
+        $this->customerCarts = [
+            $this->createCart(801, 42, null, [$this->createCartItem(2, 1, [])]),
+            $this->createCart(802, 42, null, [$this->createCartItem(2, 1, [])]),
+        ];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[2, 1.0], [2, 1.0]], $this->addedQuantities());
+    }
+
+    public function testOrderLinesOfTheSameProductAndOptionsAreAddedUp(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(1, 1, []), $this->createOrderItem(1, 1, [])]);
+        $this->customerCarts = [$this->createCart(801, 42, null, [$this->createCartItem(1, 2, [])])];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([], $this->added);
+    }
+
+    public function testSameProductWithOtherOptionsIsASeparateLine(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(62, 1, self::HOODIE_XS_BLACK)]);
+        $otherSize = ['super_attribute' => ['93' => '50', '143' => '167']];
+        $this->customerCarts = [$this->createCart(801, 42, null, [$this->createCartItem(62, 1, $otherSize)])];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[62, 1.0]], $this->addedQuantities());
+        $this->assertSame(['93' => '50', '143' => '167'], $this->added[0][1]['super_attribute']);
+    }
+
+    public function testCartAfterARestoredCartIsStillMerged(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $this->customerCarts = [
+            $this->createCart(765, 42, '300000280-1', [$this->createCartItem(1, 1, [])]),
+            $this->createCart(766, 42, null, [$this->createCartItem(2, 1, [])]),
+        ];
+        $this->existingOrders = ['300000280'];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[2, 1.0]], $this->addedQuantities());
+    }
+
+    public function testEachRestoredOrderIdIsLookedUpOnce(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $this->customerCarts = [
+            $this->createCart(765, 42, '300000280-1', []),
+            $this->createCart(766, 42, '300000280-2', []),
+        ];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([['increment_id', ['in' => ['300000280']]]], $this->orderFilters);
+    }
+
+    public function testReservedIdWithTextAfterTheSuffixIsNotARestore(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $this->customerCarts = [$this->createCart(765, 42, '300000280-1-b', [$this->createCartItem(1, 1, [])])];
+        $this->existingOrders = ['300000280'];
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[1, 1.0]], $this->addedQuantities());
+        $this->assertSame([], $this->orderFilters);
+    }
+
+    public function testCollectionEntriesThatAreNotCartsAreIgnored(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $cart = $this->createCart(801, 42, null, []);
+        $this->customerCarts = [800 => new DataObject(['id' => 800]), 801 => $cart];
+
+        $previousCarts = $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([$cart], $previousCarts);
+    }
+
+    public function testAddedProductIsAFreshCopyWithoutCustomOptions(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $this->customerCarts = [$this->createCart(801, 42, null, [$this->createCartItem(2, 1, [])])];
+        $this->logger->expects($this->never())->method('addError');
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+
+        $this->assertSame([[2, false, 3]], $this->productLookups);
+        $this->assertSame([2 => []], $this->customOptions);
+        $this->assertCount(1, $this->added);
+        $this->assertNotSame($this->repositoryProducts[0], $this->added[0][2], 'The cached product is not changed');
+    }
+
+    public function testProductThatCannotBeAddedIsLogged(): void
+    {
+        $order = $this->createOrder(42, [$this->createOrderItem(9, 1, [])]);
+        $this->customerCarts = [$this->createCart(801, 42, null, [$this->createCartItem(2, 1, [])])];
+        $this->addProductError = 'Out of stock';
+        $this->logger->expects($this->once())->method('addError')
+            ->with('Second Chance: could not keep a cart product: Out of stock');
+
+        $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0);
+    }
+
+    public function testGuestOrderWithoutSessionCartIdDoesNotLoadACart(): void
+    {
+        $order = $this->createOrder(null, [$this->createOrderItem(1, 1, [])]);
+        $order->expects($this->never())->method('getAllVisibleItems');
+        $this->cartRepository->expects($this->never())->method('get');
+
+        $this->assertSame([], $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 0));
+    }
+
+    public function testGuestOrderIgnoresAnInactiveSessionCart(): void
+    {
+        $order = $this->createOrder(null, [$this->createOrderItem(1, 1, [])]);
+        $this->cartRepository->method('get')
+            ->willReturn($this->createCart(768, null, null, [$this->createCartItem(2, 1, [])], false));
+
+        $this->assertSame([], $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 768));
+        $this->assertSame([], $this->added);
+    }
+
+    public function testGuestCartOfTheOrderStoreGivenAsStringIsUsed(): void
+    {
+        $order = $this->createOrder(null, [$this->createOrderItem(1, 1, [])]);
+        $guestCart = $this->createCart(768, null, null, [], true, '3');
+        $this->cartRepository->method('get')->willReturn($guestCart);
+
+        $this->assertSame([$guestCart], $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 768));
+    }
+
+    public function testGuestCartOfAnotherStoreIsLeftAlone(): void
+    {
+        $order = $this->createOrder(null, [$this->createOrderItem(1, 1, [])]);
+        $this->cartRepository->method('get')->willReturn($this->createCart(768, null, null, [], true, 4));
+
+        $this->assertSame([], $this->createMerger()->mergeInto($this->createRestoredQuote(), $order, 768));
+    }
+
     private function createMerger(): SecondChanceCartMerger
     {
         $quoteCollection = $this->createMock(QuoteCollection::class);
-        $quoteCollection->method('addFieldToFilter')->willReturnSelf();
+        $quoteCollection->method('addFieldToFilter')->willReturnCallback(
+            function ($field, $condition) use ($quoteCollection) {
+                $this->cartFilters[] = [$field, $condition];
+                return $quoteCollection;
+            }
+        );
         $quoteCollection->method('getItems')->willReturnCallback(function () {
             return $this->customerCarts;
         });
@@ -160,21 +378,30 @@ class SecondChanceCartMergerTest extends TestCase
         $requested = [];
         $orderCollection = $this->createMock(OrderCollection::class);
         $orderCollection->method('addFieldToFilter')->willReturnCallback(
-            function (...$arguments) use (&$requested, $orderCollection) {
-                $requested = $arguments[1]['in'];
+            function ($field, $condition) use (&$requested, $orderCollection) {
+                $this->orderFilters[] = [$field, $condition];
+                $requested = $condition['in'];
                 return $orderCollection;
             }
         );
-        $orderCollection->method('getColumnValues')->willReturnCallback(function () use (&$requested) {
-            return array_values(array_intersect($requested, $this->existingOrders));
-        });
+        $orderCollection->method('getColumnValues')->with('increment_id')->willReturnCallback(
+            function () use (&$requested) {
+                return array_values(array_intersect($requested, $this->existingOrders));
+            }
+        );
         $orderCollectionFactory = $this->createMock(OrderCollectionFactory::class);
         $orderCollectionFactory->method('create')->willReturn($orderCollection);
 
         $productRepository = $this->createMock(ProductRepositoryInterface::class);
-        $productRepository->method('getById')->willReturnCallback(function ($productId) {
+        $productRepository->method('getById')->willReturnCallback(function ($productId, $editMode, $storeId) {
+            $this->productLookups[] = [$productId, $editMode, $storeId];
             $product = $this->createMock(Product::class);
             $product->method('getId')->willReturn($productId);
+            $product->method('setCustomOptions')->willReturnCallback(function ($options) use ($productId, $product) {
+                $this->customOptions[$productId] = $options;
+                return $product;
+            });
+            $this->repositoryProducts[] = $product;
             return $product;
         });
 
@@ -183,7 +410,7 @@ class SecondChanceCartMergerTest extends TestCase
             $orderCollectionFactory,
             $this->cartRepository,
             $productRepository,
-            $this->createMock(Log::class)
+            $this->logger
         );
     }
 
@@ -194,8 +421,8 @@ class SecondChanceCartMergerTest extends TestCase
     {
         $quote = $this->createMock(Quote::class);
         $quote->method('addProduct')->willReturnCallback(function ($product, DataObject $buyRequest) {
-            $this->added[] = [(int) $product->getId(), $buyRequest->getData()];
-            return null;
+            $this->added[] = [(int) $product->getId(), $buyRequest->getData(), $product];
+            return $this->addProductError;
         });
 
         return $quote;
@@ -211,8 +438,9 @@ class SecondChanceCartMergerTest extends TestCase
     private function createOrder(?int $customerId, array $items)
     {
         $order = $this->createMock(Order::class);
-        $order->method('getCustomerId')->willReturn($customerId);
-        $order->method('getStoreId')->willReturn(1);
+        // Order data loaded from the database holds its IDs as strings
+        $order->method('getCustomerId')->willReturn($customerId === null ? null : (string) $customerId);
+        $order->method('getStoreId')->willReturn('3');
         $order->method('getAllVisibleItems')->willReturn($items);
 
         return $order;
@@ -228,8 +456,23 @@ class SecondChanceCartMergerTest extends TestCase
         return $item;
     }
 
-    private function createCart(int $id, ?int $customerId, ?string $reservedOrderId, array $items)
-    {
+    /**
+     * @param int             $id
+     * @param int|null        $customerId
+     * @param string|null     $reservedOrderId
+     * @param array           $items
+     * @param bool            $isActive
+     * @param int|string      $storeId
+     * @return QuoteStub|MockObject
+     */
+    private function createCart(
+        int $id,
+        ?int $customerId,
+        ?string $reservedOrderId,
+        array $items,
+        bool $isActive = true,
+        $storeId = 3
+    ) {
         $cart = $this->getMockBuilder(QuoteStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
@@ -240,8 +483,8 @@ class SecondChanceCartMergerTest extends TestCase
         $cart->method('getId')->willReturn($id);
         $cart->method('getCustomerId')->willReturn($customerId);
         $cart->method('getReservedOrderId')->willReturn($reservedOrderId);
-        $cart->method('getIsActive')->willReturn(true);
-        $cart->method('getStoreId')->willReturn(1);
+        $cart->method('getIsActive')->willReturn($isActive);
+        $cart->method('getStoreId')->willReturn($storeId);
         $cart->method('getAllVisibleItems')->willReturn($items);
 
         return $cart;

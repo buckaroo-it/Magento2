@@ -33,23 +33,45 @@ class MigrateTransferPaymentInstructionEmailTest extends TestCase
      */
     private $patch;
 
+    private const OLD_PATH = 'payment/buckaroo_magento2_transfer/order_email';
+    private const NEW_PATH = 'payment/buckaroo_magento2_transfer/payment_instruction_email';
+
     /**
-     * Rows returned for the order_email path and for the new path, in that order.
+     * Rows stored in core_config_data, keyed by config path.
      *
      * @var array
      */
-    private $fetchResults = [];
+    private $rowsByPath = [];
+
+    /**
+     * The from() and where() calls of every select, keyed by select object id.
+     *
+     * @var array
+     */
+    private $selects = [];
+
+    /**
+     * The selects passed to fetchAll(), in execution order.
+     *
+     * @var array
+     */
+    private $executed = [];
 
     protected function setUp(): void
     {
-        $select = $this->createMock(Select::class);
-        $select->method('from')->willReturnSelf();
-        $select->method('where')->willReturnSelf();
-
         $this->connection = $this->createMock(AdapterInterface::class);
-        $this->connection->method('select')->willReturn($select);
-        $this->connection->method('fetchAll')->willReturnCallback(function () {
-            return array_shift($this->fetchResults);
+        $this->connection->method('select')->willReturnCallback(function () {
+            return $this->createRecordingSelect();
+        });
+        $this->connection->method('fetchAll')->willReturnCallback(function ($select) {
+            $query = $this->selects[spl_object_id($select)];
+            $this->executed[] = $query;
+            $this->assertCount(1, $query['where'], 'Each lookup filters on the path only.');
+            [$condition, $path] = $query['where'][0];
+            $this->assertSame('path = ?', $condition);
+            $this->assertArrayHasKey($path, $this->rowsByPath, 'Unexpected config path queried: ' . $path);
+
+            return $this->rowsByPath[$path];
         });
 
         $setup = $this->createMock(ModuleDataSetupInterface::class);
@@ -59,23 +81,43 @@ class MigrateTransferPaymentInstructionEmailTest extends TestCase
         $this->patch = new MigrateTransferPaymentInstructionEmail($setup);
     }
 
+    /**
+     * @return Select|MockObject
+     */
+    private function createRecordingSelect()
+    {
+        $select = $this->createMock(Select::class);
+        $id = spl_object_id($select);
+        $this->selects[$id] = ['from' => null, 'where' => []];
+        $select->method('from')->willReturnCallback(function ($table, $cols) use ($select, $id) {
+            $this->selects[$id]['from'] = [$table, $cols];
+            return $select;
+        });
+        $select->method('where')->willReturnCallback(function ($cond, $value = null) use ($select, $id) {
+            $this->selects[$id]['where'][] = [$cond, $value];
+            return $select;
+        });
+
+        return $select;
+    }
+
     public function testCopiesTheStoredValueOfEveryScope(): void
     {
-        $this->fetchResults = [
-            [
+        $this->rowsByPath = [
+            self::OLD_PATH => [
                 ['scope' => 'default', 'scope_id' => '0', 'value' => '0'],
                 ['scope' => 'websites', 'scope_id' => '1', 'value' => '1'],
                 ['scope' => 'stores', 'scope_id' => '2', 'value' => '0'],
             ],
-            [],
+            self::NEW_PATH => [],
         ];
 
         $this->connection->expects($this->once())
             ->method('insertMultiple')
             ->with('core_config_data', [
-                ['scope' => 'default', 'scope_id' => 0, 'path' => MigrateTransferPaymentInstructionEmail::NEW_PATH, 'value' => '0'],
-                ['scope' => 'websites', 'scope_id' => 1, 'path' => MigrateTransferPaymentInstructionEmail::NEW_PATH, 'value' => '1'],
-                ['scope' => 'stores', 'scope_id' => 2, 'path' => MigrateTransferPaymentInstructionEmail::NEW_PATH, 'value' => '0'],
+                ['scope' => 'default', 'scope_id' => 0, 'path' => self::NEW_PATH, 'value' => '0'],
+                ['scope' => 'websites', 'scope_id' => 1, 'path' => self::NEW_PATH, 'value' => '1'],
+                ['scope' => 'stores', 'scope_id' => 2, 'path' => self::NEW_PATH, 'value' => '0'],
             ]);
 
         $this->patch->apply();
@@ -83,12 +125,12 @@ class MigrateTransferPaymentInstructionEmailTest extends TestCase
 
     public function testKeepsAValueAlreadySetOnTheNewPath(): void
     {
-        $this->fetchResults = [
-            [
+        $this->rowsByPath = [
+            self::OLD_PATH => [
                 ['scope' => 'default', 'scope_id' => '0', 'value' => '0'],
                 ['scope' => 'stores', 'scope_id' => '2', 'value' => '0'],
             ],
-            [
+            self::NEW_PATH => [
                 ['scope' => 'default', 'scope_id' => '0'],
             ],
         ];
@@ -96,7 +138,7 @@ class MigrateTransferPaymentInstructionEmailTest extends TestCase
         $this->connection->expects($this->once())
             ->method('insertMultiple')
             ->with('core_config_data', [
-                ['scope' => 'stores', 'scope_id' => 2, 'path' => MigrateTransferPaymentInstructionEmail::NEW_PATH, 'value' => '0'],
+                ['scope' => 'stores', 'scope_id' => 2, 'path' => self::NEW_PATH, 'value' => '0'],
             ]);
 
         $this->patch->apply();
@@ -104,22 +146,31 @@ class MigrateTransferPaymentInstructionEmailTest extends TestCase
 
     public function testDoesNothingWhenOrderEmailWasNeverSaved(): void
     {
-        $this->fetchResults = [[], []];
+        $this->rowsByPath = [self::OLD_PATH => [], self::NEW_PATH => []];
 
         $this->connection->expects($this->never())->method('insertMultiple');
 
         $this->patch->apply();
     }
 
-    public function testReadsTheOrderEmailPath(): void
+    public function testReadsTheOrderEmailPathThenTheNewPath(): void
     {
+        $this->rowsByPath = [self::OLD_PATH => [], self::NEW_PATH => []];
+
+        $this->patch->apply();
+
         $this->assertSame(
-            'payment/buckaroo_magento2_transfer/order_email',
-            MigrateTransferPaymentInstructionEmail::OLD_PATH
-        );
-        $this->assertSame(
-            'payment/buckaroo_magento2_transfer/payment_instruction_email',
-            MigrateTransferPaymentInstructionEmail::NEW_PATH
+            [
+                [
+                    'from' => ['core_config_data', ['scope', 'scope_id', 'value']],
+                    'where' => [['path = ?', self::OLD_PATH]],
+                ],
+                [
+                    'from' => ['core_config_data', ['scope', 'scope_id']],
+                    'where' => [['path = ?', self::NEW_PATH]],
+                ],
+            ],
+            $this->executed
         );
     }
 }
