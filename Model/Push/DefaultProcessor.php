@@ -2316,7 +2316,7 @@ class DefaultProcessor implements PushProcessorInterface
         $description = (string)__('Payment Push Status: %1', __($message));
 
         if (!empty($this->pushRequest->getServiceAntifraudAction())) {
-            $description .= $this->pushRequest->getServiceAntifraudAction() .
+            $description .= ' ' . $this->pushRequest->getServiceAntifraudAction() .
                 ' ' . $this->pushRequest->getServiceAntifraudCheck() .
                 ' ' . $this->pushRequest->getServiceAntifraudDetails();
         }

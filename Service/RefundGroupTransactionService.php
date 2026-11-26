@@ -258,7 +258,7 @@ class RefundGroupTransactionService
                 ));
 
                 // Update amount left to refund ONLY on success
-                $this->amountLeftToRefund -= $refundAmount;
+                $this->amountLeftToRefund = round($this->amountLeftToRefund - $refundAmount, 2);
 
                 // Mark as refunded in payment info
                 $alreadyRefunded = (float)$payment->getAdditionalInformation('single_giftcard_refunded_amount');
@@ -422,7 +422,8 @@ class RefundGroupTransactionService
                 return;
             }
 
-            $this->amountLeftToRefund = $this->amountLeftToRefund - $giftCardValue;
+            // Round to cents: a float difference such as 10.01 - 10.00 is just under 0.01
+            $this->amountLeftToRefund = round($this->amountLeftToRefund - $giftCardValue, 2);
 
             $request = $this->requestDataBuilder->build($buildSubject);
             $request['payment_method'] = $transaction[1];
@@ -716,7 +717,7 @@ class RefundGroupTransactionService
             return $giftCardValue;
         }
 
-        $this->amountLeftToRefund -= $covered;
+        $this->amountLeftToRefund = round($this->amountLeftToRefund - $covered, 2);
         if ($groupTransaction && $groupTransaction->getEntityId()) {
             $groupTransaction->setRefundedAmount($groupTransaction->getRefundedAmount() + $covered);
             $this->groupTransactionResource->save($groupTransaction);
