@@ -1807,6 +1807,25 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             return [];
         }
 
+        $itemLines = $this->getCreditmemoItemRefundLines($creditmemo);
+        if ($itemLines === null) {
+            return [];
+        }
+
+        return array_merge($itemLines, $this->getCreditmemoChargeRefundLines($creditmemo, $order));
+    }
+
+    /**
+     * Product lines a credit memo refunds, at the unit price the reserve sent.
+     *
+     * Returns null when a refunded line cannot be nominated, such as a fractional quantity.
+     *
+     * @param Creditmemo $creditmemo
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>|null
+     */
+    private function getCreditmemoItemRefundLines(Creditmemo $creditmemo): ?array
+    {
         $lines = [];
 
         /** @var Creditmemo\Item $item */
@@ -1817,7 +1836,7 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
             }
 
             if (floor($qty) !== $qty) {
-                return [];
+                return null;
             }
 
             $orderItem = $item->getOrderItem();
@@ -1828,6 +1847,21 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
                 'price' => $this->getDiscountedProductPrice($orderItem, $this->getReservedUnitDiscount($orderItem)),
             ];
         }
+
+        return $lines;
+    }
+
+    /**
+     * Reserved shipping and Buckaroo fee lines, when the credit memo refunds any of them.
+     *
+     * @param Creditmemo $creditmemo
+     * @param Order      $order
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>
+     */
+    private function getCreditmemoChargeRefundLines(Creditmemo $creditmemo, Order $order): array
+    {
+        $lines = [];
 
         if ((float)$creditmemo->getShippingAmount() > 0) {
             $lines = array_merge($lines, $this->toRefundLines($this->getShippingCostsLine($order)));
