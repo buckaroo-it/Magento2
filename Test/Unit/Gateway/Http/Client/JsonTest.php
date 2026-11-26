@@ -297,23 +297,24 @@ if (!\function_exists(__NAMESPACE__ . '\time')) {
     }
 }
 
-if (!\function_exists(__NAMESPACE__ . '\array_rand')) {
+if (!\function_exists(__NAMESPACE__ . '\random_int')) {
     /**
-     * Randomness seam for the Json client nonce: picks the next character of the fixed nonce.
+     * Randomness seam for the Json client nonce: returns the position of the next character of the
+     * fixed nonce in the nonce alphabet.
      *
-     * @param array $array
-     * @param int   $num
+     * @param int $min
+     * @param int $max
      *
-     * @return int|string|array
+     * @return int
      */
-    function array_rand(array $array, int $num = 1)
+    function random_int(int $min, int $max): int
     {
         if (JsonTest::$fixedNonce === null || JsonTest::$fixedNonce === '') {
-            return \array_rand($array, $num);
+            return \random_int($min, $max);
         }
         $char = JsonTest::$fixedNonce[0];
         JsonTest::$fixedNonce = substr(JsonTest::$fixedNonce, 1);
 
-        return array_search($char, $array, true);
+        return strpos('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', $char);
     }
 }
