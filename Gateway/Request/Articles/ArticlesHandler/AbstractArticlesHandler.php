@@ -1782,6 +1782,123 @@ abstract class AbstractArticlesHandler implements ArticleHandlerInterface
     }
 
     /**
+     * Reserved lines a credit memo refunds, for a refund that nominates lines.
+     *
+     * Each line carries the article number the reserve sent, the refunded quantity and the price
+     * the reserve sent for one unit, so the caller can check that the lines add up to the amount
+     * refunded. Product lines come from the credit memo items, shipping and the Buckaroo fee are
+     * nominated as their reserved line when the credit memo refunds any of them.
+     *
+     * Returns no lines when a refunded line cannot be nominated, such as a fractional quantity,
+     * or when the order was partly paid by another method.
+     *
+     * @param Order         $order
+     * @param InfoInterface $payment
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>
+     */
+    public function getCreditmemoRefundLines(Order $order, InfoInterface $payment): array
+    {
+        $this->setPayment($payment);
+        $this->setOrder($order);
+
+        $creditmemo = $payment instanceof Order\Payment ? $payment->getCreditmemo() : null;
+        if ($creditmemo === null || $this->payReminderService->isPayRemainder($order)) {
+            return [];
+        }
+
+        $itemLines = $this->getCreditmemoItemRefundLines($creditmemo);
+        if ($itemLines === null) {
+            return [];
+        }
+
+        return array_merge($itemLines, $this->getCreditmemoChargeRefundLines($creditmemo, $order));
+    }
+
+    /**
+     * Product lines a credit memo refunds, at the unit price the reserve sent.
+     *
+     * Returns null when a refunded line cannot be nominated, such as a fractional quantity.
+     *
+     * @param Creditmemo $creditmemo
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>|null
+     */
+    private function getCreditmemoItemRefundLines(Creditmemo $creditmemo): ?array
+    {
+        $lines = [];
+
+        /** @var Creditmemo\Item $item */
+        foreach ($creditmemo->getAllItems() as $item) {
+            $qty = (float)$item->getQty();
+            if ($qty <= 0 || $this->skipItem($item)) {
+                continue;
+            }
+
+            if (fmod($qty, 1.0) !== 0.0) {
+                return null;
+            }
+
+            $orderItem = $item->getOrderItem();
+
+            $lines[] = [
+                'identifier' => (string)$this->getIdentifier($item),
+                'quantity' => (int)$qty,
+                'price' => $this->getDiscountedProductPrice($orderItem, $this->getReservedUnitDiscount($orderItem)),
+            ];
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Reserved shipping and Buckaroo fee lines, when the credit memo refunds any of them.
+     *
+     * @param Creditmemo $creditmemo
+     * @param Order      $order
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>
+     */
+    private function getCreditmemoChargeRefundLines(Creditmemo $creditmemo, Order $order): array
+    {
+        $lines = $creditmemo->getShippingAmount() > 0
+            ? $this->toRefundLines($this->getShippingCostsLine($order))
+            : [];
+
+        if ($creditmemo->getBuckarooFee() > 0 || $creditmemo->getBuckarooFeeInclTax() > 0) {
+            $lines = array_merge($lines, $this->toRefundLines($this->getServiceCostLine($order)));
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Reduce reserved article lines to a single unit of each, for a refund that nominates them.
+     *
+     * @param array $articles
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>
+     */
+    private function toRefundLines(array $articles): array
+    {
+        $lines = [];
+
+        foreach (($articles['articles'] ?? []) as $article) {
+            if (!is_array($article) || !isset($article['identifier'])) {
+                continue;
+            }
+
+            $lines[] = [
+                'identifier' => (string)$article['identifier'],
+                'quantity' => 1,
+                'price' => round((float)($article['price'] ?? 0), 2),
+            ];
+        }
+
+        return $lines;
+    }
+
+    /**
      * Get pay remainder article for credit memo
      *
      * @return array

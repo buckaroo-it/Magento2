@@ -51,4 +51,14 @@ interface ArticleHandlerInterface
      * @return array
      */
     public function getCreditMemoArticlesData(Order $order, InfoInterface $payment): array;
+
+    /**
+     * Get the reserved lines a credit memo refunds, by article number, quantity and reserved unit price
+     *
+     * @param Order         $order
+     * @param InfoInterface $payment
+     *
+     * @return array<int, array{identifier: string, quantity: int, price: float}>
+     */
+    public function getCreditmemoRefundLines(Order $order, InfoInterface $payment): array;
 }
